@@ -1,0 +1,16 @@
+{
+  "name": "mvp-reto-vivienda",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Scaffold mínimo para poder testear lib/scoring/ (Track B) por terminal antes de que exista el scaffold de Next.js del Track A. Se reconcilia con el scaffold real en la integración del sábado.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}
