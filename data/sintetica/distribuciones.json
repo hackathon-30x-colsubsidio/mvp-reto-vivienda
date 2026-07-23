@@ -1,0 +1,72 @@
+{
+  "nota": "Agregados de los 4.142 compradores históricos reales. Sirven como evidencia de respaldo para el factor 'similitud con compradores reales' (spec §4) — NUNCA como criterio de corte.",
+  "n_compradores_historico_total": 4142,
+  "pct_no_afiliado_global": 27.1,
+  "por_categoria_inferida": {
+    "Categoría A (menores ingresos, <2 SMLV) [inferido]": 2494,
+    "No afiliado / sin categoría": 1122,
+    "Categoría B (ingresos medios, 2-4 SMLV) [inferido]": 401,
+    "Categoría C (mayores ingresos, >4 SMLV) [inferido]": 125
+  },
+  "por_segmento_inferido": {
+    "Familias con personas a cargo [inferido]": 1440,
+    "No afiliado / sin segmentar": 1122,
+    "Adultos maduros / familias consolidadas [inferido]": 871,
+    "Jóvenes solteros, sin personas a cargo [inferido]": 708,
+    "Registro atípico [inferido]": 1
+  },
+  "por_rango_edad": {
+    "20 a 35 años": 1140,
+    "NaN": 1122,
+    "20 - 35 años": 541,
+    "36 a 45 años": 532,
+    "46 a 55 años": 251,
+    "36 - 45 años": 226,
+    "Mayor de 55 años": 202,
+    "46 - 55 años": 98,
+    "Menor de 19 años": 30
+  },
+  "por_medio_captacion": {
+    "Banderas y/o señalización": 1797,
+    "Sin Informacion": 550,
+    "Activación": 369,
+    "Referido Alcaldía": 285,
+    "Ferias empresariales": 282,
+    "Referido": 192,
+    "Valla ": 158,
+    "Whatsapp": 125,
+    "Redes Sociales": 124,
+    "Página web ": 91,
+    "Contact Center": 47,
+    "NaN": 15,
+    "Campaña FNA": 15,
+    "CS Tocancipá": 15,
+    "Valla proyecto sala de ventas": 14,
+    "CS Unicentro de Occidente": 13,
+    "Banderas ": 9,
+    "Google": 5,
+    "Volantes": 4,
+    "Mensaje de texto": 4,
+    "Visita empresarial": 3,
+    "CS Soacha": 3,
+    "Pantallas empresariales": 3,
+    "Revista Estrenar Vivienda": 3,
+    "Tus beneficios": 2,
+    "Fincaraíz": 2,
+    "CS Calle 26": 2,
+    "CS Girardot": 2,
+    "Radio ": 1,
+    "Guía de Vivienda": 1,
+    "Perifoneo": 1,
+    "CS Calle 63": 1,
+    "CS Cajicá": 1,
+    "CS Funza": 1,
+    "Mi Casa de Feria Vecindario": 1,
+    "Guía de Servicios": 1
+  },
+  "precio_real_percentiles": {
+    "p25": 171500000,
+    "p50_mediana": 195265050,
+    "p75": 236100000
+  }
+}
