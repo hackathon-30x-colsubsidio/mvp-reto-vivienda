@@ -1,10 +1,12 @@
 {
   "_nota": "Catálogo de franjas simuladas de sala de ventas (ticket 005). NO es data real de Colsubsidio: son horarios inventados. Vive como JSON y no en Supabase porque no muta (regla del ADR 0002: a la DB solo va lo que muta). Solo la franja ELEGIDA se persiste en la tabla citas. Fuera de alcance por el ticket 005: disponibilidad real, conflictos y cancelación — un slot elegido no se bloquea para otros.",
-  "_duenos": "A ofrece estas franjas al final de la conversación del lead listo; D persiste la elegida y la muestra en la ficha.",
+  "_duenos": "A ofrece estas franjas al final de la conversación del lead listo; D persiste la elegida (POST /api/citas) y la muestra en la ficha.",
+  "_ids": "Los proyecto_id son los MISMOS de lib/fixtures/proyectos-recomendados.ts (ticket 001). Si cambian allá, cambian aquí: un id que no cuadre deja al chat sin franjas que ofrecer.",
+  "_citas_sembradas": "Las franjas que ya usan los personajes en lib/fixtures/leads-curados.ts están en esta lista a propósito: 2026-07-25T10:00 en Sala Bogotá Centro (Diana) y 2026-07-25T16:00 en Sala Medellín Poblado (Carlos).",
   "salas": [
     {
       "sala_ventas": "Sala Bogotá Centro",
-      "proyecto_id": "torres-bellavista",
+      "proyecto_id": "p-07",
       "proyecto": "Torres de Bellavista",
       "franjas": [
         "2026-07-25T10:00:00-05:00",
@@ -13,8 +15,18 @@
       ]
     },
     {
+      "sala_ventas": "Sala Bogotá Norte",
+      "proyecto_id": "p-12",
+      "proyecto": "Reserva de los Cerros",
+      "franjas": [
+        "2026-07-25T09:00:00-05:00",
+        "2026-07-25T15:00:00-05:00",
+        "2026-07-26T11:00:00-05:00"
+      ]
+    },
+    {
       "sala_ventas": "Sala Medellín Poblado",
-      "proyecto_id": "reserva-poblado",
+      "proyecto_id": "p-03",
       "proyecto": "Reserva del Poblado",
       "franjas": [
         "2026-07-25T11:00:00-05:00",
@@ -23,13 +35,13 @@
       ]
     },
     {
-      "sala_ventas": "Sala Barranquilla Norte",
-      "proyecto_id": "alameda-rio",
-      "proyecto": "Alameda del Río",
+      "sala_ventas": "Sala Medellín Las Palmas",
+      "proyecto_id": "p-09",
+      "proyecto": "Alto de las Palmas",
       "franjas": [
-        "2026-07-25T09:00:00-05:00",
-        "2026-07-25T15:00:00-05:00",
-        "2026-07-26T11:00:00-05:00"
+        "2026-07-25T10:30:00-05:00",
+        "2026-07-25T17:00:00-05:00",
+        "2026-07-26T14:00:00-05:00"
       ]
     }
   ]

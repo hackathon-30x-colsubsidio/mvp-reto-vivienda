@@ -67,14 +67,10 @@ export async function GET(request: Request) {
  * Upsert por `lead_id`: un lead, una cita. Reagendar pisa la fila.
  */
 export async function POST(request: Request) {
-  const supabase = getSupabase();
-  if (!supabase) {
-    return NextResponse.json(
-      { error: "Supabase no está configurado (falta .env)" },
-      { status: 503 },
-    );
-  }
-
+  // Lo que NO necesita DB se valida primero: así el Track A puede
+  // probar el contrato del agendador sin tener credenciales de
+  // Supabase, y un body malo devuelve 400/422 en vez de un 503 que
+  // esconde el verdadero problema.
   let cuerpo: { lead_id?: string; fecha?: string; sala_ventas?: string };
   try {
     cuerpo = await request.json();
@@ -100,6 +96,14 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Esa franja no está en data/sintetica/slots.json" },
       { status: 422 },
+    );
+  }
+
+  const supabase = getSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { error: "Supabase no está configurado (falta .env)" },
+      { status: 503 },
     );
   }
 
