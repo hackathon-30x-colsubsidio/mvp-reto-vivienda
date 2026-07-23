@@ -1,15 +1,33 @@
+"use client";
+
+import { useState } from "react";
+import type { Lead, LeadEvento, PerfilConocido } from "@/lib/types";
+import { LandingJurado } from "@/components/landing/LandingJurado";
+import { ChatWhatsApp } from "@/components/chat/ChatWhatsApp";
+
+type Conversacion = { evento: LeadEvento; perfil: PerfilConocido };
+
 export default function Home() {
+  const [conversacion, setConversacion] = useState<Conversacion | null>(null);
+
+  if (!conversacion) {
+    return (
+      <LandingJurado
+        onIniciar={(evento, perfil) => setConversacion({ evento, perfil })}
+      />
+    );
+  }
+
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-col items-center gap-4 px-8 text-center">
-        <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
-          Vivienda — Colsubsidio
-        </h1>
-        <p className="max-w-md text-zinc-600 dark:text-zinc-400">
-          Scaffold del MVP. La landing del jurado y el chat llegan en el
-          siguiente commit.
-        </p>
-      </main>
-    </div>
+    <ChatWhatsApp
+      evento={conversacion.evento}
+      perfil={conversacion.perfil}
+      onVolver={() => setConversacion(null)}
+      onTerminar={(lead: Lead) => {
+        // TODO(track A→B): hoy solo se registra en consola; /api/chat +
+        // /api/score llegan cuando ese contrato esté listo (docs/reparto-inicial.md).
+        console.log("Lead terminado:", lead);
+      }}
+    />
   );
 }

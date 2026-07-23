@@ -97,9 +97,10 @@ export const nutricion: Score = {
   factores: [
     {
       nombre: "afiliacion",
-      valor: "no afiliado (autorreportado, sin match de enriquecimiento)",
+      valor:
+        "sin match en la base de identidades: se asume no afiliado (supuesto por validar, spec §7)",
       cumple: false,
-      fuente: "conversacion",
+      fuente: "enriquecimiento",
     },
     {
       nombre: "cuota_ingreso_40",
