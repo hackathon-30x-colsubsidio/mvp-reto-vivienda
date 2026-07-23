@@ -61,7 +61,7 @@ def normaliza_texto(s: str) -> str:
 # Necesario porque el Excel de compradores no usa el mismo nombre oficial de proyecto.
 ALIAS_PROYECTO = {
     "AGRUPACION DE VIVIENDA BOSQUE DE ARRAYAN": "BOSQUE DE ARRAYAN",
-    "AGRUPACION DE VIVIENDA RESERVA DE GUAYACAN": "RESERVA DE AGUAYACA",  # sic, ver nota abajo
+    "AGRUPACION DE VIVIENDA RESERVA DE GUAYACAN": "RESERVA DE AGUAYACAN",  # el Excel de compradores dice "Guayacan", el catálogo oficial "Aguayacán"
     "AGRUPACION DE VIVIENDA LA MACARENA": "LA MACARENA",
     "AGRUPACION DE VIVIENDA MONGUI": "MONGUI",
     "AGRUPACION DE VIVIENDA PAMPLONA I": "PAMPLONA",
