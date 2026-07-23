@@ -29,7 +29,8 @@ export default async function FichaLeadPage({ params }: Props) {
   if (!lead) notFound();
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    // bg-white + text-gray-900 explícitos: ver la nota en app/asesor/page.tsx.
+    <main className="mx-auto min-h-screen max-w-4xl bg-white px-6 py-10 text-gray-900">
       <AvisoOrigen origen={origen} />
       <FichaLead item={lead} />
     </main>

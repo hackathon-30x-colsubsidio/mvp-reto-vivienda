@@ -34,7 +34,12 @@ export default async function ColaAsesorPage() {
   }));
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    // bg-white + text-gray-900 explícitos, y no heredados: globals.css
+    // vuelve el body casi negro con `prefers-color-scheme: dark`, y como
+    // toda esta vista usa colores claros (text-gray-900, bg-gray-50), un
+    // jurado con el sistema en oscuro vería la cola ilegible. El demo
+    // tiene que verse igual en cualquier máquina.
+    <main className="mx-auto min-h-screen max-w-4xl bg-white px-6 py-10 text-gray-900">
       <header className="mb-8">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">
           Cola de leads
