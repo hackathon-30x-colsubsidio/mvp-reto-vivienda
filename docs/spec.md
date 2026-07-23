@@ -132,8 +132,8 @@ Los 4 que el brief lista como capacidad de compra ([brief:20](reto/perfilamiento
 - [ ] **Convergencia multi-canal a WhatsApp.** ¿El reto espera tratamiento por canal o basta una conversación única? Preguntar a mentores.
 - [ ] **Cruces Ministerio de Vivienda / buró.** ¿Demostrados o basta simularlos? Ya estaba en [`URGENTE-Y-NOTICIAS.md`](URGENTE-Y-NOTICIAS.md).
 - [ ] **Esquema de la DB central.** Los campos que este spec implica están claros; el esquema formal se cierra en `/plan` y va como ADR.
-- [ ] **Stack.** Sin decidir. Va como ADR y desbloquea los 3 feedback loops en `TODO` de [`AGENTS.md`](../AGENTS.md).
-- [ ] **Performance del conversador.** [`AGENTS.md`](../AGENTS.md) lo tiene en `TODO` (propuesta: respuesta < 2s). Cerrar con el stack.
+- [x] **Stack.** ~~Sin decidir.~~ **Decidido 2026-07-23:** Next.js + Vercel + Supabase + API de Claude — ver [ADR 0002](adr/0002-stack-mvp.md). Feedback loops de [`AGENTS.md`](../AGENTS.md) ya llenados.
+- [x] **Performance del conversador.** **Cerrado con el stack:** streaming obligatorio en toda llamada a Claude, primer token < 2s ([ADR 0002](adr/0002-stack-mvp.md)).
 
 ---
 

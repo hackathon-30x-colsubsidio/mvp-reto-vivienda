@@ -38,11 +38,9 @@ Reglas duras que gobiernan todo el proyecto y que ningún linter puede chequear.
 - **La data real de Colsubsidio nunca entra al repo público.** Los insumos (`docs/recursos-reto/`) son locales y están en `.gitignore`. Lo que se versiona es data **sintética/derivada** (`data/sintetica/`). _Señal para replantear:_ ninguna — esta no se negocia.
 - **Deadline duro: domingo 26 jul 2026, 11:30 a.m. hora Colombia.** Nada posterior se evalúa. _Consecuencia:_ "feo pero funciona" > "bonito pero falso"; se congela toda feature que no se vea en el demo.
 
-Pendientes de definir por el equipo (no inventar):
-
-- **Performance:** `{TODO — p.ej. la respuesta del perfilador < 2s}`
-- **Escala:** `{TODO}`
-- **Arquitectura:** `{TODO — se decide con el stack en el kickoff; va como ADR}`
+- **Performance:** toda llamada a Claude va en **streaming**, con primer token del conversador < 2s. El streaming no es opcional: evita el límite de tiempo de funciones en Vercel free y hace el chat creíble en el video.
+- **Escala:** la del demo — jurado + equipo, decenas de sesiones concurrentes máximo. No optimizar para más.
+- **Arquitectura:** **Next.js (monolito) + Vercel + Supabase + API de Claude**, registrada en [ADR 0002](docs/adr/0002-stack-mvp.md). Reglas duras derivadas: el scoring es TS puro sin LLM (la IA solo vive en conversador y explicación); Python solo offline en `scripts/`; la API key solo server-side; `main` siempre desplegable (es el link del demo). No re-litigar sin razón nueva.
 
 ## Contratos
 
@@ -51,16 +49,18 @@ Estándares transversales que todo output debe cumplir. El *estándar* es sustra
 | Contract | Standard / where it lives | How it's enforced |
 |---|---|---|
 | Datos / privacidad | Data real solo local en `docs/recursos-reto/`; sintética en `data/sintetica/` | `.gitignore` (verificado con `git add --dry-run`) |
+| Secretos | API keys solo en `.env` local + env vars de Vercel; el repo es **público**. `.env.example` sin valores | `.gitignore` (`.env*`) + revisión antes de cada push |
+| Contratos entre tracks | Los tipos `Lead`, `Score`, `LeadCurado` viven en `lib/types.ts`; cada track construye contra fixtures de esos tipos, no contra el código de los demás ([ADR 0002](docs/adr/0002-stack-mvp.md)) | Typecheck — cambiar un tipo rompe el build de quien lo consume |
 
 <!-- candidatos: UI → impeccable · code-quality → ponytail · seguridad → agente validador -->
 
 ## Feedback loops
 
-El agente debe correr esto para saber rápido si el código sirve. **Stack sin decidir** (se define en el kickoff al repartir roles): llenar estas tres líneas es lo primero que hace quien lo elija.
+El agente debe correr esto para saber rápido si el código sirve. Stack decidido ([ADR 0002](docs/adr/0002-stack-mvp.md)); estos comandos aplican apenas exista el scaffold de Next.js — quien lo cree verifica que los tres corran y ajusta aquí si difieren.
 
-- **Test:** `{TODO}`
-- **Typecheck / lint:** `{TODO}`
-- **Run:** `{TODO}`
+- **Test:** `npm test` (vitest; prioridad: `lib/scoring/` — el motor de reglas se testea sin red)
+- **Typecheck / lint:** `npx tsc --noEmit && npm run lint`
+- **Run:** `npm run dev` (requiere `.env` local con `ANTHROPIC_API_KEY` y credenciales de Supabase — ver `.env.example`)
 
 ## Datos del reto (crítico)
 

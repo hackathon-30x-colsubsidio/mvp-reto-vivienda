@@ -5,6 +5,16 @@
 ## ✅ Decisión tomada: vamos por VIVIENDA
 El reto está **cerrado: Vivienda** (perfilamiento inteligente de leads). Registrado en `docs/adr/0001-eleccion-reto-vivienda.md`. **No se re-litiga.** El porqué corto: mejor balance de los 4 criterios, datos reales usables (Excel 4.142 compradores + buyer personas + brochure), demo autocontenido por WhatsApp, ROI clarísimo (CPL + horas comerciales) y gancho regulatorio 90/10.
 
+## ✅ 2026-07-23 — Stack decidido: Next.js + Vercel + Supabase + Claude
+Registrado en `docs/adr/0002-stack-mvp.md`. Lo que cada quien necesita saber **antes de escribir código**:
+- **Un solo monolito Next.js (TypeScript, App Router)** deployado en Vercel — frontend y API routes juntos, auto-deploy al pushear a `main`. `main` siempre desplegable: es el link del demo.
+- **Los datos estáticos NO van a base de datos**: son JSON en `data/sintetica/`, generados por un script Python que corre **solo offline** en `scripts/`. Python nunca en producción.
+- **Supabase** solo para lo que muta: leads, conversaciones, citas (2-3 tablas).
+- **La IA solo vive en 2 endpoints** (`/api/chat` y `/api/explicacion`), con `claude-opus-4-8` y **streaming obligatorio**. El scoring es TypeScript puro sin LLM — es la regla "cero caja negra".
+- **El repo es público**: API keys solo en `.env` local (gitignored) y env vars de Vercel. Jamás en un commit.
+- **Contratos entre tracks** (`Lead`, `Score`, `LeadCurado`) en `lib/types.ts` — cada quien construye contra fixtures, nadie espera al de al lado.
+Feedback loops (`npm test` / `tsc --noEmit` / `npm run dev`) ya definidos en `AGENTS.md`. Siguiente paso: scaffold de Next.js + conectar Vercel y Supabase.
+
 ## Qué hacer ya
 1. **Todo el equipo entra al repo** (organización + `plan-research`) — sin esto no hay punto de partida común.
 2. **Todo el equipo lee el material de Vivienda:** el brief (`docs/reto/perfilamiento-leads-03.md`), el doc de datos (`docs/reto/como-usar-recursos.md`) y, sobre todo, los **datos reales ya entregados** en `docs/recursos-reto/` — ver el hallazgo de abajo, es la munición del pitch.
