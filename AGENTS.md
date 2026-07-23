@@ -13,7 +13,8 @@ Un workflow que hace que los leads pagos se parezcan a los orgánicos: el lead e
 Este repo está preparado para ingeniería agéntica. Leer antes de trabajar:
 
 - **Spec** ([`docs/spec.md`](docs/spec.md)) — qué hace y qué NO hace el MVP, en 7 bloques (lo construye `/spec`). El contrato de producto; leerlo antes de planear o construir. Lo incierto vive en su bloque de *supuestos por validar*, nunca inventado como hecho. Escrito el 2026-07-23; la frase de apuesta y varios supuestos se ratifican en el kickoff.
-- **Plan + tickets** (`docs/plan.md`, `docs/tasks/`) — el build ordenado derivado del spec (lo construye `/plan`). Cada ticket cabe en una ventana de contexto limpia y cita el criterio de aceptación que sirve. Nunca saltar del spec directo al código. **Aún no existen.**
+- **Plan + tickets** ([`docs/plan.md`](docs/plan.md), [`docs/tasks/`](docs/tasks/README.md)) — el build ordenado derivado del spec (lo construye `/plan`). La app en un diagrama, el modelo de datos, **las costuras entre tracks** (lo que el reparto no le asignó a nadie) y la secuencia hasta el freeze. Cada ticket cabe en una ventana de contexto limpia y cita el criterio de aceptación que sirve. Nunca saltar del spec directo al código. Escrito el 2026-07-23; §6 y §8 se ratifican en el kickoff.
+- **Reparto por tracks** ([`docs/reparto-inicial.md`](docs/reparto-inicial.md) + [`docs/prompts/`](docs/prompts/README.md)) — qué construye cada una de las 4 personas y los contratos de `lib/types.ts`. El reparto cubre las **cajas** del workflow; el plan cubre las **flechas** entre ellas. Se leen juntos.
 - **Handoff** ([`docs/agents/handoff.md`](docs/agents/handoff.md)) — memoria de sesión + roadmap. Leer al inicio de cada sesión, actualizar al final. Así el siguiente agente (o tu yo futuro) no arranca de cero.
 - **Context** ([`docs/agents/context.md`](docs/agents/context.md)) — glosario del dominio (afiliado, 90/10, CPL, nutrición…). Leerlo antes de nombrar variables, funciones o archivos. Afinar con `/grill-with-docs`.
 - **ADRs** ([`docs/adr/`](docs/adr/)) — decisiones y su porqué. La elección del reto es el [ADR 0001](docs/adr/0001-eleccion-reto-vivienda.md); no se re-litiga.
@@ -23,7 +24,7 @@ Propios de este repo, leer también:
 - **[`docs/mvp-layout.md`](docs/mvp-layout.md)** — el layout macro de la solución: 8 decisiones cerradas, las abiertas, el workflow en mermaid (strawman a curar) y el mapeo del demo de 2 min.
 - **[`docs/reto/`](docs/reto/)** — el brief oficial de Colsubsidio y el doc de los insumos. La fuente de verdad de qué se pide.
 
-**Este repo es el canon de los docs vivos.** [`docs/agents/handoff.md`](docs/agents/handoff.md) (memoria del build) y [`docs/URGENTE-Y-NOTICIAS.md`](docs/URGENTE-Y-NOTICIAS.md) (lo que cambia el rumbo del equipo) se mantienen **aquí**, no en `plan-research`: ese repo queda como archivo histórico de investigación y datos crudos. Ambos docs deben estar siempre al día. `docs/plan-hackathon.md` es la semilla del brainstorm inicial (día a día del evento).
+**Este repo es el canon de los docs vivos.** [`docs/agents/handoff.md`](docs/agents/handoff.md) (memoria del build) y [`docs/URGENTE-Y-NOTICIAS.md`](docs/URGENTE-Y-NOTICIAS.md) (lo que cambia el rumbo del equipo) se mantienen **aquí**, no en `plan-research`: ese repo queda como archivo histórico de investigación y datos crudos. Ambos docs deben estar siempre al día. `docs/agenda-evento.md` es la semilla del brainstorm inicial (día a día del evento).
 
 Skills disponibles (el pipeline es **spec → plan → build**): `/spec`, `/plan`, `/grill-me`, `/grill-with-docs`, `/tdd`, `/diagnose`, `/improve-codebase`, `/handoff`.
 

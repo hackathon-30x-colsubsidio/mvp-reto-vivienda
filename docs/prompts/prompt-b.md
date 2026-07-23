@@ -10,6 +10,21 @@ ANTES DE ESCRIBIR CÓDIGO, lee en este orden:
    3 salidas del corte, y §6 datos)
 3. docs/adr/0002-stack-mvp.md (el stack: mi motor va en TS puro, mi limpieza en Python offline)
 4. docs/reparto-inicial.md (mi track es el B; ahí están mis tareas y los contratos de lib/types.ts)
+5. docs/plan.md — el plan del build. §3 "las costuras" tiene trabajo mío que NO está en el
+   reparto. Los tickets están en docs/tasks/ (índice en docs/tasks/README.md).
+
+MIS TICKETS (además de lo del reparto):
+- 003 enriquecimiento real: lib/enriquecimiento.ts, cédula → PerfilConocido contra
+  identidades.json. Hoy A lo consume por fixture y nadie lo había escrito; sin esto el
+  criterio de aceptación 1 no se puede verificar.
+- 004 la regla del 40% como función compartida: lib/scoring/capacidad.ts exporta
+  cuotaEstimada(precio, ingreso) y precioMaximo(ingreso). C la IMPORTA en vez de
+  reimplementarla — si hay dos versiones del Decreto 583 en el repo, se van a desviar.
+- 012 test del criterio 2 (con D) · 013 test del criterio 3.
+- Las cédulas de identidades.json son las del ticket 001 (lib/fixtures/personajes.ts), no
+  inventes personajes propios.
+- Ojo con la rama: la convención del reparto es feature/scoring. Si estás trabajando en
+  Track-B, consolida antes del primer merge para que no queden dos ramas del mismo track.
 
 CONTEXTO CLAVE DE MIS DATOS:
 - La data real está en docs/recursos-reto/ (hackathon_VIVIENDAv2.xlsx con 4.142 compradores,

@@ -8,6 +8,21 @@ ANTES DE ESCRIBIR CÓDIGO, lee en este orden:
    catálogo de proyectos)
 3. docs/adr/0002-stack-mvp.md (el stack: mis endpoints con Claude en streaming)
 4. docs/reparto-inicial.md (mi track es el C; ahí están mis tareas y los contratos de lib/types.ts)
+5. docs/plan.md — el plan del build. §3 "las costuras" y §8 (dos cambios a los contratos que me
+   afectan directamente). Los tickets están en docs/tasks/ (índice en docs/tasks/README.md).
+
+LO QUE ME TOCA DE LOS TICKETS:
+- 004 (dueño B): NO reimplemento el tope del 40%. Importo cuotaEstimada/precioMaximo de
+  lib/scoring/capacidad.ts. Dos versiones de la misma norma en el repo se desvían.
+- 002 (dueño A): Score gana precio_maximo: number y /api/match recibe { lead, score }, no solo
+  Score — necesito la zona de interés y el ingreso, que viven en Lead. Se ratifica en el
+  kickoff; hasta entonces construyo contra la fixture con esa forma.
+- Mis explicaciones de referencia (docs/explicaciones-referencia.md) se escriben sobre los
+  números del ticket 001 (lib/fixtures/personajes.ts), no sobre personajes inventados por mí.
+  Además son el fallback del ticket 010: si el experto no responde en vivo, la ficha muestra
+  la explicación de referencia de ese personaje.
+- Ojo con la rama: la convención del reparto es feature/matching. Si estás trabajando en
+  mani-TrackC, consolida antes del primer merge.
 
 MI PAPEL EN UNA FRASE: dado un Score que el motor de B ya calculó, recomiendo 2-3 proyectos
 del catálogo con su porqué en lenguaje natural, y redacto la explicación global que ve el
