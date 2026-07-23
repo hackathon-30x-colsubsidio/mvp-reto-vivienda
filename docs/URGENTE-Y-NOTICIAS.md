@@ -16,10 +16,9 @@ Registrado en `docs/adr/0002-stack-mvp.md`. Lo que cada quien necesita saber **a
 Feedback loops (`npm test` / `tsc --noEmit` / `npm run dev`) ya definidos en `AGENTS.md`. Siguiente paso: scaffold de Next.js + conectar Vercel y Supabase.
 
 ## Qué hacer ya
-1. **Todo el equipo entra al repo** (organización + `plan-research`) — sin esto no hay punto de partida común.
-2. **Todo el equipo lee el material de Vivienda:** el brief (`docs/reto/perfilamiento-leads-03.md`), el doc de datos (`docs/reto/como-usar-recursos.md`) y, sobre todo, los **datos reales ya entregados** en `docs/recursos-reto/` — ver el hallazgo de abajo, es la munición del pitch.
-3. **Kickoff real** para arrancar el Día 1 del `docs/plan-hackathon.md`: cerrar la **frase de apuesta** y el `spec.md`. Ya no se decide reto — se define el MVP.
-4. Después de eso, seguir `docs/plan-hackathon.md` día a día.
+1. **Cada quien toma su track y arranca HOY** — el reparto en 4 con tareas concretas, contratos y fixtures está en **`docs/reparto-inicial.md`**. Nadie espera a nadie: A hace el scaffold (~1h) mientras B limpia el Excel, C redacta explicaciones de referencia y D monta Supabase.
+2. **Todo el equipo lee antes de codear:** `docs/spec.md` (el contrato de producto), `docs/adr/0002-stack-mvp.md` (las reglas del stack) y `docs/reparto-inicial.md` (tu track).
+3. **Kickoff** (puede ser corto ya): ratificar frase de apuesta, contratos de `lib/types.ts`, umbrales del corte y esquema de la DB (ADR 0003). El trabajo de los tracks no se bloquea esperándolo.
 
 ## 2026-07-23 — Scope macro del MVP definido: leer `docs/mvp-layout.md`
 Grill de scope hecho (Mani + Claude). **8 decisiones cerradas** (demo = viaje completo con clímax en la vista del asesor, WhatsApp simulado + disclaimer, nutrición demostrada con triggers condicionales, scoring de reglas transparentes + similitud con compradores reales + LLM explica, conversación adaptativa, bot agenda visita a sala de ventas, el no-afiliado sigue el flujo hacia una DB central, workflow orquestado con IA en puntos específicos) y las **abiertas marcadas para el kickoff**: frase de apuesta, curar el mermaid (es strawman), esquema de la DB de leads, vista del asesor, entrada del demo, métricas de performance del scoring. El kickoff ya no arranca de cero: arranca de `docs/mvp-layout.md`.
