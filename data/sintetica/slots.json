@@ -1,0 +1,36 @@
+{
+  "_nota": "Catálogo de franjas simuladas de sala de ventas (ticket 005). NO es data real de Colsubsidio: son horarios inventados. Vive como JSON y no en Supabase porque no muta (regla del ADR 0002: a la DB solo va lo que muta). Solo la franja ELEGIDA se persiste en la tabla citas. Fuera de alcance por el ticket 005: disponibilidad real, conflictos y cancelación — un slot elegido no se bloquea para otros.",
+  "_duenos": "A ofrece estas franjas al final de la conversación del lead listo; D persiste la elegida y la muestra en la ficha.",
+  "salas": [
+    {
+      "sala_ventas": "Sala Bogotá Centro",
+      "proyecto_id": "torres-bellavista",
+      "proyecto": "Torres de Bellavista",
+      "franjas": [
+        "2026-07-25T10:00:00-05:00",
+        "2026-07-25T14:00:00-05:00",
+        "2026-07-26T10:00:00-05:00"
+      ]
+    },
+    {
+      "sala_ventas": "Sala Medellín Poblado",
+      "proyecto_id": "reserva-poblado",
+      "proyecto": "Reserva del Poblado",
+      "franjas": [
+        "2026-07-25T11:00:00-05:00",
+        "2026-07-25T16:00:00-05:00",
+        "2026-07-26T09:00:00-05:00"
+      ]
+    },
+    {
+      "sala_ventas": "Sala Barranquilla Norte",
+      "proyecto_id": "alameda-rio",
+      "proyecto": "Alameda del Río",
+      "franjas": [
+        "2026-07-25T09:00:00-05:00",
+        "2026-07-25T15:00:00-05:00",
+        "2026-07-26T11:00:00-05:00"
+      ]
+    }
+  ]
+}
