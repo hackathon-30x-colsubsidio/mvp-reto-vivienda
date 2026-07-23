@@ -2,7 +2,8 @@
 
 > Memoria de sesión + roadmap del **build**. Leer al inicio, actualizar al final.
 > El roadmap es un DAG: una tarea está **ready** solo cuando sus dependencias están done.
-> Repo hermano `plan-research` = el cerebro (investigación, datos crudos, tracking hackathon-level).
+> **Este repo es el canon de los docs vivos** (este handoff + `docs/URGENTE-Y-NOTICIAS.md`).
+> Repo hermano `plan-research` = archivo histórico de investigación y datos crudos.
 
 ## Memory
 

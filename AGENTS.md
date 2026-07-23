@@ -23,7 +23,7 @@ Propios de este repo, leer también:
 - **[`docs/mvp-layout.md`](docs/mvp-layout.md)** — el layout macro de la solución: 8 decisiones cerradas, las abiertas, el workflow en mermaid (strawman a curar) y el mapeo del demo de 2 min.
 - **[`docs/reto/`](docs/reto/)** — el brief oficial de Colsubsidio y el doc de los insumos. La fuente de verdad de qué se pide.
 
-`docs/URGENTE-Y-NOTICIAS.md` y `docs/plan-hackathon.md` son la semilla del brainstorm inicial. El tracking hackathon-level canónico vive en `plan-research`; en este repo el doc vivo es el **handoff**.
+**Este repo es el canon de los docs vivos.** [`docs/agents/handoff.md`](docs/agents/handoff.md) (memoria del build) y [`docs/URGENTE-Y-NOTICIAS.md`](docs/URGENTE-Y-NOTICIAS.md) (lo que cambia el rumbo del equipo) se mantienen **aquí**, no en `plan-research`: ese repo queda como archivo histórico de investigación y datos crudos. Ambos docs deben estar siempre al día. `docs/plan-hackathon.md` es la semilla del brainstorm inicial (día a día del evento).
 
 Skills disponibles (el pipeline es **spec → plan → build**): `/spec`, `/plan`, `/grill-me`, `/grill-with-docs`, `/tdd`, `/diagnose`, `/improve-codebase`, `/handoff`.
 

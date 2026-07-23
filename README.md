@@ -18,6 +18,7 @@ Cero caja negra: cada decisión es explicable, y el jurado recorre el demo solo.
 
 | Ruta | Qué es |
 |---|---|
+| [`AGENTS.md`](AGENTS.md) | **Empieza aquí.** El contrato de ingeniería agéntica: orden de lectura, restricciones no-negociables, contratos y feedback loops. Tool-neutral: lo lee cualquier herramienta de IA. `CLAUDE.md` es solo un puntero que lo importa. |
 | [`docs/mvp-layout.md`](docs/mvp-layout.md) | Layout macro de la solución: 8 decisiones cerradas + abiertas, workflow (mermaid), componentes, mapeo del demo. |
 | [`docs/reto/`](docs/reto/) | Brief oficial del reto + doc de cómo usar los insumos. |
 | [`docs/agents/handoff.md`](docs/agents/handoff.md) | Memoria viva + roadmap del build. |
