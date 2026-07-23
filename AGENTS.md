@@ -12,7 +12,7 @@ Un workflow que hace que los leads pagos se parezcan a los orgánicos: el lead e
 
 Este repo está preparado para ingeniería agéntica. Leer antes de trabajar:
 
-- **Spec** (`docs/spec.md`) — qué hace y qué NO hace el MVP, en 7 bloques (lo construye `/spec`). El contrato de producto; leerlo antes de planear o construir. Lo incierto vive en su bloque de *supuestos por validar*, nunca inventado como hecho. **Aún no existe:** su semilla es `docs/mvp-layout.md` y requiere el kickoff.
+- **Spec** ([`docs/spec.md`](docs/spec.md)) — qué hace y qué NO hace el MVP, en 7 bloques (lo construye `/spec`). El contrato de producto; leerlo antes de planear o construir. Lo incierto vive en su bloque de *supuestos por validar*, nunca inventado como hecho. Escrito el 2026-07-23; la frase de apuesta y varios supuestos se ratifican en el kickoff.
 - **Plan + tickets** (`docs/plan.md`, `docs/tasks/`) — el build ordenado derivado del spec (lo construye `/plan`). Cada ticket cabe en una ventana de contexto limpia y cita el criterio de aceptación que sirve. Nunca saltar del spec directo al código. **Aún no existen.**
 - **Handoff** ([`docs/agents/handoff.md`](docs/agents/handoff.md)) — memoria de sesión + roadmap. Leer al inicio de cada sesión, actualizar al final. Así el siguiente agente (o tu yo futuro) no arranca de cero.
 - **Context** ([`docs/agents/context.md`](docs/agents/context.md)) — glosario del dominio (afiliado, 90/10, CPL, nutrición…). Leerlo antes de nombrar variables, funciones o archivos. Afinar con `/grill-with-docs`.

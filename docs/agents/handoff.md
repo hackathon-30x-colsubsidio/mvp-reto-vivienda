@@ -9,6 +9,7 @@
 
 _Estado actual del trabajo. Lo nuevo arriba. Mantener corto; enlazar a ADRs/commits en vez de duplicar._
 
+- 2026-07-23 — **[`docs/spec.md`](../spec.md) escrito** (entrevista `/spec`, 7 bloques). Cierra las abiertas del layout: **3 salidas del corte** (listo / listo-con-restricción-de-cupo / nutrición, con el 90/10 como marca), **entrada del demo** = 3 personajes pre-sembrados + "soy yo", **vista del asesor** = cola + detalle (panel de impacto opcional si sobra tiempo), **ingesta simulada** con lead-evento de esquema estándar, **cédula** como llave del enriquecimiento, **consentimiento habeas data** registrado en el primer mensaje, **agendador** con slots simulados, **triggers de nutrición** = inversa de la regla que falló. **4 criterios de aceptación** (uno por tramo del demo). Hallazgo duro: el **40% cuota/ingreso es normativa vigente**, no heurística ([Decreto 583 de 2025](https://minvivienda.gov.co/normativa/decreto-0583-2025), que subió el techo desde el 30% del Decreto 145 de 2000) — se cita textual en la explicación al asesor. Catálogo confirmado: **18 proyectos** (unión de las 2 hojas de `Links brochures .xlsx`; 16 con brochure, 17 con 360), y `VIBO ONCE`/`KARAKALI` traen ubicación contradictoria entre hojas.
 - 2026-07-23 — **Contrato migrado a [`AGENTS.md`](../../AGENTS.md)** (re-corrida de `/scaffold` tras su refactor). `AGENTS.md` es ahora el contrato canónico **tool-neutral** — quien use Codex/Cursor/Gemini lee la misma fuente de verdad — y `CLAUDE.md` quedó como puntero delgado con `@AGENTS.md`. Nuevo ahí: la **constitución** de 4 restricciones no-negociables (cero caja negra · demo autogestionado · data de Colsubsidio nunca al repo público · deadline 26 jul 11:30 a.m.), la tabla de **Contratos** (fila datos/privacidad, enforced por `.gitignore`) y los 3 **feedback loops en `TODO`**. Añadido `.claude/settings.json` con permission floor (deny `rm -rf`, `push --force`, `reset --hard`, `clean -fd`); `settings.local.json` sigue ignorado. **Acción para quien elija el stack: llenar los 3 feedback loops de `AGENTS.md` de una vez.**
 - 2026-07-23 — **Scaffold de este repo de código.** Estructura canónica montada: `CLAUDE.md`, `README.md`, `.gitignore`, `docs/agents/{context,handoff}.md`, `docs/adr/{0000,0001}`, `docs/reto/` (brief + doc de insumos), `docs/mvp-layout.md`, `docs/plan-hackathon.md`, `docs/URGENTE-Y-NOTICIAS.md`. Los 6 archivos del brainstorm inicial se reorganizaron desde la raíz y se les arreglaron las rutas. **Data real** (`hackathon_VIVIENDAv2.xlsx`, `Buyer Person.pptx`, `Links brochures .xlsx`) movida a `docs/recursos-reto/` y **excluida de git** (repo público, data de Colsubsidio). Sin código de app todavía: el stack se decide en el kickoff. **Siguiente:** kickoff → `/spec`.
 - 2026-07-23 — **Scope macro del MVP definido** (grill de Mani + Claude). 8 decisiones cerradas (demo = viaje completo con clímax en asesor, WhatsApp simulado + disclaimer, nutrición con triggers condicionales, scoring de reglas transparentes + similitud + LLM explica, conversación adaptativa, bot agenda visita, no-afiliado sigue el flujo hacia DB central, workflow orquestado con IA puntual) y las abiertas marcadas. Todo en [`docs/mvp-layout.md`](../mvp-layout.md) — incluye mermaid strawman a curar en kickoff.
@@ -20,14 +21,14 @@ _Estado actual del trabajo. Lo nuevo arriba. Mantener corto; enlazar a ADRs/comm
 
 ### Now (ready — sin dependencias pendientes)
 
-- [ ] **Kickoff con todo el equipo** — cerrar la frase de apuesta, curar el mermaid de [`docs/mvp-layout.md`](../mvp-layout.md), y resolver las abiertas (esquema de la DB central de leads, vista del asesor, entrada del demo, métricas de scoring). Es el Día 1 del [`docs/plan-hackathon.md`](../plan-hackathon.md). No arranca de cero: arranca del mvp-layout.
-- [ ] Limpiar el Excel real antes del motor de scoring: `VLR_VIVIENDA` ÷10.000, normalizar `RANGO_EDAD`/`ETAPA` (dos formatos por valor), decidir qué hacer con los códigos griegos.
+- [ ] **Kickoff con todo el equipo** — ahora arranca del [`spec.md`](../spec.md), no del layout. Ratificar la frase de apuesta y resolver los supuestos marcados "decidir en el kickoff": umbral del corte y peso de cada factor, reglas concretas de subsidio, trigger de nutrición con plazo estimado vs flow de revisión periódica, y si el panel de impacto entra. Es el Día 1 del [`docs/plan-hackathon.md`](../plan-hackathon.md).
+- [ ] **Decidir stack** y registrarlo como ADR, y llenar de una los 3 feedback loops en `TODO` de [`AGENTS.md`](../../AGENTS.md). Ya no depende del spec: el spec está.
+- [ ] Limpiar el Excel real antes del motor de scoring: `VLR_VIVIENDA` ÷10.000, normalizar `RANGO_EDAD`/`ETAPA` (dos formatos por valor), decidir qué hacer con los códigos griegos, y resolver la ubicación contradictoria de `VIBO ONCE`/`KARAKALI` entre las hojas del xlsx de brochures.
+- [ ] Preguntar a mentores lo que el spec dejó abierto hacia afuera: ¿un lead form de pauta puede pedir cédula?, ¿qué sabe Colsubsidio de un lead que llega por pauta?, convergencia multi-canal, cruces Ministerio/buró.
 
 ### Next (bloqueado hasta que caiga un item de "Now")
 
-- [ ] `/spec` — bajar `docs/mvp-layout.md` a `docs/spec.md` (7 bloques). Depende de: kickoff.
-- [ ] **Decidir stack** y registrarlo como ADR — depende de: spec + reparto de roles.
-- [ ] `/plan` — descomponer el spec en `docs/plan.md` + tickets en `docs/tasks/`. Depende de: spec.
+- [ ] `/plan` — descomponer el spec en `docs/plan.md` + tickets en `docs/tasks/`. Depende de: kickoff (para no planear sobre supuestos que el equipo va a mover).
 - [ ] Guion del pitch de 2 min — depende de: definir MVP. Munición lista: 27,1% no afiliados / 16 de 16 proyectos incumpliendo 90/10.
 
 ### Later (someday / sin scope aún)
@@ -37,6 +38,7 @@ _Estado actual del trabajo. Lo nuevo arriba. Mantener corto; enlazar a ADRs/comm
 
 ### Done
 
+- [x] 2026-07-23 — [`docs/spec.md`](../spec.md) escrito (7 bloques, 4 criterios de aceptación, 12 supuestos por validar).
 - [x] 2026-07-23 — Contrato migrado a `AGENTS.md` + `CLAUDE.md` como puntero + permission floor en `.claude/settings.json`.
 - [x] 2026-07-23 — Scaffold del repo de código (este repo): estructura canónica + reorg de los 6 archivos + data fuera de git.
 - [x] 2026-07-23 — Scope macro del MVP cerrado ([`docs/mvp-layout.md`](../mvp-layout.md)).
