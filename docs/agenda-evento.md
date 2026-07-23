@@ -1,4 +1,6 @@
-# Plan de Acción — Reto Vivienda (perfilamiento inteligente de leads)
+# Agenda del evento — Reto Vivienda (perfilamiento inteligente de leads)
+
+> **Esto es el día a día del evento**, no el plan del build. El plan del build es [`plan.md`](plan.md) y sus tickets en [`tasks/`](tasks/). (Este archivo se llamaba `plan-hackathon.md`; se renombró para que exista un solo "plan" en el repo.)
 
 ✅ **Reto cerrado: Vivienda.** Ver el porqué en `adr/0001-eleccion-reto-vivienda.md` y el arranque en `URGENTE-Y-NOTICIAS.md`. Ya no se decide reto — este plan es para definir y construir el MVP.
 

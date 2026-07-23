@@ -9,6 +9,22 @@ ANTES DE ESCRIBIR CÓDIGO, lee en este orden:
    aceptación 2, 3 y 4, y §6 consentimiento habeas data)
 3. docs/adr/0002-stack-mvp.md (el stack: Supabase solo para lo que muta)
 4. docs/reparto-inicial.md (mi track es el D; ahí están mis tareas y los contratos de lib/types.ts)
+5. docs/plan.md — el plan del build. §2 tiene un modelo de datos propuesto (derivado del spec,
+   NO decidido: mi ADR 0003 es el que lo cierra) y §3 tiene costuras mías. Tickets en
+   docs/tasks/ (índice en docs/tasks/README.md).
+
+MIS TICKETS (además de lo del reparto):
+- 005 agendador: A ofrece las franjas en el chat, YO las persisto en la tabla citas y las
+  muestro en la ficha. El reparto decía "la cita la agrega D o A" — o sea nadie.
+- 007 re-enganche de nutrición: yo disparo (botón + cambio de estado + navegación al chat con
+  el lead_id) y A escribe el mensaje de reentrada. El criterio de aceptación 3 solo se verifica
+  de punta a punta, así que esto lo coordino con A, no lo doy por hecho.
+- 012 test del criterio 2 (con B): tantos factores renderizados en la ficha como evaluó el
+  motor. Agregar un factor sin tocar la ficha debe ROMPER el test.
+- Mis fixtures de LeadCurado salen del ticket 001 (lib/fixtures/personajes.ts), no de
+  personajes que invente yo.
+- Muestra la `fuente` del lead (meta/google/web) en la ficha: es lo que sostiene la narrativa
+  multi-canal del spec §4 paso 1, y hoy se registra pero no se ve en ninguna pantalla.
 
 FASE 1 — SUPABASE Y ADR 0003 (arranca YA, sin scaffold):
 1. Diseña el esquema de la DB central: tablas leads (con estado: listo /

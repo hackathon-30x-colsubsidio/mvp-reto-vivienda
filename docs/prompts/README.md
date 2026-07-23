@@ -10,3 +10,9 @@ Contexto breve de qué hace cada prompt (`prompt-a.md`–`prompt-d.md`). Detalle
 | **D** | Vista asesor, DB & nutrición | Diseña el esquema de Supabase (leads, conversaciones, citas) y construye `/asesor`: la cola priorizada + la ficha del lead (score desglosado, explicación, proyectos, cita) — el clímax del demo. Incluye el botón "simular trigger" de nutrición. |
 
 Todos consumen los contratos de `lib/types.ts` por fixture, no el código de los demás — se integra el sábado.
+
+## Lo que los tracks NO cubren
+
+El reparto asignó las cajas del workflow, no las flechas entre ellas. Las **costuras** (enriquecimiento real, la regla del 40% compartida, el agendador, el orquestador, el re-enganche de nutrición, los personajes canónicos, el shell del demo, el deploy verificado, el video) y los **tests de los criterios de aceptación** viven en [`../plan.md §3`](../plan.md) y están ticketeados en [`../tasks/`](../tasks/README.md). Cada prompt de arranque lista los tickets de su track.
+
+**Ramas:** la convención es `feature/{conversacion,scoring,matching,asesor}`. Hoy conviven además `Track-B` y `mani-TrackC`; consolidar antes del primer merge.

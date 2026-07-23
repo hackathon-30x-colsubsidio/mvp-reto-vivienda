@@ -137,4 +137,4 @@ Los 4 que el brief lista como capacidad de compra ([brief:20](reto/perfilamiento
 
 ---
 
-**Siguiente paso:** `/plan` para bajar esto a `docs/plan.md` + tickets en `docs/tasks/`. Antes conviene el kickoff, que cierra la frase de apuesta y los supuestos marcados como "decidir en el kickoff".
+**Siguiente paso:** hecho — [`docs/plan.md`](plan.md) + tickets en [`docs/tasks/`](tasks/README.md) (2026-07-23). El kickoff sigue pendiente y cierra la frase de apuesta, los supuestos marcados "decidir en el kickoff" y los dos cambios de contrato de [`plan.md §8`](plan.md).

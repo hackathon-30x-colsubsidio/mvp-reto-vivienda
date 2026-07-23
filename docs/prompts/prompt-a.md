@@ -7,6 +7,18 @@ ANTES DE ESCRIBIR CÓDIGO, lee en este orden:
 2. docs/spec.md (el contrato de producto — especialmente §4 flujo, §5 criterios de aceptación y §6 datos)
 3. docs/adr/0002-stack-mvp.md (el stack y sus reglas duras)
 4. docs/reparto-inicial.md (mi track es el A; ahí están mis tareas y los contratos de lib/types.ts)
+5. docs/plan.md — el plan del build. Léelo completo: §3 "las costuras" es trabajo mío que NO
+   está en el reparto, y §8 son dos cambios propuestos a lib/types.ts. Los tickets están en
+   docs/tasks/ (índice en docs/tasks/README.md).
+
+MIS TICKETS (yo soy el dueño de la mayoría de las costuras porque soy dueño del scaffold,
+de la página / y del layout):
+- 001 personajes canónicos — HOY, dentro del scaffold. Bloquea a los otros 3 tracks.
+- 002 cerrar los dos huecos de lib/types.ts (tras el kickoff; se anuncia una sola vez).
+- 005 agendador (conmigo ofreciendo franjas, D persistiéndolas).
+- 006 orquestador /api/curar — EL VIERNES, no en la integración del sábado. Es el riesgo #1.
+- 008 shell de navegación · 009 deploy verificado en la URL pública (diario) ·
+  010 fallback si Claude falla · 011 test del criterio 1 · 014 recorrido de aceptación (lo lidero).
 
 FASE 1 — PASO 0: SCAFFOLD (va a la rama main, es el desbloqueador de todo el equipo):
 - create-next-app en la raíz del repo (TypeScript, App Router), cuidando NO pisar los archivos
@@ -14,6 +26,10 @@ FASE 1 — PASO 0: SCAFFOLD (va a la rama main, es el desbloqueador de todo el e
 - lib/types.ts con los contratos exactos del reparto (LeadEvento, PerfilConocido, Lead,
   FactorScore, Score, ProyectoRecomendado, LeadCurado) y lib/fixtures/ con un ejemplo realista
   de cada uno (usa los 3 personajes del spec §4: afiliado listo, no afiliado listo, nutrición).
+- lib/fixtures/personajes.ts = TICKET 001, la fuente única de los 3 personajes (cédula, ingreso,
+  proyecto, afiliación y qué salida debe dar cada uno). B siembra esas cédulas, C escribe sus
+  explicaciones sobre esos números y D arma sus fixtures desde ahí: si cada track inventa los
+  suyos, el demo se contradice en pantalla. Avísame los números apenas los fijes.
 - .env.example sin valores: ANTHROPIC_API_KEY, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_KEY.
 - Verifica que los 3 feedback loops de AGENTS.md corren (npm test / tsc --noEmit + lint /
   npm run dev). Si algún comando difiere de lo que dice AGENTS.md, actualiza AGENTS.md.
