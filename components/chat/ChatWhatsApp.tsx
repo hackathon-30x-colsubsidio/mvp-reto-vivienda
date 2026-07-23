@@ -73,14 +73,28 @@ export function ChatWhatsApp({
   }
 
   /**
-   * Muestra el mensaje del bot. Intenta redactarlo con Claude vía /api/chat
-   * (streaming) para sonar natural; si no hay key configurada o falla la red,
-   * cae al texto determinístico tal cual — el demo nunca depende de la IA
-   * para funcionar (ADR 0002: la lógica de qué preguntar es TS puro).
+   * Muestra el mensaje del bot. Intenta redactarlo con el LLM vía /api/chat
+   * (streaming) para sonar natural; si no hay key, falla la red, o el stream no
+   * produce texto (p. ej. LLM sin cupo), cae al texto determinístico tal cual.
+   * El demo nunca depende de la IA para funcionar (ADR 0002: la lógica de qué
+   * preguntar es TS puro). Garantías: el indicador "escribiendo" SIEMPRE se
+   * apaga y SIEMPRE queda un mensaje visible.
    */
   async function agregarBot(textoBase: string) {
     setEscribiendo(true);
     const id = nuevoId();
+    let acumulado = "";
+
+    // Crea la burbuja la primera vez y la va actualizando; apaga "escribiendo".
+    const pintar = (texto: string) => {
+      setEscribiendo(false);
+      setMensajes((prev) => {
+        if (prev.some((m) => m.id === id)) {
+          return prev.map((m) => (m.id === id ? { ...m, texto } : m));
+        }
+        return [...prev, { id, autor: "bot", texto, hora: horaActual() }];
+      });
+    };
 
     try {
       const resp = await fetch("/api/chat", {
@@ -93,46 +107,28 @@ export function ChatWhatsApp({
       });
       if (!resp.ok || !resp.body) throw new Error("sin streaming disponible");
 
-      setMensajes((prev) => [
-        ...prev,
-        { id, autor: "bot", texto: "", hora: horaActual() },
-      ]);
-      setEscribiendo(false);
-
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
-      let acumulado = "";
       for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
-        acumulado += decoder.decode(value, { stream: true });
-        const textoParcial = acumulado;
-        setMensajes((prev) =>
-          prev.map((m) => (m.id === id ? { ...m, texto: textoParcial } : m)),
-        );
+        const chunk = decoder.decode(value, { stream: true });
+        if (chunk) {
+          acumulado += chunk;
+          pintar(acumulado);
+        }
       }
-      historialRef.current = [
-        ...historialRef.current,
-        { role: "assistant", content: acumulado || textoBase },
-      ];
     } catch {
-      setTimeout(() => {
-        setEscribiendo(false);
-        setMensajes((prev) => {
-          const yaExiste = prev.some((m) => m.id === id);
-          if (yaExiste) {
-            return prev.map((m) =>
-              m.id === id ? { ...m, texto: textoBase } : m,
-            );
-          }
-          return [...prev, { id, autor: "bot", texto: textoBase, hora: horaActual() }];
-        });
-      }, 400);
-      historialRef.current = [
-        ...historialRef.current,
-        { role: "assistant", content: textoBase },
-      ];
+      // red/stream caídos: se resuelve con el fallback de abajo
     }
+
+    // Garantía final: si el stream no dejó texto, usar el determinístico.
+    const textoFinal = acumulado.trim() ? acumulado : textoBase;
+    pintar(textoFinal);
+    historialRef.current = [
+      ...historialRef.current,
+      { role: "assistant", content: textoFinal },
+    ];
   }
 
   function responderConsentimiento(acepta: boolean) {
