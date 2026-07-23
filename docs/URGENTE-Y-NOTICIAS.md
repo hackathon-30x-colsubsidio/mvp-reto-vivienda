@@ -7,12 +7,12 @@ El reto está **cerrado: Vivienda** (perfilamiento inteligente de leads). Regist
 
 ## Qué hacer ya
 1. **Todo el equipo entra al repo** (organización + `plan-research`) — sin esto no hay punto de partida común.
-2. **Todo el equipo lee el material de Vivienda:** el brief (`sources/retos/leads/perfilamiento-leads-03.md`), el doc de datos (`sources/retos/leads/Cómo usar los recursos del Reto Vivienda.docx.md`) y, sobre todo, los **datos reales ya entregados** en `docs/recursos-reto/` — ver el hallazgo de abajo, es la munición del pitch.
-3. **Kickoff real** para arrancar el Día 1 del `plan/PLAN.md`: cerrar la **frase de apuesta** y el `spec.md`. Ya no se decide reto — se define el MVP.
-4. Después de eso, seguir `plan/PLAN.md` día a día.
+2. **Todo el equipo lee el material de Vivienda:** el brief (`docs/reto/perfilamiento-leads-03.md`), el doc de datos (`docs/reto/como-usar-recursos.md`) y, sobre todo, los **datos reales ya entregados** en `docs/recursos-reto/` — ver el hallazgo de abajo, es la munición del pitch.
+3. **Kickoff real** para arrancar el Día 1 del `docs/plan-hackathon.md`: cerrar la **frase de apuesta** y el `spec.md`. Ya no se decide reto — se define el MVP.
+4. Después de eso, seguir `docs/plan-hackathon.md` día a día.
 
-## 2026-07-23 — Scope macro del MVP definido: leer `plan/mvp-layout.md`
-Grill de scope hecho (Mani + Claude). **8 decisiones cerradas** (demo = viaje completo con clímax en la vista del asesor, WhatsApp simulado + disclaimer, nutrición demostrada con triggers condicionales, scoring de reglas transparentes + similitud con compradores reales + LLM explica, conversación adaptativa, bot agenda visita a sala de ventas, el no-afiliado sigue el flujo hacia una DB central, workflow orquestado con IA en puntos específicos) y las **abiertas marcadas para el kickoff**: frase de apuesta, curar el mermaid (es strawman), esquema de la DB de leads, vista del asesor, entrada del demo, métricas de performance del scoring. El kickoff ya no arranca de cero: arranca de `plan/mvp-layout.md`.
+## 2026-07-23 — Scope macro del MVP definido: leer `docs/mvp-layout.md`
+Grill de scope hecho (Mani + Claude). **8 decisiones cerradas** (demo = viaje completo con clímax en la vista del asesor, WhatsApp simulado + disclaimer, nutrición demostrada con triggers condicionales, scoring de reglas transparentes + similitud con compradores reales + LLM explica, conversación adaptativa, bot agenda visita a sala de ventas, el no-afiliado sigue el flujo hacia una DB central, workflow orquestado con IA en puntos específicos) y las **abiertas marcadas para el kickoff**: frase de apuesta, curar el mermaid (es strawman), esquema de la DB de leads, vista del asesor, entrada del demo, métricas de performance del scoring. El kickoff ya no arranca de cero: arranca de `docs/mvp-layout.md`.
 
 ## 2026-07-23 — Llegaron los datos reales de Vivienda: el reto se valida solo
 Se agregaron los recursos oficiales en `docs/recursos-reto/` (Excel de 4.142 compradores, PPT de buyer personas, links de brochures/360). Análisis completo hecho hoy — esto es lo que cambia el juego:

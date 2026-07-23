@@ -1,6 +1,6 @@
 # Plan de Acción — Reto Vivienda (perfilamiento inteligente de leads)
 
-✅ **Reto cerrado: Vivienda.** Ver el porqué en `../docs/adr/0001-eleccion-reto-vivienda.md` y el arranque en `../URGENTE-Y-NOTICIAS.md`. Ya no se decide reto — este plan es para definir y construir el MVP.
+✅ **Reto cerrado: Vivienda.** Ver el porqué en `adr/0001-eleccion-reto-vivienda.md` y el arranque en `URGENTE-Y-NOTICIAS.md`. Ya no se decide reto — este plan es para definir y construir el MVP.
 
 **Quedan 3.5 días útiles**: jueves, viernes, sábado completos + domingo hasta las 11:30 a.m. **El Día 0 (miércoles) se perdió** — nadie del equipo hizo el kickoff, y solo se avanzó la organización de GitHub + este repo. Cero días más perdidos.
 
@@ -25,13 +25,13 @@ Equipo: 5 personas, cada una con Claude Code de pago + $100 USD Fable 5 — recu
 ---
 
 ## Día 0 — Miércoles (perdido, recuperar ya)
-**Estado real:** solo **1 persona** vio la sesión en vivo de los 4 retos (la grabó y sintetizó en `../sources/lives/analisis-retos.md`) — el resto del equipo no tiene ese contexto todavía. Organización de GitHub + repo de planeación ✅ creado, pero poca gente del equipo se ha unido. **El kickoff no ha pasado.**
+**Estado real:** solo **1 persona** vio la sesión en vivo de los 4 retos (la grabó y sintetizó en `plan-research/sources/lives/analisis-retos.md`) — el resto del equipo no tiene ese contexto todavía. Organización de GitHub + repo de planeación ✅ creado, pero poca gente del equipo se ha unido. **El kickoff no ha pasado.**
 
 - [x] Crear organización de GitHub + repo de planeación (`plan-research`).
 - [ ] **Todo el equipo se une al repo de GitHub** — sin esto no hay punto de partida común.
-- [ ] **Todo el equipo lee `URGENTE-Y-NOTICIAS.md` y `../sources/lives/analisis-retos.md`** antes de decidir nada.
+- [ ] **Todo el equipo lee `URGENTE-Y-NOTICIAS.md` y `plan-research/sources/lives/analisis-retos.md`** antes de decidir nada.
 - [ ] Descargar los **3 insumos de Vivienda** (anonimizados): Excel de 4.142 compradores, buyer personas por proyecto (PPT) y brochure. Confirmar por el WhatsApp del reto si ya están disponibles (ojo con el formato del valor de vivienda: hay que quitar los últimos ceros).
-- [x] Cerrar el reto → **Vivienda** (`../docs/adr/0001-eleccion-reto-vivienda.md`).
+- [x] Cerrar el reto → **Vivienda** (`adr/0001-eleccion-reto-vivienda.md`).
 - [ ] Kickoff real del equipo completo — ya, no "mañana temprano". Cerrar la **frase de apuesta** (el reto ya está decidido).
 
 **Entregable:** `01-problema.md` — borrador de la frase de apuesta + preguntas abiertas para cerrar en el kickoff (aún por crear con todo el equipo presente).
@@ -112,8 +112,8 @@ Equipo: 5 personas, cada una con Claude Code de pago + $100 USD Fable 5 — recu
 - [ ] Repositorio de GitHub público (creado después del inicio del evento)
 
 ## Fuentes
-- Charla día 1 "Cómo construir tu MVP con IA" y "Patrones de diseño con IA" — `../sources/charlas-dia1-metodo-y-patrones-ia.md`.
-- Análisis propio de la sesión de retos en vivo — `../sources/lives/analisis-retos.md`.
+- Charla día 1 "Cómo construir tu MVP con IA" y "Patrones de diseño con IA" — `plan-research/sources/charlas-dia1-metodo-y-patrones-ia.md`.
+- Análisis propio de la sesión de retos en vivo — `plan-research/sources/lives/analisis-retos.md`.
 - Design Sprint de Google Ventures (Map-Sketch-Decide-Prototype-Test), [design.google/library/design-sprints](https://design.google/library/design-sprints).
 - Escala TRL (NASA, 1-9) adaptada como medida de madurez del prototipo día a día.
 - Buenas prácticas generales de hackathons: MVP funcionando > feature incompleta, rapid prototyping. [dev.to — How to Win Any Hackathon](https://dev.to/chintanonweb/how-to-win-any-hackathon-a-step-by-step-guide-to-success-2gol).

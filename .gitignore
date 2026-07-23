@@ -1,0 +1,38 @@
+# === Datos reales del reto — NUNCA al repo público ===
+# Insumos de Colsubsidio (Excel de compradores, buyer personas, brochures).
+# Viven local en docs/recursos-reto/ y en el repo plan-research; no se versionan.
+docs/recursos-reto/
+*.xlsx
+*.xls
+*.csv
+*.pptx
+*.ppt
+
+# Excepción: la data SINTÉTICA/derivada (generada de las distribuciones reales)
+# sí se versiona — no es data de Colsubsidio y el demo la necesita.
+!data/sintetica/
+!data/sintetica/**
+
+# === Secretos ===
+.env
+.env.*
+!.env.example
+
+# === Dependencias / build (stack por decidir; cubrimos lo común) ===
+node_modules/
+dist/
+build/
+.next/
+.vercel/
+coverage/
+*.log
+
+# Python (por si el motor de datos/scoring va en Python)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# === SO / editor / agentes ===
+.DS_Store
+.claude/settings.local.json
