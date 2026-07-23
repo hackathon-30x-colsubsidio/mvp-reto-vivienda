@@ -1,7 +1,8 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { hayKeyGemini, streamGemini, type MensajeLLM } from "@/lib/gemini";
 
 // La key solo vive aquí (server-side, API route) — nunca en el cliente ni en el repo.
 // Streaming obligatorio (ADR 0002): evita el límite de tiempo de las funciones de Vercel.
+// Proveedor LLM: Gemini (ver ADR 0002 → nota de 2026-07-23).
 export const runtime = "nodejs";
 
 const SYSTEM_PROMPT = `Eres el asistente conversacional de Colsubsidio Vivienda dentro de un chat
@@ -12,15 +13,11 @@ Reglas que no puedes romper:
 - NUNCA inventes una pregunta nueva, ni agregues preguntas adicionales a las que se te piden.
 - NUNCA cambies el orden ni el sentido del contenido que se te pide redactar.
 - NUNCA pidas un dato que el mensaje ya dice que se conoce.
-- Conserva todos los datos y cifras del contenido original, solo mejora el tono y la fluidez.`;
-
-interface MensajeEntrada {
-  role: "user" | "assistant";
-  content: string;
-}
+- Conserva todos los datos y cifras del contenido original, solo mejora el tono y la fluidez.
+- Responde solo con el mensaje redactado, sin comillas ni texto adicional.`;
 
 interface CuerpoPeticion {
-  mensajes: MensajeEntrada[];
+  mensajes: MensajeLLM[];
   mensaje_a_redactar: string;
 }
 
@@ -37,16 +34,13 @@ export async function POST(req: Request) {
     return new Response("Falta mensaje_a_redactar", { status: 400 });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return new Response("ANTHROPIC_API_KEY no configurada", { status: 503 });
+  if (!hayKeyGemini()) {
+    return new Response("GEMINI_API_KEY no configurada", { status: 503 });
   }
 
-  const client = new Anthropic();
-
-  const stream = client.messages.stream({
-    model: "claude-opus-4-8",
-    max_tokens: 300,
+  const cuerpoStream = streamGemini({
     system: SYSTEM_PROMPT,
+    maxTokens: 300,
     messages: [
       ...(mensajes ?? []),
       {
@@ -54,26 +48,6 @@ export async function POST(req: Request) {
         content: `Redacta este contenido como mensaje de WhatsApp, sin cambiar su sentido ni agregar preguntas: "${mensaje_a_redactar}"`,
       },
     ],
-  });
-
-  const encoder = new TextEncoder();
-  const cuerpoStream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        for await (const event of stream) {
-          if (
-            event.type === "content_block_delta" &&
-            event.delta.type === "text_delta"
-          ) {
-            controller.enqueue(encoder.encode(event.delta.text));
-          }
-        }
-      } catch (err) {
-        controller.error(err);
-        return;
-      }
-      controller.close();
-    },
   });
 
   return new Response(cuerpoStream, {

@@ -39,9 +39,9 @@ Reglas duras que gobiernan todo el proyecto y que ningún linter puede chequear.
 - **La data real de Colsubsidio nunca entra al repo público.** Los insumos (`docs/recursos-reto/`) son locales y están en `.gitignore`. Lo que se versiona es data **sintética/derivada** (`data/sintetica/`). _Señal para replantear:_ ninguna — esta no se negocia.
 - **Deadline duro: domingo 26 jul 2026, 11:30 a.m. hora Colombia.** Nada posterior se evalúa. _Consecuencia:_ "feo pero funciona" > "bonito pero falso"; se congela toda feature que no se vea en el demo.
 
-- **Performance:** toda llamada a Claude va en **streaming**, con primer token del conversador < 2s. El streaming no es opcional: evita el límite de tiempo de funciones en Vercel free y hace el chat creíble en el video.
+- **Performance:** toda llamada al LLM va en **streaming**, con primer token del conversador < 2s. El streaming no es opcional: evita el límite de tiempo de funciones en Vercel free y hace el chat creíble en el video.
 - **Escala:** la del demo — jurado + equipo, decenas de sesiones concurrentes máximo. No optimizar para más.
-- **Arquitectura:** **Next.js (monolito) + Vercel + Supabase + API de Claude**, registrada en [ADR 0002](docs/adr/0002-stack-mvp.md). Reglas duras derivadas: el scoring es TS puro sin LLM (la IA solo vive en conversador y explicación); Python solo offline en `scripts/`; la API key solo server-side; `main` siempre desplegable (es el link del demo). No re-litigar sin razón nueva.
+- **Arquitectura:** **Next.js (monolito) + Vercel + Supabase + LLM en streaming**, registrada en [ADR 0002](docs/adr/0002-stack-mvp.md). Proveedor de IA: **Google Gemini** (`gemini-2.5-flash`, aislado en [`lib/gemini.ts`](lib/gemini.ts)) — el ADR decidió Claude pero se cambió por disponibilidad de key (ver la nota del ADR). Reglas duras derivadas: el scoring es TS puro sin LLM (la IA solo vive en conversador y explicación); Python solo offline en `scripts/`; la API key solo server-side; `main` siempre desplegable (es el link del demo). No re-litigar sin razón nueva.
 
 ## Contratos
 
@@ -61,7 +61,7 @@ El agente debe correr esto para saber rápido si el código sirve. Stack decidid
 
 - **Test:** `npm test` (vitest; prioridad: `lib/scoring/` — el motor de reglas se testea sin red)
 - **Typecheck / lint:** `npx tsc --noEmit && npm run lint`
-- **Run:** `npm run dev` (requiere `.env` local con `ANTHROPIC_API_KEY` y credenciales de Supabase — ver `.env.example`)
+- **Run:** `npm run dev` (requiere `.env.local` con `GEMINI_API_KEY` y credenciales de Supabase — ver `.env.example`; sin la key de Gemini, el conversador cae a su fallback determinístico)
 
 ## Datos del reto (crítico)
 

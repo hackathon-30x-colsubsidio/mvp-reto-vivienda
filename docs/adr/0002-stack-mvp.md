@@ -1,6 +1,8 @@
-# 0002 — Stack del MVP: Next.js + Vercel + Supabase + API de Claude
+# 0002 — Stack del MVP: Next.js + Vercel + Supabase + LLM en streaming
 
 **Estado:** Aceptada · **Fecha:** 2026-07-23
+
+> **Actualización 2026-07-23 — proveedor de IA: Claude → Google Gemini.** A la hora de deployar, el equipo solo tenía disponible una **key de Gemini**, no de Anthropic. Como el criterio que gobierna es "que funcione el domingo", se cambió el proveedor de IA a **Google Gemini** (`gemini-2.5-flash`) vía el SDK `@google/genai`. Todo lo demás del stack queda igual. Reglas que **no** cambian: la IA vive solo en `/api/chat` y `/api/explicacion` en **streaming** (primer token < 2s), la key es **solo server-side** (`GEMINI_API_KEY`, `.env.example` sin valores), y el scoring/corte siguen siendo TS puro sin LLM. El proveedor está aislado en un solo archivo, [`lib/gemini.ts`](../../lib/gemini.ts), así que volver a Claude (o cambiar de modelo) es un cambio de un archivo. Donde abajo diga "Anthropic / `claude-opus-4-8`", léase "Gemini / `gemini-2.5-flash`".
 
 ## Contexto
 

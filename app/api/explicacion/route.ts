@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { Lead, Score } from "@/lib/types";
 import { matchear } from "@/lib/matching";
 import { catalogo, preciosMaximos } from "@/lib/matching/fixtures";
@@ -7,10 +6,12 @@ import {
   promptExplicacionGlobal,
   promptPorqueProyecto,
 } from "@/lib/matching/prompt-experto";
+import { hayKeyGemini, streamGemini } from "@/lib/gemini";
 
 // La key solo vive aquí (server-side) — el repo es público.
 // Streaming obligatorio (ADR 0002): evita el límite de tiempo de las funciones
 // de Vercel y hace que la explicación se vea escribirse en el video.
+// Proveedor LLM: Gemini (ver ADR 0002 → nota de 2026-07-23).
 export const runtime = "nodejs";
 
 interface Cuerpo {
@@ -37,8 +38,8 @@ export async function POST(req: Request) {
   if (tipo === "proyecto" && !proyecto_id) {
     return new Response("Falta proyecto_id", { status: 400 });
   }
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return new Response("ANTHROPIC_API_KEY no configurada", { status: 503 });
+  if (!hayKeyGemini()) {
+    return new Response("GEMINI_API_KEY no configurada", { status: 503 });
   }
 
   // Se vuelve a correr el matcher acá (es determinista y sin red) para que quien
@@ -58,33 +59,13 @@ export async function POST(req: Request) {
     });
   }
 
-  const client = new Anthropic();
-
-  // Sin thinking a propósito: esto es redacción sobre hechos ya calculados y lo
-  // que se juega es el primer token (< 2s, AGENTS.md). El system prompt le pide
-  // responder solo con el texto final.
-  const stream = client.messages.stream({
-    model: "claude-opus-4-8",
-    max_tokens: tipo === "proyecto" ? 300 : 600,
+  // Sin thinking a propósito (lo maneja streamGemini): esto es redacción sobre
+  // hechos ya calculados y lo que se juega es el primer token (< 2s, AGENTS.md).
+  // El system prompt le pide responder solo con el texto final.
+  const cuerpoStream = streamGemini({
     system: SYSTEM_PROMPT,
+    maxTokens: tipo === "proyecto" ? 300 : 600,
     messages: [{ role: "user", content: prompt }],
-  });
-
-  const encoder = new TextEncoder();
-  const cuerpoStream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        for await (const event of stream) {
-          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-            controller.enqueue(encoder.encode(event.delta.text));
-          }
-        }
-      } catch (err) {
-        controller.error(err);
-        return;
-      }
-      controller.close();
-    },
   });
 
   return new Response(cuerpoStream, {
