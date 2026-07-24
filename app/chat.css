@@ -21,7 +21,6 @@
   --chat-motif: rgba(255, 255, 255, 0.05);
   --chat-frame: #0a0c0f;
   --chat-surface: #f3f1ec;
-  --chat-surface-lines: rgba(87, 87, 86, 0.05);
   --chat-header: var(--azul);
   --chat-header-ink: #ffffff;
   --chat-status: rgba(255, 255, 255, 0.82);
@@ -61,7 +60,6 @@
   --chat-motif: rgba(255, 255, 255, 0.035);
   --chat-frame: #000000;
   --chat-surface: #0f1519;
-  --chat-surface-lines: rgba(255, 255, 255, 0.03);
   --chat-header: #12222f;
   --chat-header-ink: #ffffff;
   --chat-status: rgba(255, 255, 255, 0.66);
@@ -90,8 +88,12 @@
 
 /* ── ESCENARIO ─────────────────────────────────────────────────────── */
 
+/* El padding superior no es decorativo: es el carril que ocupan la marca y
+   el conmutador de tema. Sin él, en pantallas bajas la ventana crece hasta
+   meterse debajo del lockup y el escenario se lee como un error. */
 .stage {
   min-height: 100dvh;
+  padding: 92px 24px 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -168,7 +170,8 @@
   position: relative;
   z-index: 4;
   width: min(1120px, 94vw);
-  height: min(720px, 92dvh);
+  /* Nunca más alta que el hueco que deja el padding del escenario. */
+  height: min(720px, calc(100dvh - 136px));
   background: var(--chat-frame);
   border-radius: 16px;
   overflow: hidden;
@@ -295,6 +298,7 @@
 @media (max-width: 860px) {
   .stage {
     align-items: stretch;
+    padding: 0;
   }
   .stage__motif,
   .stage__watermark,
@@ -450,12 +454,10 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 16px 14px 8px;
+  /* Superficie lisa. El kit traía un rayado horizontal de renglón de
+     cuaderno; en pantalla larga se leía como líneas atravesando el fondo,
+     no como textura, así que se quitó. */
   background: var(--chat-surface);
-  background-image: repeating-linear-gradient(
-    0deg,
-    var(--chat-surface-lines) 0 1px,
-    transparent 1px 27px
-  );
 }
 .msgs::-webkit-scrollbar {
   width: 0;
