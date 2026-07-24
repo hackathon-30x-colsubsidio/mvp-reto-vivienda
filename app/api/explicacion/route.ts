@@ -6,7 +6,7 @@ import {
   promptExplicacionGlobal,
   promptPorqueProyecto,
 } from "@/lib/matching/prompt-experto";
-import { hayKeyGemini, streamGemini } from "@/lib/gemini";
+import { diagnosticoCredenciales, hayKeyGemini, streamGemini } from "@/lib/gemini";
 
 // La key solo vive aquí (server-side) — el repo es público.
 // Streaming obligatorio (ADR 0002): evita el límite de tiempo de las funciones
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     return new Response("Falta proyecto_id", { status: 400 });
   }
   if (!hayKeyGemini()) {
-    return new Response("GEMINI_API_KEY no configurada", { status: 503 });
+    return new Response(diagnosticoCredenciales(), { status: 503 });
   }
 
   // Se vuelve a correr el matcher acá (es determinista y sin red) para que quien

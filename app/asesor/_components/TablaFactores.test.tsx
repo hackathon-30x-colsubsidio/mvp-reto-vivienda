@@ -2,6 +2,12 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { TablaFactores, ETIQUETA_FACTOR, ETIQUETA_FUENTE } from "./TablaFactores";
 import { leadsCurados } from "@/lib/fixtures";
+import { calcularScore } from "@/lib/scoring";
+import { afiliadoListo, noAfiliadoListo, nutricion } from "@/lib/fixtures/leads";
+import {
+  proyectoInari,
+  proyectoBosqueDeTurpial,
+} from "@/lib/fixtures/proyectos";
 import type { FactorScore, LeadCurado } from "@/lib/types";
 
 // =====================================================================
@@ -71,9 +77,21 @@ describe("ticket 012 — tantos factores visibles como evaluó el motor", () => 
   // a que D le ponga etiqueta.
   // ───────────────────────────────────────────────────────────────────
   it("todo factor que produce el motor tiene etiqueta legible en la ficha", () => {
-    const delMotor = new Set(
-      personajes.flatMap(([, c]) => c.score.factores.map((f) => f.nombre)),
-    );
+    // Se pregunta al MOTOR REAL (lib/scoring), no solo a las fixtures.
+    //
+    // Antes esto miraba únicamente `leadsCurados`, y por eso pasaba en verde
+    // mientras el motor emitía `cupo_90_10` y `similitud_compradores_reales`
+    // —dos factores que ninguna fixture tiene— rumbo a la pantalla del jurado
+    // con su nombre técnico en crudo. El canario tiene que interrogar a la
+    // fuente de los factores, no a una copia que puede haber quedado atrás.
+    const delMotor = new Set([
+      ...personajes.flatMap(([, c]) => c.score.factores.map((f) => f.nombre)),
+      ...[afiliadoListo, noAfiliadoListo, nutricion].flatMap((lead) =>
+        [proyectoInari, proyectoBosqueDeTurpial].flatMap((proyecto) =>
+          calcularScore(lead, proyecto).factores.map((f) => f.nombre),
+        ),
+      ),
+    ]);
 
     const sinEtiqueta = [...delMotor].filter((nombre) => !ETIQUETA_FACTOR[nombre]);
 

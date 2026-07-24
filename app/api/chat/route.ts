@@ -1,4 +1,9 @@
-import { hayKeyGemini, streamGemini, type MensajeLLM } from "@/lib/gemini";
+import {
+  diagnosticoCredenciales,
+  hayKeyGemini,
+  streamGemini,
+  type MensajeLLM,
+} from "@/lib/gemini";
 
 // La key solo vive aquí (server-side, API route) — nunca en el cliente ni en el repo.
 // Streaming obligatorio (ADR 0002): evita el límite de tiempo de las funciones de Vercel.
@@ -35,7 +40,7 @@ export async function POST(req: Request) {
   }
 
   if (!hayKeyGemini()) {
-    return new Response("GEMINI_API_KEY no configurada", { status: 503 });
+    return new Response(diagnosticoCredenciales(), { status: 503 });
   }
 
   const cuerpoStream = streamGemini({

@@ -32,6 +32,11 @@ export const ETIQUETA_FACTOR: Record<string, string> = {
   subsidio_aplicable: "Subsidio aplicable",
   ya_tiene_vivienda: "Vivienda propia",
   situacion_crediticia: "Situación crediticia",
+  cupo_90_10: "Cupo para no afiliados (regla 90/10)",
+  similitud_compradores_reales: "Similitud con compradores reales",
+  // Alias heredado: las fixtures de los personajes todavía nombran así el
+  // factor que el motor emite como `similitud_compradores_reales`. Se borra
+  // cuando las fixtures se regeneren desde el motor.
   similitud_compradores: "Similitud con compradores reales",
 };
 

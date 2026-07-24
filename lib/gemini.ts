@@ -12,7 +12,20 @@ import { GoogleGenAI } from "@google/genai";
 // determinístico. El contrato no cambia: credenciales solo server-side (repo público)
 // y todas las llamadas en streaming (límite de Vercel + primer token < 2s).
 
-export const MODELO_GEMINI = "gemini-2.5-flash";
+// `gemini-2.5-flash` quedó RETIRADO ("no longer available to new users", 404): con
+// él la IA del demo no habría funcionado nunca, con o sin credenciales. Elegido
+// midiendo contra la API real, no por ser el más nuevo:
+//
+//   3.5-flash + thinkingBudget:0 ..... primer token 1,0s  ✅
+//   3.6-flash (no acepta budget:0) ... primer token 2,7s  ❌ rompe el <2s del ADR 0002
+//   2.0-flash ........................ retirado también
+//
+// O sea el modelo MÁS NUEVO no sirve aquí: no deja apagar el thinking, y con
+// thinking encendido incumple la restricción de performance. Se fija una versión
+// exacta y no el alias `gemini-flash-latest`, para que el modelo no cambie solo en
+// mitad del demo. Cambiar de modelo es esta línea — pero vuelve a medir el primer
+// token antes de dar por bueno el cambio.
+export const MODELO_GEMINI = "gemini-3.5-flash";
 
 export interface MensajeLLM {
   role: "user" | "assistant";
@@ -46,6 +59,40 @@ function credencialesVertex(): CredsVertex | null {
  *  responden 503 si no, y el cliente cae a su fallback determinístico. */
 export function hayKeyGemini(): boolean {
   return credencialesVertex() !== null || Boolean(process.env.GEMINI_API_KEY);
+}
+
+/**
+ * Por qué no hay credencial, en texto accionable para el 503.
+ *
+ * Reporta solo si cada variable ESTÁ o NO está — nunca su valor. El repo es
+ * público y este mensaje sale por HTTP: un nombre de variable es diagnóstico,
+ * un valor sería una fuga.
+ *
+ * Existe porque el 503 decía "GEMINI_API_KEY no configurada" incluso cuando el
+ * modo previsto era Vertex, y eso mandó a buscar la variable equivocada.
+ */
+export function diagnosticoCredenciales(): string {
+  const presentes = (nombres: string[]) =>
+    nombres.map((n) => `${n}=${process.env[n] ? "ok" : "FALTA"}`).join(", ");
+
+  const vertex = presentes([
+    "GOOGLE_APPLICATION_CREDENTIALS_JSON",
+    "GOOGLE_CLOUD_PROJECT",
+  ]);
+
+  const jsonPresente = Boolean(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+  const jsonParsea = credencialesVertex() !== null;
+  const notaJson =
+    jsonPresente && !jsonParsea
+      ? " · GOOGLE_APPLICATION_CREDENTIALS_JSON no es JSON válido (debe ser el archivo completo de la cuenta de servicio, en una sola línea)"
+      : "";
+
+  return (
+    "Sin credencial de LLM. " +
+    `Vertex: ${vertex}${notaJson}. ` +
+    `API key: GEMINI_API_KEY=${process.env.GEMINI_API_KEY ? "ok" : "FALTA"}. ` +
+    "Los nombres son case-sensitive y las env vars nuevas solo aplican tras un redeploy."
+  );
 }
 
 function crearCliente(): GoogleGenAI {
