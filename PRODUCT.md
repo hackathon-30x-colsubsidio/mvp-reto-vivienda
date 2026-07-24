@@ -27,7 +27,7 @@ El pipeline es **determinista y auditable**; la IA vive en dos puntos acotados (
 Tres superficies, recorridas en este orden en el demo:
 
 1. **Landing del jurado** (`/`) — 3 personajes pre-sembrados (afiliado listo, no afiliado listo, lead de nutrición) + un botón "soy yo" con formulario libre. Un clic arranca la conversación.
-2. **Chat estilo WhatsApp** (`/`, en estado de conversación) — pide autorización de datos, dice explícitamente qué ya sabe del lead, y pregunta solo lo que falta. Chat web con estética WhatsApp y disclaimer visible de que en producción corre sobre WhatsApp Business API.
+2. **Chat estilo WhatsApp** (`/`, en estado de conversación) — pide autorización de datos, dice explícitamente qué ya sabe del lead, y pregunta solo lo que falta. Conversa: explica para qué sirve cada pregunta, reacciona a cada respuesta, y deja escribir siempre (los atajos son atajos, no la única salida). Chat web con estética WhatsApp y disclaimer visible de que en producción corre sobre WhatsApp Business API.
 3. **Consola del asesor** (`/asesor`, `/asesor/[leadId]`) — cola priorizada y ficha completa: score factor por factor, el porqué en lenguaje natural, proyectos, cita, o razón + trigger de nutrición.
 
 Todas las llamadas al LLM van en streaming (primer token < 2s). Escala del demo: jurado + equipo, decenas de sesiones concurrentes.
@@ -74,8 +74,9 @@ Con tintes al 80/60/40% del amarillo y el azul, y al 60/40/20% del grafito.
 1. **Cero caja negra.** Toda decisión del sistema (score, corte, match, trigger) se explica en lenguaje natural y con sus factores a la vista. La explicación pesa tanto como la recomendación; si no se puede justificar con factores visibles, no entra al demo.
 2. **Nadie se descarta.** La UI nunca presenta a un lead como perdido. Nutrición es una salida digna, con su razón y su camino de vuelta.
 3. **Autogestionado.** El jurado recorre el flujo solo. Si una pantalla necesita que alguien la explique, está mal diseñada.
-4. **No repreguntar lo conocido.** Lo que el enriquecimiento ya sabe se dice, no se pregunta.
-5. **Feo pero funciona > bonito pero falso.** Ningún dato inventado, ninguna cifra sin fuente, ninguna pantalla que prometa una integración que no existe.
+4. **No repreguntar lo conocido.** Lo que el enriquecimiento ya sabe no se pregunta, y el lead se entera de que no se lo vamos a hacer repetir. Pero **saber sus datos no da derecho a recitárselos**: al lead se le demuestra usándolos, no leyéndoselos de vuelta. Quien ve la ficha completa es el asesor.
+5. **Conversar, no encuestar.** Se está vendiendo la compra que una persona hace una vez en la vida, casi siempre al lado de otra. Cada pregunta dice para qué sirve, cada respuesta recibe una reacción, y nadie queda atrapado en una lista de botones: el campo de texto está siempre.
+6. **Feo pero funciona > bonito pero falso.** Ningún dato inventado, ninguna cifra sin fuente, ninguna pantalla que prometa una integración que no existe.
 
 ## Accessibility & Inclusion
 

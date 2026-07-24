@@ -1,6 +1,19 @@
 import type { Lead, PerfilConocido } from "@/lib/types";
 
 /**
+ * `situacion_crediticia` llega como enum del conversador, y el enum no se le
+ * enseña a nadie: "sin_info" en el sello de alguien que acaba de contarnos su
+ * vida se lee como un error del sistema. Ninguna etiqueta suena a veredicto —
+ * aquí no se califica a la persona, se refleja lo que dijo.
+ */
+const CREDITO: Record<string, string> = {
+  buena: "Al día",
+  regular: "En proceso de arreglo",
+  mala: "Con algo pendiente",
+  sin_info: "Por confirmar",
+};
+
+/**
  * El cierre de la conversación: le devuelve al lead, en una sola tarjeta, lo
  * que quedó registrado de él. Es puro reflejo — no calcula, no pide nada y no
  * inventa: cada fila sale del enriquecimiento (`perfil`) o de lo que él mismo
@@ -45,7 +58,8 @@ export function SelloPerfil({
   if (respuestas.situacion_crediticia) {
     filas.push({
       etiqueta: "Situación crediticia",
-      valor: respuestas.situacion_crediticia,
+      valor:
+        CREDITO[respuestas.situacion_crediticia] ?? respuestas.situacion_crediticia,
     });
   }
 

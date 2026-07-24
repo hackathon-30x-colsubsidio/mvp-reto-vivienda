@@ -30,7 +30,9 @@ Escrita para ~2,3 palabras/seg en español. Total ≈ 275 palabras. Los `[corche
 > Esta es la página de vivienda de Colsubsidio hoy. No hay formulario. No hay proyectos. El lead que llega por pauta cae en el vacío. Y cuando sí compra: **el 27% de los compradores históricos no son afiliados** — cuando la regla 90/10 solo permite el 10%. Los 16 proyectos con ubicación conocida ya la incumplen. El problema no es de marketing: es que **no existe el embudo**.
 
 **[0:15 — Entra el lead]**
-> Diana llega por un anuncio. En vez de un formulario, un chat estilo WhatsApp. Autoriza el tratamiento de datos, da su cédula… y el sistema **ya sabe** que es afiliada, su ciudad y su rango de ingreso. No se lo vuelve a preguntar, y se lo dice. _(cuttable: "Un lead pago que se siente como uno orgánico.")_
+> Diana llega por un anuncio. En vez de un formulario, un chat estilo WhatsApp. Autoriza el tratamiento de datos, da su cédula… y el sistema **ya sabe** que es afiliada, su ciudad y su rango de ingreso. No se lo vuelve a preguntar, y se lo hace saber. _(cuttable: "Un lead pago que se siente como uno orgánico.")_
+>
+> ⚠️ **Ojo con este plano:** el chat **no le recita los datos a Diana** — le dice que no le hará repetir nada y arranca buscando en su ciudad ([spec 02, nodo 3](../specs/02-conversador.md)). Quien enumera afiliación, ciudad e ingreso es **la ficha del asesor**, en el beat 3. La voz en off puede nombrarlos aquí porque le habla al jurado, no a Diana; si el video promete que el bot los recita, no coincide con la pantalla.
 
 **[0:32 — Se transforma]**
 > Solo pregunta lo que falta para calificar. Detrás, un motor de reglas —no una caja negra— la califica, la cruza con proyectos que le caben, y le agenda la visita a sala de ventas. En un mensaje pasó de clic en un anuncio a lead listo para cerrar.
@@ -49,6 +51,7 @@ Escrita para ~2,3 palabras/seg en español. Total ≈ 275 palabras. Los `[corche
 - **🎬 Calentar el lambda antes de dar REC.** Vercel enfría la función de IA tras unos minutos sin tráfico; en frío tarda ~7 s y a veces tira 500 (ver [handoff 2026-07-24 11:30](../agents/handoff.md)). Justo antes de grabar: abrir el chat y mandar un mensaje de calentamiento, para que en la toma responda en 1-2 s y se vea el pulido del LLM. Grabar de corrido; si se corta varios minutos, recalentar.
 - **El fallback es red de seguridad, no el plan.** Si aun caliente la IA falla, el texto determinístico mantiene el flujo — pero el video se ve mejor con el stream real. Preferir la toma con IA viva.
 - **Los 3 caminos, sí o sí.** Diana (afiliada lista), Carlos (no afiliado, cupo) y Yuliana (nutrición) tienen que verse. Son los 3 personajes sembrados en la landing; un clic arranca cada uno.
+- **✍️ Al menos una respuesta hay que ESCRIBIRLA, no tocarla.** Desde el 2026-07-24 el chat acepta texto libre en todos los pasos y reacciona a lo que la persona contesta ([spec 02 D4](../specs/02-conversador.md)). Si en la toma solo se ven dedos tocando botones, el video cuenta justo lo que el mentor rechazó ("ese prototipo de chatbot donde la gente se enreda"). Escribir el ingreso en la toma —"4.500.000", con sus puntos— es el plano que demuestra que no es un formulario. La voz en off puede apoyarlo en el beat 2: *"le explica para qué le pregunta, y la deja contestar como quiera"*.
 - **Sin narración humana en pantalla.** El demo es autogestionado (restricción no-negociable). La voz en off cuenta la historia; la pantalla se recorre sola.
 - **No nombrar proyectos específicos en la voz en off:** los nombres del catálogo pueden cambiar con el [ticket 001](../tasks/001-personajes-canonicos.md). La narración habla de "proyectos que le caben", la pantalla muestra los reales.
 

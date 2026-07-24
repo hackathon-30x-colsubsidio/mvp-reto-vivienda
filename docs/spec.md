@@ -80,7 +80,7 @@ Landing con **3 personajes pre-sembrados** (afiliado listo, no afiliado listo, l
 
 > Son **4, uno por cada tramo del demo** de 2 min ([`mvp-layout.md` §5](mvp-layout.md)). Se eligieron los 4 deliberadamente: cada uno defiende una restricción no-negociable distinta y ninguno es redundante.
 
-1. **No repreguntar lo conocido.** Dado un lead cuya cédula existe en la base de identidades, cuando inicia la conversación, entonces el conversador no le pregunta ningún dato que el enriquecimiento ya devolvió y se lo dice explícitamente. *Verificable:* la intersección entre el set de campos preguntados y el set de campos enriquecidos debe ser vacía.
+1. **No repreguntar lo conocido.** Dado un lead cuya cédula existe en la base de identidades, cuando inicia la conversación, entonces el conversador no le pregunta ningún dato que el enriquecimiento ya devolvió y se lo hace saber explícitamente. **Hacérselo saber no es recitarle su ficha:** el mensaje dice que sus datos ya están y que no se los repreguntaremos, y *usa* lo que sabe (busca opciones en su ciudad) en vez de enumerarlo — el ingreso no se le menciona nunca, porque leerle sus propios datos suena a expediente ([spec 02, nodo 3](specs/02-conversador.md)). Quien ve la ficha completa es el asesor. *Verificable:* la intersección entre el set de campos preguntados y el set de campos enriquecidos debe ser vacía.
 2. **Cero caja negra en el score.** Dado cualquier lead calificado (listo o de nutrición), cuando el asesor abre su ficha, entonces ve todos los factores del score con su valor y su aporte, más una explicación en lenguaje natural que cita cada factor. *Verificable:* el conteo de factores que el motor evaluó debe ser igual al conteo de factores visibles en la ficha.
 3. **Nadie se descarta.** Dado un lead que no supera el corte, cuando el motor lo clasifica, entonces queda en nutrición con la regla exacta que falló y un trigger derivado de ella, y al pulsar "simular trigger" vuelve a la conversación. *Verificable:* ningún lead termina el flujo sin una de las 3 salidas, y todo lead en nutrición tiene razón y trigger no vacíos.
 4. **El lead listo llega cerrable.** Dado un lead que supera el corte, cuando termina la conversación, entonces tiene entre 2 y 3 proyectos del catálogo con su porqué, una franja de cita registrada, y aparece en la cola del asesor con esos tres elementos visibles. *Verificable:* recorrido del demo de punta a punta sin narración.
@@ -99,15 +99,17 @@ Afiliación, ciudad, segmento y rango de ingreso, desde una **base sintética de
 
 Los 4 que el brief lista como capacidad de compra ([brief:20](reto/perfilamiento-leads-03.md)), más la zona de interés para el matcher:
 
-| Dato | Por qué | Cuándo |
-|---|---|---|
-| Rango de ingreso del hogar | Sin él no se puede evaluar el tope del 40% | Siempre que el enriquecimiento no lo traiga |
-| Si ya tiene vivienda | Condiciona subsidios y prioridad | Siempre |
-| Subsidios recibidos o aplicables | Pueden meter la cuota bajo el 40% | Siempre |
-| Situación crediticia autorreportada | Señal de viabilidad sin tocar DataCrédito | Siempre |
-| Zona / ciudad de interés | Insumo del matcher | Si el enriquecimiento no la trae |
+| Dato | Por qué | Cuándo | Cómo se responde |
+|---|---|---|---|
+| Ingreso del hogar | Sin él no se puede evaluar el tope del 40% | Siempre que el enriquecimiento no lo traiga | **Texto libre** — la lista sesga |
+| Si ya tiene vivienda | Condiciona subsidios y prioridad | Siempre | Atajos + texto |
+| Subsidios recibidos o aplicables | Pueden meter la cuota bajo el 40% | Siempre | Atajos + texto |
+| Situación crediticia autorreportada | Señal de viabilidad sin tocar DataCrédito | Siempre | Atajos + texto |
+| Zona / ciudad de interés | Insumo del matcher | Si el enriquecimiento no la trae | **Texto libre** |
 
 **El set no es un guion fijo.** Personalizar la calificación es parte del reto, así que qué se pregunta, en qué orden y con qué redacción depende del perfil ya conocido. Un afiliado de segmento alto y un no afiliado sin datos no viven la misma conversación.
+
+**Y el cómo pesa tanto como el qué.** El brief pide recoger esto "sin sentirse como un interrogatorio" ([brief:20](reto/perfilamiento-leads-03.md)) y el mentor lo subió de tono: la conversación tiene que **enamorar**, porque comprar vivienda *"es algo que haces una vez en tu vida y probablemente al lado de otra persona"* ([detalle](reto/charla-mentor.md#conversacion-deseada)). De ahí salen tres reglas que no son cosméticas: cada pregunta **dice para qué sirve** antes de preguntar, cada respuesta **recibe un acuse** antes de la siguiente, y el **campo de texto nunca desaparece** — los atajos son atajos, no la única salida. Contrato completo en [spec 02 D4](specs/02-conversador.md); las reglas de redacción viven en el encabezado de [`lib/conversacion/preguntas.ts`](../lib/conversacion/preguntas.ts).
 
 ### Catálogo de proyectos
 
@@ -122,14 +124,14 @@ Los 4 que el brief lista como capacidad de compra ([brief:20](reto/perfilamiento
 
 ## 7. Supuestos por validar
 
-- [ ] **¿Un lead form de pauta puede pedir la cédula?** Es la llave del enriquecimiento, pero pedirla en Meta/Google mete fricción justo donde el brief dice "sin sentirse como un interrogatorio". Preguntar a mentores. *Plan B si no:* celular como llave, con match más débil. **Grilling 2026-07-24: se sostiene** la cédula en el demo (ya construido, es el momento wow del criterio 1); Rol 4 lo pregunta al mentor hoy y solo si dicen no se pasa al plan B.
+- [ ] **¿Un lead form de pauta puede pedir la cédula?** Es la llave del enriquecimiento, pero pedirla en Meta/Google mete fricción justo donde el brief dice "sin sentirse como un interrogatorio". Preguntar a mentores. *Plan B si no:* celular como llave, con match más débil. **Grilling 2026-07-24: se sostiene** la cédula en el demo (ya construido, es el momento wow del criterio 1); Rol 4 lo pregunta al mentor hoy y solo si dicen no se pasa al plan B. — **Evidencia nueva (charla con el mentor, 2026-07-24): la piden sí o sí.** Es lo que resuelve afiliado / no afiliado, y si eres afiliado *no te piden nada más* porque ya tienen la data ([detalle](reto/charla-mentor.md#autorizacion-de-datos)). Falta que el TEAM marque el checkbox.
 - [ ] **¿Qué sabe Colsubsidio en la vida real de un lead que llega por pauta?** Supuesto de trabajo: si es afiliado lo conocen, si no, no. Ya estaba abierto en [`mvp-layout.md` §7](mvp-layout.md).
 - [ ] **El umbral del corte y el peso de cada factor.** El *qué* se evalúa está cerrado (tabla del bloque 4); el *cuánto pesa* y dónde cae la línea listo / nutrición, no. Se cierra en el ticket del motor con fundamento, no a ojo.
 - [x] **Reglas concretas de subsidio aplicable.** ~~Sin esto el factor existe pero no calcula.~~ **Cerrado en el grilling 2026-07-24:** tabla simple de 2-3 subsidios reales de Colsubsidio con montos y fuente citada (cero inventos); el motor resta el subsidio de la cuota antes del corte del 40%. Ticket [017](tasks/017-tabla-subsidios.md).
 - [x] **Trigger de nutrición con plazo estimado.** ~~Añadirle una fecha estimada queda abierto a discusión.~~ **Cerrado en el grilling 2026-07-24: híbrido.** La fecha entra solo cuando la regla fallida es **temporal y derivable del dato del lead** (ej. antigüedad de afiliación → fecha exacta de recontacto); en el resto (cuota>40%, subsidio) queda condición pura. Cero fechas inventadas. El personaje de nutrición del demo es el caso CON fecha.
 - [x] **Panel de impacto en la vista del asesor.** ~~Opcional, no descartado.~~ **Cerrado en el grilling 2026-07-24: entra como franja** de 3 cifras (% leads curados, horas comerciales ahorradas, alerta 90/10 por proyecto), **timeboxed a medio día** y lo primero que se corta si el sábado aprieta. Ticket [019](tasks/019-franja-impacto.md).
 - [x] **Códigos griegos.** ~~Decidir si se infiere el mapeo o se tratan como clusters anónimos.~~ **Cerrado en el grilling 2026-07-24: clusters anónimos ante el jurado.** El mapeo descifrado viaja solo como etiqueta `[inferido]` (ya es como lo implementó Track B en `generar_sintetica.py`), nunca presentado como oficial.
-- [ ] **Convergencia multi-canal a WhatsApp.** ¿El reto espera tratamiento por canal o basta una conversación única? Preguntar a mentores.
+- [ ] **Convergencia multi-canal a WhatsApp.** ¿El reto espera tratamiento por canal o basta una conversación única? Preguntar a mentores. — **Evidencia nueva (charla con el mentor, 2026-07-24): pidió literalmente "un centralizador que me vaya filtrando todo independientemente de dónde entre"** ([detalle](reto/charla-mentor.md#lo-que-ve-el-asesor)), lo que apunta a conversación única. También describió los 4 canales reales, que no son los que hoy acepta `LeadEvento.fuente` ([spec 01 D3](specs/01-ingesta-enriquecimiento.md)). Falta que el TEAM lo cierre.
 - [ ] **Cruces Ministerio de Vivienda / buró.** ¿Demostrados o basta simularlos? Ya estaba en [`URGENTE-Y-NOTICIAS.md`](URGENTE-Y-NOTICIAS.md).
 - [ ] **Esquema de la DB central.** Los campos que este spec implica están claros; el esquema formal se cierra en `/plan` y va como ADR.
 - [x] **Stack.** ~~Sin decidir.~~ **Decidido 2026-07-23:** Next.js + Vercel + Supabase + API de Claude — ver [ADR 0002](adr/0002-stack-mvp.md). Feedback loops de [`AGENTS.md`](../AGENTS.md) ya llenados.

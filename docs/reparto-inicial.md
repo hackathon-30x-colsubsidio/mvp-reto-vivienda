@@ -27,6 +27,8 @@ Lo hace quien tome el **Track A** (o quien esté libre primero). Los demás arra
 
 ## Los contratos (borrador para `lib/types.ts` — el scaffold los crea, el kickoff los ratifica)
 
+> **La fuente de verdad es [`lib/types.ts`](../lib/types.ts), no este bloque.** El código ya avanzó sobre este borrador (`Lead.respuestas` ganó los dos montos y el enum crediticio; `FactorScore` ganó `peso`/`valor_norm`/`aporte` con el puntaje 0-100). Aquí se mantiene actualizado para leerlo de un vistazo, pero si los dos difieren, gana el archivo.
+
 ```ts
 // ── Lo que entra (ingesta) ───────────────────────────────
 export interface LeadEvento {
@@ -52,11 +54,14 @@ export interface Lead {
   perfil: PerfilConocido;
   respuestas: {
     consentimiento: { otorgado: boolean; timestamp: string };  // habeas data, spec §6
-    rango_ingreso_hogar?: string;
+    rango_ingreso_hogar?: string;      // lo que la persona escribió, tal cual
+    ingreso_hogar_mensual?: number;    // el monto que usa el motor para el tope del 40%
     tiene_vivienda?: boolean;
     subsidios?: string[];
-    situacion_crediticia?: string;
+    subsidio_monto_mensual?: number;   // cuánto baja la cuota, si aplica — ⚠️ NADIE lo pregunta todavía
+    situacion_crediticia?: "buena" | "regular" | "mala" | "sin_info";  // enum, no texto libre
     zona_interes?: string;
+    afiliado_autoreportado?: boolean;  // solo si perfil.match = false — ⚠️ la pregunta aún no existe
   };
 }
 
@@ -66,6 +71,9 @@ export interface FactorScore {
   valor: string;               // lo evaluado, legible
   cumple: boolean;
   fuente: "enriquecimiento" | "conversacion" | "catalogo" | "historico";
+  peso?: number;               // 0–1, cuánto pesa el factor en el puntaje de prioridad
+  valor_norm?: number;         // 0–1, la señal del factor normalizada
+  aporte?: number;             // puntos que suma al puntaje (0–100) = peso * valor_norm * 100
 }
 
 export interface Score {
@@ -103,7 +111,7 @@ Arranque:
 1. Paso 0 (el scaffold es tuyo).
 2. UI del chat con estética WhatsApp + disclaimer "en producción corre sobre WhatsApp Business API", respondiendo con mensajes mock (sin LLM todavía).
 3. Landing del jurado: 3 personajes pre-sembrados (afiliado listo / no afiliado listo / nutrición) + botón "soy yo" ([spec §4](spec.md)).
-4. Diseñar la lógica adaptativa: dado un `PerfilConocido`, ¿qué se pregunta, en qué orden, con qué tono? Primer mensaje siempre = consentimiento habeas data. Luego conectar `/api/chat` a Claude (streaming).
+4. Diseñar la lógica adaptativa: dado un `PerfilConocido`, ¿qué se pregunta, en qué orden, con qué tono? Primer mensaje siempre = consentimiento habeas data. Luego conectar `/api/chat` a Claude (streaming). — **[HOY, 2026-07-24]** el tono dejó de ser libre: las reglas de redacción viven en el encabezado de [`lib/conversacion/preguntas.ts`](../lib/conversacion/preguntas.ts) y en [spec 02 D4](specs/02-conversador.md). Se leen antes de tocar una pregunta.
 
 **Mientras el scaffold no existe:** redactar en papel/doc los guiones de conversación de los 3 personajes — es insumo directo del punto 4 y del video.
 

@@ -2,6 +2,8 @@
 
 *Hackathon Colsubsidio x 30X* 
 
+> Un cuarto insumo, posterior a este documento: la [charla con el mentor de Vivienda](charla-mentor.md) (2026-07-24), que describe **cómo funciona hoy** la operación — canales reales, funnel hasta la separación, puntos de fuga y las métricas que el área quiere y no tiene.
+
 Para este reto los participantes cuentan con tres insumos principales. **1\. Buyer personas por proyecto (PPT)**
 
 Presentaciones con las características de los compradores actuales de cada proyecto de vivienda. Todas siguen la misma estructura, con las siguientes variables:

@@ -2,6 +2,44 @@
 
 > El documento más concreto y resumido del repo. Si solo vas a leer un archivo hoy, es este. Se actualiza cada vez que algo cambia el rumbo del equipo.
 
+## 💬 2026-07-24 16:45 — La conversación de WhatsApp dejó de sonar a encuesta, y **2 de las 3 brechas de datos quedaron cerradas**
+
+Rama `feat/conversacion-humana`. Lo que se está vendiendo es *"algo que haces una vez en tu vida y probablemente al lado de otra persona"* (mentor), y el chat preguntaba como un formulario: pregunta, respuesta, siguiente pregunta, sin reaccionar nunca a lo que la persona acababa de contar.
+
+**Qué cambió, en una línea cada uno:**
+
+- **Cada pregunta dice para qué sirve antes de preguntar.** El ingreso pasó de *"¿cuál es tu rango de ingresos mensuales?"* a *"solo la uso para no mostrarte casas que después te aprieten el bolsillo"*.
+- **Cada respuesta recibe un acuse** antes de la siguiente pregunta. **No pasan por el LLM**: son instantáneos, así que humanizan sin costar latencia ni tocar el blindaje de 3s.
+- **El input libre ya nunca desaparece.** Los chips conviven con el campo de texto en todos los pasos y escribir vale lo mismo que tocarlos. Ingreso y zona siguen **sin chips**: ahí la lista sesga (es literal del mentor).
+- **El agente tiene nombre (Sara)** y saluda con el proyecto por el que entró el lead, como la operación real de click-to-WhatsApp.
+- **Orden nuevo:** primero lo que ilusiona (*¿tu primera vivienda?*), después lo incómodo (ingreso, crédito).
+
+**🟢 Brechas cerradas:** `situacion_crediticia` ya sale como el **enum** que espera el motor, y el ingreso **ya se obtiene como número** (entiende "4.500.000", "2 millones y medio", "3 salarios mínimos", "entre 2 y 3"; a quien ya trajo rango del enriquecimiento se le toma el **punto medio** sin repreguntarle). Si la frase es ambigua, no adivina. **🔴 Sigue abierta la del monto del subsidio:** nadie lo pregunta, así que el subsidio todavía no baja la cuota.
+
+**⚠️ Dos cosas que el TEAM ratifica o tumba** (son las preguntas 3 y 6 del [spec 02](specs/02-conversador.md), respondidas provisionalmente para no dejar el motor roto; ambas se revierten en una línea): **el orden** de las preguntas, y que **el punto medio del rango** sirva como ingreso de quien ya venía perfilado.
+
+**Lo que NO se tocó:** quién conduce la conversación (sigue el código, D1-A — la decisión 2 de abajo **sigue abierta**), el scoring, el matcher, y la pregunta de afiliación (sigue sin existir porque es decisión del TEAM).
+
+## 📋 2026-07-24 — Hay specs por componente + diagramas, y **6 decisiones esperando al TEAM**
+
+Existe [`docs/specs/`](specs/README.md): un spec por cada parte del MVP (ingesta · conversador · scoring · match+agenda · nutrición · dashboard) más el [diagrama unificado](specs/00-mvp-unificado.md), cada uno con su mermaid validado. También entró el digest de la [charla con el mentor](reto/charla-mentor.md) (el transcript crudo NO va al repo: es público).
+
+**Es un borrador para decidir encima, no decisiones tomadas.** Cada spec separa el **QUÉ** (contrato con fuente citada) del **CÓMO** (propuesta discutible), y marca cada punto como `[CERRADA]`, `[HOY — así está construido]` o `[PROPUESTA — TEAM decide]`. Cada uno cierra con sus **Preguntas al TEAM**. Nada se cierra por omisión.
+
+**🔴 Lo que hay que arreglar ya, y nadie lo había visto:** el motor necesita el ingreso como **número** y la conversación solo lo pregunta como **texto libre**. Nadie los conecta, así que **cualquier lead que entre por "soy yo" cae a nutrición, gane lo que gane**. Igual con el monto del subsidio (nunca se pregunta → el subsidio jamás baja la cuota) y con la situación crediticia (texto libre donde el código espera una categoría).
+
+> **↑ Actualizado a las 16:45:** el ingreso y la situación crediticia **ya quedaron cerrados**; el monto del subsidio sigue abierto. Ver la entrada de arriba.
+
+**Las 6 decisiones para la reunión**, en orden de urgencia:
+1. **Cuál de las dos escalas de puntaje es la buena** — hoy la pantalla muestra un número distinto al que calcula el motor.
+2. **¿El LLM conduce la conversación, o sigue conduciendo el código?** El mentor pidió que "enamore" y rechazó el chatbot de opciones; nosotros tenemos lo segundo construido y quedan menos de 48h. — **Sigue abierta, pero es menos urgente desde las 16:45:** el flujo determinista ya no suena a formulario ni encierra al lead en botones (ver la entrada de arriba). La pregunta ahora es si el salto vale el riesgo, no si hay que salvar el tono.
+3. **Qué le decimos al no afiliado que califica y no tiene cupo** — los 18 proyectos ya tienen el cupo copado, así que hoy recibe cero proyectos. Es lo más delicado del demo y lo más potente del pitch.
+4. **Los pesos del motor y el 0,6% que estima la cuota** — abiertos desde `spec.md §7`.
+5. **¿La bandeja habla de "propenso / no propenso"?** Son las palabras del mentor, pero chocan con "nadie se descarta".
+6. **Los IDs de `slots.json`** (`p-03`…) no existen en el catálogo real: las franjas no van a aparecer para proyectos reales.
+
+Detalle completo en [`handoff.md`](agents/handoff.md), entrada del 2026-07-24 16:10.
+
 ## 🟢 2026-07-24 11:30 — IA en producción: diagnosticada y BLINDADA (Nico)
 
 El 500 de `/api/chat` está **resuelto para el demo**. Ya no es hipótesis: es **cold start**. Medido en prod, 4 llamadas seguidas → `200·1.3s`, `200·2.0s`, `200·1.1s`, `500·7.5s`. **Lambda caliente = 1-2s (cumple el <2s); lambda frío = ~7s y a veces 500**, por el intercambio JWT→OAuth de la cuenta de servicio de Vertex que en frío no está cacheado. El fix de modelo-por-backend (`19f116b`) **sí está desplegado y funcionando** — el "build viejo" quedó descartado.

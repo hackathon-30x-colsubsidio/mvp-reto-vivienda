@@ -12,7 +12,7 @@ Colsubsidio vende vivienda con un mandato regulatorio: **90% de las ventas deben
 
 ## La apuesta
 
-Un workflow que hace que los leads pagos se parezcan a los orgánicos: entran por pauta, conversan con un perfilador estilo WhatsApp que **pregunta solo lo que falta**, un motor **transparente** los califica y los matchea con 2-3 proyectos, y al asesor le llega un **lead curado con cita agendada y el porqué en lenguaje natural** — listo para cerrar. Quien aún no puede comprar no se descarta: entra a **nutrición** con el trigger que lo volvería listo.
+Un workflow que hace que los leads pagos se parezcan a los orgánicos: entran por pauta, conversan con un perfilador estilo WhatsApp que **pregunta solo lo que falta** —y lo pregunta conversando, no encuestando: explica para qué sirve cada dato y deja escribir en vez de encerrar al lead en botones—, un motor **transparente** los califica y los matchea con 2-3 proyectos, y al asesor le llega un **lead curado con cita agendada y el porqué en lenguaje natural** — listo para cerrar. Quien aún no puede comprar no se descarta: entra a **nutrición** con el trigger que lo volvería listo.
 
 Cero caja negra: cada decisión es explicable, y el jurado recorre el demo solo.
 

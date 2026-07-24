@@ -671,6 +671,41 @@
   flex: none;
   width: 100%;
 }
+/* Los atajos de respuesta. No son `.btn`: aquellos se reparten la fila a partes
+   iguales y aquí van de 2 a 4, de anchos distintos y envolviendo a la línea
+   siguiente. Se quedan del lado tenue del pie a propósito — el campo de texto
+   es la salida principal (spec 02 D4), el chip es el atajo. */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.chip {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 24px;
+  padding: 9px 15px;
+  cursor: pointer;
+  background: var(--chat-quick-bg);
+  color: var(--chat-quick-ink);
+  border: 1px solid var(--chat-quick-border);
+  transition:
+    transform 0.1s,
+    border-color 0.15s,
+    opacity 0.15s;
+}
+.chip:hover:not(:disabled) {
+  border-color: var(--chat-quick-ink);
+}
+.chip:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 .form {
   display: flex;
   gap: 9px;
