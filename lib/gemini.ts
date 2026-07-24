@@ -26,8 +26,10 @@ import { GoogleGenAI } from "@google/genai";
 // Regla: si cambias un modelo, mídelo contra el MISMO backend donde va a correr y
 // re-verifica el primer token (< 2s, ADR 0002). Se fijan versiones exactas, no el
 // alias `-latest`, para que el modelo no cambie solo en mitad del demo.
-const MODELO_VERTEX = "gemini-2.5-flash";
-const MODELO_AISTUDIO = "gemini-3.5-flash";
+// Exportadas para que el test pueda exigir que sigan siendo distintas: igualarlas
+// vuelve a romper una de las dos rutas.
+export const MODELO_VERTEX = "gemini-2.5-flash";
+export const MODELO_AISTUDIO = "gemini-3.5-flash";
 
 export interface MensajeLLM {
   role: "user" | "assistant";
@@ -183,6 +185,12 @@ export function diagnosticoCredenciales(): string {
     `API key: GEMINI_API_KEY=${process.env.GEMINI_API_KEY ? "ok" : "FALTA"}. ` +
     "Los nombres son case-sensitive y las env vars nuevas solo aplican tras un redeploy."
   );
+}
+
+/** Qué modelo se usaría ahora mismo, según la ruta de auth que esté configurada.
+ *  Expuesto para poder verificar la correspondencia sin llamar a la red. */
+export function modeloActivo(): string {
+  return credencialesVertex() ? MODELO_VERTEX : MODELO_AISTUDIO;
 }
 
 /** Devuelve el cliente y el modelo que le corresponde a ESE backend — ver la nota

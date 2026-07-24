@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { hayKeyGemini, diagnosticoCredenciales } from "./gemini";
+import {
+  hayKeyGemini,
+  diagnosticoCredenciales,
+  modeloActivo,
+  MODELO_VERTEX,
+  MODELO_AISTUDIO,
+} from "./gemini";
 
 // =====================================================================
 // Credenciales de Vertex pegadas a mano en el panel de Vercel.
@@ -83,6 +89,26 @@ describe("credenciales de Vertex — formas en que llega el pegado", () => {
     delete process.env.GOOGLE_CLOUD_PROJECT;
     process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON = JSON_BIEN;
     expect(hayKeyGemini()).toBe(false);
+  });
+});
+
+describe("el modelo depende de la ruta de auth", () => {
+  // Cada backend publica su propio catálogo y NO coinciden: `gemini-2.5-flash`
+  // está retirado en AI Studio pero vivo en Vertex, y los `gemini-3.*` no
+  // existen en Vertex. Una sola constante para ambas rutas rompe una de las
+  // dos, siempre — y el sintoma seria un 404 en pleno demo.
+  it("con credenciales de Vertex usa el modelo de Vertex", () => {
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON = JSON_BIEN;
+    expect(modeloActivo()).toBe(MODELO_VERTEX);
+  });
+
+  it("sin Vertex, cayendo a la API key, usa el modelo de AI Studio", () => {
+    process.env.GEMINI_API_KEY = "no-importa-el-valor";
+    expect(modeloActivo()).toBe(MODELO_AISTUDIO);
+  });
+
+  it("los dos modelos son distintos — si alguien los iguala, esto avisa", () => {
+    expect(MODELO_VERTEX).not.toBe(MODELO_AISTUDIO);
   });
 });
 
