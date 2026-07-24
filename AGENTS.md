@@ -66,6 +66,8 @@ El agente debe correr esto para saber rápido si el código sirve. Stack decidid
 - **Typecheck / lint:** `npx tsc --noEmit && npm run lint`
 - **Run:** `npm run dev` (requiere `.env.local` con `GEMINI_API_KEY` y credenciales de Supabase — ver `.env.example`; sin la key de Gemini, el conversador cae a su fallback determinístico)
 
+⚠️ **Nunca correr `npm run build` con `npm run dev` encendido.** Ambos escriben en `.next`: el dev server queda colgado **reteniendo el puerto 3000 sin responder**, y un `npm run dev` nuevo se niega a arrancar. El síntoma engaña —pantalla en blanco en el navegador, que se lee como "la app se rompió"— y costó ~20 min el 2026-07-24. Antes de sospechar del código, probar el puerto: `curl -o /dev/null -w "%{http_code}" http://localhost:3000/` → `000` significa server caído, no bug. Se arregla con `taskkill //PID <pid> //F` (el PID lo imprime el intento fallido) y relanzar.
+
 ## Datos del reto (crítico)
 
 Trampas ya halladas en el Excel real. Quien construya el motor de scoring limpia esto primero:
