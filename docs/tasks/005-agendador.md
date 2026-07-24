@@ -22,6 +22,10 @@ Que un lead que pasa el corte salga de la conversación con una franja de sala d
 - [ ] La cita aparece en la ficha de `/asesor`.
 - [ ] El personaje de nutrición **no** recibe oferta de cita.
 
+## Nota de implementación para A (2026-07-24)
+
+El chat cambió de forma: cada paso es un `PasoPregunta` con `opciones` (atajos) + `interpretarTexto`, y toda respuesta devuelve `{ patch, acuse }` ([`lib/conversacion/preguntas.ts`](../../lib/conversacion/preguntas.ts)). La oferta de franjas encaja natural ahí — una franja es una opción más, con su acuse ("Listo, te espero el jueves a las 10 ☕"). **Lo que no encaja es meterla como un paso más de indagación:** las franjas se ofrecen *después* del corte, así que van en una fase nueva del `ChatWhatsApp`, no en el arreglo de `pasos`.
+
 ## Estado (2026-07-23, rama `feature/asesor`)
 
 **La mitad de D está hecha.** Falta la de A.

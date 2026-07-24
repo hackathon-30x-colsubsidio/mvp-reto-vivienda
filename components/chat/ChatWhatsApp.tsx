@@ -4,8 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import type { Lead, LeadEvento, PerfilConocido } from "@/lib/types";
 import {
   construirPreguntas,
+  ingresoDesdeRango,
+  mensajeAutorizacion,
+  mensajeCierre,
+  mensajeSaludo,
+  mensajeSinAutorizacion,
   mensajeYaSabemos,
   type PasoPregunta,
+  type Respuesta,
 } from "@/lib/conversacion/preguntas";
 import { MensajeBurbuja, type Mensaje } from "./MensajeBurbuja";
 
@@ -23,6 +29,8 @@ function nuevoId(): string {
   contadorMensaje += 1;
   return `m-${contadorMensaje}`;
 }
+
+const pausa = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export function ChatWhatsApp({
   evento,
@@ -57,10 +65,16 @@ export function ChatWhatsApp({
   useEffect(() => {
     if (iniciado.current) return;
     iniciado.current = true;
-    const primerNombre = evento.nombre.split(" ")[0];
-    agregarBot(
-      `¡Hola, ${primerNombre}! 👋 Soy el asistente de Colsubsidio Vivienda. Antes de continuar, necesito tu autorización para tratar tus datos personales según la Ley 1581 de 2012 (habeas data). ¿Nos autorizas?`,
-    );
+    void (async () => {
+      // El saludo va instantáneo (sin LLM): el chat tiene que sentirse vivo en
+      // el primer segundo. La autorización sí se pule, porque es el mensaje
+      // donde más gente se cae (charla-mentor.md #puntos-de-fuga).
+      await agregarBotInstantaneo(
+        mensajeSaludo(evento.nombre, evento.proyecto_interes),
+        350,
+      );
+      await agregarBot(mensajeAutorizacion());
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -70,6 +84,34 @@ export function ChatWhatsApp({
       ...prev,
       { id: nuevoId(), autor: "usuario", texto, hora: horaActual() },
     ]);
+  }
+
+  function pintarBurbuja(id: string, texto: string) {
+    setEscribiendo(false);
+    setMensajes((prev) => {
+      if (prev.some((m) => m.id === id)) {
+        return prev.map((m) => (m.id === id ? { ...m, texto } : m));
+      }
+      return [...prev, { id, autor: "bot", texto, hora: horaActual() }];
+    });
+  }
+
+  /**
+   * Mensaje del agente que NO pasa por el LLM: los acuses ("¡la primera! 🎉"),
+   * el saludo y el cierre. Son la mitad humana de la conversación —reaccionar a
+   * lo que la persona acaba de decir antes de seguir preguntando— y por eso
+   * tienen que llegar rápido: pagarles una llamada al LLM los volvería lentos
+   * y el chat volvería a sentirse un formulario con pausas. La pausa corta
+   * imita el tiempo real de alguien escribiendo.
+   */
+  async function agregarBotInstantaneo(texto: string, pausaMs = 550) {
+    setEscribiendo(true);
+    await pausa(pausaMs);
+    pintarBurbuja(nuevoId(), texto);
+    historialRef.current = [
+      ...historialRef.current,
+      { role: "assistant", content: texto },
+    ];
   }
 
   /**
@@ -93,16 +135,7 @@ export function ChatWhatsApp({
     const id = nuevoId();
     let acumulado = "";
 
-    // Crea la burbuja la primera vez y la va actualizando; apaga "escribiendo".
-    const pintar = (texto: string) => {
-      setEscribiendo(false);
-      setMensajes((prev) => {
-        if (prev.some((m) => m.id === id)) {
-          return prev.map((m) => (m.id === id ? { ...m, texto } : m));
-        }
-        return [...prev, { id, autor: "bot", texto, hora: horaActual() }];
-      });
-    };
+    const pintar = (texto: string) => pintarBurbuja(id, texto);
 
     // 3s separa limpio el caso caliente (primer token medido en 1–2s) del frío
     // (500 a los ~7s). El costo de cortar de más es solo perder el pulido del
@@ -150,8 +183,8 @@ export function ChatWhatsApp({
     ];
   }
 
-  function responderConsentimiento(acepta: boolean) {
-    agregarUsuario(acepta ? "Sí, acepto" : "No, gracias");
+  async function responderConsentimiento(acepta: boolean) {
+    agregarUsuario(acepta ? "Sí, la comparto" : "Ahora no");
     const timestamp = new Date().toISOString();
     const nuevasRespuestas: Lead["respuestas"] = {
       ...respuestas,
@@ -161,65 +194,75 @@ export function ChatWhatsApp({
 
     if (!acepta) {
       setFase("rechazado");
-      agregarBot(
-        "Entiendo. Sin tu autorización no podemos continuar con el perfilamiento. Si cambias de opinión, aquí estaré.",
-      );
+      await agregarBot(mensajeSinAutorizacion(evento.nombre));
       return;
     }
 
-    agregarBot(mensajeYaSabemos(perfil, evento.nombre));
+    await agregarBot(mensajeYaSabemos(perfil, evento.nombre));
 
     if (pasos.length === 0) {
-      terminar(nuevasRespuestas);
+      await terminar(nuevasRespuestas);
       return;
     }
 
     setFase("pregunta");
     setIndicePaso(0);
-    setTimeout(() => agregarBot(pasos[0].pregunta), 650);
+    await pausa(650);
+    await agregarBot(pasos[0].pregunta);
   }
 
-  function guardarRespuesta(campo: PasoPregunta["campo"], valor: string | boolean | string[]) {
-    return { ...respuestas, [campo]: valor } as Lead["respuestas"];
-  }
-
-  function responderPregunta(etiquetaUsuario: string, valor: string | boolean | string[]) {
-    const pasoActual = pasos[indicePaso];
+  /**
+   * Una respuesta —venga de un chip o de texto libre— deja dos cosas: el patch
+   * con el dato, y el acuse con el que el agente reacciona antes de seguir.
+   * Los dos caminos entran por aquí a propósito: escribir "ya tengo casa" tiene
+   * que valer exactamente lo mismo que tocar el chip (híbrido, spec 02 D4).
+   */
+  async function responderPregunta(etiquetaUsuario: string, respuesta: Respuesta) {
     agregarUsuario(etiquetaUsuario);
-    const nuevasRespuestas = guardarRespuesta(pasoActual.campo, valor);
+    const nuevasRespuestas: Lead["respuestas"] = {
+      ...respuestas,
+      ...respuesta.patch,
+    };
     setRespuestas(nuevasRespuestas);
+
+    if (respuesta.acuse) await agregarBotInstantaneo(respuesta.acuse);
 
     const siguienteIndice = indicePaso + 1;
     if (siguienteIndice < pasos.length) {
       setIndicePaso(siguienteIndice);
-      agregarBot(pasos[siguienteIndice].pregunta);
+      await agregarBot(pasos[siguienteIndice].pregunta);
     } else {
-      terminar(nuevasRespuestas);
+      await terminar(nuevasRespuestas);
     }
   }
 
-  function terminar(respuestasFinales: Lead["respuestas"]) {
+  async function terminar(respuestasFinales: Lead["respuestas"]) {
     setFase("terminado");
-    agregarBot(
-      `¡Listo, ${evento.nombre.split(" ")[0]}! Ya tengo todo lo que necesito. Un asesor va a revisar tu perfil y te contacta muy pronto. 🙌`,
-    );
-    onTerminar({ evento, perfil, respuestas: respuestasFinales });
+
+    // El motor necesita el ingreso como número para el tope del 40%. Si el
+    // enriquecimiento trajo el rango, no se le vuelve a preguntar a la persona
+    // (criterio 1) — se toma el punto medio del rango que ya se conocía.
+    const derivado =
+      respuestasFinales.ingreso_hogar_mensual === undefined && perfil.rango_ingreso
+        ? ingresoDesdeRango(perfil.rango_ingreso)
+        : undefined;
+    const lead: Lead = {
+      evento,
+      perfil,
+      respuestas: derivado
+        ? { ...respuestasFinales, ingreso_hogar_mensual: derivado }
+        : respuestasFinales,
+    };
+
+    await agregarBotInstantaneo(mensajeCierre(evento.nombre), 700);
+    onTerminar(lead);
   }
 
   function enviarTexto() {
     const texto = textoInput.trim();
-    if (!texto || fase !== "pregunta") return;
-    const pasoActual = pasos[indicePaso];
-    if (pasoActual.campo === "subsidios") {
-      const valor =
-        texto.toLowerCase() === "ninguno"
-          ? []
-          : texto.split(",").map((s) => s.trim()).filter(Boolean);
-      responderPregunta(texto, valor);
-    } else {
-      responderPregunta(texto, texto);
-    }
+    if (!texto || fase !== "pregunta" || escribiendo) return;
     setTextoInput("");
+    void responderPregunta(texto, pasos[indicePaso].interpretarTexto(texto));
   }
 
   const pasoActual = fase === "pregunta" ? pasos[indicePaso] : undefined;
@@ -271,63 +314,62 @@ export function ChatWhatsApp({
         <div ref={finRef} />
       </div>
 
-      {/* Footer: quick replies o input libre */}
+      {/* Footer: los chips son atajos, el input libre nunca desaparece. */}
       <div className="bg-[#f0f0f0] p-3 dark:bg-[#1f2c34]">
         {fase === "consentimiento" && (
           <div className="flex gap-2">
             <button
-              onClick={() => responderConsentimiento(true)}
+              onClick={() => void responderConsentimiento(true)}
               className="flex-1 rounded-full bg-[#075e54] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#064e44] dark:bg-[#00a884] dark:text-[#111b21] dark:hover:bg-[#02c39a]"
             >
-              Sí, acepto
+              Sí, la comparto
             </button>
             <button
-              onClick={() => responderConsentimiento(false)}
+              onClick={() => void responderConsentimiento(false)}
               className="flex-1 rounded-full border-2 border-[#075e54] px-4 py-2 text-sm font-semibold text-[#075e54] transition-colors hover:bg-black/5 dark:border-[#00a884] dark:text-[#00a884] dark:hover:bg-white/5"
             >
-              No, gracias
+              Ahora no
             </button>
           </div>
         )}
 
-        {fase === "pregunta" && pasoActual?.tipo === "si_no" && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => responderPregunta("Sí", true)}
-              className="flex-1 rounded-full bg-[#075e54] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#064e44] dark:bg-[#00a884] dark:text-[#111b21] dark:hover:bg-[#02c39a]"
+        {fase === "pregunta" && pasoActual && (
+          <div className="flex flex-col gap-2">
+            {pasoActual.opciones && (
+              <div className="flex flex-wrap gap-2">
+                {pasoActual.opciones.map((opcion) => (
+                  <button
+                    key={opcion.etiqueta}
+                    disabled={escribiendo}
+                    onClick={() => void responderPregunta(opcion.etiqueta, opcion)}
+                    className="rounded-full border-2 border-[#075e54] px-3.5 py-1.5 text-sm font-semibold text-[#075e54] transition-colors hover:bg-black/5 disabled:opacity-50 dark:border-[#00a884] dark:text-[#00a884] dark:hover:bg-white/5"
+                  >
+                    {opcion.etiqueta}
+                  </button>
+                ))}
+              </div>
+            )}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                enviarTexto();
+              }}
+              className="flex gap-2"
             >
-              Sí
-            </button>
-            <button
-              onClick={() => responderPregunta("No", false)}
-              className="flex-1 rounded-full border-2 border-[#075e54] px-4 py-2 text-sm font-semibold text-[#075e54] transition-colors hover:bg-black/5 dark:border-[#00a884] dark:text-[#00a884] dark:hover:bg-white/5"
-            >
-              No
-            </button>
+              <input
+                value={textoInput}
+                onChange={(e) => setTextoInput(e.target.value)}
+                placeholder={pasoActual.placeholder}
+                className="flex-1 rounded-full bg-white px-4 py-2 text-sm text-zinc-900 placeholder:text-zinc-500 dark:bg-[#2a3942] dark:text-zinc-50 dark:placeholder:text-zinc-400"
+              />
+              <button
+                type="submit"
+                className="rounded-full bg-[#075e54] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#064e44] dark:bg-[#00a884] dark:text-[#111b21] dark:hover:bg-[#02c39a]"
+              >
+                Enviar
+              </button>
+            </form>
           </div>
-        )}
-
-        {fase === "pregunta" && pasoActual?.tipo === "texto" && (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              enviarTexto();
-            }}
-            className="flex gap-2"
-          >
-            <input
-              value={textoInput}
-              onChange={(e) => setTextoInput(e.target.value)}
-              placeholder="Escribe tu respuesta..."
-              className="flex-1 rounded-full bg-white px-4 py-2 text-sm text-zinc-900 placeholder:text-zinc-500 dark:bg-[#2a3942] dark:text-zinc-50 dark:placeholder:text-zinc-400"
-            />
-            <button
-              type="submit"
-              className="rounded-full bg-[#075e54] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#064e44] dark:bg-[#00a884] dark:text-[#111b21] dark:hover:bg-[#02c39a]"
-            >
-              Enviar
-            </button>
-          </form>
         )}
 
         {(fase === "terminado" || fase === "rechazado") && (

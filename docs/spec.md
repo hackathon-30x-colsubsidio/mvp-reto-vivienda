@@ -99,15 +99,17 @@ Afiliación, ciudad, segmento y rango de ingreso, desde una **base sintética de
 
 Los 4 que el brief lista como capacidad de compra ([brief:20](reto/perfilamiento-leads-03.md)), más la zona de interés para el matcher:
 
-| Dato | Por qué | Cuándo |
-|---|---|---|
-| Rango de ingreso del hogar | Sin él no se puede evaluar el tope del 40% | Siempre que el enriquecimiento no lo traiga |
-| Si ya tiene vivienda | Condiciona subsidios y prioridad | Siempre |
-| Subsidios recibidos o aplicables | Pueden meter la cuota bajo el 40% | Siempre |
-| Situación crediticia autorreportada | Señal de viabilidad sin tocar DataCrédito | Siempre |
-| Zona / ciudad de interés | Insumo del matcher | Si el enriquecimiento no la trae |
+| Dato | Por qué | Cuándo | Cómo se responde |
+|---|---|---|---|
+| Ingreso del hogar | Sin él no se puede evaluar el tope del 40% | Siempre que el enriquecimiento no lo traiga | **Texto libre** — la lista sesga |
+| Si ya tiene vivienda | Condiciona subsidios y prioridad | Siempre | Atajos + texto |
+| Subsidios recibidos o aplicables | Pueden meter la cuota bajo el 40% | Siempre | Atajos + texto |
+| Situación crediticia autorreportada | Señal de viabilidad sin tocar DataCrédito | Siempre | Atajos + texto |
+| Zona / ciudad de interés | Insumo del matcher | Si el enriquecimiento no la trae | **Texto libre** |
 
 **El set no es un guion fijo.** Personalizar la calificación es parte del reto, así que qué se pregunta, en qué orden y con qué redacción depende del perfil ya conocido. Un afiliado de segmento alto y un no afiliado sin datos no viven la misma conversación.
+
+**Y el cómo pesa tanto como el qué.** El brief pide recoger esto "sin sentirse como un interrogatorio" ([brief:20](reto/perfilamiento-leads-03.md)) y el mentor lo subió de tono: la conversación tiene que **enamorar**, porque comprar vivienda *"es algo que haces una vez en tu vida y probablemente al lado de otra persona"* ([detalle](reto/charla-mentor.md#conversacion-deseada)). De ahí salen tres reglas que no son cosméticas: cada pregunta **dice para qué sirve** antes de preguntar, cada respuesta **recibe un acuse** antes de la siguiente, y el **campo de texto nunca desaparece** — los atajos son atajos, no la única salida. Contrato completo en [spec 02 D4](specs/02-conversador.md); las reglas de redacción viven en el encabezado de [`lib/conversacion/preguntas.ts`](../lib/conversacion/preguntas.ts).
 
 ### Catálogo de proyectos
 

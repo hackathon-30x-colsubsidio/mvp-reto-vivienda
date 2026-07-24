@@ -85,6 +85,7 @@ Munición de impacto ya validada para el pitch: **27,1% de los compradores hist�
 ## Conventions
 
 - **Idioma:** español (el dominio, el pitch y el jurado son en español).
+- **La conversación del chat no es un formulario, y es fácil volverla uno sin querer.** Antes de tocar una pregunta se lee el encabezado de [`lib/conversacion/preguntas.ts`](lib/conversacion/preguntas.ts), que trae las reglas de redacción, y [spec 02 D4](docs/specs/02-conversador.md). Las tres que más se rompen: cada pregunta **dice para qué sirve** antes de preguntar, cada respuesta **recibe un acuse** antes de la siguiente, y el **campo de texto nunca desaparece** — los chips son atajos, no la única salida, y en ingreso y zona no van chips porque la lista sesga. La razón no es estética: se está vendiendo la compra que alguien hace una vez en la vida, y el mentor rechazó explícitamente *"ese prototipo de chatbot donde la gente se enreda"*. Parte está cubierta por `preguntas.test.ts`; el tono, no — eso lo cuida quien escribe.
 - Toda decisión dura (stack, esquema de la DB de leads, alcance) se registra como ADR en `docs/adr/`.
 - **Commits frecuentes** (los modelos pueden borrar cosas por accidente).
 - Mantén `docs/agents/handoff.md` **siempre** al día. Si algo cambia el rumbo del equipo, va también a `docs/URGENTE-Y-NOTICIAS.md`.

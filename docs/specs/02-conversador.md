@@ -84,7 +84,7 @@ Numerados para poder discutirlos uno por uno en la reunión:
 | 11 | **Oferta de franjas** | Lead | Quick reply | **Solo si salió listo** → spec [04](04-match-agenda.md) |
 | 12 | **Nutrición honesta** | Agente | — | Si no pasó: la razón + qué lo destrabaría → spec [05](05-nutricion-reenganche.md) |
 
-**El orden 5→9 no es sagrado.** Es el orden en que hoy están escritas las preguntas. Si el LLM conduce (D1 opción B), el orden lo decide él según cómo fluya la conversación, y esta tabla pasa a ser la lista de *lo que hay que llenar*, no de *en qué orden*.
+**El orden 5→9 no es sagrado.** Al reescribir la conversación (2026-07-24) el orden construido pasó a **6 → 5 → 7 → 8 → 9**: primero lo que ilusiona (¿es tu primera vivienda?) y después lo incómodo (ingreso, crédito). Es la respuesta provisional a la pregunta 3 de abajo — *enamora primero, pregunta después* — y el TEAM la puede revertir cambiando el orden de los `pasos.push` en [`preguntas.ts`](../../lib/conversacion/preguntas.ts). Si el LLM conduce (D1 opción B), el orden lo decide él según cómo fluya la conversación, y esta tabla pasa a ser la lista de *lo que hay que llenar*, no de *en qué orden*.
 
 ### D4 · Dónde va cerrado y dónde abierto · [CERRADA — el mentor lo especificó]
 
@@ -93,6 +93,8 @@ Su regla, textual: hay que tener **las dos** opciones porque unas personas prefi
 > *"si tú dices que ganas 500.000 pesos, el listado no tiene esa opción"* · *"si dice que gana más de 10, ¿cuánto es más de 10?"*
 
 Aplicado a nuestros nodos: **abierto en ingreso (5) y zona (9)**; **quick reply en autorización (2), afiliación (4), vivienda (6) y crediticia (8)**; **híbrido en subsidios (7)**.
+
+**[HOY — así está construido, desde 2026-07-24]** Se implementó más literal que la línea de arriba: salvo la autorización (que es un acto jurídico y va solo por botón), **todos los pasos aceptan texto libre siempre** y los chips quedan como atajo visible al lado del input. Escribir *"ya tengo apartamento"* vale exactamente lo mismo que tocar el chip: los dos caminos entran por el mismo `Respuesta { patch, acuse }`, así que nadie queda atrapado porque su caso no estaba en la lista. Ingreso y zona siguen sin chips a propósito. Cubierto por [`preguntas.test.ts`](../../lib/conversacion/preguntas.test.ts).
 
 ### D5 · Qué significa que el agente "aprende" · [PROPUESTA — resuelve una tensión real]
 
@@ -122,13 +124,13 @@ Si el equipo aprueba D1-B, este flujo **deja de ser el primario y pasa a ser la 
 
 ## Estado hoy vs contrato
 
-Aquí hay tres brechas que **no son de diseño sino de datos que nadie recoge**, y que rompen el motor:
+De las tres brechas de datos que rompían el motor, **dos se cerraron el 2026-07-24** al reescribir la conversación (rama `feat/conversacion-humana`); la tercera sigue abierta:
 
 | # | Qué dice el contrato | Qué pasa hoy | Consecuencia |
 |---|---|---|---|
-| 1 | El motor necesita `ingreso_hogar_mensual` (un **número**) para el gate del 40% | La conversación solo pregunta `rango_ingreso_hogar` (**texto libre**) y nadie lo convierte a número | 🔴 **Un lead que llega por "soy yo" no tiene ingreso numérico → falla el gate → cae a nutrición siempre**, sin importar cuánto gane |
-| 2 | El motor resta `subsidio_monto_mensual` de la cuota | Se pregunta qué subsidios tiene, pero nunca el monto | El subsidio **nunca** baja la cuota. El factor existe y no puede cambiar el resultado |
-| 3 | `situacion_crediticia` es un enum (`buena`/`regular`/`mala`/`sin_info`) | Se pregunta en texto libre y no se normaliza | El motor recibe una frase donde espera una categoría |
+| 1 | El motor necesita `ingreso_hogar_mensual` (un **número**) para el gate del 40% | 🟡 **Cerrada con las dos opciones de la pregunta 6, a falta de ratificar:** el texto libre se parsea a monto (`parsearIngresoMensual` entiende "4.500.000", "2 millones y medio", "3 salarios mínimos", "entre 2 y 3"), y cuando el enriquecimiento trajo el rango se usa su **punto medio** sin repreguntar. Si la frase queda ambigua ("depende del mes") no se adivina: se guarda solo el texto | Deja de caer todo el mundo a nutrición. **El TEAM aún decide si el punto medio es aceptable** o prefiere preguntar el monto también a quien ya tiene rango |
+| 2 | El motor resta `subsidio_monto_mensual` de la cuota | 🔴 **Abierta.** Se pregunta qué subsidios tiene, pero nunca el monto (es la pregunta 7 al TEAM) | El subsidio **nunca** baja la cuota. El factor existe y no puede cambiar el resultado |
+| 3 | `situacion_crediticia` es un enum (`buena`/`regular`/`mala`/`sin_info`) | 🟢 **Cerrada.** Cuatro chips que llevan el enum en el valor, y el texto libre se normaliza contra los mismos cuatro casos | El motor recibe la categoría que espera, venga de chip o de texto |
 
 | Otras brechas | Hoy | Dónde |
 |---|---|---|

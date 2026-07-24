@@ -22,5 +22,7 @@ Que la cadena exista como código de alguien: terminar la conversación dispara 
 - [ ] Corre **en la URL pública de Vercel**, no sólo en localhost (ticket 009).
 
 ## Notas
+**El `Lead` que entrega el chat ya sirve (2026-07-24).** Trae `ingreso_hogar_mensual` como número —parseado del texto libre, o el punto medio del rango que trajo el enriquecimiento— y `situacion_crediticia` como enum, así que el motor no va a mandar a nutrición a todo el mundo por falta de datos ([spec 02](../specs/02-conversador.md), brechas 1 y 3). **Lo que sigue faltando es `subsidio_monto_mensual`**: nadie lo pregunta, así que al conectar la cadena el subsidio no va a bajar la cuota de nadie. Si el TEAM quiere que lo haga, es una pregunta más en la conversación, no trabajo del orquestador.
+
 **Se hace el viernes, no en la integración del sábado.** Es lo único que prueba que las 4 partes encajan; dejarlo para el final es descubrir el desencaje sin tiempo para arreglarlo.
 Depende de 001, 002 y de que existan las superficies de B, C y D aunque sea con datos parciales.

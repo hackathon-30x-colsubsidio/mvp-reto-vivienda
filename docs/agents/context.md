@@ -90,6 +90,12 @@ Momento en que la conversación automática se entrega a un asesor de carne y hu
 **Slot-filling**:
 Forma de conducir una conversación por los **datos que faltan** en vez de por un guion fijo: el agente elige qué preguntar según qué casilla sigue vacía.
 
+**Acuse**:
+La reacción con la que el agente responde a lo que el lead acaba de contestar, antes de pasar a la siguiente pregunta ("¡La primera! Eso te deja el camino despejado para los subsidios"). Es lo que separa conversar de encuestar; en el código va pegado a la respuesta, no a la pregunta.
+
+**Atajo**:
+El botón que ofrece una respuesta frecuente ya redactada (lo que en WhatsApp se llama *quick reply*). Es una ayuda, nunca la única salida: el campo de texto convive con él, porque una lista cerrada deja por fuera al que no cabe en ninguna opción.
+
 **Guardrail**:
 Regla dura que acota lo que el agente puede hacer, independiente de lo que decida el modelo (ej.: el consentimiento va primero; nunca repreguntar lo ya conocido).
 
