@@ -173,13 +173,15 @@ stateDiagram-v2
     }
 
     note right of Indagacion
-        Datos a llenar (el orden lo decide el agente):
-        4 afiliación · quick reply, solo si no hubo match
-        5 ingreso del hogar · TEXTO LIBRE
-        6 vivienda propia · quick reply
-        7 subsidios · híbrido
-        8 situación crediticia · quick reply
-        9 zona · TEXTO LIBRE, solo si falta
+        Datos a llenar — orden construido: 6 → 5 → 7 → 8 → 9
+        (primero lo que ilusiona, después lo incómodo)
+        4 afiliación · atajo + texto, solo si no hubo match
+        5 ingreso del hogar · SOLO TEXTO LIBRE
+        6 vivienda propia · atajo + texto
+        7 subsidios · atajo + texto
+        8 situación crediticia · atajo + texto
+        9 zona · SOLO TEXTO LIBRE, solo si falta
+        El texto libre nunca desaparece: los atajos son ayuda.
         Quién decide que está completo: TypeScript, no el LLM
     end note
 

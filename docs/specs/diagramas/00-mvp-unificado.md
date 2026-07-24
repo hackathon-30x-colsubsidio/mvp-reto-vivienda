@@ -106,4 +106,6 @@ Los dos elementos punteados —**WhatsApp Business API** y **el CRM Salesforce**
 - La conversación **no llama al motor**: termina en un `console.log`. Es el orquestador pendiente ([ticket 006](../../tasks/006-orquestador.md)).
 - El chat **nunca ofrece franjas**, aunque la API de citas funciona.
 - El botón de re-enganche redirige con parámetros **que nadie lee**, así que la flecha de vuelta de ⑤ a ② no se puede demostrar hoy.
-- El ingreso se pregunta como texto y el motor lo necesita como número: **hoy todo lead nuevo cae a nutrición** por eso.
+- El **monto del subsidio** nunca se pregunta, así que el subsidio todavía no baja la cuota.
+
+**Cerrado el 2026-07-24:** el ingreso ya se obtiene como número y la situación crediticia como la categoría que el motor espera. Antes de eso, todo lead nuevo caía a nutrición sin importar cuánto ganara.

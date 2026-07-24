@@ -38,13 +38,15 @@ stateDiagram-v2
     }
 
     note right of Indagacion
-        Datos a llenar (el orden lo decide el agente):
-        4 afiliación · quick reply, solo si no hubo match
-        5 ingreso del hogar · TEXTO LIBRE
-        6 vivienda propia · quick reply
-        7 subsidios · híbrido
-        8 situación crediticia · quick reply
-        9 zona · TEXTO LIBRE, solo si falta
+        Datos a llenar — orden construido: 6 → 5 → 7 → 8 → 9
+        (primero lo que ilusiona, después lo incómodo)
+        4 afiliación · atajo + texto, solo si no hubo match
+        5 ingreso del hogar · SOLO TEXTO LIBRE
+        6 vivienda propia · atajo + texto
+        7 subsidios · atajo + texto
+        8 situación crediticia · atajo + texto
+        9 zona · SOLO TEXTO LIBRE, solo si falta
+        El texto libre nunca desaparece: los atajos son ayuda.
         Quién decide que está completo: TypeScript, no el LLM
     end note
 
@@ -76,7 +78,7 @@ stateDiagram-v2
 
 **Es una máquina de estados, no una lista de preguntas.** Esa distinción importa: el sistema no recorre un guion fijo, sino que va llenando casillas hasta que no falta ninguna.
 
-**Arranca saludando y, si sabe por qué proyecto entró, habla de ese proyecto.** Después pide la autorización de datos. Si la persona dice que no, la conversación termina ahí y queda registrado dónde se cayó.
+**Arranca saludando y, si sabe por qué proyecto entró, habla de ese proyecto** — igual que hace hoy el click-to-WhatsApp de Colsubsidio. El agente tiene nombre (Sara), porque un interlocutor sin nombre no es una conversación. Después pide la autorización de datos. Si la persona dice que no, la conversación termina ahí y queda registrado dónde se cayó.
 
 **El tercer paso es el que gana el criterio de aceptación 1:** antes de preguntar nada, el agente dice en voz alta lo que ya sabe — *"ya sabemos que eres afiliado, que vives en Bogotá y tu rango de ingreso; no te lo voy a volver a preguntar"*. Es el momento en que el jurado entiende que esto no es un formulario.
 
@@ -84,7 +86,11 @@ stateDiagram-v2
 
 Lo importante de ese ciclo: **quién decide que la conversación terminó es código, no el modelo**. El agente puede ser libre en cómo conversa; la decisión de "ya tenemos todo" es determinista. Es lo que evita que la conversación se vaya para cualquier lado.
 
-**La nota de la derecha lista los seis datos que hay que llenar**, y con qué tipo de respuesta. Dos van en **texto libre a propósito**: el ingreso y la zona. Es una instrucción textual del mentor — una lista de opciones sesga, porque *"si tú dices que ganas 500.000, el listado no tiene esa opción"*, y *"si dice que gana más de 10, ¿cuánto es más de 10?"*. Los demás van con botones, porque ahí la lista sí ayuda.
+**La nota de la derecha lista los seis datos que hay que llenar**, en el orden en que hoy se preguntan: **primero lo que ilusiona** (¿es tu primera vivienda?) y **después lo incómodo** (el ingreso, el crédito). Comprar vivienda es algo que se hace una vez en la vida; abrir preguntando cuánto ganas es la forma más rápida de que alguien se vaya.
+
+**El texto libre nunca desaparece.** Salvo la autorización —que es un acto jurídico y va solo por botón—, todos los pasos aceptan que la persona escriba, y los atajos quedan al lado como ayuda visible. Escribir *"ya tengo apartamento"* vale exactamente lo mismo que tocar el atajo. Eso es lo que el mentor pidió cuando explicó que una lista sesga: *"si tú dices que ganas 500.000, el listado no tiene esa opción"*, y *"si dice que gana más de 10, ¿cuánto es más de 10?"*. Por eso el ingreso y la zona no tienen atajos: ahí la lista solo estorba.
+
+**Y cada respuesta recibe un acuse antes de la siguiente pregunta** — una reacción a lo que la persona acaba de contar, no un salto seco al siguiente campo. Los acuses no pasan por el modelo, así que son instantáneos: humanizan sin costar latencia.
 
 **Al cerrar, la conversación se bifurca según lo que diga el motor:** si pasó, se le ofrecen franjas para agendar; si no, se le explica la razón y qué lo destrabaría.
 
@@ -110,6 +116,7 @@ En cualquier momento, si el modelo no responde en 3 segundos, se sirve un texto 
 
 - **El cierre no llama a nadie**: termina en un `console.log`. Los pasos 10, 11 y 12 del diagrama todavía no ocurren.
 - **La pregunta de afiliación (paso 4) no existe** en el código, aunque el contrato de datos la contempla. Mientras tanto el motor asume que quien no está en la base no es afiliado.
-- **El ingreso se pregunta como texto** y el motor lo necesita como número. Nadie convierte lo uno en lo otro, así que hoy cualquier lead nuevo cae a nutrición gane lo que gane.
-- **El monto del subsidio nunca se pregunta**, así que el subsidio jamás baja la cuota.
+- **El monto del subsidio nunca se pregunta**, así que el subsidio jamás baja la cuota. Es la única de las tres brechas de datos que sigue abierta.
 - Hoy quien conduce la conversación es el código y el modelo solo mejora la redacción. Que el modelo conduzca es la propuesta que el equipo tiene que aprobar o tumbar.
+
+**Cerrado el 2026-07-24** (rama `feat/conversacion-humana`): el ingreso ya se obtiene como número —se parsea el texto libre, y a quien ya trajo un rango se le toma el punto medio sin repreguntarle— y la situación crediticia sale como la categoría que el motor espera. Antes de eso, cualquier lead nuevo caía a nutrición gane lo que gane. **Dos cosas quedaron pendientes de ratificar por el equipo:** el orden nuevo de las preguntas y si el punto medio del rango es un ingreso aceptable.
