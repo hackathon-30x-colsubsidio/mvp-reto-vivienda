@@ -16,7 +16,7 @@ Requiere tener el repo hermano `plan-research` clonado al lado de este (`../plan
 1. **`clean_excel.py`** — lee `hackathon_VIVIENDAv2.xlsx` (4.142 compradores) y `Links brochures .xlsx` (catálogo), aplica las trampas documentadas en `AGENTS.md` → "Datos del reto", y escribe CSVs **limpios pero reales** en `data/limpio/` (gitignored por `*.csv`, nunca se versionan). Imprime validaciones: % no afiliado (~27,1%), mediana de precio (~$195M), tamaño del catálogo (18).
 2. **`generar_sintetica.py`** — lee esos CSVs y produce los 3 JSON de `data/sintetica/` (estos **sí se versionan**, son derivados/sintéticos):
    - `identidades.json` — 300 cédulas ficticias sampleadas de las distribuciones reales + las 3 cédulas fijas de los personajes del demo (`1000000001` afiliado listo, `1000000002` no afiliado con restricción de cupo, `1000000003` nutrición).
-   - `proyectos.json` — ficha de los 18 proyectos oficiales (precio típico, ubicación, % no afiliado histórico, cupo 90/10, links).
+   - `proyectos.json` — ficha de los 18 proyectos oficiales, en la forma que espera el matcher del Track C (`lib/matching/tipos.ts::FichaProyecto`): `precio_desde`, `ciudad`/`zona`, `vis`, `cupo_no_afiliados: {usado, total}`, `brochure`/`recorrido_360`.
    - `distribuciones.json` — agregados para el factor "similitud con compradores reales" (evidencia, nunca criterio de corte).
 
 ## Cómo probar que funcionó
@@ -31,7 +31,10 @@ O simplemente correr los scripts: ambos imprimen sus propias validaciones (%, me
 ## Decisiones tomadas (documentadas, no inventadas)
 
 - **Letras griegas → v1 clusters anónimos con mapeo inferido aparte.** `categoria_cluster`/`segmento_cluster` conservan el código original (OMEGA, TAU...); `categoria_inferida`/`segmento_inferida` traen la etiqueta legible marcada `[inferido]`, tomada de `plan-research/docs/agents/context.md`. Nunca se presenta el mapeo como oficial.
-- **VIBO ONCE y KARAKALI: ubicación contradictoria entre hojas** (RICAURTE en "Links brochure" vs. BOGOTÁ en "360"). No se inventa: `ubicacion` queda `null` y `ubicacion_incierta: true` con ambos candidatos en `ubicacion_nota`.
-- **Rango de ingreso sintético** se deriva de `CATEGORIA` (proxy de ingresos, ver mapeo inferido), no existe una columna de ingreso real en el Excel.
-- **Ciudad sintética** se samplea de la ubicación de los proyectos del catálogo, ponderada por su volumen histórico de compradores — el Excel de compradores no trae ciudad de residencia, así que es la mejor proxy disponible.
+- **VIBO ONCE y KARAKALI: ubicación contradictoria entre hojas** (RICAURTE en "Links brochure" vs. BOGOTÁ en "360"). No se inventa: como el contrato de C exige `ciudad` como texto no-nulo, queda el string explícito `"Ricaurte o Bogotá (ubicación contradictoria entre hojas, sin confirmar)"` + `ubicacion_incierta: true`.
+- **Ciudad vs. zona:** el Excel no distingue las dos cosas. Los 18 proyectos son pocos, así que se resolvió a mano: municipios reales tal cual (Chía, Tocancipá, Girardot, Ricaurte, Ubaté, Bogotá), y las 2 etiquetas "CIUDADELA X" se mapearon a Bogotá por ser sectores conocidos de Ciudadela Colsubsidio (inferencia marcada con `ciudad_inferida: true`, nunca presentada como dato del Excel).
+- **`cupo_no_afiliados: {usado, total}`** — `usado` es el conteo real de compradores no afiliados históricos del proyecto; `total` es el 10% de su volumen histórico de ventas (proxy: el Excel no trae "inventario total de unidades", solo ventas ya hechas). Por eso varios proyectos salen con `usado > total`: ya vendieron por encima del cupo regulatorio, que es justo la munición del pitch (27,1% no afiliados vs. 10% permitido).
+- **`vis`** — el Excel no trae esta bandera. Se estima con el tope legal aproximado de VIS (~150 SMMLV), marcado como heurística a verificar, no como dato oficial.
+- **Rango de ingreso sintético** (en `identidades.json`) se deriva de `CATEGORIA` (proxy de ingresos, ver mapeo inferido), no existe una columna de ingreso real en el Excel.
+- **Ciudad sintética** (en `identidades.json`) se samplea de la `ciudad` de los proyectos del catálogo, ponderada por su volumen histórico de compradores — el Excel de compradores no trae ciudad de residencia, así que es la mejor proxy disponible.
 - **`random.seed(42)`** en `generar_sintetica.py`: correr el script las veces que sea da exactamente el mismo `data/sintetica/`, para que un diff en un PR sea real y no ruido de aleatoriedad.
