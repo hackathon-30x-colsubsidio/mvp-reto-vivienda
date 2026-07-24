@@ -98,3 +98,52 @@ describe("calcularScore — el subsidio puede meter la cuota bajo el 40%", () =>
     expect(conSubsidio.factores.find((f) => f.nombre === "subsidio_aplicable")?.cumple).toBe(true);
   });
 });
+
+describe("calcularScore — puntaje ponderado (capa 2)", () => {
+  it("el que cae en nutrición tiene puntaje 0 (no entra a la cola priorizada)", () => {
+    const score = calcularScore(nutricion, proyectoBosqueDeTurpial);
+    expect(score.salida).toBe("nutricion");
+    expect(score.puntaje).toBe(0);
+  });
+
+  it("el puntaje está entre 0 y 100 para quien pasa el gate", () => {
+    const score = calcularScore(afiliadoListo, proyectoInari);
+    expect(score.salida).not.toBe("nutricion");
+    expect(score.puntaje).toBeGreaterThan(0);
+    expect(score.puntaje).toBeLessThanOrEqual(100);
+  });
+
+  it("es additivo: el puntaje = suma de los aportes de los factores (±1 por redondeo)", () => {
+    const score = calcularScore(afiliadoListo, proyectoInari);
+    const sumaAportes = score.factores.reduce((acc, f) => acc + (f.aporte ?? 0), 0);
+    expect(Math.abs(score.puntaje - sumaAportes)).toBeLessThanOrEqual(1);
+  });
+
+  it("es determinista: dos corridas del mismo lead dan el mismo puntaje", () => {
+    const a = calcularScore(afiliadoListo, proyectoInari);
+    const b = calcularScore(afiliadoListo, proyectoInari);
+    expect(a.puntaje).toBe(b.puntaje);
+  });
+
+  it("es monótono en la holgura: más margen bajo el 40% -> más puntaje", () => {
+    const cuota = proyectoInari.precio_desde! * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
+    const conRatio = (ratio: number): Lead => ({
+      ...afiliadoListo,
+      respuestas: { ...afiliadoListo.respuestas, ingreso_hogar_mensual: cuota / ratio },
+    });
+    const holgado = calcularScore(conRatio(0.22), proyectoInari); // casi el máximo de holgura
+    const justo = calcularScore(conRatio(0.39), proyectoInari); // apenas pasa
+    expect(holgado.puntaje).toBeGreaterThan(justo.puntaje);
+  });
+
+  it("el afiliado listo puntúa por encima del no afiliado listo en el mismo proyecto", () => {
+    // Mismo ingreso, mismo proyecto: la única diferencia es la afiliación/cupo.
+    const base = { ...afiliadoListo.respuestas, ingreso_hogar_mensual: 6_000_000 };
+    const af = calcularScore({ ...afiliadoListo, respuestas: base }, proyectoInari);
+    const noAf = calcularScore(
+      { ...afiliadoListo, perfil: { ...afiliadoListo.perfil, afiliado: false }, respuestas: base },
+      proyectoInari,
+    );
+    expect(af.puntaje).toBeGreaterThan(noAf.puntaje);
+  });
+});

@@ -46,6 +46,7 @@ export interface FilaLead {
   consentimiento_otorgado: boolean;
   consentimiento_ts: string | null;
   estado: EstadoLead | null;
+  puntaje: number; // Score.puntaje — prioridad 0–100 en la cola del asesor
   factores: FactorScore[];
   regla_fallida: string | null;
   trigger_nutricion: string | null;
@@ -88,6 +89,7 @@ export function filaDesdeLeadCurado(curado: LeadCurado): Omit<FilaLead, "creado_
     consentimiento_otorgado: consentimiento?.otorgado ?? false,
     consentimiento_ts: consentimiento?.timestamp ?? null,
     estado: score.salida,
+    puntaje: score.puntaje,
     factores: score.factores,
     regla_fallida: score.regla_fallida ?? null,
     trigger_nutricion: score.trigger_nutricion ?? null,
@@ -128,6 +130,7 @@ export function leadCuradoDesdeFila(fila: FilaLead): LeadCurado {
       // La vista `cola_asesor` ya filtra estado not null, así que llegar
       // aquí con null significaría un lead aún en conversación.
       salida: (fila.estado ?? "nutricion") as EstadoLead,
+      puntaje: fila.puntaje ?? 0,
       factores: fila.factores ?? [],
       ...(fila.regla_fallida ? { regla_fallida: fila.regla_fallida } : {}),
       ...(fila.trigger_nutricion ? { trigger_nutricion: fila.trigger_nutricion } : {}),

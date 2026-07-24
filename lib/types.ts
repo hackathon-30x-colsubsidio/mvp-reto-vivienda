@@ -43,11 +43,18 @@ export interface FactorScore {
   valor: string; // lo evaluado, legible
   cumple: boolean;
   fuente: "enriquecimiento" | "conversacion" | "catalogo" | "historico";
+  // Puntaje ponderado (spec §4, capa 2). Additivo: los factores que solo son
+  // gate legal o señal informativa los dejan sin definir. Cuando están, el
+  // aporte del factor al puntaje total es peso * valor_norm * 100.
+  peso?: number; // 0–1, cuánto pesa este factor en el puntaje de prioridad
+  valor_norm?: number; // 0–1, la señal del factor normalizada
+  aporte?: number; // puntos que este factor suma al puntaje (0–100)
 }
 
 export interface Score {
   lead_id: string;
   salida: "listo" | "listo_restriccion_cupo" | "nutricion"; // las 3 salidas, spec §4
+  puntaje: number; // 0–100, prioridad en la cola del asesor (0 si cae en nutrición)
   factores: FactorScore[]; // TODOS visibles — cero caja negra
   regla_fallida?: string; // solo si salida = nutricion
   trigger_nutricion?: string; // la inversa de la regla que falló

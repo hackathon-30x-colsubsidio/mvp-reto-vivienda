@@ -60,6 +60,10 @@ create table leads (
   -- estado = Score.salida. Las 3 salidas del spec y ninguna más:
   -- NO existe "descartado" (spec §2).
   estado                  text,
+  -- puntaje = Score.puntaje (0–100). Prioridad en la cola del asesor
+  -- (capa 2 del motor). 0 si el lead cae en nutrición. La vista
+  -- cola_asesor puede ordenar por esta columna DESC.
+  puntaje                 integer     not null default 0,
   -- factores = Score.factores (FactorScore[]).
   -- CERO CAJA NEGRA: se guarda el array COMPLETO, tal cual lo evaluó
   -- el motor. El criterio de aceptación 2 se verifica contando esto

@@ -7,6 +7,7 @@ import type { Score } from "@/lib/types";
 export const afiliadoListo: Score = {
   lead_id: "lead-001",
   salida: "listo",
+  puntaje: 84,
   factores: [
     {
       nombre: "afiliacion",
@@ -51,6 +52,7 @@ export const afiliadoListo: Score = {
 export const noAfiliadoListo: Score = {
   lead_id: "lead-002",
   salida: "listo_restriccion_cupo",
+  puntaje: 61,
   factores: [
     {
       nombre: "afiliacion",
@@ -94,6 +96,7 @@ export const noAfiliadoListo: Score = {
 export const nutricion: Score = {
   lead_id: "lead-003",
   salida: "nutricion",
+  puntaje: 0,
   factores: [
     {
       nombre: "afiliacion",
