@@ -23,6 +23,9 @@ Borrador de frase de apuesta: *"Un interesado en vivienda que llega por pauta lo
 
 ## 3. El workflow macro (borrador — el team lo cura y concreta)
 
+> 🔁 **SUPERSEDED (2026-07-24) → [`docs/specs/00-mvp-unificado.md`](specs/00-mvp-unificado.md).**
+> El strawman de abajo cumplió su función: arrancar la discusión. El diagrama vigente, con los nodos y las ramas curadas contra el código real y la [charla con el mentor](reto/charla-mentor.md), vive ahora en el [paquete de specs por componente](specs/README.md). Este se queda como registro histórico — no lo uses para construir.
+
 > ⚠️ **Strawman, no definitivo.** Este diagrama existe para que la discusión del equipo arranque de algo concreto; sentarse a curarlo es tarea del kickoff.
 
 ```mermaid

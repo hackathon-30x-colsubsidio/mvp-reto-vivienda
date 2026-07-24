@@ -57,10 +57,44 @@ Clasificación de la empresa empleadora del afiliado por tamaño/tipo: top, medi
 Conformación del hogar según variables del DANE: monoparental, nuclear ampliada, monoparental ampliada, pareja conyugal.
 
 **Códigos griegos** _(dato del Excel)_:
-`SEGMENTO_POBLACIONAL`/`CATEGORIA`/`PIRAMIDE_NUEVA` vienen anonimizados con letras griegas (KAPPA, PI, OMEGA…) en vez de las categorías Básico/Medio/Alto/Joven o top/micro/estándar. Decisión abierta: tratarlos como clusters anónimos o inferir el mapeo contra el PPT.
+`SEGMENTO_POBLACIONAL`/`CATEGORIA`/`PIRAMIDE_NUEVA` vienen anonimizados con letras griegas (KAPPA, PI, OMEGA…) en vez de las categorías Básico/Medio/Alto/Joven o top/micro/estándar. Se tratan como **clusters anónimos** ante el jurado; el mapeo descifrado solo viaja como etiqueta `[inferido]` (cerrado en el grilling 2026-07-24, `spec.md §7`).
 
 **Asesor**:
 El comercial de Colsubsidio que cierra la venta. El endpoint del reto: el lead debe llegarle tan calificado que la conversación sea prácticamente de cierre y agendamiento de visita a sala de ventas.
 
 **30X**:
 Aliado de la hackathon; plataforma de educación ejecutiva en IA en Latinoamérica.
+
+## Language — términos de la operación real
+
+_Añadidos el 2026-07-24 tras la [charla con el mentor](../reto/charla-mentor.md) y el paquete de [specs por componente](../specs/README.md)._
+
+**Separación**:
+Primer cierre de la venta: el comprador aparta el inmueble, a veces por menos de $1M COP. **Es el objetivo real del funnel de vivienda**, no la escrituración.
+
+**Escrituración**:
+Cierre final de la venta; puede tardar hasta 3 años y la gestiona otra área de Colsubsidio. Fuera del alcance del reto.
+
+**Click-to-WhatsApp**:
+Anuncio de Meta que abre una conversación de WhatsApp ya cargada con un mensaje personalizado que identifica el proyecto por el que entró la persona.
+
+**Atribución de canal**:
+Saber por dónde entró un lead (anuncio, QR, botón flotante, link). Hoy Colsubsidio la deduce del mensaje personalizado y **la pierde si el usuario borra ese mensaje** antes de enviarlo.
+
+**Propenso / no propenso**:
+Las dos categorías que el asesor quiere ver en su bandeja: si el lead va a comprar o no. En nuestro modelo, propenso agrupa las dos salidas de "listo" y no propenso equivale a nutrición.
+
+**Handoff a humano**:
+Momento en que la conversación automática se entrega a un asesor de carne y hueso. Los tres disparadores de la operación real: no pudo agendar, no pudo cotizar, o pide hablar con un asesor.
+
+**Slot-filling**:
+Forma de conducir una conversación por los **datos que faltan** en vez de por un guion fijo: el agente elige qué preguntar según qué casilla sigue vacía.
+
+**Guardrail**:
+Regla dura que acota lo que el agente puede hacer, independiente de lo que decida el modelo (ej.: el consentimiento va primero; nunca repreguntar lo ya conocido).
+
+**Grounding actualizable**:
+Que los datos que el agente cita (catálogo, subsidios, textos legales) vivan en archivos editables y no dentro del prompt, para que cambiarlos no requiera tocar código.
+
+**Recalibración offline**:
+La única forma de "aprendizaje" que admite este proyecto: un humano revisa conversaciones y métricas y ajusta prompts o pesos **en un commit con autor y fecha**. Nunca ajuste automático en línea, que sería caja negra.

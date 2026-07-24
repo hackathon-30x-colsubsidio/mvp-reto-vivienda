@@ -1,0 +1,184 @@
+# Spec 03 — Motor de scoring y corte
+
+> Borrador v1 · lee primero las [convenciones](README.md#las-dos-capas-de-cada-spec-leer-esto-antes-que-nada): el **QUÉ** va firme con su fuente, el **CÓMO** es propuesta.
+> Este spec se escribió primero porque fija el vocabulario que usan los demás: **factor**, **gate**, **salida**, **puntaje**.
+
+## Qué cubre
+
+Lo que pasa entre "la conversación terminó" y "el lead tiene una etiqueta y un orden en la cola": los factores que se evalúan, cuál bloquea y cuál solo pesa, y en qué salida cae cada lead.
+
+**No cubre:** qué se le pregunta al lead (spec [02](02-conversador.md)), qué proyectos se le recomiendan (spec [04](04-match-agenda.md)), ni cómo se presenta en pantalla (spec [06](06-dashboard-asesor.md)).
+
+## Contrato
+
+### D1 · El motor tiene dos capas y solo una bloquea · [CERRADA — `spec.md §4` + Decreto 583 de 2025]
+
+**Capa 1, el gate legal.** La primera cuota estimada no puede superar el **40% del ingreso del hogar**. No es criterio del equipo: el [Decreto 583 de 2025](https://minvivienda.gov.co/normativa/decreto-0583-2025) modificó el art. 2.1.11.1 del Decreto 1077 de 2015 y lo fijó ahí, sin distinción VIS / no VIS. Si se supera, el banco legalmente no puede prestar. **Es lo único que manda a alguien a nutrición.**
+
+**Capa 2, el puntaje.** Para quien pasa el gate, un compuesto ponderado 0–100 que **ordena** la cola del asesor. El puntaje **no decide nada**: no cambia la salida, no descarta, no bloquea.
+
+Ejemplo completo, para que se vea que no hay caja negra (lead con ingreso $4.000.000, proyecto de $149.000.000, sin subsidio):
+
+```
+cuota estimada = 149.000.000 × 0,6%  = 894.000
+cuota / ingreso = 894.000 / 4.000.000 = 22,4%   ≤ 40%  → pasa el gate
+holgura = (40% − 22,4%) / (40% − 20%) = 0,88     → aporta 0,30 × 0,88 × 100 = 26,4 puntos
+```
+
+### D2 · Cómo se estima la cuota · [HOY — así está construido, ratificar]
+
+`cuota estimada = precio × 0,6% − subsidio mensual`. El 0,6% aproxima una cuota de crédito hipotecario a 20 años sobre el 70% del valor. Está declarado en el código como heurística, no como fórmula bancaria certificada ([`lib/scoring/config.ts`](../../lib/scoring/config.ts)).
+
+**Esto necesita un sí o un no del equipo**, idealmente contra alguien que sepa de crédito hipotecario. Es el número del que cuelga el gate entero.
+
+### D3 · Siete factores visibles, seis con peso · [CERRADA — `spec.md §4`]
+
+Todos los factores que el motor evalúa se muestran. Ninguno se filtra de la pantalla — ese es el criterio de aceptación 2.
+
+| # | Factor | Qué es | Peso | Bloquea? |
+|---|---|---|---|---|
+| 1 | `afiliacion` | Afiliado o no. Determina **cuál** de las dos salidas de "listo" | sin peso propio | No |
+| 2 | `cuota_ingreso_40` | El gate legal + la holgura como señal | 0,30 | **Sí** |
+| 3 | `cupo_90_10` | Cupo de no afiliados que le queda al proyecto | 0,20 | No |
+| 4 | `similitud_compradores_reales` | Parecido con quienes ya compraron ahí | 0,20 | No |
+| 5 | `subsidio_aplicable` | Cuánto de la cuota cubre el subsidio | 0,15 | No |
+| 6 | `ya_tiene_vivienda` | Propósito social: prioriza a quien no tiene | 0,10 | No |
+| 7 | `situacion_crediticia` | Autorreportada. Señal, no verificación (DataCrédito está fuera de alcance) | 0,05 | No |
+
+La afiliación **no tiene peso propio a propósito**: su efecto en el puntaje viaja dentro de `cupo_90_10`. Si tuviera peso además, contaría doble.
+
+La similitud **nunca corta**. `spec.md §4` la define como *evidencia de respaldo*, no como criterio. Un lead no se cae por no parecerse a los compradores de un proyecto.
+
+### D4 · Los pesos son propuestos, no ratificados · [PROPUESTA — TEAM decide]
+
+Los seis pesos (0,30 / 0,20 / 0,20 / 0,15 / 0,10 / 0,05) suman 1,0 y están escritos en [`config.ts`](../../lib/scoring/config.ts) con el comentario "PROPUESTOS, no definitivos". [`spec.md §7`](../spec.md) lo tiene como supuesto abierto: *"el qué se evalúa está cerrado; el cuánto pesa y dónde cae la línea, no"*.
+
+**Este spec es donde el equipo los firma o los cambia.** El orden actual dice, en palabras: *primero cuánto margen le sobra para pagar, después si tiene cupo, después si se parece a quienes ya compraron, y de últimas su situación crediticia autorreportada porque nadie la verificó*. Si el equipo no está de acuerdo con esa frase, el que cambia es el peso.
+
+### D5 · Dos observaciones aritméticas que el equipo debería conocer · [HOY — verificable sumando]
+
+1. **Nadie puede sacar 100.** La similitud está fija en 0,5 mientras no existan las distribuciones por proyecto ([ticket 016](../tasks/016-distribuciones-por-proyecto.md)), así que aporta 10 de sus 20 puntos siempre. El techo real hoy es **90**.
+2. **Un no afiliado tiene techo 80.** `cupo_90_10` para un no afiliado da como máximo señal 0,5, o sea 10 de 20 puntos. Un afiliado y un no afiliado idénticos en todo lo demás quedan separados por 10 puntos de puntaje.
+
+Ninguna de las dos es un bug: la primera es un provisional declarado, la segunda es la regla 90/10 expresándose en la prioridad. **Pero las dos son decisiones**, y hoy nadie las ratificó. Con ellas encima, la pregunta al equipo es si el techo móvil confunde al asesor.
+
+### D6 · Hay dos escalas de puntaje conviviendo · [PROPUESTA — la decisión más urgente de este spec]
+
+Existen **dos** cálculos distintos para el mismo lead:
+
+| | `Score.puntaje` | `calcularPuntaje()` |
+|---|---|---|
+| Dónde | [`lib/scoring/index.ts`](../../lib/scoring/index.ts) + [`config.ts`](../../lib/scoring/config.ts) | [`lib/scoring/puntaje.ts`](../../lib/scoring/puntaje.ts) |
+| Cómo puntúa | Continuo: `peso × señal × 100` | Binario: cumple todo el peso o cero |
+| Pesos | 0,30 / 0,20 / 0,20 / 0,15 / 0,10 / 0,05 | 35 / 20 / 15 / 10 / 10 / 10 |
+| Quién lo usa | Se guarda en Supabase | **Toda la UI**: ficha, tablero, orden de los grupos, métrica "puntaje promedio" |
+
+Los pesos ni siquiera coinciden en el orden: en el continuo la situación crediticia es lo último (0,05); en el binario es el tercero (15). **El número que el asesor ve en pantalla no es el número que el motor calculó.**
+
+**Propuesta:** la escala canónica es la del motor (continua), porque distingue "apenas pasa" de "pasa con mucho margen", que es justo lo que sirve para priorizar una cola. `puntaje.ts` converge hacia ella. **Pero es el equipo quien decide** — la alternativa razonable es quedarse con la binaria por ser la que ya está probada y visible, y borrar la otra.
+
+Lo que **no** es opción es dejar las dos: un mismo lead con dos puntajes distintos es exactamente la caja negra que [`AGENTS.md`](../../AGENTS.md) prohíbe.
+
+### D7 · Las tres salidas · [CERRADA — `spec.md §4`]
+
+| Salida | Quién cae ahí | Qué pasa |
+|---|---|---|
+| `listo` | Afiliado que pasa el gate | Match + cita + tope de la cola |
+| `listo_restriccion_cupo` | No afiliado que pasa el gate | Igual, marcado contra el 10% del proyecto |
+| `nutricion` | Quien no pasa el gate | Razón + trigger de recontacto (spec [05](05-nutricion-reenganche.md)) |
+
+**No existe "descartado".** Contradice el propósito social del reto.
+
+### D8 · Propenso / no propenso como capa de presentación · [PROPUESTA]
+
+El mentor pidió dos categorías para el asesor: [propenso a comprar o no](../reto/charla-mentor.md#lo-que-ve-el-asesor). Nuestras tres salidas mapean así:
+
+```
+propenso     = listo + listo_restriccion_cupo
+no propenso  = nutricion
+```
+
+**Es solo vocabulario de pantalla; el motor no cambia.** La propuesta es adoptar las palabras del mentor arriba y conservar las tres salidas como sub-secciones (ver spec [06](06-dashboard-asesor.md) D1). Riesgo que el equipo debe sopesar: "no propenso" suena a descarte y nuestro discurso entero es que nadie se descarta.
+
+### D9 · El 90/10 se marca en el motor y bloquea en el matcher · [HOY — así está construido]
+
+El motor **nunca** bloquea por cupo: `cupo_90_10` siempre marca `cumple: true` y solo baja la señal. Quien deja a un no afiliado sin proyectos es el matcher (spec [04](04-match-agenda.md) D2).
+
+Es coherente con lo que dijo el mentor: [la prioridad son los afiliados, pero "siempre va a ser la prioridad de los ingresos"](../reto/charla-mentor.md#90-10-e-ingresos). El motor mide capacidad; el cupo es una restricción de inventario que se aplica después.
+
+### D10 · El LLM nunca puntúa · [CERRADA — `AGENTS.md` + ADR 0002]
+
+El motor es TypeScript puro, determinista, sin red. La IA solo **redacta** explicaciones sobre números ya calculados. Un puntaje que salga de un modelo no se puede auditar y rompe la restricción de cero caja negra.
+
+## Estado hoy vs contrato
+
+| Qué | Hoy | Brecha |
+|---|---|---|
+| Gate del 40% | Funciona, con la norma citada en el texto del factor | — |
+| 7 factores visibles | Los 7 se emiten y la ficha los recorre con `.map()` | — |
+| Similitud real | Fija en 0,5 | Espera [016](../tasks/016-distribuciones-por-proyecto.md); [018](../tasks/018-similitud-en-explicacion.md) la lleva a la explicación |
+| Escala del puntaje | Dos coexistiendo (D6) | Sin dueño ni ticket |
+| Pesos ratificados | No | Kickoff |
+| Subsidio | El motor resta `subsidio_monto_mensual`, pero nadie lo llena | Tabla de subsidios, [017](../tasks/017-tabla-subsidios.md) |
+
+## Diagrama
+
+```mermaid
+flowchart TD
+    LEAD["Lead con conversación terminada<br/>(ingreso, subsidio, vivienda, crediticia)"] --> CUOTA
+
+    CUOTA["Estimar la cuota<br/>precio x 0,6% − subsidio mensual"] --> GATE
+
+    GATE{"¿cuota ≤ 40%<br/>del ingreso?<br/>Decreto 583/2025"}
+
+    GATE -->|"No — única regla que bloquea"| NUTRI["salida: nutricion<br/>puntaje 0<br/>+ regla fallida + trigger"]
+
+    GATE -->|"Sí"| PESO
+
+    subgraph PESO["Capa 2 — puntaje de prioridad (no decide, solo ordena)"]
+        direction TB
+        F2["holgura de capacidad · 0,30"]
+        F3["cupo 90/10 · 0,20"]
+        F5["subsidio aplicable · 0,15"]
+        F6["sin vivienda · 0,10"]
+        F7["situación crediticia · 0,05"]
+    end
+
+    SIM["similitud con compradores · 0,20<br/>evidencia, NUNCA corta<br/>(hoy fija en 0,5)"] -.-> PESO
+
+    PESO --> SUMA["puntaje = Σ aportes<br/>0–100, trazable factor por factor"]
+
+    SUMA --> AFIL{"¿es afiliado?"}
+    AFIL -->|"Sí"| LISTO["salida: listo"]
+    AFIL -->|"No"| CUPO["salida: listo_restriccion_cupo<br/>marcado contra el 10% del proyecto"]
+
+    LISTO --> COLA["Cola del asesor<br/>ordenada por puntaje"]
+    CUPO --> COLA
+    NUTRI --> COLA
+
+    classDef bloquea stroke-width:2px
+    classDef propuesta stroke-dasharray: 5 5
+    class GATE bloquea
+    class SIM propuesta
+```
+
+Leer el diagrama: **solo el rombo del 40% tiene poder de decisión.** Todo lo demás produce un número que ordena. La similitud entra punteada porque es evidencia y porque hoy es provisional.
+
+## Preguntas al TEAM
+
+1. **¿Ratificamos el 0,6% como estimador de la cuota?** (D2) Es el número del que depende todo el gate. ¿Alguien puede validarlo con un asesor financiero antes del domingo?
+2. **¿Cuál escala de puntaje es la canónica?** (D6) Es la decisión más urgente: hoy la pantalla muestra un número distinto al que calcula el motor.
+3. **¿Los pesos quedan como están?** (D4) Si alguien no está de acuerdo con la frase "la situación crediticia es lo que menos pesa porque nadie la verificó", hay que cambiarla.
+4. **¿Molesta que el techo del puntaje sea 90 (y 80 para no afiliados)?** (D5) ¿Se normaliza sobre lo evaluable, se declara en pantalla, o se deja así?
+5. **¿Adoptamos "propenso / no propenso"?** (D8) Son las palabras del mentor, pero chocan con "nadie se descarta".
+6. **¿Qué pasa con un lead que pasa el gate contra un proyecto y no contra otro?** El motor califica `(lead, proyecto)`, o sea el puntaje depende del proyecto contra el que se corra. Hoy nadie definió cuál es "el" proyecto de referencia cuando el lead no preguntó por ninguno. **Vacío real, sin respuesta en el canon.**
+7. **¿El asesor puede ver el puntaje sin su desglose en algún lado?** Hoy no, y `DESIGN.md` lo prohíbe. Confirmar que nadie quiere un "score grande" en la bandeja.
+
+## Fuentes
+
+- [`spec.md §4`](../spec.md) — las 3 salidas, la tabla de factores, la similitud como evidencia.
+- [`spec.md §7`](../spec.md) — umbral y pesos, marcados como supuesto por validar.
+- [Decreto 583 de 2025](https://minvivienda.gov.co/normativa/decreto-0583-2025) — el tope del 40%.
+- [Charla con el mentor](../reto/charla-mentor.md#90-10-e-ingresos) — la prioridad de los ingresos; [las dos categorías](../reto/charla-mentor.md#lo-que-ve-el-asesor).
+- Código: [`lib/scoring/index.ts`](../../lib/scoring/index.ts), [`config.ts`](../../lib/scoring/config.ts), [`puntaje.ts`](../../lib/scoring/puntaje.ts).
+- [`AGENTS.md`](../../AGENTS.md) — cero caja negra; [ADR 0002](../adr/0002-stack-mvp.md) — scoring sin LLM.

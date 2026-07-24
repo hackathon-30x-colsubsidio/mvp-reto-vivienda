@@ -2,6 +2,24 @@
 
 > El documento más concreto y resumido del repo. Si solo vas a leer un archivo hoy, es este. Se actualiza cada vez que algo cambia el rumbo del equipo.
 
+## 📋 2026-07-24 — Hay specs por componente + diagramas, y **6 decisiones esperando al TEAM**
+
+Existe [`docs/specs/`](specs/README.md): un spec por cada parte del MVP (ingesta · conversador · scoring · match+agenda · nutrición · dashboard) más el [diagrama unificado](specs/00-mvp-unificado.md), cada uno con su mermaid validado. También entró el digest de la [charla con el mentor](reto/charla-mentor.md) (el transcript crudo NO va al repo: es público).
+
+**Es un borrador para decidir encima, no decisiones tomadas.** Cada spec separa el **QUÉ** (contrato con fuente citada) del **CÓMO** (propuesta discutible), y marca cada punto como `[CERRADA]`, `[HOY — así está construido]` o `[PROPUESTA — TEAM decide]`. Cada uno cierra con sus **Preguntas al TEAM**. Nada se cierra por omisión.
+
+**🔴 Lo que hay que arreglar ya, y nadie lo había visto:** el motor necesita el ingreso como **número** y la conversación solo lo pregunta como **texto libre**. Nadie los conecta, así que **cualquier lead que entre por "soy yo" cae a nutrición, gane lo que gane**. Igual con el monto del subsidio (nunca se pregunta → el subsidio jamás baja la cuota) y con la situación crediticia (texto libre donde el código espera una categoría).
+
+**Las 6 decisiones para la reunión**, en orden de urgencia:
+1. **Cuál de las dos escalas de puntaje es la buena** — hoy la pantalla muestra un número distinto al que calcula el motor.
+2. **¿El LLM conduce la conversación, o sigue conduciendo el código?** El mentor pidió que "enamore" y rechazó el chatbot de opciones; nosotros tenemos lo segundo construido y quedan menos de 48h.
+3. **Qué le decimos al no afiliado que califica y no tiene cupo** — los 18 proyectos ya tienen el cupo copado, así que hoy recibe cero proyectos. Es lo más delicado del demo y lo más potente del pitch.
+4. **Los pesos del motor y el 0,6% que estima la cuota** — abiertos desde `spec.md §7`.
+5. **¿La bandeja habla de "propenso / no propenso"?** Son las palabras del mentor, pero chocan con "nadie se descarta".
+6. **Los IDs de `slots.json`** (`p-03`…) no existen en el catálogo real: las franjas no van a aparecer para proyectos reales.
+
+Detalle completo en [`handoff.md`](agents/handoff.md), entrada del 2026-07-24 16:10.
+
 ## 🟢 2026-07-24 11:30 — IA en producción: diagnosticada y BLINDADA (Nico)
 
 El 500 de `/api/chat` está **resuelto para el demo**. Ya no es hipótesis: es **cold start**. Medido en prod, 4 llamadas seguidas → `200·1.3s`, `200·2.0s`, `200·1.1s`, `500·7.5s`. **Lambda caliente = 1-2s (cumple el <2s); lambda frío = ~7s y a veces 500**, por el intercambio JWT→OAuth de la cuenta de servicio de Vertex que en frío no está cacheado. El fix de modelo-por-backend (`19f116b`) **sí está desplegado y funcionando** — el "build viejo" quedó descartado.
