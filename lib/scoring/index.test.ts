@@ -49,7 +49,7 @@ describe("calcularScore — criterio de aceptación 2: cero caja negra", () => {
 });
 
 describe("calcularScore — borde exacto del tope del 40% (Decreto 583 de 2025)", () => {
-  const cuotaEstimada = proyectoInari.precio_tipico! * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
+  const cuotaEstimada = proyectoInari.precio_desde! * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
 
   function leadConRatio(ratio: number): Lead {
     return {
@@ -76,7 +76,7 @@ describe("calcularScore — borde exacto del tope del 40% (Decreto 583 de 2025)"
 
 describe("calcularScore — el subsidio puede meter la cuota bajo el 40%", () => {
   it("un lead que fallaría sin subsidio, pasa con el subsidio aplicado", () => {
-    const cuotaEstimada = proyectoBosqueDeTurpial.precio_tipico! * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
+    const cuotaEstimada = proyectoBosqueDeTurpial.precio_desde! * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
     const ingreso = 1_800_000;
 
     const sinSubsidio = calcularScore(leadLauraNutricion, proyectoBosqueDeTurpial);

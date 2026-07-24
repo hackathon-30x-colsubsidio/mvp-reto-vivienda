@@ -68,19 +68,23 @@ export interface LeadCurado {
   explicacion: string; // el porqué global, redactado por el experto
 }
 
-// ── Data sintética que el motor consume (data/sintetica/) ─
+// ── Data sintética que el motor consume (data/sintetica/proyectos.json) ──
+// Forma acordada con el Track C (matcher): la definición formal vive en su
+// lib/matching/tipos.ts como `FichaProyecto`. Esta es una copia estructural
+// para que lib/scoring/ no dependa del código de otro track (regla del
+// reparto). Cambiar esta forma se avisa a C — rompe su matcher.
 export interface ProyectoCatalogo {
   proyecto_id: string;
   nombre: string;
-  ubicacion: string | null;
-  ubicacion_incierta: boolean;
-  ubicacion_nota: string | null;
-  precio_tipico: number | null;
-  precio_min: number | null;
-  precio_max: number | null;
-  n_compradores_historico: number;
-  pct_no_afiliado_historico: number | null;
-  cupo_90_10_disponible: boolean | null;
-  link_brochure: string | null;
-  link_360: string | null;
+  ciudad: string;
+  zona?: string | null;
+  precio_desde: number | null;
+  vis: boolean | null;
+  cupo_no_afiliados: { usado: number; total: number };
+  brochure?: string | null;
+  recorrido_360?: string | null;
+  // Extras informativos de B, no forman parte del contrato con C:
+  ciudad_inferida?: boolean;
+  ubicacion_incierta?: boolean;
+  ubicacion_nota?: string | null;
 }

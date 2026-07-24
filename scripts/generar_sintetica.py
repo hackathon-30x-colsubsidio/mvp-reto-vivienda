@@ -51,18 +51,53 @@ def slugify(nombre: str) -> str:
     )
 
 
+# Ubicaciones del Excel no distinguen ciudad de zona/sector. Estos 18 proyectos
+# son pocos y conocidos, así que se resuelve a mano en vez de adivinar con reglas:
+# - Municipios reales (Chía, Tocancipá, Girardot, Ricaurte, Ubaté, Bogotá) -> ciudad.
+# - "CIUDADELA MAIPORÉ" / "CIUDADELA CALLE 80" -> son sectores de Ciudadela
+#   Colsubsidio, un desarrollo real y conocido en Bogotá (Engativá). Es una
+#   INFERENCIA razonable (no viene explícito en el Excel), marcada como tal.
+CIUDAD_POR_UBICACION = {
+    "CHÍA": ("Chía", None),
+    "TOCANCIPÁ": ("Tocancipá", None),
+    "GIRADOT": ("Girardot", None),  # el Excel trae el typo "Giradot"
+    "RICAURTE": ("Ricaurte", None),
+    "UBATE": ("Ubaté", None),
+    "BOGOTÁ": ("Bogotá", None),
+    "CIUDADELA MAIPORÉ": ("Bogotá", "Ciudadela Maiporé"),  # inferido
+    "CIUDADELA CALLE 80": ("Bogotá", "Ciudadela Calle 80"),  # inferido
+}
+
+
+def resolver_ciudad_zona(ubicacion, incierta: bool) -> tuple[str, str | None, bool]:
+    """-> (ciudad, zona, ciudad_inferida). Nunca inventa: si no hay match, dice que falta."""
+    if incierta or pd.isna(ubicacion):
+        return "Ricaurte o Bogotá (ubicación contradictoria entre hojas, sin confirmar)", None, True
+    if ubicacion in CIUDAD_POR_UBICACION:
+        ciudad, zona = CIUDAD_POR_UBICACION[ubicacion]
+        return ciudad, zona, ciudad in ("Bogotá",) and ubicacion.startswith("CIUDADELA")
+    return f"Sin confirmar (Excel dice: {ubicacion})", None, True
+
+
+# VIS = Vivienda de Interés Social. El Excel real NO trae esta bandera; se
+# aproxima con el tope legal (~150 SMMLV, Decreto vigente de vivienda) usando
+# un SMMLV de referencia. ES UNA HEURÍSTICA, no un dato oficial del reto —
+# a verificar/ratificar en el kickoff, igual que el resto de umbrales.
+SMMLV_REFERENCIA = 1_423_500
+TOPE_VIS_ESTIMADO = round(150 * SMMLV_REFERENCIA, -6)  # ~$213.5M, redondeado
+
+
 def generar_proyectos() -> list[dict]:
     catalogo = pd.read_csv(LIMPIO / "catalogo_proyectos.csv")
     compradores = pd.read_csv(LIMPIO / "compradores_limpio.csv")
+    compradores["afiliado"] = compradores["afiliado"].astype(bool)
 
     stats = (
         compradores.groupby("proyecto_normalizado")
         .agg(
             precio_tipico=("precio_real", "median"),
-            precio_min=("precio_real", "min"),
-            precio_max=("precio_real", "max"),
             n_compradores_historico=("precio_real", "count"),
-            pct_no_afiliado_historico=("afiliado", lambda s: round((~s).mean() * 100, 1)),
+            n_no_afiliados_historico=("afiliado", lambda s: int((~s).sum())),
         )
         .reset_index()
     )
@@ -71,11 +106,27 @@ def generar_proyectos() -> list[dict]:
 
     proyectos = []
     for _, row in catalogo.iterrows():
+        ciudad, zona, ciudad_inferida = resolver_ciudad_zona(row["ubicacion"], bool(row["ubicacion_incierta"]))
+        precio_desde = None if pd.isna(row["precio_tipico"]) else round(row["precio_tipico"])
+        n_historico = 0 if pd.isna(row["n_compradores_historico"]) else int(row["n_compradores_historico"])
+        n_no_afiliados = 0 if pd.isna(row["n_no_afiliados_historico"]) else int(row["n_no_afiliados_historico"])
+        # Proxy: el cupo regulatorio (10%) se calcula sobre el volumen histórico
+        # de ventas de este proyecto, a falta de un dato de "inventario total"
+        # que el Excel no trae. Documentado como aproximación en scripts/README.md.
+        cupo_total = round(n_historico * 0.10)
+
         proyectos.append(
             {
                 "proyecto_id": slugify(row["nombre"]),
                 "nombre": row["nombre"],
-                "ubicacion": None if pd.isna(row["ubicacion"]) else row["ubicacion"],
+                "ciudad": ciudad,
+                "ciudad_inferida": ciudad_inferida,  # extra informativo, no rompe el contrato de C
+                "zona": zona,
+                "precio_desde": precio_desde,
+                "vis": None if precio_desde is None else precio_desde <= TOPE_VIS_ESTIMADO,
+                "cupo_no_afiliados": {"usado": n_no_afiliados, "total": cupo_total},
+                "brochure": None if pd.isna(row["link_brochure"]) else row["link_brochure"],
+                "recorrido_360": None if pd.isna(row["link_360"]) else row["link_360"],
                 "ubicacion_incierta": bool(row["ubicacion_incierta"]),
                 "ubicacion_nota": (
                     "Ubicación contradictoria entre la hoja de brochures y la de 360: "
@@ -83,20 +134,6 @@ def generar_proyectos() -> list[dict]:
                     if row["ubicacion_incierta"] and pd.notna(row["ubicacion_candidatas"])
                     else None
                 ),
-                "precio_tipico": None if pd.isna(row["precio_tipico"]) else round(row["precio_tipico"]),
-                "precio_min": None if pd.isna(row["precio_min"]) else round(row["precio_min"]),
-                "precio_max": None if pd.isna(row["precio_max"]) else round(row["precio_max"]),
-                "n_compradores_historico": 0 if pd.isna(row["n_compradores_historico"]) else int(row["n_compradores_historico"]),
-                "pct_no_afiliado_historico": (
-                    None if pd.isna(row["pct_no_afiliado_historico"]) else row["pct_no_afiliado_historico"]
-                ),
-                "cupo_90_10_disponible": (
-                    None
-                    if pd.isna(row["pct_no_afiliado_historico"])
-                    else row["pct_no_afiliado_historico"] < 10.0
-                ),
-                "link_brochure": None if pd.isna(row["link_brochure"]) else row["link_brochure"],
-                "link_360": None if pd.isna(row["link_360"]) else row["link_360"],
             }
         )
 
@@ -165,7 +202,13 @@ def generar_identidades(proyectos: list[dict]) -> list[dict]:
     # Ciudades disponibles = ubicación de los proyectos del catálogo con ubicación conocida,
     # ponderadas por su volumen histórico de compradores (proxy razonable de dónde vive
     # o le interesa vivir un afiliado).
-    ciudades_pool = [(p["ubicacion"], p["n_compradores_historico"]) for p in proyectos if p["ubicacion"]]
+    ciudades_pool = [
+        # cupo_total = round(n_historico * 0.10) -> *10 aproxima el volumen histórico real,
+        # que es el peso que queremos (ciudades con más compradores, más probables).
+        (p["ciudad"], p["cupo_no_afiliados"]["total"] * 10 + 1)
+        for p in proyectos
+        if not p["ubicacion_incierta"]
+    ]
     ciudades, pesos = zip(*ciudades_pool)
 
     identidades = []

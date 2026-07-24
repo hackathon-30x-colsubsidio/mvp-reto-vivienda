@@ -11,7 +11,7 @@ export const leadMariaAfiliadaLista: Lead = {
     nombre: "María González",
     celular: "3001234567",
     cedula: "1000000001",
-    proyecto_interes: "inari",
+    proyecto_interes: "INARI", // debe coincidir EXACTO con proyectos.json[].nombre (lo consume el matcher de C)
     fuente: "meta",
   },
   perfil: {
@@ -38,7 +38,7 @@ export const leadCarlosNoAfiliadoListo: Lead = {
     nombre: "Carlos Ramírez",
     celular: "3007654321",
     cedula: "1000000002",
-    proyecto_interes: "inari",
+    proyecto_interes: "INARI",
     fuente: "google",
   },
   perfil: {
@@ -65,7 +65,7 @@ export const leadLauraNutricion: Lead = {
     nombre: "Laura Martínez",
     celular: "3009876543",
     cedula: "1000000003",
-    proyecto_interes: "bosque-de-turpial",
+    proyecto_interes: "BOSQUE DE TURPIAL",
     fuente: "web",
   },
   perfil: {

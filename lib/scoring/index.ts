@@ -26,7 +26,7 @@ function factorAfiliacion(lead: Lead): FactorScore {
 
 function factorCuotaIngreso40(lead: Lead, proyecto: ProyectoCatalogo): FactorScore {
   const ingreso = lead.respuestas.ingreso_hogar_mensual;
-  const precio = proyecto.precio_tipico;
+  const precio = proyecto.precio_desde;
 
   if (!ingreso || !precio) {
     return {
@@ -86,13 +86,14 @@ function factorSituacionCrediticia(lead: Lead): FactorScore {
 }
 
 function factorSimilitudCompradores(proyecto: ProyectoCatalogo): FactorScore {
-  const n = proyecto.n_compradores_historico;
-  const pctNoAfiliado = proyecto.pct_no_afiliado_historico;
+  const { usado, total } = proyecto.cupo_no_afiliados;
+  // total = 10% del volumen histórico del proyecto (proxy de "cuántos compradores tiene").
+  const nAproximado = total * 10;
   return {
     nombre: "similitud_compradores_reales",
     valor:
-      n > 0
-        ? `${n} compradores históricos en ${proyecto.nombre}${pctNoAfiliado !== null ? ` (${pctNoAfiliado}% no afiliados)` : ""} — evidencia de respaldo, no criterio de corte`
+      nAproximado > 0
+        ? `~${nAproximado} compradores históricos en ${proyecto.nombre} — evidencia de respaldo, no criterio de corte`
         : "Sin histórico de compradores para este proyecto",
     cumple: true, // nunca bloquea (spec §4)
     fuente: "historico",
@@ -108,14 +109,14 @@ function factorCupo90_10(proyecto: ProyectoCatalogo, afiliado: boolean): FactorS
       fuente: "catalogo",
     };
   }
-  const pct = proyecto.pct_no_afiliado_historico;
-  const dentroDelCupo = proyecto.cupo_90_10_disponible ?? true;
+  const { usado, total } = proyecto.cupo_no_afiliados;
+  const quedan = total - usado;
   return {
     nombre: "cupo_90_10",
     valor:
-      pct !== null
-        ? `${pct}% de compradores no afiliados en ${proyecto.nombre} (regla: máx. 10%)`
-        : "Sin histórico de cupo para este proyecto",
+      quedan > 0
+        ? `Quedan ${quedan} de ${total} cupos para no afiliados en ${proyecto.nombre} (regla: máx. 10%)`
+        : `Cupo de no afiliados superado en ${proyecto.nombre}: ${usado} de ${total} permitidos (regla: máx. 10%)`,
     cumple: true, // se marca, no bloquea (el reto ya opera con 27,1% no afiliados por encima del 10% regulatorio)
     fuente: "catalogo",
   };
