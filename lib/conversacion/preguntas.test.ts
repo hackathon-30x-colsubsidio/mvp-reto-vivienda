@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PerfilConocido } from "@/lib/types";
 import {
   construirPreguntas,
+  mensajeYaSabemos,
   parsearIngresoMensual,
   type PasoPregunta,
 } from "./preguntas";
@@ -87,6 +88,30 @@ describe("construirPreguntas", () => {
         expect(opcion.acuse).toBeTruthy();
       }
     }
+  });
+});
+
+describe("mensajeYaSabemos", () => {
+  // Criterio 1: el lead tiene que SABER que no le vamos a repreguntar…
+  it("le dice que no le vamos a hacer repetir lo que ya dio", () => {
+    expect(mensajeYaSabemos(CONOCIDO, "Diana Marcela Ríos")).toMatch(/no te voy a hacer repetir/i);
+  });
+
+  // …pero recitarle su ficha suena a expediente y asusta. El ingreso es el
+  // dato más sensible: no se menciona nunca, ni en pesos ni en salarios.
+  it("no le recita sus propios datos, y menos el ingreso", () => {
+    const mensaje = mensajeYaSabemos(CONOCIDO, "Diana Marcela Ríos");
+    expect(mensaje).not.toMatch(/SMMLV|salarios|ingreso/i);
+    expect(mensaje).not.toContain(CONOCIDO.rango_ingreso!);
+    expect(mensaje).not.toMatch(/afiliad/i);
+  });
+
+  it("usa la ciudad en vez de recitarla, para demostrar que la conoce", () => {
+    expect(mensajeYaSabemos(CONOCIDO, "Diana Marcela Ríos")).toContain("opciones en Bogotá");
+  });
+
+  it("es honesto cuando la cédula no hizo match", () => {
+    expect(mensajeYaSabemos(SIN_DATOS, "Yuliana Andrea Pérez")).toMatch(/arrancamos de cero/i);
   });
 });
 

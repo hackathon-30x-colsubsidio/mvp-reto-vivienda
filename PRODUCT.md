@@ -74,7 +74,7 @@ Con tintes al 80/60/40% del amarillo y el azul, y al 60/40/20% del grafito.
 1. **Cero caja negra.** Toda decisión del sistema (score, corte, match, trigger) se explica en lenguaje natural y con sus factores a la vista. La explicación pesa tanto como la recomendación; si no se puede justificar con factores visibles, no entra al demo.
 2. **Nadie se descarta.** La UI nunca presenta a un lead como perdido. Nutrición es una salida digna, con su razón y su camino de vuelta.
 3. **Autogestionado.** El jurado recorre el flujo solo. Si una pantalla necesita que alguien la explique, está mal diseñada.
-4. **No repreguntar lo conocido.** Lo que el enriquecimiento ya sabe se dice, no se pregunta.
+4. **No repreguntar lo conocido.** Lo que el enriquecimiento ya sabe no se pregunta, y el lead se entera de que no se lo vamos a hacer repetir. Pero **saber sus datos no da derecho a recitárselos**: al lead se le demuestra usándolos, no leyéndoselos de vuelta. Quien ve la ficha completa es el asesor.
 5. **Conversar, no encuestar.** Se está vendiendo la compra que una persona hace una vez en la vida, casi siempre al lado de otra. Cada pregunta dice para qué sirve, cada respuesta recibe una reacción, y nadie queda atrapado en una lista de botones: el campo de texto está siempre.
 6. **Feo pero funciona > bonito pero falso.** Ningún dato inventado, ninguna cifra sin fuente, ninguna pantalla que prometa una integración que no existe.
 

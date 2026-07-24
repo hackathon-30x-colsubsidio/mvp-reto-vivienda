@@ -30,7 +30,9 @@ Escrita para ~2,3 palabras/seg en español. Total ≈ 275 palabras. Los `[corche
 > Esta es la página de vivienda de Colsubsidio hoy. No hay formulario. No hay proyectos. El lead que llega por pauta cae en el vacío. Y cuando sí compra: **el 27% de los compradores históricos no son afiliados** — cuando la regla 90/10 solo permite el 10%. Los 16 proyectos con ubicación conocida ya la incumplen. El problema no es de marketing: es que **no existe el embudo**.
 
 **[0:15 — Entra el lead]**
-> Diana llega por un anuncio. En vez de un formulario, un chat estilo WhatsApp. Autoriza el tratamiento de datos, da su cédula… y el sistema **ya sabe** que es afiliada, su ciudad y su rango de ingreso. No se lo vuelve a preguntar, y se lo dice. _(cuttable: "Un lead pago que se siente como uno orgánico.")_
+> Diana llega por un anuncio. En vez de un formulario, un chat estilo WhatsApp. Autoriza el tratamiento de datos, da su cédula… y el sistema **ya sabe** que es afiliada, su ciudad y su rango de ingreso. No se lo vuelve a preguntar, y se lo hace saber. _(cuttable: "Un lead pago que se siente como uno orgánico.")_
+>
+> ⚠️ **Ojo con este plano:** el chat **no le recita los datos a Diana** — le dice que no le hará repetir nada y arranca buscando en su ciudad ([spec 02, nodo 3](../specs/02-conversador.md)). Quien enumera afiliación, ciudad e ingreso es **la ficha del asesor**, en el beat 3. La voz en off puede nombrarlos aquí porque le habla al jurado, no a Diana; si el video promete que el bot los recita, no coincide con la pantalla.
 
 **[0:32 — Se transforma]**
 > Solo pregunta lo que falta para calificar. Detrás, un motor de reglas —no una caja negra— la califica, la cruza con proyectos que le caben, y le agenda la visita a sala de ventas. En un mensaje pasó de clic en un anuncio a lead listo para cerrar.

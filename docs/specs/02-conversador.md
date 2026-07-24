@@ -73,7 +73,7 @@ Numerados para poder discutirlos uno por uno en la reunión:
 |---|---|---|---|---|
 | 1 | **Saludo + proyecto de entrada** | Agente | — | Si no hay proyecto de entrada, saludo genérico |
 | 2 | **Autorización de datos** | Lead | Quick reply sí/no | **No → fin.** Se registra el abandono |
-| 3 | **"Esto ya lo sabemos"** | Agente | — | Si no hubo match, lo dice: "no encontramos datos tuyos" |
+| 3 | **"No te voy a hacer repetir"** | Agente | — | Si no hubo match, lo dice: "no encontramos datos tuyos" |
 | 4 | **Afiliación** | Lead | Quick reply sí/no | **Solo si el enriquecimiento no la trajo** |
 | 5 | **Ingreso del hogar** | Lead | **Texto libre — obligatorio** | [El mentor lo pidió explícito](../reto/charla-mentor.md#conversacion-deseada): la lista sesga |
 | 6 | **¿Vivienda propia?** | Lead | Quick reply sí/no | — |
@@ -85,6 +85,8 @@ Numerados para poder discutirlos uno por uno en la reunión:
 | 12 | **Nutrición honesta** | Agente | — | Si no pasó: la razón + qué lo destrabaría → spec [05](05-nutricion-reenganche.md) |
 
 **El orden 5→9 no es sagrado.** Al reescribir la conversación (2026-07-24) el orden construido pasó a **6 → 5 → 7 → 8 → 9**: primero lo que ilusiona (¿es tu primera vivienda?) y después lo incómodo (ingreso, crédito). Es la respuesta provisional a la pregunta 3 de abajo — *enamora primero, pregunta después* — y el TEAM la puede revertir cambiando el orden de los `pasos.push` en [`preguntas.ts`](../../lib/conversacion/preguntas.ts). Si el LLM conduce (D1 opción B), el orden lo decide él según cómo fluya la conversación, y esta tabla pasa a ser la lista de *lo que hay que llenar*, no de *en qué orden*.
+
+**[HOY — nodo 3, cambiado el 2026-07-24] El agente dice que no repreguntará, pero NO le recita al lead su propia ficha.** La primera versión enumeraba: *"ya sé que eres afiliada a Colsubsidio, estás en Bogotá y tu hogar tiene ingresos entre 3 y 5 SMMLV"*. Suena a expediente y asusta justo en el mensaje que tiene que generar confianza — y el ingreso es el dato que más incomoda oír de vuelta. Ahora el mensaje **dice que sus datos ya están y que no se los vamos a repreguntar**, y **usa** la ciudad en lugar de recitarla (*"empiezo por buscarte opciones en Bogotá"*), que demuestra lo mismo sin sonar a base de datos hablando. El criterio de aceptación 1 se sigue cumpliendo y verificando igual: lo que exige es que el lead **sepa** que no le harán repetir, no que le lean su ficha. La ficha completa la ve **el asesor**, que es para quien es. Hay tests que impiden que el rango de ingreso vuelva a colarse en ese mensaje.
 
 ### D4 · Dónde va cerrado y dónde abierto · [CERRADA — el mentor lo especificó]
 

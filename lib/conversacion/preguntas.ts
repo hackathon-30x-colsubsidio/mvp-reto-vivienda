@@ -339,7 +339,24 @@ export function mensajeSinAutorizacion(nombre: string): string {
 
 /**
  * El mensaje que hace explícito lo que ya sabemos (criterio de aceptación 1):
- * se dice ANTES de preguntar nada más, con los datos que trajo el enriquecimiento.
+ * se dice ANTES de preguntar nada más.
+ *
+ * ⚠️ NO se le recitan al lead sus propios datos, y esto no es un descuido:
+ * leerle de vuelta su afiliación, su ciudad y su rango de ingresos suena a
+ * expediente y asusta justo en el mensaje donde hay que generar confianza.
+ * Lo que el criterio 1 exige es que el lead **sepa que no le vamos a hacer
+ * repetir nada**, no que le enumeremos su ficha. Así que:
+ *
+ *   - se dice que sus datos ya están y que no se los vamos a repreguntar;
+ *   - la ciudad se **usa** ("busco opciones en Bogotá") en vez de recitarse:
+ *     demuestra que la conocemos sin sonar a base de datos hablando;
+ *   - el ingreso NO se menciona nunca. Es el dato más sensible de todos y el
+ *     que más incomoda oír de vuelta. Sigue usándose para calificar, y el
+ *     asesor lo ve completo en su ficha.
+ *
+ * El criterio se sigue verificando igual: la intersección entre lo preguntado
+ * y lo enriquecido es vacía (`construirPreguntas`), y hay un test que impide
+ * que el rango de ingreso vuelva a colarse en este mensaje.
  */
 export function mensajeYaSabemos(perfil: PerfilConocido, nombre: string): string {
   const primerNombre = nombre.split(" ")[0];
@@ -348,24 +365,18 @@ export function mensajeYaSabemos(perfil: PerfilConocido, nombre: string): string
     return `Perfecto, ${primerNombre}, gracias 🙌 Todavía no te tengo en nuestra base, así que arrancamos de cero: son cuatro preguntas cortas, nada de formulario eterno. Te prometo que valen la pena.`;
   }
 
-  const partes: string[] = [];
-  if (perfil.afiliado !== undefined) {
-    partes.push(
-      perfil.afiliado
-        ? "que eres afiliado a Colsubsidio"
-        : "que no eres afiliado a Colsubsidio",
-    );
-  }
-  if (perfil.ciudad) partes.push(`que estás en ${perfil.ciudad}`);
-  if (perfil.rango_ingreso) {
-    partes.push(`en qué rango de ingresos está tu hogar (${perfil.rango_ingreso})`);
-  }
+  const sabemosAlgo =
+    perfil.afiliado !== undefined || Boolean(perfil.ciudad) || Boolean(perfil.rango_ingreso);
 
-  if (partes.length === 0) {
+  if (!sabemosAlgo) {
     return `Gracias, ${primerNombre} 🙌 Te tengo registrado pero sin más datos, así que te pregunto lo que falta — es corto, prometido.`;
   }
 
-  return `Gracias, ${primerNombre} 🙌 Ya sé ${partes.join(", ")}. Nada de eso te lo voy a volver a preguntar: odio que me hagan repetir. Solo me faltan un par de cosas.`;
+  if (perfil.ciudad) {
+    return `Gracias, ${primerNombre} 🙌 Lo que ya nos habías dado está acá conmigo, así que no te voy a hacer repetir nada. Empiezo por buscarte opciones en ${perfil.ciudad} y solo te pregunto lo que me falte.`;
+  }
+
+  return `Gracias, ${primerNombre} 🙌 Lo que ya nos habías dado está acá conmigo, así que no te voy a hacer repetir nada. Solo te pregunto lo que me falte.`;
 }
 
 export function mensajeCierre(nombre: string): string {
