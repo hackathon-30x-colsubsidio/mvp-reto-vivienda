@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PRIORIDAD, ETIQUETA_ESTADO, type EstadoLead } from "@/lib/types-asesor";
 import type { LeadEnCola } from "@/lib/types-asesor";
 import { CampoBusqueda } from "@/components/ui/CampoBusqueda";
@@ -118,9 +119,9 @@ export function ListaLeads({
           <p className="text-texto-tenue text-[13px]">
             <span className="cifra">{visibles.length}</span> de{" "}
             <span className="cifra">{leads.length}</span> leads ·{" "}
-            <a href="/asesor" className="text-enlace hover:underline">
+            <Link href="/asesor" className="text-enlace hover:underline">
               quitar filtros
-            </a>
+            </Link>
           </p>
         )}
       </form>

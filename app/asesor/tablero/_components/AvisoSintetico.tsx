@@ -1,4 +1,5 @@
 import type { DatosTablero } from "@/lib/tablero/tipos";
+import { EtiquetaSimulado } from "@/components/ui/EtiquetaSimulado";
 
 /**
  * Avisa qué parte de lo que se ve es telón sintético.
@@ -18,14 +19,15 @@ export function AvisoSintetico({ datos }: { datos: DatosTablero }) {
   const reales = datos.leads.length - sinteticos;
 
   return (
-    <p className="mb-8 rounded-sm border-2 border-dashed border-regla bg-papel-hueco px-4 py-3 text-base text-tinta-suave">
-      <strong className="text-tinta">Histórico sintético.</strong>{" "}
+    <p className="border-borde bg-surface-sunken text-texto-suave mb-6 rounded-sm border border-dashed px-4 py-3 text-[13px] leading-normal">
+      <strong className="text-texto">Histórico sintético.</strong>{" "}
       <span className="cifra">{reales}</span> de estos leads son reales (los del
       demo, {datos.origen === "supabase" ? "leídos de Supabase" : "desde fixtures locales"});
       los otros <span className="cifra">{sinteticos}</span> se generaron a partir de
       las identidades anonimizadas de <code>data/sintetica/</code> para que las
       métricas por día tengan serie. Sus veredictos los calculó el motor real, no
-      están escritos a mano.
+      están escritos a mano. En las listas van marcados con{" "}
+      <EtiquetaSimulado texto="histórico" />.
     </p>
   );
 }

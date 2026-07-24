@@ -250,8 +250,11 @@
   --sobre-campo-suave: #dcecf8; /* 4,87:1 sobre el campo azul */
   --sobre-amarillo: var(--text-on-amarillo);
 
-  --r-sm: var(--radius-sm);
-  --r-md: var(--radius-md);
+  /* `--r-sm` y `--r-md` NO se re-declaran aquí. Ya traen su valor de la
+     capa 1, y apuntarlos a `var(--radius-*)` —que a su vez apunta de
+     vuelta a ellos— crea un ciclo: el navegador descarta la propiedad
+     entera y TODAS las esquinas de la app se van a cero. Pasó, y no se
+     ve en el typecheck ni en los tests. */
 }
 
 :root {
