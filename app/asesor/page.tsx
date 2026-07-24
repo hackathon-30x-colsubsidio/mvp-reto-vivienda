@@ -34,49 +34,69 @@ export default async function ColaAsesorPage() {
   }));
 
   return (
-    // bg-white + text-gray-900 explícitos, y no heredados: globals.css
-    // vuelve el body casi negro con `prefers-color-scheme: dark`, y como
-    // toda esta vista usa colores claros (text-gray-900, bg-gray-50), un
-    // jurado con el sistema en oscuro vería la cola ilegible. El demo
-    // tiene que verse igual en cualquier máquina.
-    <main className="mx-auto min-h-screen max-w-4xl bg-white px-6 py-10 text-gray-900">
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-          Cola de leads
-        </h1>
-        <p className="mt-2 text-lg text-gray-600">
-          {leads.length} leads perfilados, ordenados por quién está más cerca de
-          comprar. Abre uno para ver por qué quedó ahí.
-        </p>
-      </header>
-
-      <AvisoOrigen origen={origen} />
-
-      <div className="space-y-10">
-        {grupos.map(({ estado, items }) => (
-          <section key={estado}>
-            <h2 className="text-xl font-bold text-gray-900">
-              {TITULO_GRUPO[estado]}{" "}
-              <span className="font-normal text-gray-500">({items.length})</span>
-            </h2>
-            <p className="mt-1 mb-4 text-base text-gray-600">
-              {SUBTITULO_GRUPO[estado]}
-            </p>
-
-            {items.length === 0 ? (
-              <p className="rounded-lg bg-gray-50 px-4 py-6 text-center text-base text-gray-500">
-                Nadie en este grupo por ahora.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {items.map((item) => (
-                  <FilaLead key={item.curado.lead.evento.lead_id} item={item} />
-                ))}
-              </div>
-            )}
-          </section>
-        ))}
+    // Los colores salen de los tokens de globals.css, que ya traen su
+    // versión clara y su versión oscura: el jurado ve la cola legible
+    // tenga el sistema en el tema que lo tenga.
+    <div className="min-h-screen bg-fondo">
+      {/* El riel del formato. */}
+      <div className="bg-campo">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-6 py-4">
+          <span className="text-sm font-bold tracking-[0.08em] text-sobre-campo uppercase">
+            Colsubsidio · Vivienda
+          </span>
+          <span className="cifra text-xs text-sobre-campo-suave">
+            Consola del asesor
+          </span>
+        </div>
       </div>
-    </main>
+
+      <main className="mx-auto max-w-4xl px-6 py-10">
+        <header className="mb-8">
+          <h1 className="text-[clamp(2rem,5vw,3rem)] leading-[1.05] font-bold tracking-[-0.03em] text-tinta">
+            Cola de leads
+          </h1>
+          <p className="mt-4 max-w-[68ch] text-lg leading-relaxed text-tinta-suave">
+            <span className="cifra text-tinta">{leads.length}</span> leads
+            perfilados,{" "}
+            {/* El único trazo de esta pantalla: lo que hace distinta a
+                esta cola de una lista cualquiera. */}
+            <span className="resaltado font-bold">
+              ordenados por quién está más cerca de comprar
+            </span>
+            . Abre uno para ver por qué quedó ahí.
+          </p>
+        </header>
+
+        <AvisoOrigen origen={origen} />
+
+        <div className="space-y-10">
+          {grupos.map(({ estado, items }) => (
+            <section key={estado}>
+              <h2 className="text-xl font-bold tracking-tight text-tinta">
+                {TITULO_GRUPO[estado]}{" "}
+                <span className="cifra font-normal text-tinta-suave">
+                  ({items.length})
+                </span>
+              </h2>
+              <p className="mt-1 mb-4 max-w-[68ch] text-base text-tinta-suave">
+                {SUBTITULO_GRUPO[estado]}
+              </p>
+
+              {items.length === 0 ? (
+                <p className="rounded-md border-2 border-dashed border-borde px-4 py-8 text-center text-base text-tinta-suave">
+                  Nadie en este grupo por ahora.
+                </p>
+              ) : (
+                <div className="divide-y-2 divide-borde overflow-hidden rounded-md border-2 border-borde">
+                  {items.map((item) => (
+                    <FilaLead key={item.curado.lead.evento.lead_id} item={item} />
+                  ))}
+                </div>
+              )}
+            </section>
+          ))}
+        </div>
+      </main>
+    </div>
   );
 }

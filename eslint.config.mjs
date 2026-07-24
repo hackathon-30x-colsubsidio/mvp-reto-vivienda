@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Herramental de agentes instalado por terceros (npx impeccable
+    // install): no es código de la app y su ruido tapaba el lint real.
+    ".claude/**",
   ]),
 ]);
 

@@ -61,7 +61,7 @@ function legible(nombre: string): string {
 export function TablaFactores({ factores }: { factores: FactorScore[] }) {
   if (factores.length === 0) {
     return (
-      <p className="rounded-lg bg-red-50 px-4 py-4 text-base text-red-900">
+      <p className="rounded-md border-2 border-rojo px-4 py-4 text-base font-semibold text-rojo">
         Este lead no tiene factores registrados. Es un error: ningún lead
         calificado debería llegar aquí sin ellos.
       </p>
@@ -69,15 +69,19 @@ export function TablaFactores({ factores }: { factores: FactorScore[] }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border-2 border-gray-200">
+    <div className="overflow-x-auto rounded-md border-2 border-borde bg-papel">
       <table className="w-full border-collapse text-left">
         <thead>
-          <tr className="bg-gray-50">
-            <th className="px-4 py-3 text-base font-bold text-gray-700">Factor</th>
-            <th className="px-4 py-3 text-base font-bold text-gray-700">
+          <tr className="border-b-2 border-borde bg-papel-hueco">
+            <th className="px-4 py-3 text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase">
+              Factor
+            </th>
+            <th className="px-4 py-3 text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase">
               Qué se evaluó
             </th>
-            <th className="px-4 py-3 text-base font-bold text-gray-700">Cumple</th>
+            <th className="px-4 py-3 text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase">
+              Cumple
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -86,33 +90,35 @@ export function TablaFactores({ factores }: { factores: FactorScore[] }) {
             <tr
               key={factor.nombre}
               data-testid="factor"
-              className="border-t border-gray-200 align-top"
+              className="border-t border-borde align-top"
             >
               <td className="px-4 py-4">
                 <span
                   data-testid="factor-nombre"
-                  className="text-base font-bold text-gray-900"
+                  className="text-base font-bold text-tinta"
                 >
                   {legible(factor.nombre)}
                 </span>
                 <span
                   data-testid="factor-fuente"
-                  className="mt-1 block text-sm text-gray-500"
+                  className="mt-1 block text-sm text-tinta-suave"
                 >
                   {ETIQUETA_FUENTE[factor.fuente]}
                 </span>
               </td>
               <td
                 data-testid="factor-valor"
-                className="px-4 py-4 text-base text-gray-800"
+                className="px-4 py-4 text-base text-tinta"
               >
                 {factor.valor}
               </td>
+              {/* El "cumple" es TEXTO, no solo un color: el color nunca
+                  puede ser el único portador del significado. */}
               <td data-testid="factor-cumple" className="px-4 py-4 whitespace-nowrap">
                 {factor.cumple ? (
-                  <span className="font-bold text-green-700">✓ Sí</span>
+                  <span className="font-bold text-azul">✓ Sí</span>
                 ) : (
-                  <span className="font-bold text-red-700">✗ No</span>
+                  <span className="font-bold text-rojo">✗ No</span>
                 )}
               </td>
             </tr>

@@ -29,8 +29,10 @@ export default async function FichaLeadPage({ params }: Props) {
   if (!lead) notFound();
 
   return (
-    // bg-white + text-gray-900 explícitos: ver la nota en app/asesor/page.tsx.
-    <main className="mx-auto min-h-screen max-w-4xl bg-white px-6 py-10 text-gray-900">
+    // Los colores salen de los tokens de globals.css: ver la nota en
+    // app/asesor/page.tsx. El riel del formato lo trae FichaLead, que
+    // es la hoja completa.
+    <main className="mx-auto min-h-screen max-w-4xl bg-fondo px-6 py-10">
       <AvisoOrigen origen={origen} />
       <FichaLead item={lead} />
     </main>

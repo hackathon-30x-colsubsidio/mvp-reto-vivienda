@@ -65,21 +65,23 @@ export function BotonSimularTrigger({ leadId, reEnganchadoEn }: Props) {
         type="button"
         onClick={disparar}
         disabled={enCurso}
-        className="rounded-lg bg-violet-700 px-5 py-3 text-base font-bold text-white hover:bg-violet-800 disabled:opacity-60"
+        // El botón de acción amarillo: DESIGN.md lo reserva para la
+        // única acción que interrumpe un estado, y hoy es esta.
+        className="rounded-sm bg-amarillo px-5 py-3 text-base font-bold text-sobre-amarillo transition-colors hover:bg-amarillo-80 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {enCurso ? "Llevando al chat…" : "Simular trigger"}
       </button>
 
       {reEnganchadoEn && (
-        <p data-testid="re-enganche-hecho" className="text-base text-violet-900">
+        <p data-testid="re-enganche-hecho" className="text-base text-tinta-suave">
           Ya se le disparó el trigger.{" "}
-          <a href={urlChat} className="font-bold underline">
+          <a href={urlChat} className="font-bold text-azul underline">
             Volver a abrir la conversación
           </a>
         </p>
       )}
 
-      {error && <p className="text-base font-semibold text-red-700">{error}</p>}
+      {error && <p className="text-base font-semibold text-rojo">{error}</p>}
     </div>
   );
 }

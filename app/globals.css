@@ -1,26 +1,199 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* =====================================================================
+   CONTRATO DE DIRECCIÓN — "El formato sellado"
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+   THESIS: la ficha de un lead es un formato oficial de Colsubsidio:
+   reglado, foliado y sellado, que muestra TODO lo que pesó y cita la
+   norma. Rechaza el dashboard SaaS de tarjetas con sombra suave y un
+   score escondido en un número.
+   OWN-WORLD: azul #0067b1 como CAMPO a escala de página (rieles,
+   cabeceras, bandas de veredicto), amarillo #ffd000 solo como trazo de
+   resaltador y fondo de sello, reglas de grafito a 2px, esquinas casi
+   rectas (3/6px), Geist Sans de trabajo + Geist Mono en toda cifra
+   medida, cero sombra: la profundidad es reglado y capa tonal.
+   STORY: el jurado entiende en un vistazo que nada se decidió a
+   escondidas, y que quien no pasa no se bota.
+   FIRST VIEWPORT: riel azul arriba con el folio; titular a la
+   izquierda; el sello de salida arriba a la derecha; debajo, la banda
+   de veredicto en campo azul y la tabla reglada de factores.
+   FORM: mundo fijado por el brief (guía de identidad cromática de
+   Colsubsidio); el roll (seed 17f38467, índice 6) queda anulado por la
+   regla de brief-pin. Sello = el estampado del formato.
+   ===================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* --- Paleta corporativa (guía de identidad cromática) --- */
+  --amarillo: #ffd000;
+  --amarillo-80: #ffd933;
+  --amarillo-60: #ffe366;
+  --amarillo-40: #ffec99;
+
+  --azul: #0067b1;
+  --azul-80: #3385c1;
+  --azul-60: #66a4d0;
+  --azul-40: #99c2e0;
+  --azul-profundo: #00457a;
+
+  --grafito: #575756;
+  --grafito-60: #9a9a9a;
+  --grafito-40: #bcbcbb;
+  --grafito-20: #dddddd;
+
+  /* Rojo bandera. El tercer color de la bandera colombiana, y el único
+     que no está en la guía: existe para UNA cosa (ver la Regla del
+     Rojo Escaso en DESIGN.md). */
+  --rojo: #ce1126;
+
+  /* --- Roles semánticos --- */
+  --fondo: #f8f9fa;          /* el escritorio donde reposa el formato */
+  --papel: #ffffff;          /* la hoja */
+  --papel-hueco: #f1f3f5;    /* cabecera de tabla, zonas huecas */
+  --tinta: #212529;
+  --tinta-suave: #575756;    /* 7,2:1 sobre papel */
+  --borde: #dee2e6;          /* reglado fino */
+  --regla: #575756;          /* reglado grueso, 2px */
+
+  /* Campo azul: región completa teñida, no acento.
+     `--campo-hover` es su propio token y NO `--azul-profundo`: ese se
+     aclara en oscuro para poder servir de texto, y usarlo de relleno
+     con blanco encima daba 1,88:1. El hover del campo se oscurece
+     siempre. */
+  --campo: var(--azul);
+  --campo-hover: var(--azul-profundo);
+  --sobre-campo: #ffffff;
+  --sobre-campo-suave: #dcecf8; /* 4,87:1 sobre el campo azul */
+
+  /* Sello sobre amarillo: la tinta nunca cambia, el amarillo tampoco */
+  --sobre-amarillo: #212529;
+
+  --r-sm: 3px;
+  --r-md: 6px;
+
+  --salida-suave: #eaf2f9;   /* tinte azul apenas perceptible */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+
+    --fondo: #101418;
+    --papel: #191e24;
+    --papel-hueco: #212831;
+    --tinta: #e8eaed;
+    --tinta-suave: #a3abb5;
+    --borde: #2c333b;
+    --regla: #6b7480;
+
+    /* El azul base pierde legibilidad como texto sobre tinta: como
+       TEXTO sube al tinte 60%, como CAMPO se queda en el azul de marca. */
+    --azul: #66a4d0;
+    --azul-profundo: #99c2e0;
+    --campo: #0067b1;
+    --campo-hover: #005694; /* 7,61:1 con blanco encima */
+    --sobre-campo: #ffffff;
+    --sobre-campo-suave: #dcecf8; /* 4,87:1 sobre el campo azul */
+
+    --rojo: #f2555f;
+
+    --salida-suave: #16202b;
   }
 }
 
+@theme inline {
+  --color-amarillo: var(--amarillo);
+  --color-amarillo-80: var(--amarillo-80);
+  --color-amarillo-60: var(--amarillo-60);
+  --color-amarillo-40: var(--amarillo-40);
+
+  --color-azul: var(--azul);
+  --color-azul-80: var(--azul-80);
+  --color-azul-60: var(--azul-60);
+  --color-azul-40: var(--azul-40);
+  --color-azul-profundo: var(--azul-profundo);
+
+  --color-grafito: var(--grafito);
+  --color-grafito-60: var(--grafito-60);
+  --color-grafito-40: var(--grafito-40);
+  --color-grafito-20: var(--grafito-20);
+
+  --color-rojo: var(--rojo);
+
+  --color-fondo: var(--fondo);
+  --color-papel: var(--papel);
+  --color-papel-hueco: var(--papel-hueco);
+  --color-tinta: var(--tinta);
+  --color-tinta-suave: var(--tinta-suave);
+  --color-borde: var(--borde);
+  --color-regla: var(--regla);
+
+  --color-campo: var(--campo);
+  --color-campo-hover: var(--campo-hover);
+  --color-sobre-campo: var(--sobre-campo);
+  --color-sobre-campo-suave: var(--sobre-campo-suave);
+  --color-sobre-amarillo: var(--sobre-amarillo);
+  --color-salida-suave: var(--salida-suave);
+
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--fondo);
+  color: var(--tinta);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Toda cifra medida va en Geist Mono con numerales tabulares: en este
+   mundo el número es un dato leído de un formato, no decoración. */
+.cifra {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* --- El trazo de resaltador ---------------------------------------
+   El único momento de movimiento autorizado en toda la app, y uno solo
+   por pantalla, sobre el hecho que decide. El amarillo no alcanza
+   contraste como texto sobre claro, así que aquí es SIEMPRE fondo y la
+   tinta encima es fija: se lee igual en claro y en oscuro. */
+.resaltado {
+  --trazo: var(--amarillo);
+  background-image: linear-gradient(var(--trazo), var(--trazo));
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 0% 100%;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0.08em 0.22em;
+  margin: 0 -0.22em;
+  color: var(--sobre-amarillo);
+  border-radius: var(--r-sm);
+  animation: trazo 620ms cubic-bezier(0.16, 1, 0.3, 1) 260ms forwards;
+}
+
+@keyframes trazo {
+  to {
+    background-size: 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resaltado {
+    animation: none;
+    background-size: 100% 100%;
+  }
+}
+
+/* El foco es amarillo: el único color que se ve sobre campo azul,
+   sobre papel y sobre tinta por igual. */
+:focus-visible {
+  outline: 3px solid var(--amarillo);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
 }

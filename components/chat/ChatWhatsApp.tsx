@@ -225,9 +225,14 @@ export function ChatWhatsApp({
   const pasoActual = fase === "pregunta" ? pasos[indicePaso] : undefined;
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-[#e5ddd5] dark:bg-zinc-900">
+    // El chat vive en el mundo de WhatsApp, no en el de Colsubsidio
+    // (DESIGN.md, "El chat (mundo prestado)"): verde, burbujas y
+    // píldoras son de allá, incluido su modo oscuro real. La marca
+    // aparece en tres puntos y ningún otro: avatar, nombre y la banda
+    // amarilla del disclaimer.
+    <div className="flex h-[100dvh] flex-col bg-[#e5ddd5] dark:bg-[#0b141a]">
       {/* Header estilo WhatsApp */}
-      <div className="flex items-center gap-3 bg-[#075e54] px-4 py-3 text-white">
+      <div className="flex items-center gap-3 bg-[#075e54] px-4 py-3 text-white dark:bg-[#1f2c34]">
         <button
           onClick={onVolver}
           aria-label="Volver"
@@ -235,7 +240,7 @@ export function ChatWhatsApp({
         >
           ←
         </button>
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-sm font-semibold">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ffd000] text-sm font-bold text-[#212529]">
           CV
         </div>
         <div className="flex flex-col">
@@ -246,8 +251,8 @@ export function ChatWhatsApp({
         </div>
       </div>
 
-      {/* Disclaimer del canal simulado */}
-      <div className="border-b border-amber-300 bg-amber-100 px-4 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+      {/* Disclaimer del canal simulado, en amarillo Colsubsidio. */}
+      <div className="bg-[#ffd000] px-4 py-2 text-xs font-medium text-[#212529]">
         ⚠️ Demo: en producción este chat corre sobre WhatsApp Business API.
       </div>
 
@@ -258,7 +263,7 @@ export function ChatWhatsApp({
         ))}
         {escribiendo && (
           <div className="flex justify-start">
-            <div className="rounded-lg rounded-tl-none bg-white px-3 py-2 text-sm text-zinc-400 shadow-sm dark:bg-zinc-700">
+            <div className="rounded-lg rounded-tl-none bg-white px-3 py-2 text-sm text-zinc-500 shadow-sm dark:bg-[#202c33] dark:text-zinc-400">
               escribiendo...
             </div>
           </div>
@@ -267,18 +272,18 @@ export function ChatWhatsApp({
       </div>
 
       {/* Footer: quick replies o input libre */}
-      <div className="border-t border-zinc-300 bg-zinc-100 p-3 dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="bg-[#f0f0f0] p-3 dark:bg-[#1f2c34]">
         {fase === "consentimiento" && (
           <div className="flex gap-2">
             <button
               onClick={() => responderConsentimiento(true)}
-              className="flex-1 rounded-full bg-[#075e54] px-4 py-2 text-sm font-medium text-white"
+              className="flex-1 rounded-full bg-[#075e54] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#064e44] dark:bg-[#00a884] dark:text-[#111b21] dark:hover:bg-[#02c39a]"
             >
               Sí, acepto
             </button>
             <button
               onClick={() => responderConsentimiento(false)}
-              className="flex-1 rounded-full border border-zinc-400 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-200"
+              className="flex-1 rounded-full border-2 border-[#075e54] px-4 py-2 text-sm font-semibold text-[#075e54] transition-colors hover:bg-black/5 dark:border-[#00a884] dark:text-[#00a884] dark:hover:bg-white/5"
             >
               No, gracias
             </button>
@@ -289,13 +294,13 @@ export function ChatWhatsApp({
           <div className="flex gap-2">
             <button
               onClick={() => responderPregunta("Sí", true)}
-              className="flex-1 rounded-full bg-[#075e54] px-4 py-2 text-sm font-medium text-white"
+              className="flex-1 rounded-full bg-[#075e54] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#064e44] dark:bg-[#00a884] dark:text-[#111b21] dark:hover:bg-[#02c39a]"
             >
               Sí
             </button>
             <button
               onClick={() => responderPregunta("No", false)}
-              className="flex-1 rounded-full border border-zinc-400 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-200"
+              className="flex-1 rounded-full border-2 border-[#075e54] px-4 py-2 text-sm font-semibold text-[#075e54] transition-colors hover:bg-black/5 dark:border-[#00a884] dark:text-[#00a884] dark:hover:bg-white/5"
             >
               No
             </button>
@@ -314,11 +319,11 @@ export function ChatWhatsApp({
               value={textoInput}
               onChange={(e) => setTextoInput(e.target.value)}
               placeholder="Escribe tu respuesta..."
-              className="flex-1 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm text-zinc-900 outline-none dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-50"
+              className="flex-1 rounded-full bg-white px-4 py-2 text-sm text-zinc-900 placeholder:text-zinc-500 dark:bg-[#2a3942] dark:text-zinc-50 dark:placeholder:text-zinc-400"
             />
             <button
               type="submit"
-              className="rounded-full bg-[#075e54] px-4 py-2 text-sm font-medium text-white"
+              className="rounded-full bg-[#075e54] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#064e44] dark:bg-[#00a884] dark:text-[#111b21] dark:hover:bg-[#02c39a]"
             >
               Enviar
             </button>
@@ -328,7 +333,7 @@ export function ChatWhatsApp({
         {(fase === "terminado" || fase === "rechazado") && (
           <button
             onClick={onVolver}
-            className="w-full rounded-full border border-zinc-400 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-200"
+            className="w-full rounded-full border-2 border-[#075e54] px-4 py-2 text-sm font-semibold text-[#075e54] transition-colors hover:bg-black/5 dark:border-[#00a884] dark:text-[#00a884] dark:hover:bg-white/5"
           >
             Volver al inicio
           </button>

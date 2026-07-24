@@ -1,3 +1,11 @@
+/**
+ * Un personaje pre-sembrado, presentado como el panel de un formato:
+ * franja de rótulo arriba, quién es, y el botón que abre su conversación.
+ *
+ * No es una tarjeta suelta — vive dentro del bloque reglado de
+ * LandingJurado y se separa de sus hermanos por regla, no por sombra
+ * (DESIGN.md, la Regla del Papel Impreso).
+ */
 export function TarjetaPersonaje({
   emoji,
   titulo,
@@ -12,25 +20,29 @@ export function TarjetaPersonaje({
   onSeleccionar: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-      <div className="flex items-center gap-2">
-        <span className="text-2xl">{emoji}</span>
-        <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+    <div className="flex flex-col bg-papel">
+      {/* Franja de rótulo: el renglón que clasifica el formato. */}
+      <div className="flex items-center gap-2 border-b-2 border-borde bg-papel-hueco px-5 py-3">
+        <span aria-hidden className="text-lg leading-none">
+          {emoji}
+        </span>
+        <span className="text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase">
           {etiqueta}
         </span>
       </div>
-      <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-        {titulo}
-      </h3>
-      <p className="flex-1 text-sm text-zinc-600 dark:text-zinc-400">
-        {descripcion}
-      </p>
-      <button
-        onClick={onSeleccionar}
-        className="rounded-full bg-[#075e54] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#064e44]"
-      >
-        Empezar conversación
-      </button>
+
+      <div className="flex flex-1 flex-col gap-2 px-5 py-5">
+        <h3 className="text-lg font-bold tracking-tight text-tinta">{titulo}</h3>
+        <p className="flex-1 text-base leading-relaxed text-tinta-suave">
+          {descripcion}
+        </p>
+        <button
+          onClick={onSeleccionar}
+          className="mt-3 w-full rounded-sm bg-campo px-4 py-3 text-sm font-bold text-sobre-campo transition-colors hover:bg-campo-hover"
+        >
+          Abrir su conversación
+        </button>
+      </div>
     </div>
   );
 }

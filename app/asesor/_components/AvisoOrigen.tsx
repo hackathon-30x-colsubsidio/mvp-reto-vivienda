@@ -11,7 +11,7 @@ export function AvisoOrigen({ origen }: { origen: OrigenDatos }) {
   if (origen === "supabase") return null;
 
   return (
-    <p className="mb-6 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-base text-gray-600">
+    <p className="mb-6 rounded-sm border-2 border-dashed border-regla bg-papel-hueco px-4 py-3 text-base text-tinta-suave">
       <strong>Modo demo sin base de datos.</strong> Estos 3 leads salen de
       fixtures locales, no de Supabase. Configura <code>.env</code> para
       conectar la DB real.

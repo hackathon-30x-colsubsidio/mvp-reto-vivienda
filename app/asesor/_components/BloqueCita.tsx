@@ -11,13 +11,15 @@ export function BloqueCita({ cita }: { cita: NonNullable<LeadCurado["cita"]> }) 
   return (
     <section
       data-testid="cita"
-      className="rounded-xl border-2 border-green-300 bg-green-50 p-5"
+      className="rounded-md border-2 border-azul-40 bg-salida-suave px-6 py-6"
     >
-      <h2 className="text-xl font-bold text-green-900">Visita agendada</h2>
-      <p className="mt-2 text-lg font-semibold text-green-900 first-letter:uppercase">
+      <h2 className="text-xs font-bold tracking-[0.08em] text-azul-profundo uppercase">
+        Visita agendada
+      </h2>
+      <p className="mt-2 text-lg font-bold text-tinta first-letter:uppercase">
         {fechaLarga(cita.fecha)}
       </p>
-      <p className="text-base text-green-800">{cita.sala_ventas}</p>
+      <p className="mt-0.5 text-base text-tinta-suave">{cita.sala_ventas}</p>
     </section>
   );
 }

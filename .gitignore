@@ -37,6 +37,12 @@ venv/
 .DS_Store
 .claude/settings.local.json
 
+# Herramental de agente vendorizado por terceros (123 archivos, ~2,9 MB).
+# Se reinstala con `npx impeccable install`; no es código del producto y este
+# repo es el entregable público. Lo que SÍ se versiona es su output: DESIGN.md,
+# PRODUCT.md y los tokens de app/globals.css.
+.claude/skills/
+
 # === Next.js / TypeScript generados ===
 next-env.d.ts
 *.tsbuildinfo

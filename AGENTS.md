@@ -22,6 +22,8 @@ Este repo está preparado para ingeniería agéntica. Leer antes de trabajar:
 
 Propios de este repo, leer también:
 
+- **[`PRODUCT.md`](PRODUCT.md) + [`DESIGN.md`](DESIGN.md)** — la verdad de producto y el sistema visual (los construye `/impeccable`). **Antes de tocar cualquier UI se lee `DESIGN.md`**: trae la paleta corporativa de Colsubsidio, los tokens semánticos y las reglas nombradas que ningún linter chequea (cero sombras, el azul tiñe regiones, un solo trazo de resaltador por pantalla, la Regla del Rol Único para el modo oscuro). Los colores viven en [`app/globals.css`](app/globals.css) como tokens: si hay que cambiar un color, se cambia el token, nunca el componente.
+
 - **[`docs/mvp-layout.md`](docs/mvp-layout.md)** — el layout macro de la solución: 8 decisiones cerradas, las abiertas, el workflow en mermaid (strawman a curar) y el mapeo del demo de 2 min.
 - **[`docs/reto/`](docs/reto/)** — el brief oficial de Colsubsidio y el doc de los insumos. La fuente de verdad de qué se pide.
 
