@@ -108,15 +108,18 @@ create table leads (
     ),
 
   -- CRITERIO DE ACEPTACIÓN 4 — el lead listo llega cerrable.
-  -- "entre 2 y 3 proyectos del catálogo".
-  -- Se permite 0 a propósito: deja escribir el lead calificado ANTES
-  -- de que el matcher corra (el orquestador del ticket 006 escribe en
-  -- dos pasos), sin que la DB rechace el insert a mitad del demo.
-  constraint listo_tiene_2_o_3_proyectos
+  -- "entre 2 y 3 proyectos del catálogo", con dos escapes deliberados:
+  --   0 — deja escribir el lead calificado ANTES de que el matcher corra,
+  --       y es el resultado REAL del no afiliado cuando los 18 proyectos
+  --       tienen el cupo 90/10 agotado (la munición del pitch).
+  --   1 — a quien el tope del 40% solo le alcanza para el proyecto más
+  --       económico le queda un candidato. Rechazar la fila perdería el
+  --       lead entero, y "nadie se descarta" pesa más que la redacción
+  --       del criterio (ver db/migracion-001-puntaje.sql, punto 2).
+  constraint listo_tiene_hasta_3_proyectos
     check (
       estado not in ('listo', 'listo_restriccion_cupo')
-      or jsonb_array_length(proyectos) = 0
-      or jsonb_array_length(proyectos) between 2 and 3
+      or jsonb_array_length(proyectos) <= 3
     ),
 
   -- Coherencia: si hay consentimiento, hay marca de tiempo.

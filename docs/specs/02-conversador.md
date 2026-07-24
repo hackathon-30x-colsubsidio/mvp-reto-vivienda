@@ -137,7 +137,7 @@ De las tres brechas de datos que rompían el motor, **dos se cerraron el 2026-07
 | Otras brechas | Hoy | Dónde |
 |---|---|---|
 | `afiliado_autoreportado` | El contrato de tipos dice que se pregunta si no hay match; **la pregunta no existe** | D3 nodo 4 |
-| Cierre de la conversación | Termina en `console.log` en [`app/page.tsx`](../../app/page.tsx) | Orquestador, [ticket 006](../tasks/006-orquestador.md) |
+| Cierre de la conversación | 🟢 **Cerrado el 2026-07-24.** Llama a [`/api/curar`](../../app/api/curar/route.ts): califica con el motor, matchea y persiste el lead **con su hilo completo** en Supabase | [Ticket 006](../tasks/006-orquestador.md) |
 | Oferta de franjas | El chat nunca la hace, aunque `/api/citas` funciona | [Ticket 005](../tasks/005-agendador.md) |
 | Re-enganche | El botón lleva a `/?lead_id=X&reenganche=1` y **nadie lee esos parámetros** | [Ticket 007](../tasks/007-reenganche-nutricion.md) |
 

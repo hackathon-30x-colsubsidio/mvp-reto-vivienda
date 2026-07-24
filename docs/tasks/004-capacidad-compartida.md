@@ -1,7 +1,7 @@
 ---
 id: 004
 serves: "spec §4 — 'primera cuota estimada ≤ 40% del ingreso del hogar' (Decreto 583 de 2025), tope regulatorio duro"
-status: todo
+status: doing (2026-07-24 — existe lib/scoring/capacidad.ts y lo usa el orquestador; falta que C lo importe y el caso borde 39/41%)
 ---
 
 # 004 — La regla del 40% como función compartida
@@ -19,7 +19,7 @@ Que exista **una sola** implementación del tope del 40% en el repo, y que el ma
 
 ## Done cuando
 - [ ] `npm test` verde con el caso borde: 39% del ingreso pasa, 41% no pasa.
-- [ ] `precioMaximo(ingreso)` y `cuotaEstimada(precio, ingreso)` son consistentes entre sí (property test o caso ida y vuelta).
+- [x] `precioMaximo(ingreso)` y `cuotaEstimada(precio, ingreso)` son consistentes entre sí (property test o caso ida y vuelta). — [`lib/scoring/capacidad.ts`](../../lib/scoring/capacidad.ts) + su test en [`lib/curar.test.ts`](../../lib/curar.test.ts): en el precio máximo la cuota da exactamente el tope del 40%. **Ojo con la firma:** quedó `precioMaximoDe(lead)` y `cuotaEstimada(precio)`, no `(ingreso)` — el subsidio también entra en la cuenta.
 - [ ] C importa la función y **no** tiene su propia versión del 40%.
 - [ ] El output cita "Decreto 583 de 2025" para que la explicación de C lo pueda repetir textual.
 

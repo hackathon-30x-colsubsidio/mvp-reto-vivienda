@@ -37,6 +37,29 @@ export interface Lead {
   };
 }
 
+// ── El hilo de la conversación (tabla `conversaciones`, ADR 0003) ────────
+// Una fila por mensaje. `sistema` no es de nadie: marca eventos (ingesta,
+// consentimiento, trigger de nutrición) que hacen auditable el hilo.
+export interface MensajeConversacion {
+  rol: "lead" | "asistente" | "sistema";
+  mensaje: string;
+}
+
+/** Lo que devuelve `/api/curar` cuando la conversación termina. */
+export interface ResultadoCurado {
+  ok?: boolean;
+  /** Si es `false`, el lead se calificó pero NO quedó en la DB. Se dice en voz alta. */
+  guardado: boolean;
+  lead_id?: string;
+  salida?: Score["salida"];
+  puntaje?: number;
+  proyectos?: number;
+  explicacion?: string;
+  error?: string;
+  /** Se guardó, pero con una salvedad que hay que decir en voz alta. */
+  advertencia?: string;
+}
+
 // ── B → C: el veredicto del motor ────────────────────────
 export interface FactorScore {
   nombre: string; // p.ej. "cuota_ingreso_40"

@@ -1,6 +1,7 @@
 import type {
   FactorScore,
   LeadCurado,
+  MensajeConversacion,
   PerfilConocido,
   ProyectoRecomendado,
 } from "@/lib/types";
@@ -252,18 +253,87 @@ export async function obtenerLead(leadId: string): Promise<{
  * Guarda (o pisa) un lead curado. Es lo que llaman los Tracks A y C
  * cuando terminan el flujo: nadie escribe a Supabase directo.
  */
-export async function guardarLeadCurado(curado: LeadCurado): Promise<void> {
+export async function guardarLeadCurado(
+  curado: LeadCurado,
+): Promise<{ advertencia?: string }> {
   const supabase = getSupabase();
   if (!supabase) throw new Error("Supabase no está configurado (falta .env)");
 
-  const { error } = await supabase
-    .from("leads")
-    .upsert(filaDesdeLeadCurado(curado), { onConflict: "lead_id" });
+  const fila = filaDesdeLeadCurado(curado);
+  const { error } = await supabase.from("leads").upsert(fila, { onConflict: "lead_id" });
+  if (!error) return {};
+
+  // Compatibilidad con la base creada ANTES del puntaje 0–100.
+  //
+  // La columna `puntaje` está en db/schema.sql pero nunca se aplicó a la base
+  // de producción, y por eso NINGUNA conversación se guardaba: el upsert
+  // entero rebotaba. Guardar sin prioridad es infinitamente mejor que perder
+  // el lead, pero NO se hace en silencio — quien llame se entera por la
+  // advertencia y el arreglo real es db/migracion-001-puntaje.sql.
+  if (/puntaje/i.test(error.message)) {
+    const sinPuntaje: Record<string, unknown> = { ...fila };
+    delete sinPuntaje.puntaje;
+
+    const reintento = await supabase
+      .from("leads")
+      .upsert(sinPuntaje, { onConflict: "lead_id" });
+    if (reintento.error) {
+      throw new Error(`No se pudo guardar el lead: ${reintento.error.message}`);
+    }
+
+    const advertencia =
+      "La tabla `leads` no tiene la columna `puntaje`: el lead quedó guardado SIN prioridad y la cola del asesor lo ordenará como 0. Corre db/migracion-001-puntaje.sql en el SQL Editor de Supabase.";
+    console.warn("[leads-repo]", advertencia);
+    return { advertencia };
+  }
 
   // Los CHECK constraints del ADR 0003 defienden los criterios de
   // aceptación. Si esto revienta, es que el lead viola uno — y es
   // justo lo que queremos que pase en desarrollo y no en el demo.
-  if (error) throw new Error(`No se pudo guardar el lead: ${error.message}`);
+  throw new Error(`No se pudo guardar el lead: ${error.message}`);
+}
+
+const ROLES_VALIDOS: MensajeConversacion["rol"][] = ["lead", "asistente", "sistema"];
+
+/**
+ * Guarda el hilo completo de una conversación (una fila por mensaje).
+ *
+ * Se llama DESPUÉS de `guardarLeadCurado`: `conversaciones.lead_id` es FK
+ * contra `leads`, así que sin la fila del lead el insert rebota.
+ *
+ * Re-correr la conversación del mismo lead **pisa** la anterior: el hilo viejo
+ * ya no describe lo que pasó, y la constraint `(lead_id, orden)` es única, así
+ * que acumular reventaría al segundo intento. Es el mismo criterio del upsert
+ * de `guardarLeadCurado`.
+ */
+export async function guardarConversacion(
+  leadId: string,
+  mensajes: MensajeConversacion[],
+): Promise<void> {
+  const supabase = getSupabase();
+  if (!supabase) throw new Error("Supabase no está configurado (falta .env)");
+
+  const limpios = mensajes
+    .filter((m) => ROLES_VALIDOS.includes(m.rol) && m.mensaje?.trim())
+    .map((m, i) => ({
+      lead_id: leadId,
+      rol: m.rol,
+      mensaje: m.mensaje.trim(),
+      orden: i + 1,
+    }));
+
+  const { error: errorBorrado } = await supabase
+    .from("conversaciones")
+    .delete()
+    .eq("lead_id", leadId);
+  if (errorBorrado) {
+    throw new Error(`No se pudo limpiar el hilo anterior: ${errorBorrado.message}`);
+  }
+
+  if (limpios.length === 0) return;
+
+  const { error } = await supabase.from("conversaciones").insert(limpios);
+  if (error) throw new Error(`No se pudo guardar la conversación: ${error.message}`);
 }
 
 /**

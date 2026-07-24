@@ -2,6 +2,20 @@
 
 > El documento más concreto y resumido del repo. Si solo vas a leer un archivo hoy, es este. Se actualiza cada vez que algo cambia el rumbo del equipo.
 
+## 🔌 2026-07-24 18:10 — La cadena quedó conectada, y apareció por qué NUNCA se guardó nada
+
+**Acción obligatoria de quien tenga acceso a Supabase: pegar [`db/migracion-001-puntaje.sql`](../db/migracion-001-puntaje.sql) en el SQL Editor y ejecutarlo.** Son 30 segundos, es idempotente y no borra datos.
+
+**El hallazgo:** la tabla `leads` de producción **no tiene la columna `puntaje`**. Está en `db/schema.sql` desde que el tablero introdujo el puntaje 0–100, pero la base se creó antes y nunca se migró. Toda escritura rebotaba con `Could not find the 'puntaje' column of 'leads' in the schema cache`. Por eso ninguna conversación aparecía en Supabase: **no era el chat ni el motor, era una columna que no existe.** Diagnosticado corriendo `/api/curar` contra la base real, no leyendo código.
+
+**Lo que se conectó (ticket [006](tasks/006-orquestador.md), la costura S4 — era el riesgo #1 del proyecto):** la conversación ya no muere en un `console.log`. Al cerrar, el `Lead` va a **`/api/curar`**, que califica con el motor, matchea proyectos, redacta el porqué y **persiste el lead con su hilo completo** de mensajes. Verificado contra la Supabase real: fila con 7 factores, 3 proyectos y las respuestas completas, más las filas de `conversaciones` (incluidas las de `sistema` para ingesta y consentimiento).
+
+- **Mientras nadie corra la migración, el demo NO se cae:** se guarda igual, sin puntaje, y **lo dice en voz alta** — en el chat y en los logs. Un demo que finge haber guardado es peor que uno que falla a la vista.
+- **Sin autorización de datos no se persiste nada** (403). Habeas data, no cortesía.
+- **Los 3 personajes, calificados con el catálogo real:** Diana `listo` 75/100 con 3 proyectos · Carlos `listo_restriccion_cupo` 57/100 con **0 proyectos** (los 18 tienen el cupo 90/10 agotado — la munición del pitch aparece sola) · Yuliana `nutricion` con su trigger.
+- **⚠️ Correr una conversación PISA la fila sembrada de ese personaje** (upsert por `lead_id`). Es lo que pide el ticket 006, pero conviene saberlo antes del video.
+- **⚠️ Cambio a un criterio de aceptación, para ratificar:** el CHECK de proyectos pasó de `0 ó 2-3` a `≤ 3`. Rechazaba exactamente 1 proyecto, y con eso **se perdía el lead entero** — choca con "nadie se descarta" ([ADR 0003](adr/0003-esquema-db-leads.md), enmienda).
+
 ## 💬 2026-07-24 16:45 — La conversación de WhatsApp dejó de sonar a encuesta, y **2 de las 3 brechas de datos quedaron cerradas**
 
 Rama `feat/conversacion-humana`. Lo que se está vendiendo es *"algo que haces una vez en tu vida y probablemente al lado de otra persona"* (mentor), y el chat preguntaba como un formulario: pregunta, respuesta, siguiente pregunta, sin reaccionar nunca a lo que la persona acababa de contar.

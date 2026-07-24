@@ -73,10 +73,12 @@ Lo *verificable* del spec no se queda en la revisión de código; lo garantiza l
 |---|---|
 | `estado IS NOT NULL ⇒ jsonb_array_length(factores) > 0` | **Criterio 2** — ningún lead calificado sin factores visibles |
 | `estado='nutricion' ⇒ regla_fallida y trigger_nutricion no vacíos` | **Criterio 3** — nadie cae a nutrición sin razón ni trigger |
-| `estado IN ('listo','listo_restriccion_cupo') ⇒ proyectos tiene 0 ó 2-3` | **Criterio 4** — 2-3 proyectos, nunca 1 ni 5 |
+| `estado IN ('listo','listo_restriccion_cupo') ⇒ proyectos ≤ 3` | **Criterio 4** — nunca más de 3 (relajado el 2026-07-24, ver abajo) |
 | `estado IN` las 3 salidas | Las 3 salidas del spec; **no existe "descartado"** |
 
-El `0` permitido en la regla de proyectos es deliberado: deja escribir el lead calificado **antes** de que el matcher corra (el orquestador del [ticket 006](../tasks/006-orquestador.md) escribe en dos pasos), sin que la DB rechace el insert a mitad del demo.
+El `0` permitido en la regla de proyectos es deliberado: deja escribir el lead calificado **antes** de que el matcher corra (el orquestador del [ticket 006](../tasks/006-orquestador.md) escribe en dos pasos), sin que la DB rechace el insert a mitad del demo. Con el catálogo real es además el resultado legítimo del no afiliado al que la regla 90/10 le cierra los 18 proyectos.
+
+**Enmienda del 2026-07-24 — el CHECK pasó de `0 ó 2-3` a `≤ 3`** ([`db/migracion-001-puntaje.sql`](../../db/migracion-001-puntaje.sql)). Rechazaba exactamente 1, y 1 es alcanzable: a quien el tope del 40% solo le alcanza para el proyecto más económico le queda un candidato. La DB le rechazaba la fila entera, o sea que **el lead se perdía** — y "nadie se descarta" es restricción no-negociable, mientras que "entre 2 y 3" es una redacción del criterio. Queda para ratificar por el TEAM; revertir es volver a poner `between 2 and 3`.
 
 ## Alternativas consideradas
 

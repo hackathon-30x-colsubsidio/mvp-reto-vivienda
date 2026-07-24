@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Lead, LeadEvento, PerfilConocido } from "@/lib/types";
+import type {
+  Lead,
+  LeadEvento,
+  MensajeConversacion,
+  PerfilConocido,
+  ResultadoCurado,
+} from "@/lib/types";
 import {
   NOMBRE_AGENTE,
   construirPreguntas,
@@ -36,6 +42,13 @@ function nuevoId(): string {
 
 const pausa = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Cómo se lee la fuente en el hilo guardado. La ficha del asesor la muestra. */
+const ETIQUETA_FUENTE: Record<string, string> = {
+  meta: "Meta Lead Ads",
+  google: "Google Ads",
+  web: "la web de Colsubsidio",
+};
+
 export function ChatWhatsApp({
   evento,
   perfil,
@@ -44,7 +57,12 @@ export function ChatWhatsApp({
 }: {
   evento: LeadEvento;
   perfil: PerfilConocido;
-  onTerminar: (lead: Lead) => void;
+  /**
+   * Cierra el flujo: manda el `Lead` y el hilo completo a `/api/curar`, que
+   * califica y persiste. Devuelve el veredicto para que el chat pueda decir
+   * la verdad si NO se guardó, en vez de fingir que sí.
+   */
+  onTerminar: (lead: Lead, transcripcion: MensajeConversacion[]) => Promise<ResultadoCurado>;
   onVolver: () => void;
 }) {
   const [pasos] = useState<PasoPregunta[]>(() => construirPreguntas(perfil));
@@ -60,11 +78,25 @@ export function ChatWhatsApp({
   // agregarBot() de inmediato, así que este medio segundo largo se lo come la
   // latencia real del primer token en vez de sumarse a ella.
   const [cargando, setCargando] = useState(true);
+  /** Veredicto de `/api/curar`. Null mientras la conversación no ha cerrado. */
+  const [resultado, setResultado] = useState<ResultadoCurado | null>(null);
   const finRef = useRef<HTMLDivElement>(null);
   const iniciado = useRef(false);
   const historialRef = useRef<{ role: "user" | "assistant"; content: string }[]>(
     [],
   );
+  /**
+   * El hilo tal como va a quedar en la tabla `conversaciones` (ADR 0003).
+   *
+   * Es distinto de `historialRef`, que es el contexto que se le manda al LLM:
+   * aquí también entran las filas `sistema` (ingesta, consentimiento), que son
+   * eventos y no mensajes de nadie, y que son las que dejan el hilo auditable.
+   */
+  const transcripcionRef = useRef<MensajeConversacion[]>([]);
+
+  function anotar(rol: MensajeConversacion["rol"], mensaje: string) {
+    transcripcionRef.current = [...transcripcionRef.current, { rol, mensaje }];
+  }
 
   useEffect(() => {
     finRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -79,6 +111,14 @@ export function ChatWhatsApp({
     if (iniciado.current) return;
     iniciado.current = true;
     void (async () => {
+      // Primera fila del hilo: de dónde vino y qué se supo antes de hablarle.
+      // Es la que hace legible el resto de la conversación en la DB.
+      anotar(
+        "sistema",
+        `Lead recibido de ${ETIQUETA_FUENTE[evento.fuente] ?? evento.fuente}` +
+          `${evento.proyecto_interes ? `, interesado en ${evento.proyecto_interes}` : ""}. ` +
+          `Enriquecimiento por cédula: ${perfil.match ? "match encontrado, no se repregunta lo conocido" : "sin match, se pregunta todo"}.`,
+      );
       // El saludo va instantáneo (sin LLM): el chat tiene que sentirse vivo en
       // el primer segundo. La autorización sí se pule, porque es el mensaje
       // donde más gente se cae (charla-mentor.md #puntos-de-fuga).
@@ -93,6 +133,7 @@ export function ChatWhatsApp({
 
   function agregarUsuario(texto: string) {
     historialRef.current = [...historialRef.current, { role: "user", content: texto }];
+    anotar("lead", texto);
     setMensajes((prev) => [
       ...prev,
       { id: nuevoId(), autor: "usuario", texto, hora: horaActual() },
@@ -125,6 +166,7 @@ export function ChatWhatsApp({
       ...historialRef.current,
       { role: "assistant", content: texto },
     ];
+    anotar("asistente", texto);
   }
 
   /**
@@ -194,6 +236,7 @@ export function ChatWhatsApp({
       ...historialRef.current,
       { role: "assistant", content: textoFinal },
     ];
+    anotar("asistente", textoFinal);
   }
 
   async function responderConsentimiento(acepta: boolean) {
@@ -204,6 +247,15 @@ export function ChatWhatsApp({
       consentimiento: { otorgado: acepta, timestamp },
     };
     setRespuestas(nuevasRespuestas);
+
+    // Evidencia auditable de habeas data (Ley 1581 de 2012), en el hilo y con
+    // hora. Va como fila `sistema` porque no es un mensaje de nadie.
+    anotar(
+      "sistema",
+      acepta
+        ? `Consentimiento habeas data otorgado (Ley 1581 de 2012) — ${timestamp}`
+        : `Consentimiento habeas data NO otorgado — ${timestamp}. La conversación termina y no se persiste el lead.`,
+    );
 
     if (!acepta) {
       setFase("rechazado");
@@ -268,7 +320,23 @@ export function ChatWhatsApp({
     };
 
     await agregarBotInstantaneo(mensajeCierre(evento.nombre), 700);
-    onTerminar(lead);
+
+    // Aquí se cierra la cadena: el Lead va a /api/curar, que lo califica con el
+    // motor y lo persiste con su hilo. Antes esto terminaba en un console.log y
+    // nada de lo que contó la persona llegaba ni al motor ni a la DB.
+    const veredicto = await onTerminar(lead, transcripcionRef.current);
+    setResultado(veredicto);
+
+    // Si no se guardó, se dice. Un demo que finge haber guardado es peor que
+    // uno que falla a la vista: el jurado se entera igual al abrir /asesor.
+    if (!veredicto.guardado) {
+      await agregarBotInstantaneo(
+        `⚠️ Nota del demo: tu perfil se calificó, pero no se pudo guardar en la base (${veredicto.error ?? "razón desconocida"}), así que no va a aparecer en la bandeja del asesor.`,
+        400,
+      );
+    } else if (veredicto.advertencia) {
+      await agregarBotInstantaneo(`⚠️ Nota del demo: ${veredicto.advertencia}`, 400);
+    }
   }
 
   function enviarTexto() {
@@ -480,6 +548,17 @@ export function ChatWhatsApp({
 
               {(fase === "terminado" || fase === "rechazado") && (
                 <div className="qr">
+                  {/* El demo es autogestionado: si el lead quedó guardado, el
+                      jurado tiene que poder ver cómo lo recibe el asesor sin
+                      escribir una URL a mano. */}
+                  {resultado?.guardado && resultado.lead_id && (
+                    <a
+                      href={`/asesor/${resultado.lead_id}`}
+                      className="btn btn--primary btn--bloque"
+                    >
+                      Ver cómo le llega al asesor →
+                    </a>
+                  )}
                   <button onClick={onVolver} className="btn btn--seal btn--bloque">
                     Volver al inicio
                   </button>
