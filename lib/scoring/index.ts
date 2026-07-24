@@ -2,8 +2,8 @@
 // Recibe un Lead + la ficha del proyecto de interés, devuelve un Score con
 // TODOS los factores visibles (criterio de aceptación 2 del spec).
 
-import { CONFIG_SCORING } from "./config.js";
-import type { FactorScore, Lead, ProyectoCatalogo, Score } from "../types.js";
+import { CONFIG_SCORING } from "./config";
+import type { FactorScore, Lead, ProyectoCatalogo, Score } from "../types";
 
 /**
  * La ÚNICA definición de "este lead es afiliado" en el repo.

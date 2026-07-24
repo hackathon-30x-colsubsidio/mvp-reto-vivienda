@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { afiliadoEfectivo, calcularScore } from "./index.js";
-import { calcularPuntaje, PESOS } from "./puntaje.js";
-import { afiliadoListo, noAfiliadoListo, nutricion } from "../fixtures/leads.js";
-import { proyectoBosqueDeTurpial, proyectoInari } from "../fixtures/proyectos.js";
+import { afiliadoEfectivo, calcularScore } from "./index";
+import { calcularPuntaje, PESOS } from "./puntaje";
+import { afiliadoListo, noAfiliadoListo, nutricion } from "../fixtures/leads";
+import { proyectoBosqueDeTurpial, proyectoInari } from "../fixtures/proyectos";
 
 const CASOS = [
   { lead: afiliadoListo, proyecto: proyectoInari },

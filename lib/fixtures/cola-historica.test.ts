@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { colaHistoricaSintetica } from "./cola-historica";
 import { afiliadoEfectivo } from "@/lib/scoring";
+import { serieDiaria } from "@/lib/tablero/serie-diaria";
 import * as canonicos from "./leads-curados";
 
 const HOY = new Date("2026-07-24T18:00:00-05:00");
@@ -52,6 +53,15 @@ describe("colaHistoricaSintetica — sirve para lo que existe", () => {
     for (const item of cola) {
       expect(new Date(item.creado_en).getTime()).toBeLessThanOrEqual(HOY.getTime());
     }
+  });
+
+  it("TODOS caen dentro de la ventana de 14 días que dibuja la gráfica", () => {
+    // Bug real: el timestamp se armaba restando "N días y M horas", así
+    // que un lead de 13 días atrás menos 14 horas caía en el día 14 y se
+    // salía de la ventana. La gráfica sumaba 56 y la cola decía 60.
+    const cola = colaHistoricaSintetica(HOY);
+    const serie = serieDiaria(cola, 14, HOY);
+    expect(serie.reduce((s, d) => s + d.total, 0)).toBe(cola.length);
   });
 
   it("las 3 salidas del corte están representadas", () => {

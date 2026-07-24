@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { calcularScore } from "./index.js";
-import { CONFIG_SCORING } from "./config.js";
-import { afiliadoListo, noAfiliadoListo, nutricion } from "../fixtures/leads.js";
-import { proyectoBosqueDeTurpial, proyectoInari } from "../fixtures/proyectos.js";
-import type { Lead } from "../types.js";
+import { calcularScore } from "./index";
+import { CONFIG_SCORING } from "./config";
+import { afiliadoListo, noAfiliadoListo, nutricion } from "../fixtures/leads";
+import { proyectoBosqueDeTurpial, proyectoInari } from "../fixtures/proyectos";
+import type { Lead } from "../types";
 
 describe("calcularScore — las 3 salidas del corte (spec §4)", () => {
   it("afiliada + pasa el corte -> listo", () => {

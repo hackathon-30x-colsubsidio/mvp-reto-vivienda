@@ -31,6 +31,26 @@ export function fechaCorta(iso: string): string {
   return FECHA_CORTA.format(new Date(iso));
 }
 
+/**
+ * Día calendario en Bogotá, `YYYY-MM-DD`.
+ *
+ * Es la llave con la que el tablero agrupa por día. Va aquí, con el
+ * resto del formato de fechas, porque quien genera un lead y quien lo
+ * cuenta en una barra tienen que estar de acuerdo en qué día es: si
+ * cada uno lo calculara por su lado, un lead podría generarse "hace 13
+ * días" y caer fuera de la ventana de 14.
+ */
+const DIA_BOGOTA = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: "America/Bogota",
+});
+
+export function diaBogota(fecha: Date | string): string {
+  return DIA_BOGOTA.format(typeof fecha === "string" ? new Date(fecha) : fecha);
+}
+
 /** "meta" -> "Meta Ads". Para que el asesor vea de dónde vino el lead. */
 export const NOMBRE_FUENTE: Record<string, string> = {
   meta: "Meta Ads",

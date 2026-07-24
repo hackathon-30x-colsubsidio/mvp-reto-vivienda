@@ -2,7 +2,7 @@
 // Espejo de data/sintetica/proyectos.json (no se importa el JSON completo
 // para que el test no dependa de que alguien vuelva a correr los scripts).
 // Forma acordada con Track C: lib/matching/tipos.ts → FichaProyecto.
-import type { ProyectoCatalogo } from "../types.js";
+import type { ProyectoCatalogo } from "../types";
 
 export const proyectoInari: ProyectoCatalogo = {
   proyecto_id: "inari",

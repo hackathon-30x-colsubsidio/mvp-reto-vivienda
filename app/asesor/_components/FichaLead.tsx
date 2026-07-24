@@ -5,7 +5,10 @@ import { TablaFactores } from "./TablaFactores";
 import { BloqueProyectos } from "./BloqueProyectos";
 import { BloqueCita } from "./BloqueCita";
 import { BloqueNutricion } from "./BloqueNutricion";
-import { fechaLarga, NOMBRE_FUENTE } from "@/lib/formato";
+import { TablaPuntaje } from "./TablaPuntaje";
+import { calcularPuntaje } from "@/lib/scoring/puntaje";
+import { afiliadoEfectivo } from "@/lib/scoring";
+import { fechaCorta, fechaLarga, NOMBRE_FUENTE } from "@/lib/formato";
 
 /**
  * La ficha del lead: el clímax del demo.
@@ -22,20 +25,29 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
   const { curado } = item;
   const { evento, perfil, respuestas } = curado.lead;
   const esNutricion = curado.score.salida === "nutricion";
+  const puntaje = calcularPuntaje(curado.score, afiliadoEfectivo(curado.lead));
 
   return (
     <article className="overflow-hidden rounded-md border-2 border-borde bg-papel">
       {/* El riel del formato: vuelta atrás a la izquierda, folio a la
           derecha. Es el encabezado impreso de la hoja. */}
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 bg-campo px-6 py-3">
-        <Link
-          href="/asesor"
-          className="text-sm font-bold text-sobre-campo hover:underline"
-        >
-          ← Volver a la cola
-        </Link>
+        <span className="flex flex-wrap items-center gap-x-5 gap-y-1">
+          <Link
+            href="/asesor"
+            className="text-sm font-bold text-sobre-campo hover:underline"
+          >
+            ← Volver a la cola
+          </Link>
+          <Link
+            href="/asesor/tablero"
+            className="text-sm font-bold text-sobre-campo hover:underline"
+          >
+            ← Tablero
+          </Link>
+        </span>
         <span className="cifra text-xs text-sobre-campo-suave">
-          Folio {evento.lead_id}
+          Folio {evento.lead_id} · recibido {fechaCorta(item.creado_en)}
         </span>
       </div>
 
@@ -69,9 +81,22 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
                 )}
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {item.re_enganchado_en && <BadgeReEnganchado />}
-              <BadgeEstado estado={curado.score.salida} />
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {item.re_enganchado_en && <BadgeReEnganchado />}
+                <BadgeEstado estado={curado.score.salida} />
+              </div>
+              {/* El puntaje del tablero, en la ficha. Nunca aparece solo:
+                  la tabla de más abajo trae las cuentas completas. */}
+              <p className="text-right">
+                <span data-testid="puntaje-ficha" className="cifra text-3xl font-bold text-tinta">
+                  {puntaje.total}
+                  <span className="text-base font-normal text-tinta-suave">/100</span>
+                </span>
+                <span className="block text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase">
+                  Puntaje
+                </span>
+              </p>
             </div>
           </div>
         </header>
@@ -108,6 +133,24 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
             <span className="resaltado font-bold">Ninguno se oculta.</span>
           </p>
           <TablaFactores factores={curado.score.factores} />
+        </section>
+
+        {/* De dónde sale el número que ordena el tablero. Va después de
+            los factores a propósito: primero qué se evaluó, después
+            cuánto pesó cada cosa. */}
+        <section>
+          <h2 className="text-xl font-bold tracking-tight text-tinta">
+            Cómo se arma el puntaje{" "}
+            <span className="cifra font-normal text-tinta-suave">
+              ({puntaje.total}/100)
+            </span>
+          </h2>
+          <p className="mt-1 mb-4 max-w-[68ch] text-base text-tinta-suave">
+            El puntaje no decide nada —quien decide es el corte del 40%— pero es
+            el que ordena la lista del tablero. Estas son sus cuentas: cada
+            factor con lo que aportó y con lo máximo que podía aportar.
+          </p>
+          <TablaPuntaje puntaje={puntaje} />
         </section>
 
         {esNutricion ? (

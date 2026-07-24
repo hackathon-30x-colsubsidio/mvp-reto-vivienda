@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { listarCola } from "@/lib/leads-repo";
 import { PRIORIDAD, type EstadoLead } from "@/lib/types-asesor";
 import { FilaLead } from "./_components/FilaLead";
@@ -44,9 +45,12 @@ export default async function ColaAsesorPage() {
           <span className="text-sm font-bold tracking-[0.08em] text-sobre-campo uppercase">
             Colsubsidio · Vivienda
           </span>
-          <span className="cifra text-xs text-sobre-campo-suave">
-            Consola del asesor
-          </span>
+          <Link
+            href="/asesor/tablero"
+            className="text-sm font-bold text-sobre-campo hover:underline"
+          >
+            Ver el tablero del especialista →
+          </Link>
         </div>
       </div>
 

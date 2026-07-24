@@ -2,6 +2,7 @@ import type { Lead, LeadCurado, ProyectoCatalogo } from "@/lib/types";
 import type { LeadEnCola } from "@/lib/types-asesor";
 import { afiliadoEfectivo, calcularScore } from "@/lib/scoring";
 import { matchear } from "@/lib/matching";
+import { diaBogota } from "@/lib/formato";
 import type { FichaProyecto } from "@/lib/matching/tipos";
 import identidades from "@/data/sintetica/identidades.json";
 import proyectosJson from "@/data/sintetica/proyectos.json";
@@ -261,6 +262,33 @@ function explicacionDe(
   return `${nombre} ${afiliado ? "es afiliada/o a Colsubsidio" : "no es afiliada/o, así que compite por el cupo del 10% (regla 90/10)"} y su cuota estimada cabe bajo el tope legal del 40% (Decreto 583 de 2025): ${cuota?.valor ?? "sin detalle"}. Lead del histórico sintético del tablero.`;
 }
 
+/**
+ * Cuándo entró el lead.
+ *
+ * Se elige primero el DÍA y después la hora dentro de ese día, no un
+ * offset en milisegundos: restar "13 días y 14 horas" hacía que el lead
+ * cayera en el día 14 y se saliera de la ventana que dibuja la gráfica,
+ * y la suma de las barras no cuadraba con el total de la cola.
+ *
+ * La hora cae en franja comercial (7 a.m. – 8 p.m. de Bogotá), que es
+ * cuando la pauta trae gente. Si eso queda en el futuro —el día 0 es
+ * hoy y todavía no son las 8 p.m.— se ancla un rato antes de `hoy`.
+ */
+function momentoDeEntrada(azar: () => number, hoy: Date): Date {
+  const diasAtras = entero(azar, 0, DIAS_DE_HISTORIA);
+  const dia = diaBogota(new Date(hoy.getTime() - diasAtras * 86_400_000));
+
+  const hora = String(entero(azar, 7, 20)).padStart(2, "0");
+  const minuto = String(entero(azar, 0, 60)).padStart(2, "0");
+
+  // Bogotá es UTC-5 todo el año: no hay horario de verano que corregir.
+  const creado = new Date(`${dia}T${hora}:${minuto}:00-05:00`);
+
+  return creado.getTime() <= hoy.getTime()
+    ? creado
+    : new Date(hoy.getTime() - entero(azar, 5, 180) * 60_000);
+}
+
 // ── La cola ──────────────────────────────────────────────────────────
 
 /**
@@ -306,11 +334,7 @@ export function colaHistoricaSintetica(hoy: Date): LeadEnCola[] {
     const sinCupo = !afiliado && elegidos.length === 0;
     if (score.salida !== "nutricion" && afiliado && elegidos.length < 2) continue;
 
-    const creado = new Date(
-      hoy.getTime() -
-        entero(azar, 0, DIAS_DE_HISTORIA) * 86_400_000 -
-        entero(azar, 8 * 60, 20 * 60) * 60_000,
-    );
+    const creado = momentoDeEntrada(azar, hoy);
 
     const curado: LeadCurado = {
       lead: {

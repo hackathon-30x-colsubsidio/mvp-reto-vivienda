@@ -15,7 +15,7 @@
 // de un mismo grupo, que es lo que la cola por recencia no sabía hacer.
 // =====================================================================
 
-import type { Score } from "../types.js";
+import type { Score } from "../types";
 
 /**
  * Cuánto vale cada factor del motor. Suman 100 (un test lo fija).
