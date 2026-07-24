@@ -36,3 +36,8 @@ venv/
 # === SO / editor / agentes ===
 .DS_Store
 .claude/settings.local.json
+
+# === Next.js / TypeScript generados ===
+next-env.d.ts
+*.tsbuildinfo
+*.pem

@@ -1,25 +1,25 @@
 import { describe, expect, it } from "vitest";
 import { calcularScore } from "./index.js";
 import { CONFIG_SCORING } from "./config.js";
-import { leadCarlosNoAfiliadoListo, leadLauraNutricion, leadMariaAfiliadaLista } from "../fixtures/leads.js";
+import { afiliadoListo, noAfiliadoListo, nutricion } from "../fixtures/leads.js";
 import { proyectoBosqueDeTurpial, proyectoInari } from "../fixtures/proyectos.js";
 import type { Lead } from "../types.js";
 
 describe("calcularScore — las 3 salidas del corte (spec §4)", () => {
   it("afiliada + pasa el corte -> listo", () => {
-    const score = calcularScore(leadMariaAfiliadaLista, proyectoInari);
+    const score = calcularScore(afiliadoListo, proyectoInari);
     expect(score.salida).toBe("listo");
     expect(score.regla_fallida).toBeUndefined();
     expect(score.trigger_nutricion).toBeUndefined();
   });
 
   it("no afiliado + pasa el corte -> listo_restriccion_cupo", () => {
-    const score = calcularScore(leadCarlosNoAfiliadoListo, proyectoInari);
+    const score = calcularScore(noAfiliadoListo, proyectoInari);
     expect(score.salida).toBe("listo_restriccion_cupo");
   });
 
   it("no pasa el tope del 40% -> nutricion, con regla_fallida y trigger no vacíos", () => {
-    const score = calcularScore(leadLauraNutricion, proyectoBosqueDeTurpial);
+    const score = calcularScore(nutricion, proyectoBosqueDeTurpial);
     expect(score.salida).toBe("nutricion");
     expect(score.regla_fallida).toBe("cuota_ingreso_40");
     expect(score.trigger_nutricion).toBeTruthy();
@@ -38,9 +38,9 @@ describe("calcularScore — criterio de aceptación 2: cero caja negra", () => {
       "cupo_90_10",
     ];
     for (const [lead, proyecto] of [
-      [leadMariaAfiliadaLista, proyectoInari],
-      [leadCarlosNoAfiliadoListo, proyectoInari],
-      [leadLauraNutricion, proyectoBosqueDeTurpial],
+      [afiliadoListo, proyectoInari],
+      [noAfiliadoListo, proyectoInari],
+      [nutricion, proyectoBosqueDeTurpial],
     ] as const) {
       const score = calcularScore(lead, proyecto);
       expect(score.factores.map((f) => f.nombre)).toEqual(nombresEsperados);
@@ -53,9 +53,9 @@ describe("calcularScore — borde exacto del tope del 40% (Decreto 583 de 2025)"
 
   function leadConRatio(ratio: number): Lead {
     return {
-      ...leadMariaAfiliadaLista,
+      ...afiliadoListo,
       respuestas: {
-        ...leadMariaAfiliadaLista.respuestas,
+        ...afiliadoListo.respuestas,
         ingreso_hogar_mensual: cuotaEstimada / ratio,
       },
     };
@@ -79,15 +79,15 @@ describe("calcularScore — el subsidio puede meter la cuota bajo el 40%", () =>
     const cuotaEstimada = proyectoBosqueDeTurpial.precio_desde! * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
     const ingreso = 1_800_000;
 
-    const sinSubsidio = calcularScore(leadLauraNutricion, proyectoBosqueDeTurpial);
+    const sinSubsidio = calcularScore(nutricion, proyectoBosqueDeTurpial);
     expect(sinSubsidio.salida).toBe("nutricion");
 
     // Un subsidio que cubra lo suficiente para bajar la cuota neta al 30% del ingreso.
     const subsidioNecesario = cuotaEstimada - ingreso * 0.3;
     const leadConSubsidio: Lead = {
-      ...leadLauraNutricion,
+      ...nutricion,
       respuestas: {
-        ...leadLauraNutricion.respuestas,
+        ...nutricion.respuestas,
         subsidios: ["Mi Casa Ya"],
         subsidio_monto_mensual: subsidioNecesario,
       },

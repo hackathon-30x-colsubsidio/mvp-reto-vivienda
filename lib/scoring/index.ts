@@ -86,7 +86,7 @@ function factorSituacionCrediticia(lead: Lead): FactorScore {
 }
 
 function factorSimilitudCompradores(proyecto: ProyectoCatalogo): FactorScore {
-  const { usado, total } = proyecto.cupo_no_afiliados;
+  const { total } = proyecto.cupo_no_afiliados;
   // total = 10% del volumen histórico del proyecto (proxy de "cuántos compradores tiene").
   const nAproximado = total * 10;
   return {

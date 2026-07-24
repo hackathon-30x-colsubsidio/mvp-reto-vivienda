@@ -112,5 +112,5 @@ Hallazgos del análisis del Excel real (`docs/recursos-reto/hackathon_VIVIENDAv2
 ## 9. Siguiente paso
 
 1. **Kickoff con todo el equipo**: cerrar la frase de apuesta, curar el mermaid, y resolver las decisiones abiertas (esquema DB, vista asesor, entrada del demo, métricas de scoring).
-2. Bajar este layout a `spec.md` (7 bloques) + tasks (Día 1 del [plan-hackathon.md](plan-hackathon.md)).
+2. Bajar este layout a `spec.md` (7 bloques) + tasks (Día 1 del [agenda-evento.md](agenda-evento.md)).
 3. Crear el **repo público del MVP** (después del inicio del evento) y arrancar el scaffold.
