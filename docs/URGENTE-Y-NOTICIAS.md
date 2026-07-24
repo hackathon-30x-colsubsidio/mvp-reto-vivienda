@@ -2,6 +2,18 @@
 
 > El documento más concreto y resumido del repo. Si solo vas a leer un archivo hoy, es este. Se actualiza cada vez que algo cambia el rumbo del equipo.
 
+## 🔴 2026-07-24 10:55 — La IA está CAÍDA en producción (dueño: Nico)
+
+`/api/chat` y `/api/explicacion` devuelven **500 consistente a los ~6s** en https://mvp-reto-vivienda.vercel.app. El resto del demo está sano: `/`, `/asesor` y `/api/leads` responden 200 contra Supabase.
+
+- **El demo NO se rompe.** El fallback determinístico del chat funciona (`ChatWhatsApp.tsx:108-127`): el jurado ve el mensaje, sin el pulido del LLM. **Pero cada mensaje se cuelga ~6s** en "escribiendo…" antes de rendirse — eso sí arruina el video.
+- **NO es la credencial.** Si el JSON no parseara daría 503; da 500, o sea parsea y la llamada a Vertex es la que falla. La cuenta de servicio está verificada: autentica, tiene el rol y la Vertex AI API está habilitada.
+- **En local funciona**: 0,82–1,33s de primer token por la ruta de Vertex. En producción llegó a responder **una vez, con 8,01s** — que igual **incumple el <2s** del ADR 0002. Sospecha (sin confirmar): el intercambio JWT→OAuth de la cuenta de servicio en un lambda frío. **Primer paso: leer los logs de Vercel.**
+- **Trampa que ya costó dos deploys:** el modelo **depende del backend**. `gemini-2.5-flash` está retirado en AI Studio pero **vivo en Vertex**; los `gemini-3.x` **no existen** en Vertex. La tabla medida está en el comentario de `lib/gemini.ts`. Si tocas el modelo, mídelo contra el backend donde va a correr.
+- **Decisión de costo, del equipo:** Vertex gasta el crédito de $300 pero hoy está caído; `GEMINI_API_KEY` de AI Studio está verificada a 1,68s pero cobra a la tarjeta. Con un timeout en el cliente el demo sobrevive con cualquiera.
+
+Detalle completo, mediciones y los pasos sugeridos: `docs/agents/handoff.md`, entrada del 2026-07-24 10:55.
+
 ## ✅ Decisión tomada: vamos por VIVIENDA
 El reto está **cerrado: Vivienda** (perfilamiento inteligente de leads). Registrado en `docs/adr/0001-eleccion-reto-vivienda.md`. **No se re-litiga.** El porqué corto: mejor balance de los 4 criterios, datos reales usables (Excel 4.142 compradores + buyer personas + brochure), demo autocontenido por WhatsApp, ROI clarísimo (CPL + horas comerciales) y gancho regulatorio 90/10.
 
