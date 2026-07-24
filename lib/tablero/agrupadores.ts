@@ -1,5 +1,4 @@
 import { afiliadoEfectivo } from "@/lib/scoring";
-import { calcularPuntaje } from "@/lib/scoring/puntaje";
 import { ETIQUETA_ESTADO, PRIORIDAD, type EstadoLead } from "@/lib/types-asesor";
 import { NOMBRE_FUENTE } from "@/lib/formato";
 import type { Agrupador, DatosTablero, GrupoLeads } from "./tipos";
@@ -15,9 +14,17 @@ import type { LeadEnCola } from "@/lib/types-asesor";
 // aquí abajo.
 // =====================================================================
 
-/** Puntaje del lead. Vive aquí porque es el orden de todos los grupos. */
+/**
+ * Puntaje del lead. Vive aquí porque es el orden de todos los grupos.
+ *
+ * Es `Score.puntaje` tal cual lo emitió el motor (`calcularScore`,
+ * capa 2) — NO se recalcula acá. Hubo un módulo `lib/scoring/puntaje.ts`
+ * que reconstruía su propio puntaje (pesos distintos, binario) a partir
+ * de `factores[].cumple`; el asesor veía un número que el motor nunca
+ * calculó. Se borró: una sola cuenta, la que ya trae el `Score`.
+ */
 export function puntajeDe(lead: LeadEnCola): number {
-  return calcularPuntaje(lead.curado.score, afiliadoEfectivo(lead.curado.lead)).total;
+  return lead.curado.score.puntaje;
 }
 
 /** Mejor puntaje primero; a igual puntaje, lo más reciente arriba. */

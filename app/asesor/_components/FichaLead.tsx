@@ -6,8 +6,6 @@ import { BloqueProyectos } from "./BloqueProyectos";
 import { BloqueCita } from "./BloqueCita";
 import { BloqueNutricion } from "./BloqueNutricion";
 import { TablaPuntaje } from "./TablaPuntaje";
-import { calcularPuntaje } from "@/lib/scoring/puntaje";
-import { afiliadoEfectivo } from "@/lib/scoring";
 import { fechaCorta, fechaLarga, NOMBRE_FUENTE } from "@/lib/formato";
 
 /**
@@ -25,7 +23,7 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
   const { curado } = item;
   const { evento, perfil, respuestas } = curado.lead;
   const esNutricion = curado.score.salida === "nutricion";
-  const puntaje = calcularPuntaje(curado.score, afiliadoEfectivo(curado.lead));
+  const puntaje = curado.score.puntaje;
 
   return (
     <article className="overflow-hidden rounded-md border-2 border-borde bg-papel">
@@ -90,7 +88,7 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
                   la tabla de más abajo trae las cuentas completas. */}
               <p className="text-right">
                 <span data-testid="puntaje-ficha" className="cifra text-3xl font-bold text-tinta">
-                  {puntaje.total}
+                  {puntaje}
                   <span className="text-base font-normal text-tinta-suave">/100</span>
                 </span>
                 <span className="block text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase">
@@ -142,15 +140,15 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
           <h2 className="text-xl font-bold tracking-tight text-tinta">
             Cómo se arma el puntaje{" "}
             <span className="cifra font-normal text-tinta-suave">
-              ({puntaje.total}/100)
+              ({puntaje}/100)
             </span>
           </h2>
           <p className="mt-1 mb-4 max-w-[68ch] text-base text-tinta-suave">
             El puntaje no decide nada —quien decide es el corte del 40%— pero es
             el que ordena la lista del tablero. Estas son sus cuentas: cada
-            factor con lo que aportó y con lo máximo que podía aportar.
+            factor con su peso, la señal que midió el motor y lo que aportó.
           </p>
-          <TablaPuntaje puntaje={puntaje} />
+          <TablaPuntaje factores={curado.score.factores} puntaje={puntaje} />
         </section>
 
         {esNutricion ? (

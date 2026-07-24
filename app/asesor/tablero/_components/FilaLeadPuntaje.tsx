@@ -1,7 +1,5 @@
 import Link from "next/link";
 import type { LeadEnCola } from "@/lib/types-asesor";
-import { calcularPuntaje } from "@/lib/scoring/puntaje";
-import { afiliadoEfectivo } from "@/lib/scoring";
 import { BadgeEstado, BadgeReEnganchado } from "@/app/asesor/_components/BadgeEstado";
 import { fechaCorta, NOMBRE_FUENTE } from "@/lib/formato";
 
@@ -16,7 +14,7 @@ import { fechaCorta, NOMBRE_FUENTE } from "@/lib/formato";
 export function FilaLeadPuntaje({ item }: { item: LeadEnCola }) {
   const { curado } = item;
   const { evento } = curado.lead;
-  const puntaje = calcularPuntaje(curado.score, afiliadoEfectivo(curado.lead));
+  const puntaje = curado.score.puntaje;
 
   const cumplen = curado.score.factores.filter((f) => f.cumple).length;
   const total = curado.score.factores.length;
@@ -33,7 +31,7 @@ export function FilaLeadPuntaje({ item }: { item: LeadEnCola }) {
         data-testid="puntaje"
         className="cifra w-16 shrink-0 text-2xl font-bold text-tinta"
       >
-        {puntaje.total}
+        {puntaje}
         <span className="text-base font-normal text-tinta-suave">/100</span>
       </span>
 
