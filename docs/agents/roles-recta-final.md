@@ -22,7 +22,7 @@
 ```
 Soy el Integrador de la recta final. Mi meta: la cadena completa conectada en código real, cero fixtures en producción. Lee docs/agents/handoff.md y los tickets 002, 005, 006, 007, 008, 009 y 014 en docs/tasks/. Mi misión, en orden:
 0. Ticket 002 (primero, desbloquea el 006): los dos cambios ratificados a lib/types.ts — Score.precio_maximo y /api/match recibiendo { lead, score }. Avisar al grupo al mergear (es el único archivo que rompe a los demás).
-1. Ticket 006 (HOY): orquestador /api/curar — al terminar la conversación, el Lead fluye chat → /api/score → /api/match → /api/explicacion → POST /api/leads. Hoy el chat solo hace console.log.
+1. Ticket 006 (HOY): orquestador /api/curar — al terminar la conversación, el Lead fluye chat → /api/score → /api/match → /api/explicacion → POST /api/leads. Hoy el chat solo hace console.log. Desde el 2026-07-24 el Lead que entrega el chat YA trae ingreso_hogar_mensual (número) y situacion_crediticia como enum, así que el motor no lo va a mandar a nutrición por falta de datos; lo que sigue faltando es subsidio_monto_mensual (nadie lo pregunta).
 2. Ticket 007: app/page.tsx debe leer ?lead_id=X&reenganche=1 (el motivo viene en trigger_nutricion vía GET /api/leads/<id> y en la última fila rol='sistema' de la conversación). Cierra el criterio de aceptación 3.
 3. Ticket 005: ofrecer franjas en el chat (GET /api/citas?proyecto_id=..&limite=3, POST /api/citas).
 4. Cargar NEXT_PUBLIC_SUPABASE_URL y SUPABASE_KEY en Vercel → Settings → Environment Variables y redesplegar; verificar que curl https://mvp-reto-vivienda.vercel.app/api/leads diga origen: supabase.

@@ -96,7 +96,7 @@ El diagrama describe el contrato. Esto es lo que falta para que exista de punta 
 | Tramo | Estado | Dónde |
 |---|---|---|
 | ② → ③ | 🔴 **La conversación termina en `console.log`.** No llama al motor | [Ticket 006](../tasks/006-orquestador.md) |
-| ② | 🔴 El ingreso se pregunta como texto y el motor necesita un número → **todo lead nuevo cae a nutrición** | [Spec 02](02-conversador.md), brecha 1 |
+| ② | 🟢 **Cerrado el 2026-07-24.** El ingreso ya se obtiene como número (parseo del texto libre + punto medio del rango conocido) y la situación crediticia sale como enum. **Sigue faltando el monto del subsidio**, así que el subsidio aún no baja la cuota | [Spec 02](02-conversador.md), brechas 1-3 |
 | ④ | 🔴 El chat nunca ofrece franjas; los IDs de slots no coinciden con el catálogo real | [Ticket 005](../tasks/005-agendador.md) · [spec 04](04-match-agenda.md) D4 |
 | ⑤ → ② | 🔴 El botón de re-enganche redirige con parámetros que nadie lee | [Ticket 007](../tasks/007-reenganche-nutricion.md) |
 | ⑥ | ⚠️ Vive de fixtures + 57 leads sintéticos marcados como tales | Env vars de Supabase en Vercel |
