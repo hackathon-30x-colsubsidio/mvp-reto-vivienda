@@ -17,7 +17,7 @@ Esto sí va firme, porque no lo decidimos nosotros:
 | # | Obligación | Fuente |
 |---|---|---|
 | 1 | Pedir autorización de tratamiento de datos **antes de cualquier otra cosa**, y registrarla con timestamp | Ley 1581 de 2012 · `spec.md §6` · [mentor](../reto/charla-mentor.md#autorizacion-de-datos) |
-| 2 | **No repreguntar** ningún dato que el enriquecimiento ya trajo, y decir en voz alta qué se sabe | Criterio de aceptación 1 (`spec.md §5`) |
+| 2 | **No repreguntar** ningún dato que el enriquecimiento ya trajo, y que el lead **sepa** que no se lo van a hacer repetir — lo cual no es recitarle su ficha (ver nodo 3) | Criterio de aceptación 1 (`spec.md §5`) |
 | 3 | Recoger lo necesario para calificar: ingreso del hogar, vivienda propia, subsidios, situación crediticia, zona | `spec.md §6` (los 4 del [brief:20](../reto/perfilamiento-leads-03.md) + zona para el matcher) |
 | 4 | **No sonar a robot ni a formulario.** Que capte la información y filtre hacia la decisión de compra | [Mentor, textual](../reto/charla-mentor.md#conversacion-deseada) |
 | 5 | Ser **híbrida**: opciones donde ayudan, texto libre donde la lista sesga | [Mentor](../reto/charla-mentor.md#conversacion-deseada) |

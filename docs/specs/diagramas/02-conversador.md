@@ -80,7 +80,9 @@ stateDiagram-v2
 
 **Arranca saludando y, si sabe por qué proyecto entró, habla de ese proyecto** — igual que hace hoy el click-to-WhatsApp de Colsubsidio. El agente tiene nombre (Sara), porque un interlocutor sin nombre no es una conversación. Después pide la autorización de datos. Si la persona dice que no, la conversación termina ahí y queda registrado dónde se cayó.
 
-**El tercer paso es el que gana el criterio de aceptación 1:** antes de preguntar nada, el agente dice en voz alta lo que ya sabe — *"ya sabemos que eres afiliado, que vives en Bogotá y tu rango de ingreso; no te lo voy a volver a preguntar"*. Es el momento en que el jurado entiende que esto no es un formulario.
+**El tercer paso es el que gana el criterio de aceptación 1:** antes de preguntar nada, el agente le hace saber que no le va a hacer repetir lo que ya dio — *"lo que ya nos habías dado está acá conmigo, así que no te voy a hacer repetir nada; empiezo por buscarte opciones en Bogotá"*. Es el momento en que el jurado entiende que esto no es un formulario.
+
+**Ojo con la redacción de ese paso, porque es contraintuitiva:** el agente **no le recita al lead su propia ficha**. La primera versión enumeraba afiliación, ciudad e ingreso, y leerle a alguien sus propios datos —sobre todo cuánto gana— suena a expediente y asusta justo donde hay que generar confianza. Lo que el criterio exige es que el lead **sepa** que no le repreguntarán; por eso la ciudad se **usa** en vez de recitarse, y el ingreso no se menciona nunca. Quien ve la ficha completa es el asesor, que es para quien es ([detalle](../02-conversador.md#d3--los-nodos-del-workflow--propuesta--el-straw-proposal-nodo-por-nodo)).
 
 **Después entra al ciclo de indagación**, que es el corazón del diagrama y funciona en tres tiempos que se repiten: el agente pregunta lo que falta, se extrae el dato de lo que respondió la persona, y se revisa si queda algo sin llenar. Si falta algo, vuelve a empezar. Si no, sale.
 

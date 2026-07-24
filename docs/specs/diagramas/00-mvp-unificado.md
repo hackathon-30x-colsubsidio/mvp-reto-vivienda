@@ -75,7 +75,7 @@ Lo primero es **pedirle autorización para tratar sus datos**. No es un trámite
 
 Si autoriza, se consulta su **cédula**. Si está en la base ya sabemos si es afiliado, en qué ciudad vive, su segmento y su rango de ingreso, y **nada de eso se le vuelve a preguntar**. Si no está, no sabemos nada y se pregunta todo.
 
-**② Conversa.** El agente arranca diciendo en voz alta qué ya sabe de él, y pregunta solo lo que falta. Se queda dando vueltas en ese ciclo hasta completar los datos que el motor necesita. En cualquier momento la conversación puede salirse hacia un **asesor humano**, por los tres motivos que ya existen en la operación real: no pudo agendar, no pudo cotizar, o pidió hablar con alguien.
+**② Conversa.** El agente arranca haciéndole saber que no le va a hacer repetir lo que ya dio —sin recitarle sus datos de vuelta, que suena a expediente— y pregunta solo lo que falta. Se queda dando vueltas en ese ciclo hasta completar los datos que el motor necesita. En cualquier momento la conversación puede salirse hacia un **asesor humano**, por los tres motivos que ya existen en la operación real: no pudo agendar, no pudo cotizar, o pidió hablar con alguien.
 
 **③ Se califica.** Con los datos completos entra al motor. Se estima cuánto sería su primera cuota y se compara contra su ingreso. Si esa cuota supera el **40%**, no pasa — y no es criterio nuestro, es el tope que fija el Decreto 583 de 2025, por encima del cual el banco legalmente no puede prestar. Si pasa, se le calcula un puntaje de 0 a 100 con siete factores, todos visibles.
 
