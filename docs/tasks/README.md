@@ -2,7 +2,9 @@
 
 Cada ticket es **una unidad de trabajo que cabe en una ventana de contexto limpia** y cita el criterio del [`spec.md`](../spec.md) al que sirve. Salen de [`plan.md`](../plan.md), no del spec directo.
 
-**Qué cubren y qué no:** los tickets de aquí son las **costuras entre tracks** y los **tests de los criterios de aceptación** — lo que no le tocaba a nadie. El trabajo dentro de cada track (el chat, el motor, el matcher, la vista del asesor) vive en [`reparto-inicial.md`](../reparto-inicial.md) y en los [prompts de arranque](../prompts/). Un track no espera estos tickets para arrancar.
+**Qué cubren y qué no:** los tickets 001-015 son las **costuras entre tracks** y los **tests de los criterios de aceptación** — lo que no le tocaba a nadie. El trabajo dentro de cada track (el chat, el motor, el matcher, la vista del asesor) vive en [`reparto-inicial.md`](../reparto-inicial.md) y en los [prompts de arranque](../prompts/). Un track no espera estos tickets para arrancar.
+
+**Tickets 016-021 (recta final, grilling 2026-07-24):** nueva scope decidida en el grilling de scope. El reparto A/B/C/D se reencuadra en **4 roles de cierre** (Integrador · Datos&Motor · Calidad IA&Demo · Pitch&Video); el mapeo ticket→rol está en la columna "Dueño". Contexto en [`agents/handoff.md`](../agents/handoff.md) (Memory 2026-07-24 10:52) y [`URGENTE-Y-NOTICIAS.md`](../URGENTE-Y-NOTICIAS.md).
 
 ## Índice
 
@@ -22,7 +24,13 @@ Cada ticket es **una unidad de trabajo que cabe en una ventana de contexto limpi
 | 012 | [Test del criterio 2](012-test-criterio-2.md) | B + D | 001 | Con la pieza |
 | 013 | [Test del criterio 3](013-test-criterio-3.md) | B | 001 | Con la pieza |
 | 014 | [Recorrido de aceptación en la URL pública](014-recorrido-criterio-4.md) | Todos | 006, 003, 005, 007 | Sáb a.m. |
-| 015 | [Guion y video del pitch de 2 min](015-guion-y-video.md) | **sin asignar** | 014 | Sáb p.m. |
+| 015 | [Guion y video del pitch de 2 min](015-guion-y-video.md) | Rol 4 | 014 | Sáb p.m. |
+| 016 | [Distribuciones por proyecto + buyer_personas.json](016-distribuciones-por-proyecto.md) | Rol 2 | — | Vie |
+| 017 | [Tabla de subsidios fundamentada](017-tabla-subsidios.md) | Rol 2 | — | Vie |
+| 018 | [Similitud-distribución en la explicación](018-similitud-en-explicacion.md) | Rol 3 | 016 | Vie/Sáb |
+| 019 | [Franja de impacto en /asesor](019-franja-impacto.md) | Rol 2 | — | Sáb (timebox) |
+| 020 | [Tramo de implementabilidad en el video](020-tramo-implementabilidad.md) | Rol 4 | — | Sáb |
+| 021 | [🔴 Poner plan-research en privado](021-plan-research-privado.md) | Rol 4 | — | **Ya** |
 
 El **estado** de cada ticket vive en su propio frontmatter (`status: todo | doing | done`). El estado vivo del proyecto (qué se hizo, qué sigue) vive en [`handoff.md`](../agents/handoff.md) — no se duplica aquí.
 

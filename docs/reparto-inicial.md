@@ -2,6 +2,9 @@
 
 > Cómo arranca cada quien **hoy**, con mínima dependencia entre sí. Deriva del [spec](spec.md) y del [ADR 0002](adr/0002-stack-mvp.md) (mapeo de tracks a superficies del código). Los tickets finos salen de `/plan`; esto es el arranque ordenado para no esperarse unos a otros.
 
+> [!NOTE]
+> **Reparto de construcción — completado.** La recta final (2026-07-24, ~48h al deadline) se rige por los **4 roles de cierre** del grilling de scope, no por estos tracks: ver [`agents/handoff.md`](agents/handoff.md) (Memory 2026-07-24 10:52) y [`URGENTE-Y-NOTICIAS.md`](URGENTE-Y-NOTICIAS.md). Este documento queda como histórico del arranque; no se reescribe.
+
 ## El principio: contratos, no dependencias
 
 El producto es una cadena (lead → conversación → score → match → asesor), pero **nadie espera el código de nadie**: los cuatro acuerdan la forma de los datos que se pasan (`lib/types.ts`) y cada quien construye contra **fixtures** (ejemplos inventados con la forma correcta) en `lib/fixtures/`. Conectar las piezas de verdad es una tarea del sábado, no un prerequisito del jueves.

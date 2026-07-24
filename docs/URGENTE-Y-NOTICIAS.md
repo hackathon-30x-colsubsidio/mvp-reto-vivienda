@@ -13,6 +13,20 @@
 - **Decisión de costo, del equipo:** Vertex gasta el crédito de $300 pero hoy está caído; `GEMINI_API_KEY` de AI Studio está verificada a 1,68s pero cobra a la tarjeta. Con un timeout en el cliente el demo sobrevive con cualquiera.
 
 Detalle completo, mediciones y los pasos sugeridos: `docs/agents/handoff.md`, entrada del 2026-07-24 10:55.
+## 🎯 2026-07-24 — Grilling de scope: 10 decisiones + recast a 4 roles de cierre
+Sesión de grilling (Mani) a ~48h del deadline. No tocó código; fijó el rumbo de la recta final. Detalle en [`handoff.md`](agents/handoff.md) (Memory, 2026-07-24 10:52).
+
+**Recast del equipo a 4 roles de cierre** (cada quien conserva su código; mapeo por afinidad al track):
+- **Rol 1 — Integrador** (ex-A): orquestador `/api/curar`, criterio 3, franjas en el chat, env vars de Vercel, smoke test de Gemini, lidera la integración del sábado.
+- **Rol 2 — Datos & Motor** (ex-B): distribuciones por proyecto + `buyer_personas.json`, tabla de subsidios, trigger híbrido, enriquecimiento por cédula, franja de impacto.
+- **Rol 3 — Calidad IA & Demo** (ex-C): catálogo real en el matcher, similitud en la explicación, evaluar contra las referencias, QA sin narración.
+- **Rol 4 — Pitch & Video** (ex-D): guion + video, tramo de implementabilidad, preguntas a mentores, y **primero que todo: `plan-research` a privado**.
+
+**Decisiones cerradas (no re-litigar):** subsidios = tabla fundamentada · trigger = híbrido (fecha solo si es temporal y derivable) · similitud = distribución por proyecto · buyer personas del PPT entran al workflow · griegos = clusters anónimos `[inferido]` · panel de impacto = franja timeboxed · cédula se sostiene + pregunta a mentor · video = screen recording real + tramo de implementabilidad.
+
+**🔴 Sin resolver hasta que Rol 4 actúe:** `plan-research` es público con la data real de Colsubsidio (commit `8bc42eb3`). Va en contra de la restricción no-negociable de `AGENTS.md`. Ticket [021](tasks/021-plan-research-privado.md).
+
+**Tickets nuevos:** [016](tasks/016-distribuciones-por-proyecto.md)–[021](tasks/021-plan-research-privado.md). El video ([015](tasks/015-guion-y-video.md)) ya tiene dueño (Rol 4).
 
 ## ✅ Decisión tomada: vamos por VIVIENDA
 El reto está **cerrado: Vivienda** (perfilamiento inteligente de leads). Registrado en `docs/adr/0001-eleccion-reto-vivienda.md`. **No se re-litiga.** El porqué corto: mejor balance de los 4 criterios, datos reales usables (Excel 4.142 compradores + buyer personas + brochure), demo autocontenido por WhatsApp, ROI clarísimo (CPL + horas comerciales) y gancho regulatorio 90/10.
