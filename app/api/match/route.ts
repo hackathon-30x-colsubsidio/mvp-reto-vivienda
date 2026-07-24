@@ -1,5 +1,6 @@
 import { matchear } from "@/lib/matching";
-import { catalogo, preciosMaximos } from "@/lib/matching/fixtures";
+import { catalogo } from "@/lib/matching/catalogo";
+import { preciosMaximos } from "@/lib/matching/fixtures";
 import type { EntradaMatch } from "@/lib/matching/tipos";
 
 // Elegir proyectos es determinista: reglas puras, sin LLM y sin red (ADR 0002).

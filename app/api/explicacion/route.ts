@@ -1,6 +1,8 @@
 import type { Lead, Score } from "@/lib/types";
 import { matchear } from "@/lib/matching";
-import { catalogo, preciosMaximos } from "@/lib/matching/fixtures";
+import { catalogo } from "@/lib/matching/catalogo";
+import { preciosMaximos } from "@/lib/matching/fixtures";
+import { explicacionFallback } from "@/lib/matching/explicacion-fallback";
 import {
   SYSTEM_PROMPT,
   promptExplicacionGlobal,
@@ -38,7 +40,18 @@ export async function POST(req: Request) {
   if (tipo === "proyecto" && !proyecto_id) {
     return new Response("Falta proyecto_id", { status: 400 });
   }
+
+  // Fallback determinístico del ticket 010: la explicación de referencia escrita a
+  // mano del personaje canónico. Solo existe para la explicación global (la que ve
+  // el asesor en la ficha), que es la crítica del demo; el "soy yo" da null.
+  const fallback = tipo === "global" ? explicacionFallback(lead) : null;
+
+  // Sin credencial no se puede llamar al LLM. Si hay guion para este personaje, se
+  // sirve en vez del 503 pelado: el demo es autogestionado y la ficha no puede
+  // quedar en blanco. Sin guion (lead libre), el 503 con diagnóstico sigue siendo
+  // la respuesta honesta.
   if (!hayKeyGemini()) {
+    if (fallback) return respuestaTexto(streamTexto(fallback));
     return new Response(diagnosticoCredenciales(), { status: 503 });
   }
 
@@ -68,13 +81,67 @@ export async function POST(req: Request) {
     messages: [{ role: "user", content: prompt }],
   });
 
-  return new Response(cuerpoStream, {
-    headers: { "Content-Type": "text/plain; charset=utf-8" },
-  });
+  // Si el LLM cae al conectarse (el cold-start de Vertex tira 500 a los ~6s), en vez
+  // del 500 mudo se sirve el guion del personaje. El cliente aún así debe cortar por
+  // timeout si el LLM se cuelga, igual que el conversador (ChatWhatsApp.tsx).
+  return respuestaTexto(conFallback(cuerpoStream, fallback));
 }
 
 function precioMaximoDeFixture(salida: Score["salida"]): number {
   if (salida === "nutricion") return preciosMaximos.nutricion;
   if (salida === "listo_restriccion_cupo") return preciosMaximos.noAfiliadoListo;
   return preciosMaximos.afiliadoListo;
+}
+
+function respuestaTexto(cuerpo: ReadableStream<Uint8Array>): Response {
+  return new Response(cuerpo, {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
+
+/** Un texto fijo servido como stream, para que el fallback use el mismo contrato. */
+function streamTexto(texto: string): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(encoder.encode(texto));
+      controller.close();
+    },
+  });
+}
+
+/**
+ * Envuelve el stream del LLM: si falla ANTES de emitir nada (el caso del cold-start,
+ * que rompe al conectar), sirve el `fallback` y cierra limpio en vez de propagar el
+ * 500. Si ya salió texto parcial no se puede reempezar, así que se cierra con lo que
+ * hay. Sin fallback (lead libre), deja pasar el error tal cual.
+ */
+function conFallback(
+  fuente: ReadableStream<Uint8Array>,
+  fallback: string | null,
+): ReadableStream<Uint8Array> {
+  if (!fallback) return fuente;
+  const encoder = new TextEncoder();
+  const lector = fuente.getReader();
+  let emitido = false;
+
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      try {
+        const { done, value } = await lector.read();
+        if (done) {
+          controller.close();
+          return;
+        }
+        emitido = true;
+        controller.enqueue(value);
+      } catch {
+        if (!emitido) controller.enqueue(encoder.encode(fallback));
+        controller.close();
+      }
+    },
+    cancel(motivo) {
+      return lector.cancel(motivo);
+    },
+  });
 }

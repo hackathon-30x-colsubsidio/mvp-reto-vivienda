@@ -1,13 +1,12 @@
 import type { FichaProyecto } from "./tipos";
 
-// Fixture PROVISIONAL del catálogo. Los 6 proyectos son inventados; el catálogo
-// real son los 18 oficiales del reto y lo publica el Track B en
-// `data/sintetica/proyectos.json` (spec §6). Cuando B avise, este archivo se borra
-// y el matcher se prueba contra el JSON real.
-//
-// Los nombres coinciden a propósito con los de `lib/fixtures/proyectos-recomendados.ts`
-// (Track A) y con `docs/explicaciones-referencia.md`: mientras el catálogo real no
-// exista, que al menos el demo no se contradiga entre pantallas.
+// Catálogo CONTROLADO, solo para los tests del matcher (matching.test.ts).
+// Producción consume el catálogo REAL de los 18 proyectos en
+// `lib/matching/catalogo.ts` (data/sintetica/proyectos.json); acá se mantiene una
+// muestra chica y estable —con la trampa de "Ciudadela del Este" sin cupo y el más
+// barato— para probar el ranking del matcher de forma determinista, sin atarlo a
+// los datos vivos. Los nombres coinciden con `lib/fixtures/proyectos-recomendados.ts`
+// y `docs/explicaciones-referencia.md`.
 
 export const catalogo: FichaProyecto[] = [
   {

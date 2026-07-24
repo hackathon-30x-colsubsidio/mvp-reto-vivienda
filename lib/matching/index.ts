@@ -36,6 +36,10 @@ function coincideZona(proyecto: FichaProyecto, zona: string | undefined): boolea
  * 1. Fuera todo proyecto por encima del `precio_maximo` que calculó el motor
  *    con el tope del 40% (Decreto 583 de 2025). El Track C no recalcula la norma.
  * 2. Si el lead es no afiliado, fuera todo proyecto sin cupo 90/10 disponible.
+ *    En el catálogo real casi todos ya lo agotaron (usado >= total), así que un
+ *    no afiliado puede quedar con cero proyectos: ese vacío NO se esconde, es la
+ *    munición del reto (16/16 proyectos incumplen el 10%) y así lo trata el
+ *    tablero (lib/fixtures/cola-historica.ts). El bloqueo es de cupo, no del lead.
  * 3. Primero el proyecto por el que preguntó, luego los de su zona, luego
  *    (si es no afiliado) los de más cupo libre, y al final los de cuota más holgada.
  *
