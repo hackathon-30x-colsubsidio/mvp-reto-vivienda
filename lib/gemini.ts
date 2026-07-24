@@ -12,20 +12,22 @@ import { GoogleGenAI } from "@google/genai";
 // determinístico. El contrato no cambia: credenciales solo server-side (repo público)
 // y todas las llamadas en streaming (límite de Vercel + primer token < 2s).
 
-// `gemini-2.5-flash` quedó RETIRADO ("no longer available to new users", 404): con
-// él la IA del demo no habría funcionado nunca, con o sin credenciales. Elegido
-// midiendo contra la API real, no por ser el más nuevo:
+// ⚠️ EL MODELO DEPENDE DEL MODO DE AUTH — la disponibilidad de modelos NO es la
+// misma en Vertex AI que en AI Studio, y confundirlas ya rompió el demo una vez
+// (se puso `gemini-3.5-flash` por un 404 de AI Studio, pero producción corre sobre
+// VERTEX, donde ese modelo da 404 y tumbaba toda la IA).
 //
-//   3.5-flash + thinkingBudget:0 ..... primer token 1,0s  ✅
-//   3.6-flash (no acepta budget:0) ... primer token 2,7s  ❌ rompe el <2s del ADR 0002
-//   2.0-flash ........................ retirado también
+// Verificado el 2026-07-24 contra el Vertex real (proyecto windy-ellipse, us-central1),
+// respuesta corta con thinkingBudget:0:
+//   Vertex ✅ gemini-2.5-flash (1,4s) · gemini-2.5-flash-lite (0,7s)
+//   Vertex ❌ gemini-2.0-flash (404) · gemini-3.5-flash (404) · gemini-flash-latest (404) · gemini-2.5-pro (400)
+//   AI Studio: gemini-2.5-flash está retirado para keys nuevas → ahí va gemini-3.5-flash.
 //
-// O sea el modelo MÁS NUEVO no sirve aquí: no deja apagar el thinking, y con
-// thinking encendido incumple la restricción de performance. Se fija una versión
-// exacta y no el alias `gemini-flash-latest`, para que el modelo no cambie solo en
-// mitad del demo. Cambiar de modelo es esta línea — pero vuelve a medir el primer
-// token antes de dar por bueno el cambio.
-export const MODELO_GEMINI = "gemini-3.5-flash";
+// Regla: si cambias un modelo, mídelo contra el MISMO backend donde va a correr y
+// re-verifica el primer token (< 2s, ADR 0002). Se fijan versiones exactas, no el
+// alias `-latest`, para que el modelo no cambie solo en mitad del demo.
+const MODELO_VERTEX = "gemini-2.5-flash";
+const MODELO_AISTUDIO = "gemini-3.5-flash";
 
 export interface MensajeLLM {
   role: "user" | "assistant";
@@ -183,17 +185,25 @@ export function diagnosticoCredenciales(): string {
   );
 }
 
-function crearCliente(): GoogleGenAI {
+/** Devuelve el cliente y el modelo que le corresponde a ESE backend — ver la nota
+ *  de arriba: el modelo disponible difiere entre Vertex y AI Studio. */
+function crearCliente(): { ai: GoogleGenAI; model: string } {
   const vertex = credencialesVertex();
   if (vertex) {
-    return new GoogleGenAI({
-      vertexai: true,
-      project: vertex.project,
-      location: vertex.location,
-      googleAuthOptions: { credentials: vertex.credentials },
-    });
+    return {
+      ai: new GoogleGenAI({
+        vertexai: true,
+        project: vertex.project,
+        location: vertex.location,
+        googleAuthOptions: { credentials: vertex.credentials },
+      }),
+      model: MODELO_VERTEX,
+    };
   }
-  return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  return {
+    ai: new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }),
+    model: MODELO_AISTUDIO,
+  };
 }
 
 /**
@@ -207,7 +217,7 @@ export function streamGemini(opts: {
   messages: MensajeLLM[];
   maxTokens: number;
 }): ReadableStream<Uint8Array> {
-  const ai = crearCliente();
+  const { ai, model } = crearCliente();
 
   const contents = opts.messages.map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
@@ -219,7 +229,7 @@ export function streamGemini(opts: {
     async start(controller) {
       try {
         const respuesta = await ai.models.generateContentStream({
-          model: MODELO_GEMINI,
+          model,
           contents,
           config: {
             systemInstruction: opts.system,
