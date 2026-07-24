@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { LeadEnCola } from "@/lib/types-asesor";
-import { BadgeEstado, BadgeReEnganchado } from "@/app/asesor/_components/BadgeEstado";
+import { Pildora, PildoraReEnganchado } from "@/components/ui/Pildora";
+import { EtiquetaSimulado } from "@/components/ui/EtiquetaSimulado";
 import { fechaCorta, NOMBRE_FUENTE } from "@/lib/formato";
 
 /**
@@ -23,23 +24,23 @@ export function FilaLeadPuntaje({ item }: { item: LeadEnCola }) {
     <Link
       href={`/asesor/${evento.lead_id}`}
       data-testid="fila-lead"
-      className="flex flex-wrap items-baseline gap-x-4 gap-y-2 bg-papel px-5 py-4 transition-colors hover:bg-salida-suave"
+      className="hover:bg-surface-sunken flex flex-wrap items-baseline gap-x-4 gap-y-2 px-4 py-3 transition-colors duration-[120ms]"
     >
       {/* El puntaje primero: es el orden de la lista, y leerlo en la
           primera columna es lo que hace la lista escaneable. */}
       <span
         data-testid="puntaje"
-        className="cifra w-16 shrink-0 text-2xl font-bold text-tinta"
+        className="cifra text-texto w-14 shrink-0 text-[20px] font-bold"
       >
         {puntaje}
-        <span className="text-base font-normal text-tinta-suave">/100</span>
+        <span className="text-texto-tenue text-[12px] font-normal">/100</span>
       </span>
 
       <span className="min-w-0 grow">
-        <span className="block text-lg font-bold tracking-tight text-tinta">
+        <span className="text-texto block text-[15px] font-bold">
           {evento.nombre}
         </span>
-        <span className="mt-0.5 block text-base text-tinta-suave">
+        <span className="text-texto-suave mt-0.5 block text-[13px]">
           <span className="cifra">
             {cumplen} de {total}
           </span>{" "}
@@ -50,13 +51,13 @@ export function FilaLeadPuntaje({ item }: { item: LeadEnCola }) {
               · cita <span className="cifra">{fechaCorta(curado.cita.fecha)}</span>
             </>
           )}
-          {item.sintetico && <> · histórico sintético</>}
         </span>
       </span>
 
-      <span className="flex flex-wrap items-center gap-2">
-        {item.re_enganchado_en && <BadgeReEnganchado />}
-        <BadgeEstado estado={curado.score.salida} />
+      <span className="flex flex-wrap items-center gap-1.5">
+        {item.sintetico && <EtiquetaSimulado texto="histórico" />}
+        {item.re_enganchado_en && <PildoraReEnganchado />}
+        <Pildora estado={curado.score.salida} />
       </span>
     </Link>
   );

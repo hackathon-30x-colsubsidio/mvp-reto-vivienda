@@ -21,40 +21,38 @@ export function BloqueNutricion({
   return (
     <section
       data-testid="bloque-nutricion"
-      className="rounded-md border-2 border-azul-40 bg-salida-suave px-6 py-6"
+      className="border-azul-40 bg-salida-suave rounded-md border px-5 py-5"
     >
-      <h2 className="text-xl font-bold tracking-tight text-tinta">
+      <h2 className="font-display text-texto text-[16px] font-bold">
         Todavía no puede comprar — y por qué
       </h2>
 
-      <div className="mt-5">
-        <h3 className="text-xs font-bold tracking-[0.08em] text-azul-profundo uppercase">
-          La regla que no pasó
-        </h3>
+      <div className="mt-4">
+        <h3 className="rotulo text-azul">La regla que no pasó</h3>
         <p
           data-testid="regla-fallida"
-          className="mt-1.5 max-w-[68ch] text-base leading-relaxed text-tinta"
+          className="text-texto mt-1 text-[15px] leading-normal"
         >
           {score.regla_fallida}
         </p>
       </div>
 
-      <div className="mt-5">
-        <h3 className="text-xs font-bold tracking-[0.08em] text-azul-profundo uppercase">
+      <div className="mt-4">
+        <h3 className="rotulo text-azul">
           Qué lo volvería viable (trigger de recontacto)
         </h3>
         <p
           data-testid="trigger-nutricion"
-          className="mt-1.5 max-w-[68ch] text-base leading-relaxed text-tinta"
+          className="text-texto mt-1 text-[15px] leading-normal"
         >
           {score.trigger_nutricion}
         </p>
       </div>
 
-      <div className="mt-6 border-t-2 border-azul-40 pt-5">
+      <div className="border-azul-40 mt-5 border-t pt-4">
         <BotonSimularTrigger leadId={leadId} reEnganchadoEn={reEnganchadoEn} />
         {reEnganchadoEn && (
-          <p className="mt-2 text-sm text-tinta-suave">
+          <p className="text-texto-suave mt-2 text-[13px]">
             Trigger disparado el {fechaLarga(reEnganchadoEn)}.
           </p>
         )}

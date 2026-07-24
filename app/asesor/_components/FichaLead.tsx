@@ -1,6 +1,7 @@
-import Link from "next/link";
 import type { LeadEnCola } from "@/lib/types-asesor";
-import { BadgeEstado, BadgeReEnganchado } from "./BadgeEstado";
+import { Pildora, PildoraReEnganchado } from "@/components/ui/Pildora";
+import { EtiquetaSimulado } from "@/components/ui/EtiquetaSimulado";
+import { Tarjeta, TarjetaConTitulo } from "@/components/ui/Tarjeta";
 import { TablaFactores } from "./TablaFactores";
 import { BloqueProyectos } from "./BloqueProyectos";
 import { BloqueCita } from "./BloqueCita";
@@ -15,229 +16,232 @@ import { fechaCorta, fechaLarga, NOMBRE_FUENTE } from "@/lib/formato";
  * información: quién es → el veredicto en una frase → por qué (todos
  * los factores) → qué hacer (proyectos, cita, o el trigger).
  *
- * Visualmente es un formato oficial (DESIGN.md, "El formato sellado"):
- * riel de campo azul con el folio, sello de salida arriba a la derecha,
- * el veredicto en campo completo y los factores en tabla reglada.
+ * Es el puerto del panel derecho de `ui_kits/advisor-panel/`: cada
+ * bloque es una tarjeta con su título, y el puntaje abre con el
+ * tratamiento `ScoreSummary` —cifra grande, divisor, etiqueta de
+ * salida— que el design system reserva para él.
+ *
+ * El riel azul que traía esta ficha desapareció: ahora la marca y la
+ * navegación viven en el shell (app/asesor/layout.tsx), y el folio se
+ * mudó al resumen del puntaje.
  */
 export function FichaLead({ item }: { item: LeadEnCola }) {
   const { curado } = item;
   const { evento, perfil, respuestas } = curado.lead;
   const esNutricion = curado.score.salida === "nutricion";
   const puntaje = curado.score.puntaje;
+  const cumplen = curado.score.factores.filter((f) => f.cumple).length;
+  const total = curado.score.factores.length;
 
   return (
-    <article className="overflow-hidden rounded-md border-2 border-borde bg-papel">
-      {/* El riel del formato: vuelta atrás a la izquierda, folio a la
-          derecha. Es el encabezado impreso de la hoja. */}
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 bg-campo px-6 py-3">
-        <span className="flex flex-wrap items-center gap-x-5 gap-y-1">
-          <Link
-            href="/asesor"
-            className="text-sm font-bold text-sobre-campo hover:underline"
-          >
-            ← Volver a la cola
-          </Link>
-          <Link
-            href="/asesor/tablero"
-            className="text-sm font-bold text-sobre-campo hover:underline"
-          >
-            ← Tablero
-          </Link>
-        </span>
-        <span className="cifra text-xs text-sobre-campo-suave">
-          Folio {evento.lead_id} · recibido {fechaCorta(item.creado_en)}
-        </span>
-      </div>
-
-      <div className="space-y-10 px-6 py-8 sm:px-8">
-        <header>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 className="text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.05] font-bold tracking-[-0.03em] text-tinta">
-                {evento.nombre}
-              </h1>
-              <p className="cifra mt-2 text-base text-tinta-suave">
-                {evento.celular} · CC {evento.cedula}
-              </p>
-              {/* La FUENTE del lead, visible.
-                  Es lo que sostiene la narrativa multi-canal del spec §4
-                  paso 1 ("cualquier canal futuro emite el mismo evento"):
-                  se registraba desde la ingesta y no se veía en ninguna
-                  pantalla. Aquí el asesor —y el jurado— ven que el lead
-                  entró por pauta y por cuál. */}
-              <p className="mt-3 flex flex-wrap items-center gap-2 text-base">
-                <span
-                  data-testid="fuente-lead"
-                  className="inline-flex items-center rounded-sm border-2 border-borde bg-papel-hueco px-2.5 py-1 text-sm font-bold text-tinta"
-                >
-                  Entró por {NOMBRE_FUENTE[evento.fuente] ?? evento.fuente}
-                </span>
-                {evento.proyecto_interes && (
-                  <span className="text-tinta-suave">
-                    preguntó por <strong className="text-tinta">{evento.proyecto_interes}</strong>
-                  </span>
-                )}
-              </p>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex flex-wrap items-center justify-end gap-2">
-                {item.re_enganchado_en && <BadgeReEnganchado />}
-                <BadgeEstado estado={curado.score.salida} />
-              </div>
-              {/* El puntaje del tablero, en la ficha. Nunca aparece solo:
-                  la tabla de más abajo trae las cuentas completas. */}
-              <p className="text-right">
-                <span data-testid="puntaje-ficha" className="cifra text-3xl font-bold text-tinta">
-                  {puntaje}
-                  <span className="text-base font-normal text-tinta-suave">/100</span>
-                </span>
-                <span className="block text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase">
-                  Puntaje
-                </span>
-              </p>
-            </div>
-          </div>
-        </header>
-
-        {/* El veredicto en lenguaje natural, en campo azul completo: es
-            el renglón de dictamen del formato. Cita los factores — es la
-            otra mitad del "cero caja negra": la tabla dice qué se evaluó,
-            esto dice qué significa. */}
-        <section className="rounded-md bg-campo px-6 py-6">
-          <h2 className="text-xs font-bold tracking-[0.08em] text-sobre-campo-suave uppercase">
-            Por qué está aquí
-          </h2>
-          <p
-            data-testid="explicacion"
-            className="mt-3 max-w-[68ch] text-lg leading-relaxed text-sobre-campo"
-          >
-            {curado.explicacion}
+    <article className="mx-auto max-w-3xl space-y-4">
+      <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+        <div className="min-w-0">
+          <h1 className="text-texto text-[30px] leading-tight font-extrabold tracking-[-0.02em]">
+            {evento.nombre}
+          </h1>
+          <p className="cifra text-texto-suave mt-1.5 text-[13px]">
+            {evento.celular} · CC {evento.cedula}
           </p>
-        </section>
+          {/* La FUENTE del lead, visible. Es lo que sostiene la
+              narrativa multi-canal del spec §4 paso 1 ("cualquier canal
+              futuro emite el mismo evento"): se registraba desde la
+              ingesta y no se veía en ninguna pantalla. */}
+          <p className="mt-3 flex flex-wrap items-center gap-2 text-[15px]">
+            <span
+              data-testid="fuente-lead"
+              className="border-borde bg-surface-sunken text-texto inline-flex items-center rounded-sm border px-2.5 py-1 text-[13px] font-semibold"
+            >
+              Entró por {NOMBRE_FUENTE[evento.fuente] ?? evento.fuente}
+            </span>
+            {evento.proyecto_interes && (
+              <span className="text-texto-suave">
+                preguntó por{" "}
+                <strong className="text-texto">{evento.proyecto_interes}</strong>
+              </span>
+            )}
+            {item.sintetico && <EtiquetaSimulado />}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {item.re_enganchado_en && <PildoraReEnganchado />}
+          <Pildora estado={curado.score.salida} />
+        </div>
+      </header>
 
-        {/* CRITERIO 2: todos los factores, ninguno escondido. */}
-        <section>
-          <h2 className="text-xl font-bold tracking-tight text-tinta">
+      {/* Tratamiento `ScoreSummary` del design system. El puntaje nunca
+          aparece solo: la tabla de más abajo trae las cuentas completas,
+          y esa es la mitad que no se negocia. */}
+      <Tarjeta className="flex flex-wrap items-center gap-x-6 gap-y-4 p-5">
+        <p className="flex shrink-0 flex-col leading-none">
+          <span
+            data-testid="puntaje-ficha"
+            className="cifra text-texto text-[38px] font-bold"
+          >
+            {puntaje}
+          </span>
+          <span className="text-texto-tenue mt-1 text-[12px]">de 100</span>
+        </p>
+        <div className="bg-borde hidden w-px self-stretch sm:block" />
+        <div className="min-w-0">
+          <p className="cifra text-texto-tenue text-[12px]">
+            Folio {evento.lead_id} · recibido {fechaCorta(item.creado_en)}
+          </p>
+          {/* Aquí NO va la etiqueta de la salida: ya está en la píldora
+              del encabezado, cuatro centímetros más arriba. Repetirla no
+              agregaba información y rompía el test que vigila que el
+              cupo 90/10 aparezca exactamente donde debe. En su lugar, el
+              dato que el puntaje solo no dice: de cuántos factores
+              salió. */}
+          <p className="font-display text-texto mt-1 text-[20px] font-bold">
+            <span className="cifra">
+              {cumplen} de {total}
+            </span>{" "}
+            factores cumplen
+          </p>
+        </div>
+      </Tarjeta>
+
+      {/* El veredicto en lenguaje natural, sobre superficie invertida: es
+          el renglón de dictamen del formato. Cita los factores — es la
+          otra mitad del "cero caja negra": la tabla dice qué se evaluó,
+          esto dice qué significa. */}
+      <section className="bg-surface-inverse rounded-md px-5 py-5">
+        <h2 className="rotulo text-sobre-campo-suave">Por qué está aquí</h2>
+        <p
+          data-testid="explicacion"
+          className="text-sobre-campo mt-2 text-[17px] leading-normal"
+        >
+          {curado.explicacion}
+        </p>
+      </section>
+
+      {/* CRITERIO 2: todos los factores, ninguno escondido. */}
+      <Tarjeta>
+        <div className="border-borde border-b px-5 py-4">
+          <h2 className="font-display text-texto text-[16px] font-bold">
             Cómo se calificó{" "}
-            <span className="cifra font-normal text-tinta-suave">
+            <span className="cifra text-texto-tenue font-normal">
               ({curado.score.factores.length} factores)
             </span>
           </h2>
-          <p className="mt-1 mb-4 max-w-[68ch] text-base text-tinta-suave">
+          <p className="text-texto-suave mt-1 text-[13px] leading-normal">
             Todos los factores que evaluó el motor, con lo que se midió y si
             cumple.{" "}
             {/* El único trazo de la pantalla, sobre la frase que
                 sostiene la restricción no-negociable del proyecto. */}
             <span className="resaltado font-bold">Ninguno se oculta.</span>
           </p>
+        </div>
+        <div className="px-5 py-4">
           <TablaFactores factores={curado.score.factores} />
-        </section>
+        </div>
+      </Tarjeta>
 
-        {/* De dónde sale el número que ordena el tablero. Va después de
-            los factores a propósito: primero qué se evaluó, después
-            cuánto pesó cada cosa. */}
-        <section>
-          <h2 className="text-xl font-bold tracking-tight text-tinta">
+      {/* De dónde sale el número que ordena el tablero. Va después de
+          los factores a propósito: primero qué se evaluó, después
+          cuánto pesó cada cosa. */}
+      <Tarjeta>
+        <div className="border-borde border-b px-5 py-4">
+          <h2 className="font-display text-texto text-[16px] font-bold">
             Cómo se arma el puntaje{" "}
-            <span className="cifra font-normal text-tinta-suave">
+            <span className="cifra text-texto-tenue font-normal">
               ({puntaje}/100)
             </span>
           </h2>
-          <p className="mt-1 mb-4 max-w-[68ch] text-base text-tinta-suave">
+          <p className="text-texto-suave mt-1 text-[13px] leading-normal">
             El puntaje no decide nada —quien decide es el corte del 40%— pero es
             el que ordena la lista del tablero. Estas son sus cuentas: cada
             factor con su peso, la señal que midió el motor y lo que aportó.
           </p>
+        </div>
+        <div className="px-5 py-4">
           <TablaPuntaje factores={curado.score.factores} puntaje={puntaje} />
-        </section>
+        </div>
+      </Tarjeta>
 
-        {esNutricion ? (
-          <BloqueNutricion
-            score={curado.score}
-            leadId={evento.lead_id}
-            reEnganchadoEn={item.re_enganchado_en}
+      {esNutricion ? (
+        <BloqueNutricion
+          score={curado.score}
+          leadId={evento.lead_id}
+          reEnganchadoEn={item.re_enganchado_en}
+        />
+      ) : (
+        <>
+          <BloqueProyectos proyectos={curado.proyectos} />
+          {curado.cita && <BloqueCita cita={curado.cita} />}
+        </>
+      )}
+
+      {/* Lo que ya sabíamos vs. lo que preguntamos. Hace visible el
+          criterio 1 (no repreguntar lo conocido) desde la ficha. */}
+      <TarjetaConTitulo titulo="Datos del perfil">
+        <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+          <Dato
+            termino="Enriquecimiento"
+            valor={
+              perfil.match
+                ? "La cédula estaba en la base de identidades"
+                : "Sin match: se perfiló desde cero en la conversación"
+            }
           />
-        ) : (
-          <>
-            <BloqueProyectos proyectos={curado.proyectos} />
-            {curado.cita && <BloqueCita cita={curado.cita} />}
-          </>
-        )}
-
-        {/* Lo que ya sabíamos vs. lo que preguntamos. Hace visible el
-            criterio 1 (no repreguntar lo conocido) desde la ficha. */}
-        <section className="rounded-md border-2 border-borde bg-papel-hueco px-6 py-6">
-          <h2 className="text-xl font-bold tracking-tight text-tinta">
-            Datos del perfil
-          </h2>
-
-          <dl className="mt-4 grid gap-x-10 gap-y-4 sm:grid-cols-2">
+          {perfil.afiliado !== undefined && (
+            <Dato termino="Afiliación" valor={perfil.afiliado ? "Afiliado" : "No afiliado"} />
+          )}
+          {perfil.ciudad && <Dato termino="Ciudad" valor={perfil.ciudad} />}
+          {perfil.segmento && <Dato termino="Segmento" valor={perfil.segmento} />}
+          {(perfil.rango_ingreso ?? respuestas.rango_ingreso_hogar) && (
             <Dato
-              termino="Enriquecimiento"
+              termino="Ingreso del hogar"
+              valor={perfil.rango_ingreso ?? respuestas.rango_ingreso_hogar!}
+            />
+          )}
+          {respuestas.zona_interes && (
+            <Dato termino="Zona de interés" valor={respuestas.zona_interes} />
+          )}
+          {respuestas.tiene_vivienda !== undefined && (
+            <Dato
+              termino="Vivienda propia"
+              valor={respuestas.tiene_vivienda ? "Sí tiene" : "No tiene"}
+            />
+          )}
+          {respuestas.situacion_crediticia && (
+            <Dato termino="Situación crediticia" valor={respuestas.situacion_crediticia} />
+          )}
+          {respuestas.subsidios && (
+            <Dato
+              termino="Subsidios"
               valor={
-                perfil.match
-                  ? "La cédula estaba en la base de identidades"
-                  : "Sin match: se perfiló desde cero en la conversación"
+                respuestas.subsidios.length > 0
+                  ? respuestas.subsidios.join(", ")
+                  : "Ninguno declarado"
               }
             />
-            {perfil.afiliado !== undefined && (
-              <Dato termino="Afiliación" valor={perfil.afiliado ? "Afiliado" : "No afiliado"} />
-            )}
-            {perfil.ciudad && <Dato termino="Ciudad" valor={perfil.ciudad} />}
-            {perfil.segmento && <Dato termino="Segmento" valor={perfil.segmento} />}
-            {(perfil.rango_ingreso ?? respuestas.rango_ingreso_hogar) && (
-              <Dato
-                termino="Ingreso del hogar"
-                valor={perfil.rango_ingreso ?? respuestas.rango_ingreso_hogar!}
-              />
-            )}
-            {respuestas.zona_interes && (
-              <Dato termino="Zona de interés" valor={respuestas.zona_interes} />
-            )}
-            {respuestas.tiene_vivienda !== undefined && (
-              <Dato
-                termino="Vivienda propia"
-                valor={respuestas.tiene_vivienda ? "Sí tiene" : "No tiene"}
-              />
-            )}
-            {respuestas.situacion_crediticia && (
-              <Dato termino="Situación crediticia" valor={respuestas.situacion_crediticia} />
-            )}
-            {respuestas.subsidios && (
-              <Dato
-                termino="Subsidios"
-                valor={
-                  respuestas.subsidios.length > 0
-                    ? respuestas.subsidios.join(", ")
-                    : "Ninguno declarado"
-                }
-              />
-            )}
-          </dl>
+          )}
+        </dl>
 
-          {/* Habeas data (spec §6): evidencia auditable, con su hora.
-              Va al pie y con regla encima, como la nota legal de un
-              formato oficial. */}
-          <p className="mt-6 border-t-2 border-borde pt-4 text-base text-tinta-suave">
-            {respuestas.consentimiento?.otorgado ? (
-              <>
-                <strong className="text-tinta">
-                  Autorización de tratamiento de datos otorgada
-                </strong>{" "}
-                (Ley 1581 de 2012)
-                {respuestas.consentimiento.timestamp && (
-                  <> el {fechaLarga(respuestas.consentimiento.timestamp)}</>
-                )}
-                .
-              </>
-            ) : (
-              <strong className="text-rojo">
-                Sin autorización de tratamiento de datos registrada.
-              </strong>
-            )}
-          </p>
-        </section>
-      </div>
+        {/* Habeas data (spec §6): evidencia auditable, con su hora.
+            Va al pie y con regla encima, como la nota legal de un
+            formato oficial. */}
+        <p className="border-borde text-texto-suave mt-5 border-t pt-4 text-[13px] leading-normal">
+          {respuestas.consentimiento?.otorgado ? (
+            <>
+              <strong className="text-texto">
+                Autorización de tratamiento de datos otorgada
+              </strong>{" "}
+              (Ley 1581 de 2012)
+              {respuestas.consentimiento.timestamp && (
+                <> el {fechaLarga(respuestas.consentimiento.timestamp)}</>
+              )}
+              .
+            </>
+          ) : (
+            <strong className="text-rojo">
+              Sin autorización de tratamiento de datos registrada.
+            </strong>
+          )}
+        </p>
+      </TarjetaConTitulo>
     </article>
   );
 }
@@ -245,10 +249,8 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
 function Dato({ termino, valor }: { termino: string; valor: string }) {
   return (
     <div>
-      <dt className="text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase">
-        {termino}
-      </dt>
-      <dd className="mt-0.5 text-base text-tinta">{valor}</dd>
+      <dt className="rotulo">{termino}</dt>
+      <dd className="text-texto mt-0.5 text-[15px]">{valor}</dd>
     </div>
   );
 }

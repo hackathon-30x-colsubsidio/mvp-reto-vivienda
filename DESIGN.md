@@ -36,6 +36,12 @@ typography:
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: "-0.02em"
+  headline-lg:
+    fontFamily: "Sora, system-ui, sans-serif"
+    fontSize: "30px"
+    fontWeight: 800
+    lineHeight: 1.2
+    letterSpacing: "-0.02em"
   headline:
     fontFamily: "Sora, system-ui, sans-serif"
     fontSize: "20px"
@@ -46,6 +52,11 @@ typography:
     fontSize: "16px"
     fontWeight: 700
     lineHeight: 1.2
+  body-lg:
+    fontFamily: "Work Sans, system-ui, sans-serif"
+    fontSize: "17px"
+    fontWeight: 400
+    lineHeight: 1.45
   body:
     fontFamily: "Work Sans, system-ui, sans-serif"
     fontSize: "15px"

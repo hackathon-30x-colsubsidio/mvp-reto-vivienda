@@ -34,26 +34,17 @@ export function TablaPuntaje({
   puntaje: number;
 }) {
   return (
-    <div className="overflow-x-auto rounded-md border-2 border-borde bg-papel">
+    <div className="-mx-1 overflow-x-auto">
       <table className="w-full border-collapse text-left">
         <thead>
-          <tr className="border-b-2 border-borde bg-papel-hueco">
-            <th
-              scope="col"
-              className="px-4 py-3 text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase"
-            >
+          <tr className="border-borde border-b">
+            <th scope="col" className="rotulo px-1 pb-2">
               Factor
             </th>
-            <th
-              scope="col"
-              className="px-4 py-3 text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase"
-            >
+            <th scope="col" className="rotulo px-1 pb-2">
               Peso
             </th>
-            <th
-              scope="col"
-              className="px-4 py-3 text-right text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase"
-            >
+            <th scope="col" className="rotulo px-1 pb-2 text-right">
               Aporta
             </th>
           </tr>
@@ -68,47 +59,50 @@ export function TablaPuntaje({
               <tr
                 key={factor.nombre}
                 data-testid="aporte-puntaje"
-                className="border-t border-borde align-top"
+                className="border-borde border-b align-top"
               >
-                <th scope="row" className="px-4 py-4 text-base font-bold text-tinta">
+                <th
+                  scope="row"
+                  className="text-texto px-1 py-2.5 text-[15px] font-semibold"
+                >
                   {legible(factor.nombre)}
                 </th>
                 {/* Peso y señal, no lo que midió el motor: eso ya está
                     completo en la tabla de factores, justo encima. */}
-                <td className="cifra px-4 py-4 text-base text-tinta-suave">
+                <td className="cifra text-texto-suave px-1 py-2.5 text-[13px]">
                   {sinPeso
                     ? "No puntúa: es evidencia de respaldo, nunca criterio de corte"
                     : `${(factor.peso! * 100).toFixed(0)}% × ${((factor.valor_norm ?? 0) * 100).toFixed(0)}%`}
                 </td>
-                <td className="cifra px-4 py-4 text-right whitespace-nowrap">
+                <td className="cifra px-1 py-2.5 text-right text-[13px] whitespace-nowrap">
                   <span
                     className={
                       sinPeso
-                        ? "text-tinta-suave"
+                        ? "text-texto-tenue"
                         : aporte >= maximo * 0.75
-                          ? "font-bold text-azul"
+                          ? "text-estado-listo font-bold"
                           : aporte > 0
-                            ? "font-bold text-tinta"
-                            : "font-bold text-rojo"
+                            ? "text-texto font-bold"
+                            : "text-rojo font-bold"
                     }
                   >
                     +{aporte.toFixed(1)}
                   </span>{" "}
-                  <span className="text-tinta-suave">de {maximo.toFixed(0)}</span>
+                  <span className="text-texto-tenue">de {maximo.toFixed(0)}</span>
                 </td>
               </tr>
             );
           })}
         </tbody>
         <tfoot>
-          <tr className="border-t-2 border-borde bg-papel-hueco">
-            <th scope="row" className="px-4 py-3 text-base font-bold text-tinta">
+          <tr className="border-regla border-t-2">
+            <th scope="row" className="text-texto px-1 pt-2.5 text-[15px] font-bold">
               Total
             </th>
-            <td className="px-4 py-3 text-base text-tinta-suave">
+            <td className="text-texto-suave px-1 pt-2.5 text-[13px]">
               Suma de los aportes, redondeada
             </td>
-            <td className="cifra px-4 py-3 text-right text-base font-bold whitespace-nowrap text-tinta">
+            <td className="cifra text-texto px-1 pt-2.5 text-right text-[16px] font-bold whitespace-nowrap">
               {puntaje}/100
             </td>
           </tr>

@@ -11,10 +11,10 @@ export function AvisoOrigen({ origen }: { origen: OrigenDatos }) {
   if (origen === "supabase") return null;
 
   return (
-    <p className="mb-6 rounded-sm border-2 border-dashed border-regla bg-papel-hueco px-4 py-3 text-base text-tinta-suave">
-      <strong>Modo demo sin base de datos.</strong> Estos 3 leads salen de
-      fixtures locales, no de Supabase. Configura <code>.env</code> para
-      conectar la DB real.
+    <p className="border-borde bg-surface-sunken text-texto-suave mb-6 rounded-sm border border-dashed px-4 py-3 text-[13px] leading-normal">
+      <strong className="text-texto">Modo demo sin base de datos.</strong> Estos
+      3 leads salen de fixtures locales, no de Supabase. Configura{" "}
+      <code className="cifra">.env</code> para conectar la DB real.
     </p>
   );
 }
