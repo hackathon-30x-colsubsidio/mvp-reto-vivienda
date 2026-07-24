@@ -36,7 +36,7 @@ insert into leads (
   lead_id, nombre, celular, cedula, proyecto_interes, fuente,
   perfil, respuestas,
   consentimiento_otorgado, consentimiento_ts,
-  estado, factores, proyectos, explicacion
+  estado, puntaje, factores, proyectos, explicacion
 ) values (
   'lead-001',
   'Diana Marcela Ríos',
@@ -54,12 +54,14 @@ insert into leads (
   jsonb_build_object(
     'consentimiento', jsonb_build_object(
       'otorgado', true, 'timestamp', '2026-07-23T14:32:10-05:00'),
+    'ingreso_hogar_mensual', 6000000,
     'tiene_vivienda', false,
     'subsidios', jsonb_build_array('Mi Casa Ya'),
-    'situacion_crediticia', 'buena, sin mora reportada'
+    'situacion_crediticia', 'buena'
   ),
   true, '2026-07-23T14:32:10-05:00',
   'listo',
+  84,   -- lib/fixtures/scores.ts
   -- 6 factores. El criterio de aceptación 2 se verifica contando esto
   -- contra lo que la ficha renderiza (ticket 012): tienen que ser 6.
   jsonb_build_array(
@@ -118,7 +120,7 @@ insert into leads (
   lead_id, nombre, celular, cedula, proyecto_interes, fuente,
   perfil, respuestas,
   consentimiento_otorgado, consentimiento_ts,
-  estado, factores, proyectos, explicacion
+  estado, puntaje, factores, proyectos, explicacion
 ) values (
   'lead-002',
   'Carlos Andrés Muñoz',
@@ -136,12 +138,14 @@ insert into leads (
   jsonb_build_object(
     'consentimiento', jsonb_build_object(
       'otorgado', true, 'timestamp', '2026-07-23T15:05:41-05:00'),
+    'ingreso_hogar_mensual', 5500000,
     'tiene_vivienda', false,
     'subsidios', jsonb_build_array(),
-    'situacion_crediticia', 'buena, sin mora reportada'
+    'situacion_crediticia', 'buena'
   ),
   true, '2026-07-23T15:05:41-05:00',
   'listo_restriccion_cupo',
+  61,   -- lib/fixtures/scores.ts
   -- 6 factores otra vez, pero DOS no cumplen. El asesor los ve igual:
   -- cero caja negra significa mostrar también lo que salió mal.
   jsonb_build_array(
@@ -199,7 +203,7 @@ insert into leads (
   lead_id, nombre, celular, cedula, proyecto_interes, fuente,
   perfil, respuestas,
   consentimiento_otorgado, consentimiento_ts,
-  estado, factores, regla_fallida, trigger_nutricion, proyectos, explicacion
+  estado, puntaje, factores, regla_fallida, trigger_nutricion, proyectos, explicacion
 ) values (
   'lead-003',
   'Yuliana Andrea Pérez',
@@ -214,13 +218,15 @@ insert into leads (
     'consentimiento', jsonb_build_object(
       'otorgado', true, 'timestamp', '2026-07-23T16:20:03-05:00'),
     'rango_ingreso_hogar', '1-2 SMMLV',
+    'ingreso_hogar_mensual', 1800000,
     'tiene_vivienda', false,
     'subsidios', jsonb_build_array(),
-    'situacion_crediticia', 'con mora reciente autorreportada',
+    'situacion_crediticia', 'mala',
     'zona_interes', 'Bogotá'
   ),
   true, '2026-07-23T16:20:03-05:00',
   'nutricion',
+  0,    -- no entra a la cola priorizada: primero tiene que pasar el gate
   jsonb_build_array(
     jsonb_build_object('nombre', 'afiliacion',
       'valor', 'sin match en la base de identidades: se asume no afiliado (supuesto por validar, spec §7)',
