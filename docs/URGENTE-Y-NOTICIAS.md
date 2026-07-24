@@ -15,6 +15,15 @@ Registrado en `docs/adr/0002-stack-mvp.md`. Lo que cada quien necesita saber **a
 - **Contratos entre tracks** (`Lead`, `Score`, `LeadCurado`) en `lib/types.ts` — cada quien construye contra fixtures, nadie espera al de al lado.
 Feedback loops (`npm test` / `tsc --noEmit` / `npm run dev`) ya definidos en `AGENTS.md`. Siguiente paso: scaffold de Next.js + conectar Vercel y Supabase.
 
+## ✅ 2026-07-24 — La DB existe y `/asesor` está en el link público
+Track D mergeado a `main` (`db137f7`). El demo ya se recorre entero en **https://mvp-reto-vivienda.vercel.app** — landing y chat de A, `/asesor` de D. Esquema en [`docs/adr/0003-esquema-db-leads.md`](adr/0003-esquema-db-leads.md), SQL en `db/`.
+
+- **🔴 Falta un paso para que producción persista:** las env vars de Supabase están en el `.env` de una sola máquina. Hay que cargarlas en **Vercel → Settings → Environment Variables** y **redesplegar**. Mientras tanto el demo funciona con fixtures y lo avisa en pantalla (no miente, pero no guarda nada).
+- **Nadie escribe a Supabase directo.** A y C llaman a `POST /api/leads` (recibe un `LeadCurado`) y `POST /api/citas` (persiste la franja elegida). Un solo lugar valida y mapea.
+- **Los criterios de aceptación los enforcea Postgres**, no la revisión de código: un lead de nutrición sin trigger, o uno calificado sin factores, **falla el insert**. Verificado contra la DB real. Si tu track recibe un 422, es el dato, no el servidor.
+- **A tiene pendiente cerrar el criterio 3** ([ticket 007](tasks/007-reenganche-nutricion.md)): el botón "simular trigger" ya lleva al chat con `/?lead_id=X&reenganche=1`, pero `app/page.tsx` no lee la URL todavía, así que el clic aterriza en el landing.
+- **Ojo con el modo oscuro:** `globals.css` vuelve el body casi negro con `prefers-color-scheme: dark`. `/asesor` ya se blinda sola; quien construya otra pantalla con colores claros debería hacer lo mismo, o el jurado con el sistema en oscuro no verá nada.
+
 ## Qué hacer ya
 1. **Cada quien toma su track y arranca HOY** — el reparto en 4 con tareas concretas, contratos y fixtures está en **`docs/reparto-inicial.md`**. Nadie espera a nadie: A hace el scaffold (~1h) mientras B limpia el Excel, C redacta explicaciones de referencia y D monta Supabase.
 2. **Todo el equipo lee antes de codear:** `docs/spec.md` (el contrato de producto), `docs/adr/0002-stack-mvp.md` (las reglas del stack) y `docs/reparto-inicial.md` (tu track).
