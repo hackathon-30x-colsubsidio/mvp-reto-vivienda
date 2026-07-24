@@ -1,4 +1,12 @@
 @import "tailwindcss";
+@import "./chat.css";
+
+/* El tema deja de depender solo de `prefers-color-scheme`: el escenario del
+   chat trae un conmutador claro/oscuro, así que la fuente de verdad es
+   `data-theme` en <html>. El script pre-paint de app/layout.tsx lo fija
+   siempre —desde localStorage o, en su defecto, desde la preferencia del
+   sistema— antes del primer pintado, así que ningún token queda huérfano. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* =====================================================================
    CONTRATO DE DIRECCIÓN — "El formato sellado"
@@ -75,31 +83,29 @@
   --salida-suave: #eaf2f9;   /* tinte azul apenas perceptible */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
+[data-theme="dark"] {
+  color-scheme: dark;
 
-    --fondo: #101418;
-    --papel: #191e24;
-    --papel-hueco: #212831;
-    --tinta: #e8eaed;
-    --tinta-suave: #a3abb5;
-    --borde: #2c333b;
-    --regla: #6b7480;
+  --fondo: #101418;
+  --papel: #191e24;
+  --papel-hueco: #212831;
+  --tinta: #e8eaed;
+  --tinta-suave: #a3abb5;
+  --borde: #2c333b;
+  --regla: #6b7480;
 
-    /* El azul base pierde legibilidad como texto sobre tinta: como
-       TEXTO sube al tinte 60%, como CAMPO se queda en el azul de marca. */
-    --azul: #66a4d0;
-    --azul-profundo: #99c2e0;
-    --campo: #0067b1;
-    --campo-hover: #005694; /* 7,61:1 con blanco encima */
-    --sobre-campo: #ffffff;
-    --sobre-campo-suave: #dcecf8; /* 4,87:1 sobre el campo azul */
+  /* El azul base pierde legibilidad como texto sobre tinta: como
+     TEXTO sube al tinte 60%, como CAMPO se queda en el azul de marca. */
+  --azul: #66a4d0;
+  --azul-profundo: #99c2e0;
+  --campo: #0067b1;
+  --campo-hover: #005694; /* 7,61:1 con blanco encima */
+  --sobre-campo: #ffffff;
+  --sobre-campo-suave: #dcecf8; /* 4,87:1 sobre el campo azul */
 
-    --rojo: #f2555f;
+  --rojo: #f2555f;
 
-    --salida-suave: #16202b;
-  }
+  --salida-suave: #16202b;
 }
 
 @theme inline {

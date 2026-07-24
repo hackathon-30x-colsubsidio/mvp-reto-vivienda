@@ -8,6 +8,9 @@ import {
   type PasoPregunta,
 } from "@/lib/conversacion/preguntas";
 import { MensajeBurbuja, type Mensaje } from "./MensajeBurbuja";
+import { SelloPerfil } from "./SelloPerfil";
+import { BotonTema } from "@/components/ui/BotonTema";
+import { IsotipoAzul, IsotipoBlanco, LockupBlanco } from "@/components/ui/Marca";
 
 type Fase = "consentimiento" | "pregunta" | "terminado" | "rechazado";
 
@@ -44,6 +47,10 @@ export function ChatWhatsApp({
   });
   const [textoInput, setTextoInput] = useState("");
   const [escribiendo, setEscribiendo] = useState(false);
+  // Telón de arranque. No retrasa nada: el efecto de abajo dispara el primer
+  // agregarBot() de inmediato, así que este medio segundo largo se lo come la
+  // latencia real del primer token en vez de sumarse a ella.
+  const [cargando, setCargando] = useState(true);
   const finRef = useRef<HTMLDivElement>(null);
   const iniciado = useRef(false);
   const historialRef = useRef<{ role: "user" | "assistant"; content: string }[]>(
@@ -53,6 +60,11 @@ export function ChatWhatsApp({
   useEffect(() => {
     finRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensajes, escribiendo]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setCargando(false), 1650);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (iniciado.current) return;
@@ -225,119 +237,209 @@ export function ChatWhatsApp({
   const pasoActual = fase === "pregunta" ? pasos[indicePaso] : undefined;
 
   return (
-    // El chat vive en el mundo de WhatsApp, no en el de Colsubsidio
-    // (DESIGN.md, "El chat (mundo prestado)"): verde, burbujas y
-    // píldoras son de allá, incluido su modo oscuro real. La marca
-    // aparece en tres puntos y ningún otro: avatar, nombre y la banda
-    // amarilla del disclaimer.
-    <div className="flex h-[100dvh] flex-col bg-[#e5ddd5] dark:bg-[#0b141a]">
-      {/* Header estilo WhatsApp */}
-      <div className="flex items-center gap-3 bg-[#075e54] px-4 py-3 text-white dark:bg-[#1f2c34]">
-        <button
-          onClick={onVolver}
-          aria-label="Volver"
-          className="text-xl leading-none"
-        >
-          ←
-        </button>
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ffd000] text-sm font-bold text-[#212529]">
-          CV
-        </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold">Colsubsidio Vivienda</span>
-          <span className="text-xs text-white/80">
-            {escribiendo ? "escribiendo..." : "en línea"}
-          </span>
-        </div>
+    // El chat ya no toma prestado el mundo de WhatsApp: vive en un escenario
+    // de marca Colsubsidio (DESIGN.md, "El escenario"). El riel de la
+    // izquierda dice de qué va la conversación antes de que empiece; la
+    // banda amarilla sigue declarando que el canal es simulado.
+    <div className="stage">
+      <div className="stage__motif" />
+      <IsotipoBlanco className="stage__watermark" />
+      <div className="stage__brand">
+        <LockupBlanco priority />
+        <span>Perfilador de Vivienda</span>
       </div>
+      <BotonTema />
 
-      {/* Disclaimer del canal simulado, en amarillo Colsubsidio. */}
-      <div className="bg-[#ffd000] px-4 py-2 text-xs font-medium text-[#212529]">
-        ⚠️ Demo: en producción este chat corre sobre WhatsApp Business API.
-      </div>
+      <div className="win">
+        <div className={cargando ? "load" : "load hide"} aria-hidden={!cargando}>
+          <LockupBlanco priority />
+          <div className="load__bar">
+            <i />
+          </div>
+          <div className="load__tag">Conectando con tu asesor…</div>
+        </div>
 
-      {/* Mensajes */}
-      <div className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
-        {mensajes.map((m) => (
-          <MensajeBurbuja key={m.id} mensaje={m} />
-        ))}
-        {escribiendo && (
-          <div className="flex justify-start">
-            <div className="rounded-lg rounded-tl-none bg-white px-3 py-2 text-sm text-zinc-500 shadow-sm dark:bg-[#202c33] dark:text-zinc-400">
-              escribiendo...
+        <div className="win__bar">
+          <i className="r" />
+          <i className="y" />
+          <i className="g" />
+          <span className="win__title">Perfilador de Vivienda · Colsubsidio</span>
+        </div>
+
+        <div className="win__body">
+          <aside className="rail">
+            <LockupBlanco className="logo" />
+            <div className="rail__h">Encontremos tu vivienda, paso a paso.</div>
+            <div className="rail__p">
+              Te hago unas preguntas rápidas para saber si calificas a un subsidio y
+              recomendarte proyectos a tu medida. Nunca te pregunto lo que ya sabemos.
+            </div>
+            <div className="rail__steps">
+              <div className="rail__step">
+                <b>1</b>Autorización de datos
+              </div>
+              <div className="rail__step">
+                <b>2</b>Lo que nos falta de tu perfil
+              </div>
+              <div className="rail__step">
+                <b>3</b>Perfil sellado y asesor asignado
+              </div>
+            </div>
+            <IsotipoBlanco className="rail__mark" />
+          </aside>
+
+          <div className="screen">
+            <div className="hdr">
+              <button className="hdr__back" onClick={onVolver} aria-label="Volver">
+                ←
+              </button>
+              <div className="hdr__avatar">
+                <IsotipoAzul />
+              </div>
+              <div className="hdr__meta">
+                <span className="hdr__name">Colsubsidio Vivienda</span>
+                <span className="hdr__status">
+                  {escribiendo ? (
+                    <>
+                      <span className="dots">
+                        <i />
+                        <i />
+                        <i />
+                      </span>
+                      escribiendo…
+                    </>
+                  ) : (
+                    "en línea"
+                  )}
+                </span>
+              </div>
+            </div>
+
+            {/* Aviso del canal simulado. */}
+            <div className="disc">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span>Demo: en producción este chat corre sobre WhatsApp Business API.</span>
+            </div>
+
+            {/* Mensajes */}
+            <div className="msgs">
+              <span className="day">Hoy</span>
+              {mensajes.map((m) => (
+                <MensajeBurbuja key={m.id} mensaje={m} />
+              ))}
+              {escribiendo && (
+                <div className="row bot">
+                  <div className="typing" role="status" aria-label="escribiendo">
+                    <i />
+                    <i />
+                    <i />
+                  </div>
+                </div>
+              )}
+              {fase === "terminado" && (
+                <SelloPerfil perfil={perfil} respuestas={respuestas} />
+              )}
+              <div ref={finRef} />
+            </div>
+
+            {/* Pie: quick replies o input libre */}
+            <div className="footer">
+              {fase === "consentimiento" && (
+                <div className="qr">
+                  <button
+                    onClick={() => responderConsentimiento(true)}
+                    className="btn btn--primary"
+                  >
+                    Sí, acepto
+                  </button>
+                  <button
+                    onClick={() => responderConsentimiento(false)}
+                    className="btn btn--ghost"
+                  >
+                    No, gracias
+                  </button>
+                </div>
+              )}
+
+              {fase === "pregunta" && pasoActual?.tipo === "si_no" && (
+                <div className="qr">
+                  <button
+                    onClick={() => responderPregunta("Sí", true)}
+                    className="btn btn--ghost"
+                  >
+                    Sí
+                  </button>
+                  <button
+                    onClick={() => responderPregunta("No", false)}
+                    className="btn btn--ghost"
+                  >
+                    No
+                  </button>
+                </div>
+              )}
+
+              {fase === "pregunta" && pasoActual?.tipo === "texto" && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    enviarTexto();
+                  }}
+                  className="form"
+                >
+                  <input
+                    value={textoInput}
+                    onChange={(e) => setTextoInput(e.target.value)}
+                    placeholder="Escribe tu respuesta…"
+                    aria-label="Tu respuesta"
+                  />
+                  <button
+                    type="submit"
+                    className="send"
+                    aria-label="Enviar"
+                    disabled={!textoInput.trim()}
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </button>
+                </form>
+              )}
+
+              {(fase === "terminado" || fase === "rechazado") && (
+                <div className="qr">
+                  <button onClick={onVolver} className="btn btn--seal">
+                    Volver al inicio
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-        )}
-        <div ref={finRef} />
-      </div>
-
-      {/* Footer: quick replies o input libre */}
-      <div className="bg-[#f0f0f0] p-3 dark:bg-[#1f2c34]">
-        {fase === "consentimiento" && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => responderConsentimiento(true)}
-              className="flex-1 rounded-full bg-[#075e54] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#064e44] dark:bg-[#00a884] dark:text-[#111b21] dark:hover:bg-[#02c39a]"
-            >
-              Sí, acepto
-            </button>
-            <button
-              onClick={() => responderConsentimiento(false)}
-              className="flex-1 rounded-full border-2 border-[#075e54] px-4 py-2 text-sm font-semibold text-[#075e54] transition-colors hover:bg-black/5 dark:border-[#00a884] dark:text-[#00a884] dark:hover:bg-white/5"
-            >
-              No, gracias
-            </button>
-          </div>
-        )}
-
-        {fase === "pregunta" && pasoActual?.tipo === "si_no" && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => responderPregunta("Sí", true)}
-              className="flex-1 rounded-full bg-[#075e54] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#064e44] dark:bg-[#00a884] dark:text-[#111b21] dark:hover:bg-[#02c39a]"
-            >
-              Sí
-            </button>
-            <button
-              onClick={() => responderPregunta("No", false)}
-              className="flex-1 rounded-full border-2 border-[#075e54] px-4 py-2 text-sm font-semibold text-[#075e54] transition-colors hover:bg-black/5 dark:border-[#00a884] dark:text-[#00a884] dark:hover:bg-white/5"
-            >
-              No
-            </button>
-          </div>
-        )}
-
-        {fase === "pregunta" && pasoActual?.tipo === "texto" && (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              enviarTexto();
-            }}
-            className="flex gap-2"
-          >
-            <input
-              value={textoInput}
-              onChange={(e) => setTextoInput(e.target.value)}
-              placeholder="Escribe tu respuesta..."
-              className="flex-1 rounded-full bg-white px-4 py-2 text-sm text-zinc-900 placeholder:text-zinc-500 dark:bg-[#2a3942] dark:text-zinc-50 dark:placeholder:text-zinc-400"
-            />
-            <button
-              type="submit"
-              className="rounded-full bg-[#075e54] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#064e44] dark:bg-[#00a884] dark:text-[#111b21] dark:hover:bg-[#02c39a]"
-            >
-              Enviar
-            </button>
-          </form>
-        )}
-
-        {(fase === "terminado" || fase === "rechazado") && (
-          <button
-            onClick={onVolver}
-            className="w-full rounded-full border-2 border-[#075e54] px-4 py-2 text-sm font-semibold text-[#075e54] transition-colors hover:bg-black/5 dark:border-[#00a884] dark:text-[#00a884] dark:hover:bg-white/5"
-          >
-            Volver al inicio
-          </button>
-        )}
+        </div>
       </div>
     </div>
   );

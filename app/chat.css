@@ -1,0 +1,835 @@
+/* =====================================================================
+   EL ESCENARIO — la superficie del lead
+
+   Puerto del kit `ui_kits/lead-chat/desktop.html` del design system de
+   Claude Design. Reemplaza al "mundo prestado" de WhatsApp: el lead ya no
+   conversa en una app ajena teñida de verde, sino en una ventana de marca
+   Colsubsidio montada sobre un escenario azul.
+
+   Va como CSS plano y no como utilidades de Tailwind porque casi todo lo
+   que define este mundo —keyframes, gradientes radiales, `mask-image`,
+   pseudo-elementos, scrollbar oculto— se vuelve ilegible traducido a
+   clases. Los colores NO son hex sueltos: cada token `--chat-*` es un rol
+   que apunta a la paleta corporativa de globals.css.
+
+   El tema lo manda `data-theme` en <html> (ver globals.css).
+   ===================================================================== */
+
+:root {
+  --chat-canvas: var(--azul);
+  --chat-canvas-2: #00568f;
+  --chat-motif: rgba(255, 255, 255, 0.05);
+  --chat-frame: #0a0c0f;
+  --chat-surface: #f3f1ec;
+  --chat-surface-lines: rgba(87, 87, 86, 0.05);
+  --chat-header: var(--azul);
+  --chat-header-ink: #ffffff;
+  --chat-status: rgba(255, 255, 255, 0.82);
+  --chat-avatar-bg: #ffffff;
+  --chat-bubble-bot: #ffffff;
+  --chat-bubble-bot-ink: #1c2024;
+  --chat-bubble-user: var(--azul);
+  --chat-bubble-user-ink: #ffffff;
+  --chat-meta: #8a8f94;
+  --chat-meta-user: rgba(255, 255, 255, 0.72);
+  --chat-disclaimer-bg: #fff4c7;
+  --chat-disclaimer-ink: #5a4a12;
+  --chat-disclaimer-line: #f2df8a;
+  --chat-accent: var(--amarillo);
+  --chat-accent-ink: #3a2f05;
+  --chat-primary: var(--azul);
+  --chat-primary-ink: #ffffff;
+  --chat-input-bg: #ffffff;
+  --chat-input-ink: #1c2024;
+  --chat-divider: #e2ddd3;
+  --chat-quick-bg: #ffffff;
+  --chat-quick-ink: var(--azul);
+  --chat-quick-border: #c9d9e8;
+  --chat-seal-bg: var(--amarillo);
+  --chat-seal-ink: #3a2f05;
+  --chat-ok: #1ca011;
+
+  /* El escenario y el riel se pintan con el azul de marca aunque el tema
+     claro aclare `--azul` para texto: aquí el azul es CAMPO, no tinta. */
+  --chat-brand: #0067b1;
+  --chat-brand-2: #00548c;
+}
+
+[data-theme="dark"] {
+  --chat-canvas: #0c1622;
+  --chat-canvas-2: #071019;
+  --chat-motif: rgba(255, 255, 255, 0.035);
+  --chat-frame: #000000;
+  --chat-surface: #0f1519;
+  --chat-surface-lines: rgba(255, 255, 255, 0.03);
+  --chat-header: #12222f;
+  --chat-header-ink: #ffffff;
+  --chat-status: rgba(255, 255, 255, 0.66);
+  --chat-avatar-bg: #ffffff;
+  --chat-bubble-bot: #1c2530;
+  --chat-bubble-bot-ink: #e9edf1;
+  --chat-bubble-user: #155a93;
+  --chat-bubble-user-ink: #ffffff;
+  --chat-meta: #7b848c;
+  --chat-meta-user: rgba(255, 255, 255, 0.66);
+  --chat-disclaimer-bg: #2a2610;
+  --chat-disclaimer-ink: #e7d489;
+  --chat-disclaimer-line: #4a3f1a;
+  --chat-primary: #2f7db0;
+  --chat-input-bg: #1a222b;
+  --chat-input-ink: #e9edf1;
+  --chat-divider: #242f39;
+  --chat-quick-bg: #18222c;
+  --chat-quick-ink: #7db8e6;
+  --chat-quick-border: #2a3947;
+  --chat-ok: #4fe53f;
+
+  --chat-brand: #12222f;
+  --chat-brand-2: #0a1620;
+}
+
+/* ── ESCENARIO ─────────────────────────────────────────────────────── */
+
+.stage {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(
+    120% 90% at 50% -10%,
+    var(--chat-canvas) 0%,
+    var(--chat-canvas-2) 100%
+  );
+}
+.stage__motif {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(var(--chat-motif) 1.4px, transparent 1.4px);
+  background-size: 26px 26px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 70%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 70%);
+}
+.stage__watermark {
+  position: absolute;
+  left: -40px;
+  bottom: -30px;
+  width: 340px;
+  height: auto;
+  opacity: 0.06;
+  pointer-events: none;
+}
+.stage__brand {
+  position: absolute;
+  top: 32px;
+  left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #fff;
+  z-index: 5;
+}
+.stage__brand img {
+  height: 24px;
+  width: auto;
+}
+.stage__brand span {
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+.themeToggle {
+  position: absolute;
+  top: 28px;
+  right: 40px;
+  z-index: 6;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.themeToggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── LA VENTANA ────────────────────────────────────────────────────── */
+
+.win {
+  position: relative;
+  z-index: 4;
+  width: min(1120px, 94vw);
+  height: min(720px, 92dvh);
+  background: var(--chat-frame);
+  border-radius: 16px;
+  overflow: hidden;
+  /* La única sombra autorizada de la app: es lo que separa la ventana del
+     escenario. La consola del asesor sigue sin sombra (DESIGN.md). */
+  box-shadow:
+    0 40px 90px -20px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+}
+.win__bar {
+  flex-shrink: 0;
+  height: 40px;
+  background: var(--chat-frame);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 15px;
+}
+.win__bar i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.win__bar .r {
+  background: #ff5f57;
+}
+.win__bar .y {
+  background: #febc2e;
+}
+.win__bar .g {
+  background: #28c840;
+}
+.win__title {
+  margin-left: 12px;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+}
+.win__body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* ── EL RIEL ───────────────────────────────────────────────────────── */
+
+.rail {
+  width: 320px;
+  flex-shrink: 0;
+  background: linear-gradient(165deg, var(--chat-brand), var(--chat-brand-2));
+  color: #fff;
+  padding: 34px 30px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.rail img.logo {
+  height: 26px;
+  width: auto;
+  align-self: flex-start;
+}
+.rail__h {
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.28;
+  margin-top: auto;
+}
+.rail__p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 12px;
+}
+.rail__steps {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.rail__step {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.92);
+}
+.rail__step b {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.rail__mark {
+  position: absolute;
+  right: -34px;
+  bottom: -30px;
+  width: 200px;
+  height: auto;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.screen {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--chat-surface);
+  min-width: 0;
+}
+
+/* En móvil el escenario desaparece: la conversación va a sangre completa,
+   que es como se vería en el canal real. */
+@media (max-width: 860px) {
+  .stage {
+    align-items: stretch;
+  }
+  .stage__motif,
+  .stage__watermark,
+  .stage__brand {
+    display: none;
+  }
+  /* Sin escenario donde flotar, el conmutador se mete en la franja azul de
+     arriba. Abajo a la derecha —como lo pone el kit— tapaba el botón del pie
+     del chat, que es el único control de la pantalla. */
+  .themeToggle {
+    top: calc(9px + env(safe-area-inset-top));
+    right: 10px;
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+  .win {
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+  }
+  .win__bar,
+  .rail {
+    display: none;
+  }
+}
+
+/* ── CABECERA DE LA CONVERSACIÓN ───────────────────────────────────── */
+
+.hdr {
+  flex-shrink: 0;
+  background: var(--chat-header);
+  color: var(--chat-header-ink);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: calc(14px + env(safe-area-inset-top));
+}
+@media (min-width: 861px) {
+  .hdr {
+    padding-top: 16px;
+  }
+}
+.hdr__back {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0.9;
+}
+.hdr__back:hover {
+  opacity: 1;
+}
+.hdr__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--chat-avatar-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+.hdr__avatar img {
+  width: 22px;
+  height: auto;
+}
+.hdr__avatar::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--chat-ok);
+  border: 2px solid var(--chat-header);
+}
+.hdr__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.hdr__name {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.2;
+}
+.hdr__status {
+  font-size: 12.5px;
+  color: var(--chat-status);
+  height: 16px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.hdr__status .dots {
+  display: inline-flex;
+  gap: 3px;
+}
+.hdr__status .dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: chat-blink 1.2s infinite;
+}
+.hdr__status .dots i:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.hdr__status .dots i:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes chat-blink {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+/* ── AVISO DE CANAL SIMULADO ───────────────────────────────────────── */
+
+.disc {
+  flex-shrink: 0;
+  background: var(--chat-disclaimer-bg);
+  color: var(--chat-disclaimer-ink);
+  border-bottom: 1px solid var(--chat-disclaimer-line);
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 8px 16px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.disc svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── MENSAJES ──────────────────────────────────────────────────────── */
+
+.msgs {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 14px 8px;
+  background: var(--chat-surface);
+  background-image: repeating-linear-gradient(
+    0deg,
+    var(--chat-surface-lines) 0 1px,
+    transparent 1px 27px
+  );
+}
+.msgs::-webkit-scrollbar {
+  width: 0;
+}
+.day {
+  margin: 0 auto 14px;
+  font-size: 11px;
+  color: var(--chat-meta);
+  background: var(--chat-bubble-bot);
+  padding: 4px 12px;
+  border-radius: 6px;
+  width: fit-content;
+  display: block;
+  text-align: center;
+}
+.row {
+  display: flex;
+  margin-bottom: 8px;
+  animation: chat-pop 0.26s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.row.bot {
+  justify-content: flex-start;
+}
+.row.user {
+  justify-content: flex-end;
+}
+@keyframes chat-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.bubble {
+  max-width: 80%;
+  padding: 9px 12px 7px;
+  font-size: 15px;
+  line-height: 1.42;
+  position: relative;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.bot .bubble {
+  background: var(--chat-bubble-bot);
+  color: var(--chat-bubble-bot-ink);
+  border-radius: 4px 16px 16px 16px;
+}
+.user .bubble {
+  background: var(--chat-bubble-user);
+  color: var(--chat-bubble-user-ink);
+  border-radius: 16px 4px 16px 16px;
+}
+.time {
+  font-size: 10.5px;
+  margin-top: 3px;
+  text-align: right;
+  letter-spacing: 0.02em;
+}
+.bot .time {
+  color: var(--chat-meta);
+}
+.user .time {
+  color: var(--chat-meta-user);
+}
+
+.typing {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--chat-bubble-bot);
+  border-radius: 4px 16px 16px 16px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}
+.typing i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--chat-meta);
+  animation: chat-wave 1.3s infinite;
+}
+.typing i:nth-child(2) {
+  animation-delay: 0.18s;
+}
+.typing i:nth-child(3) {
+  animation-delay: 0.36s;
+}
+@keyframes chat-wave {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+
+/* ── EL SELLO DE CIERRE ────────────────────────────────────────────── */
+
+.seal {
+  align-self: flex-start;
+  max-width: 88%;
+  background: var(--chat-bubble-bot);
+  border-radius: 4px 16px 16px 16px;
+  padding: 16px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+  animation: chat-pop 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.seal__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--chat-seal-bg);
+  color: var(--chat-seal-ink);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transform: rotate(-1.5deg);
+}
+.seal__title {
+  font-weight: 600;
+  font-size: 16px;
+  margin: 12px 0 4px;
+  color: var(--chat-bubble-bot-ink);
+}
+.seal__body {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--chat-meta);
+}
+.seal__rows {
+  margin-top: 12px;
+  border-top: 1px solid var(--chat-divider);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.seal__r {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--chat-bubble-bot-ink);
+}
+.seal__r span {
+  color: var(--chat-meta);
+  flex-shrink: 0;
+}
+.seal__r b {
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ── PIE POR FASE ──────────────────────────────────────────────────── */
+
+.footer {
+  flex-shrink: 0;
+  background: var(--chat-surface);
+  border-top: 1px solid var(--chat-divider);
+  padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+}
+.qr {
+  display: flex;
+  gap: 10px;
+}
+.btn {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 24px;
+  padding: 13px 18px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    transform 0.1s,
+    opacity 0.15s;
+  flex: 1;
+  text-align: center;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn--primary {
+  background: var(--chat-primary);
+  color: var(--chat-primary-ink);
+}
+.btn--ghost {
+  background: var(--chat-quick-bg);
+  color: var(--chat-quick-ink);
+  border-color: var(--chat-quick-border);
+}
+.btn--ghost:hover {
+  border-color: var(--chat-quick-ink);
+}
+.btn--seal {
+  background: var(--chat-accent);
+  color: var(--chat-accent-ink);
+}
+/* `.btn` crece por defecto porque en el pie del chat siempre va en una fila
+   de dos. Suelto —o dentro de una columna— hay que apagarle ese reparto. */
+.btn--bloque {
+  flex: none;
+  width: 100%;
+}
+.form {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+.form input {
+  flex: 1;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 15px;
+  padding: 13px 16px;
+  border-radius: 24px;
+  border: 1px solid var(--chat-divider);
+  background: var(--chat-input-bg);
+  color: var(--chat-input-ink);
+  outline: none;
+}
+.form input::placeholder {
+  color: var(--chat-meta);
+}
+.form input:focus {
+  border-color: var(--chat-primary);
+}
+.send {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--chat-primary);
+  color: var(--chat-primary-ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.footer__hint {
+  font-size: 11px;
+  color: var(--chat-meta);
+  text-align: center;
+  padding: 6px 0 0;
+}
+
+/* ── LA PORTADA ────────────────────────────────────────────────────── */
+
+/* La landing usa la misma ventana que el chat, pero su contenido no cabe en
+   720px fijos: este es el único panel de la app que hace scroll por dentro. */
+.portada {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--fondo);
+}
+
+/* Campo de formulario del mundo nuevo. Mismo trato que `.form input` del pie
+   del chat, pero suelto: aquí los campos van apilados, no en línea. */
+.campo {
+  width: 100%;
+  font-family: inherit;
+  font-size: 15px;
+  padding: 12px 16px;
+  border-radius: 24px;
+  border: 1px solid var(--chat-divider);
+  background: var(--chat-input-bg);
+  color: var(--chat-input-ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.campo::placeholder {
+  color: var(--chat-meta);
+}
+.campo:focus {
+  border-color: var(--chat-primary);
+}
+
+/* ── PANTALLA DE ARRANQUE ──────────────────────────────────────────── */
+
+.load {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: linear-gradient(160deg, var(--chat-brand) 0%, var(--chat-brand-2) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  transition:
+    opacity 0.5s ease,
+    visibility 0.5s;
+}
+.load.hide {
+  opacity: 0;
+  visibility: hidden;
+}
+.load img {
+  width: 210px;
+  height: auto;
+  animation: chat-rise 0.6s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+@keyframes chat-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.load__bar {
+  width: 150px;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+.load__bar i {
+  display: block;
+  height: 100%;
+  width: 40%;
+  border-radius: 3px;
+  background: var(--amarillo);
+  animation: chat-load 1.3s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+}
+@keyframes chat-load {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(360%);
+  }
+}
+.load__tag {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* El escenario tiene mucho movimiento decorativo; quien lo pide apagado se
+   queda con la misma información y cero animación. */
+@media (prefers-reduced-motion: reduce) {
+  .row,
+  .seal,
+  .load img {
+    animation: none;
+  }
+  .typing i,
+  .hdr__status .dots i,
+  .load__bar i {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+  .load__bar i {
+    width: 100%;
+    transform: none;
+  }
+}

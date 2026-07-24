@@ -3,8 +3,9 @@
 import { useState } from "react";
 import type { LeadEvento } from "@/lib/types";
 
-const CLASE_CAMPO =
-  "w-full rounded-sm border-2 border-borde bg-papel px-3 py-2.5 text-base text-tinta transition-colors placeholder:text-tinta-suave focus:border-azul";
+// `.campo` vive en app/chat.css: es el mismo campo del pie del chat, para que
+// escribir aquí y escribir allá se sienta igual.
+const CLASE_CAMPO = "campo";
 
 /**
  * El formato en blanco: mismo mundo que la ficha del asesor, pero
@@ -106,16 +107,13 @@ export function FormularioSoyYo({
         </Campo>
 
         <div className="mt-1 flex gap-2">
-          <button
-            type="submit"
-            className="flex-1 rounded-sm bg-campo px-4 py-3 text-sm font-bold text-sobre-campo transition-colors hover:bg-campo-hover"
-          >
+          <button type="submit" className="btn btn--primary !text-sm">
             Empezar
           </button>
           <button
             type="button"
             onClick={onCancelar}
-            className="rounded-sm border-2 border-borde bg-papel px-4 py-3 text-sm font-bold text-tinta-suave transition-colors hover:bg-papel-hueco"
+            className="btn btn--ghost !text-sm !flex-none"
           >
             Cancelar
           </button>

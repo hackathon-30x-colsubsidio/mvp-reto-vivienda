@@ -176,14 +176,14 @@ Contenedor de 56rem (`max-w-4xl`) centrado sobre el fondo, con la hoja en papel.
 
 **Este sistema no usa sombras.** La profundidad se construye con tres capas tonales (`fondo` → `papel` → `papel-hueco`) y con reglado: 1px de `borde` entre renglones, 2px de `regla` alrededor de un bloque que es una unidad. Un bloque no "flota", está impreso.
 
-Única excepción, y es de otro mundo: las burbujas del chat conservan la sombra suave de WhatsApp, porque ahí la autoridad es WhatsApp y no este sistema.
+Única excepción, y es de otro mundo: el escenario del lead (ver "El escenario"), donde la ventana proyecta sombra sobre el fondo y las burbujas llevan la suya, de 1px.
 
 ### Named Rules
 **La Regla del Papel Impreso.** Si un elemento necesita `box-shadow` para separarse de su fondo, le falta reglado o le falta capa tonal. Se arregla ahí, no con sombra.
 
 ## Shapes
 
-Esquinas casi rectas: 3px (`--r-sm`) en sellos, botones, entradas y celdas; 6px (`--r-md`) en bloques grandes. Cero píldoras y cero círculos en la consola y la landing — la píldora pertenece al chat, donde es gramática de WhatsApp. Los bloques que son una unidad de decisión llevan borde de 2px; los renglones de una lista llevan 1px.
+Esquinas casi rectas: 3px (`--r-sm`) en sellos, botones, entradas y celdas; 6px (`--r-md`) en bloques grandes. Cero píldoras y cero círculos en la consola del asesor — la píldora pertenece al escenario del lead, donde es la gramática del kit. Los bloques que son una unidad de decisión llevan borde de 2px; los renglones de una lista llevan 1px.
 
 ## Components
 
@@ -218,8 +218,21 @@ No hay barra de navegación: el riel azul superior es el encabezado del formato 
 ### La tabla reglada de factores (componente firma)
 El corazón del "cero caja negra". Cabecera en `papel-hueco` con rótulos en versalitas; una fila por factor evaluado, sin filtrar y sin cortar; cada fila trae nombre, de dónde salió el dato, qué se midió y si cumple. El "cumple" es texto (`✓ Sí` en azul profundo / `✗ No` en rojo bandera), nunca solo un ícono de color — el color no puede ser el único portador del significado.
 
-### El chat (mundo prestado)
-El chat conserva el verde WhatsApp (`#075e54`), el fondo `#e5ddd5`, las burbujas `#dcf8c6` y las píldoras. Es una decisión de producto: el reconocimiento del canal vale más que la consistencia de marca en esa superficie. Colsubsidio aparece ahí en tres puntos y ningún otro: el avatar, el nombre del contacto y la banda amarilla del disclaimer.
+### El escenario (la superficie del lead)
+La superficie del lead —portada y chat— ya **no** toma prestado el mundo de WhatsApp. El verde `#075e54`, el fondo `#e5ddd5` y las burbujas `#dcf8c6` se retiraron: el reconocimiento del canal no compensaba entregarle la pantalla más vista del demo a la marca de otro. En su lugar corre el kit `ui_kits/lead-chat/desktop.html` del design system, portado a [`app/chat.css`](app/chat.css).
+
+Su gramática, distinta a propósito de la del asesor:
+
+- **Escenario azul** a escala de pantalla (`.stage`): degradado radial del azul de marca, motivo de puntos desvanecido y el isotipo como marca de agua al 6%.
+- **Una ventana** (`.win`, 1120×720) montada sobre el escenario, con riel izquierdo (`.rail`) que dice de qué va la conversación antes de que empiece: titular, promesa y los tres pasos.
+- **Píldoras y radios blandos:** botones de 24px, burbujas de 16px con la esquina recta del lado de quien habla. Es lo contrario de las esquinas de 3px de la consola, y está bien: son dos mundos.
+- **Colores por rol,** no por hex: cada token `--chat-*` de `app/chat.css` apunta a la paleta corporativa. Cambiar un color se hace ahí, nunca en el componente.
+- **La marca aparece en cinco puntos y ningún otro:** el lockup del escenario, el del riel, el de la pantalla de arranque, el isotipo del avatar y la marca de agua.
+- **El amarillo sigue siendo solo fondo:** la banda del disclaimer, el badge del sello y la barra de carga.
+
+Fuera del escenario nada cambia: `/asesor` y `/asesor/tablero` siguen en "El formato sellado" tal cual.
+
+**Excepción de sombra registrada.** La ventana proyecta sombra (`0 40px 90px -20px`), y es la única de toda la app junto a la sombra mínima de las burbujas. No contradice la Regla del Papel Impreso: ahí la sombra no separa un bloque de su fondo dentro de un documento, separa un dispositivo de su escenario.
 
 ## Do's and Don'ts
 
@@ -229,13 +242,13 @@ El chat conserva el verde WhatsApp (`#075e54`), el fondo `#e5ddd5`, las burbujas
 - **Do** usar el amarillo como fondo con tinta `#212529` encima, siempre.
 - **Do** separar bloques con reglado de 2px y capa tonal.
 - **Do** acompañar todo color de estado con su palabra: el sello dice "Nutrición", no solo se pinta.
-- **Do** dejar el chat en el verde de WhatsApp.
+- **Do** dejar el escenario del lead (portada y chat) con su propia gramática: píldoras, radios blandos y campo azul a pantalla completa.
 
 ### Don't:
 - **Don't** usar amarillo como color de texto sobre fondo claro: `#ffd000` sobre blanco es 1,5:1.
-- **Don't** agregar `box-shadow` a nada fuera del chat.
+- **Don't** agregar `box-shadow` a nada fuera del escenario del lead.
 - **Don't** pintar "nutrición" de rojo, gris muerto o ámbar de advertencia; es un tinte del azul.
 - **Don't** poner más de un `.resaltado` por pantalla.
 - **Don't** usar `border-left` de color como recurso de bloque destacado.
-- **Don't** meter píldoras (`rounded-full`) en la consola del asesor ni en la landing.
+- **Don't** meter píldoras (`rounded-full`) en la consola del asesor. En el escenario del lead sí son la gramática.
 - **Don't** ocultar, filtrar ni truncar filas de la tabla de factores por razones visuales.

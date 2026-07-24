@@ -38,7 +38,7 @@ export function TarjetaPersonaje({
         </p>
         <button
           onClick={onSeleccionar}
-          className="mt-3 w-full rounded-sm bg-campo px-4 py-3 text-sm font-bold text-sobre-campo transition-colors hover:bg-campo-hover"
+          className="btn btn--primary btn--bloque mt-3 !text-sm"
         >
           Abrir su conversación
         </button>
