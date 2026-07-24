@@ -1,7 +1,7 @@
 ---
 id: 021
 serves: "restricción no-negociable de AGENTS.md — la data real de Colsubsidio nunca es pública"
-status: todo
+status: done
 ---
 
 # 021 — 🔴 Poner plan-research en privado
@@ -16,8 +16,11 @@ Cortar el sangrado: el repo hermano `plan-research` es **público en GitHub** co
 - Fuera (post-hackathon): reescribir el historial (`git filter-repo`/BFG) para sacar los 3 archivos. Riesgo residual: quien ya lo clonó.
 
 ## Done cuando
-- [ ] `plan-research` deja de ser accesible sin login.
-- [ ] Se avisa al equipo y se actualiza el bullet del leak en [`handoff.md`](../agents/handoff.md).
+- [x] `plan-research` deja de ser accesible sin login. **Hecho 2026-07-24 (Rol 4):** `gh repo edit hackathon-30x-colsubsidio/plan-research --visibility private`. Verificado `isPrivate: true`.
+- [x] Se avisa al equipo y se actualiza el bullet del leak en [`handoff.md`](../agents/handoff.md).
+
+## Pendiente (fuera de alcance de este ticket)
+Reescribir el historial (`git filter-repo`/BFG) para sacar los 3 archivos del commit `8bc42eb3` — post-hackathon. Riesgo residual: quien ya lo clonó antes del cambio a privado.
 
 ## Notas
 Hallado en el handoff 2026-07-24 09:15 y ratificado en el grilling de scope. No espera al kickoff.
