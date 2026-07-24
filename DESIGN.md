@@ -1,100 +1,133 @@
 ---
 name: Colsubsidio Vivienda — Curado de leads
-description: Un formato oficial reglado y sellado, en el azul y el amarillo de Colsubsidio, donde toda decisión se muestra con lo que la sostiene.
+description: El design system de Colsubsidio aplicado a las dos caras del perfilador — el chat cálido del lead y el panel denso del asesor — donde toda decisión se muestra con lo que la sostiene.
 colors:
   amarillo: "#ffd000"
-  amarillo-80: "#ffd933"
+  amarillo-80: "#ffda33"
   amarillo-60: "#ffe366"
-  amarillo-40: "#ffec99"
+  amarillo-40: "#ffed99"
+  amarillo-20: "#fff6cc"
   azul: "#0067b1"
   azul-80: "#3385c1"
-  azul-60: "#66a4d0"
+  azul-60: "#66a3d1"
   azul-40: "#99c2e0"
-  azul-profundo: "#00457a"
+  azul-20: "#cce0f0"
   grafito: "#575756"
-  grafito-60: "#9a9a9a"
-  grafito-40: "#bcbcbb"
-  grafito-20: "#dddddd"
+  grafito-80: "#78787a"
+  grafito-60: "#a0a0a1"
+  grafito-40: "#c7c7c8"
+  grafito-20: "#e4e4e4"
   rojo-bandera: "#ce1126"
-  fondo: "#f8f9fa"
-  papel: "#ffffff"
-  papel-hueco: "#f1f3f5"
-  tinta: "#212529"
-  borde: "#dee2e6"
-  verde-whatsapp: "#075e54"
+  surface-page: "#f8f9fa"
+  surface-card: "#ffffff"
+  surface-sunken: "#f1f3f5"
+  text-primary: "#212529"
+  text-secondary: "#575756"
+  text-tertiary: "#868e96"
+  border-default: "#dee2e6"
+  estado-listo: "#21c714"
+  estado-cupo: "#ffab1a"
+  estado-nutricion: "#2f95e0"
+  dato-simulado: "#8a5cb8"
 typography:
   display:
-    fontFamily: "Geist Sans, system-ui, sans-serif"
-    fontSize: "clamp(2rem, 5vw, 3rem)"
-    fontWeight: 700
-    lineHeight: 1.05
-    letterSpacing: "-0.03em"
+    fontFamily: "Sora, system-ui, sans-serif"
+    fontSize: "38px"
+    fontWeight: 800
+    lineHeight: 1.2
+    letterSpacing: "-0.02em"
   headline:
-    fontFamily: "Geist Sans, system-ui, sans-serif"
-    fontSize: "1.25rem"
+    fontFamily: "Sora, system-ui, sans-serif"
+    fontSize: "20px"
     fontWeight: 700
-    lineHeight: 1.25
-    letterSpacing: "-0.01em"
+    lineHeight: 1.2
+  title:
+    fontFamily: "Sora, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 700
+    lineHeight: 1.2
   body:
-    fontFamily: "Geist Sans, system-ui, sans-serif"
-    fontSize: "1rem"
+    fontFamily: "Work Sans, system-ui, sans-serif"
+    fontSize: "15px"
     fontWeight: 400
-    lineHeight: 1.6
+    lineHeight: 1.45
+  body-sm:
+    fontFamily: "Work Sans, system-ui, sans-serif"
+    fontSize: "13px"
+    fontWeight: 400
+    lineHeight: 1.45
   label:
-    fontFamily: "Geist Sans, system-ui, sans-serif"
-    fontSize: "0.75rem"
-    fontWeight: 700
+    fontFamily: "Work Sans, system-ui, sans-serif"
+    fontSize: "12px"
+    fontWeight: 600
     letterSpacing: "0.08em"
   cifra:
-    fontFamily: "Geist Mono, ui-monospace, monospace"
-    fontSize: "1rem"
+    fontFamily: "JetBrains Mono, ui-monospace, monospace"
+    fontSize: "16px"
     fontWeight: 500
     fontFeature: "tabular-nums"
 rounded:
-  sm: "3px"
-  md: "6px"
+  sm: "6px"
+  md: "10px"
+  lg: "16px"
+  pill: "999px"
 spacing:
   xs: "4px"
   sm: "8px"
   md: "16px"
   lg: "24px"
   xl: "40px"
+shadows:
+  xs: "0 1px 2px hsl(220 15% 20% / 0.06)"
+  sm: "0 2px 6px hsl(220 15% 20% / 0.08)"
+  md: "0 6px 20px hsl(220 15% 20% / 0.10)"
+  lg: "0 12px 32px hsl(220 15% 20% / 0.14)"
 components:
   boton-primario:
     backgroundColor: "{colors.azul}"
     textColor: "#ffffff"
     rounded: "{rounded.sm}"
-    padding: "12px 20px"
-  boton-primario-hover:
-    backgroundColor: "{colors.azul-profundo}"
+    padding: "10px 18px"
   boton-secundario:
-    backgroundColor: "{colors.papel}"
+    backgroundColor: "transparent"
     textColor: "{colors.azul}"
+    borderColor: "{colors.azul}"
     rounded: "{rounded.sm}"
-    padding: "12px 20px"
+    padding: "10px 18px"
   boton-accion:
     backgroundColor: "{colors.amarillo}"
-    textColor: "{colors.tinta}"
+    textColor: "{colors.text-primary}"
     rounded: "{rounded.sm}"
-    padding: "12px 20px"
+    padding: "10px 18px"
   sello-listo:
-    backgroundColor: "{colors.azul}"
-    textColor: "#ffffff"
-    rounded: "{rounded.sm}"
-    padding: "4px 10px"
+    backgroundColor: "{colors.estado-listo}"
+    textColor: "#08340a"
+    rounded: "{rounded.pill}"
+    padding: "2px 10px"
   sello-cupo:
-    backgroundColor: "{colors.amarillo}"
-    textColor: "{colors.tinta}"
-    rounded: "{rounded.sm}"
-    padding: "4px 10px"
+    backgroundColor: "{colors.estado-cupo}"
+    textColor: "#3d2600"
+    rounded: "{rounded.pill}"
+    padding: "2px 10px"
   sello-nutricion:
-    backgroundColor: "{colors.azul-40}"
-    textColor: "#00457a"
-    rounded: "{rounded.sm}"
-    padding: "4px 10px"
+    backgroundColor: "{colors.estado-nutricion}"
+    textColor: "#07293f"
+    rounded: "{rounded.pill}"
+    padding: "2px 10px"
+  etiqueta-simulado:
+    backgroundColor: "#f3ecfa"
+    textColor: "{colors.dato-simulado}"
+    rounded: "{rounded.pill}"
+    padding: "2px 8px"
+  tarjeta:
+    backgroundColor: "{colors.surface-card}"
+    borderColor: "{colors.border-default}"
+    rounded: "{rounded.md}"
+    shadow: "{shadows.xs}"
   campo-entrada:
-    backgroundColor: "{colors.papel}"
-    textColor: "{colors.tinta}"
+    backgroundColor: "{colors.surface-card}"
+    textColor: "{colors.text-primary}"
+    borderColor: "{colors.border-default}"
     rounded: "{rounded.sm}"
     padding: "10px 12px"
 ---

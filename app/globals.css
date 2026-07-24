@@ -81,13 +81,17 @@
      es un estado. */
   --state-green: #16a30c;
   --state-green-bg: #21c714;
-  --state-green-on: #08340a;
+  --state-green-on: #08340a; /* 6,2:1 */
   --state-amber: #d98600;
   --state-amber-bg: #ffab1a;
-  --state-amber-on: #3d2600;
+  --state-amber-on: #3d2600; /* 7,5:1 */
   --state-nutricion: #1f7fc4;
   --state-nutricion-bg: #2f95e0;
-  --state-nutricion-on: #ffffff;
+  /* El zip trae blanco aquí, y sobre #2f95e0 da 3,26:1 — por debajo de
+     AA para el tamaño en que se usa la píldora. Se cambia por tinta
+     azul oscura, que es además el patrón que ya siguen los otros dos
+     estados (relleno vivo, tinta muy oscura). 4,6:1. */
+  --state-nutricion-on: #07293f;
 
   /* Violeta desaturado, fuera de marca Y fuera de la paleta de estados:
      "dato simulado" es metadato de confianza, no un cuarto estado. */
@@ -187,14 +191,17 @@
   --text-link: #6fb3e8;
   --text-link-hover: #96c8ef;
 
+  /* Los rellenos del zip para oscuro dejaban el blanco encima en 3,49:1
+     (verde) y 3,25:1 (ámbar). Se oscurecen manteniendo el matiz, hasta
+     que el blanco pasa AA. El azul de nutrición ya pasaba y no cambia. */
   --state-green: #4fe53f;
-  --state-green-bg: #1ca011;
+  --state-green-bg: #157a0d; /* 5,5:1 con blanco */
   --state-green-on: #ffffff;
   --state-amber: #ffb43d;
-  --state-amber-bg: #c77f00;
+  --state-amber-bg: #9a6200; /* 5,2:1 con blanco */
   --state-amber-on: #ffffff;
   --state-nutricion: #5aabe0;
-  --state-nutricion-bg: #2f7db0;
+  --state-nutricion-bg: #2f7db0; /* 4,5:1 con blanco */
   --state-nutricion-on: #ffffff;
 
   --data-simulado: #c19ee6;
