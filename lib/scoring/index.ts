@@ -2,10 +2,18 @@
 // Recibe un Lead + la ficha del proyecto de interés, devuelve un Score con
 // TODOS los factores visibles (criterio de aceptación 2 del spec).
 
-import { CONFIG_SCORING } from "./config.js";
-import type { FactorScore, Lead, ProyectoCatalogo, Score } from "../types.js";
+import { CONFIG_SCORING } from "./config";
+import type { FactorScore, Lead, ProyectoCatalogo, Score } from "../types";
 
-function afiliadoEfectivo(lead: Lead): boolean {
+/**
+ * La ÚNICA definición de "este lead es afiliado" en el repo.
+ *
+ * Exportada a propósito: el tablero agrupa por afiliación y el puntaje
+ * le asigna peso. Si cada uno lo dedujera por su lado, la pantalla
+ * podría mostrar un lead en el grupo de afiliados y puntuarlo como no
+ * afiliado — y el demo se contradiría a sí mismo.
+ */
+export function afiliadoEfectivo(lead: Lead): boolean {
   // Si el enriquecimiento no trajo match, se le pregunta en la conversación.
   // Sin ninguna de las dos fuentes, se asume no afiliado (caso conservador:
   // lo peor que pasa es que se le marque contra el cupo 90/10 de más, nunca

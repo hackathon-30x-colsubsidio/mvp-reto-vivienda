@@ -21,6 +21,16 @@ export interface LeadEnCola {
   curado: LeadCurado;
   re_enganchado_en: string | null;
   creado_en: string;
+  /**
+   * Marca los leads del telón de fondo del tablero
+   * (`lib/fixtures/cola-historica.ts`), que existen para que las
+   * métricas por día tengan serie.
+   *
+   * Opcional a propósito: un lead sin la marca es real. La UI está
+   * obligada a avisarlo en pantalla — nunca se le presenta al jurado un
+   * número sintético como si viniera de la operación.
+   */
+  sintetico?: boolean;
 }
 
 /** Orden de la cola del asesor: listos arriba, nutrición al final. */
