@@ -24,7 +24,7 @@ Sesión de grilling (Mani) a ~48h del deadline. No tocó código; fijó el rumbo
 
 **Decisiones cerradas (no re-litigar):** subsidios = tabla fundamentada · trigger = híbrido (fecha solo si es temporal y derivable) · similitud = distribución por proyecto · buyer personas del PPT entran al workflow · griegos = clusters anónimos `[inferido]` · panel de impacto = franja timeboxed · cédula se sostiene + pregunta a mentor · video = screen recording real + tramo de implementabilidad.
 
-**🔴 Sin resolver hasta que Rol 4 actúe:** `plan-research` es público con la data real de Colsubsidio (commit `8bc42eb3`). Va en contra de la restricción no-negociable de `AGENTS.md`. Ticket [021](tasks/021-plan-research-privado.md).
+**🔴 Dos fugas de data real, sin resolver hasta que Rol 4 actúe:** (1) `plan-research` es público con los 3 insumos de Colsubsidio (commit `8bc42eb3`) — ticket [021](tasks/021-plan-research-privado.md); (2) **en ESTE repo público**, `data/buyer-personas-vivienda.md` (commit `d07dbe3`) es una transcripción del PPT con **22 tablas de nombres de empresas reales** — ticket [022](tasks/022-sanear-buyer-personas-md.md). Ambas van en contra de la restricción no-negociable de `AGENTS.md`. Los agregados % del md sí sirven y alimentan el ticket [016](tasks/016-distribuciones-por-proyecto.md); lo que sale son los nombres propios.
 
 **Tickets nuevos:** [016](tasks/016-distribuciones-por-proyecto.md)–[021](tasks/021-plan-research-privado.md). El video ([015](tasks/015-guion-y-video.md)) ya tiene dueño (Rol 4).
 

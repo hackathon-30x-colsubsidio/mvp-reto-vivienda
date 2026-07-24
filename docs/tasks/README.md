@@ -31,6 +31,7 @@ Cada ticket es **una unidad de trabajo que cabe en una ventana de contexto limpi
 | 019 | [Franja de impacto en /asesor](019-franja-impacto.md) | Rol 2 | — | Sáb (timebox) |
 | 020 | [Tramo de implementabilidad en el video](020-tramo-implementabilidad.md) | Rol 4 | — | Sáb |
 | 021 | [🔴 Poner plan-research en privado](021-plan-research-privado.md) | Rol 4 | — | **Ya** |
+| 022 | [🔴 Sanear buyer-personas.md del repo público](022-sanear-buyer-personas-md.md) | Rol 4 | — | **Ya** |
 
 El **estado** de cada ticket vive en su propio frontmatter (`status: todo | doing | done`). El estado vivo del proyecto (qué se hizo, qué sigue) vive en [`handoff.md`](../agents/handoff.md) — no se duplica aquí.
 
