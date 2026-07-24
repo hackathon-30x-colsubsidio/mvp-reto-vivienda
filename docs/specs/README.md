@@ -42,17 +42,15 @@ Y cada spec cierra con **`## Preguntas al TEAM`**: lo que hay que consultar sí 
 
 Orden sugerido de lectura para la reunión: **00** (para tener el mapa) → **02** (donde está el grueso de lo que hay que definir) → el resto según a quién le toque.
 
-### Los diagramas como imagen
+### Los diagramas sueltos
 
-GitHub renderiza los mermaid solo al abrir cada `.md`, así que normalmente no hace falta nada más. Para la reunión (proyectar, mandar por WhatsApp, anotar encima) hay PNG en [`diagramas/`](diagramas/).
+Cada diagrama tiene además **su propio archivo narrado** en [`diagramas/`](diagramas/README.md): el mermaid más el recorrido explicado en prosa, para entenderlo leyéndolo sin abrir el spec completo. Sirven para explicarle la solución a alguien en voz alta. Ahí mismo están los PNG, para proyectar o anotar encima.
 
-⚠️ **La fuente de verdad es el bloque mermaid dentro del spec, no el PNG.** Si tocas un diagrama, el PNG queda viejo. Regenerarlos:
+Los specs **deciden**; los narrados **explican**. Si los dos no dicen lo mismo, gana el spec.
 
 ```bash
-npx -y @mermaid-js/mermaid-cli -i docs/specs/03-scoring.md -o /tmp/x.md
+python3 scripts/check_diagramas.py   # avisa si un diagrama se desincronizó
 ```
-
-Ese comando además **valida la sintaxis**: si un diagrama está roto, falla ahí en vez de aparecer en blanco delante del jurado.
 
 ## Precedencia frente a los otros docs
 
