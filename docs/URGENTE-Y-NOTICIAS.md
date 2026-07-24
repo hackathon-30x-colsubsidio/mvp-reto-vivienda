@@ -2,6 +2,15 @@
 
 > El documento más concreto y resumido del repo. Si solo vas a leer un archivo hoy, es este. Se actualiza cada vez que algo cambia el rumbo del equipo.
 
+## 🟢 2026-07-24 11:30 — IA en producción: diagnosticada y BLINDADA (Nico)
+
+El 500 de `/api/chat` está **resuelto para el demo**. Ya no es hipótesis: es **cold start**. Medido en prod, 4 llamadas seguidas → `200·1.3s`, `200·2.0s`, `200·1.1s`, `500·7.5s`. **Lambda caliente = 1-2s (cumple el <2s); lambda frío = ~7s y a veces 500**, por el intercambio JWT→OAuth de la cuenta de servicio de Vertex que en frío no está cacheado. El fix de modelo-por-backend (`19f116b`) **sí está desplegado y funcionando** — el "build viejo" quedó descartado.
+
+- **Blindaje puesto (Nico, Track A):** timeout de **3s con `AbortController`** en `ChatWhatsApp.tsx`. Si el LLM no da el primer token en 3s (frío), corta y muestra el texto determinístico en vez de congelar "escribiendo…" 7s. Con el primer token cancela el corte y deja fluir el stream. typecheck + lint + 91 tests verdes.
+- **Decisión del equipo: se queda en Vertex** (gasta el crédito de $300, no la tarjeta). El demo es **video** → el lambda va a estar caliente → se verá el pulido del LLM en 1-2s.
+- **🎬 Truco para grabar:** Vercel enfría el lambda tras unos minutos sin tráfico. **Justo antes de dar REC, manda un mensaje de calentamiento** (abre el chat, escribe algo). Graba de corrido; si cortas varios minutos, vuelve a calentar.
+- **Pendiente (Rol Calidad IA / Track C):** `/api/explicacion` tiene el **mismo** riesgo de cold-start — su consumidor necesita el mismo blindaje. Opcional: hacer visible el error del server (hoy `controller.error()` da un 500 mudo).
+
 ## 🔴 2026-07-24 10:55 — La IA está CAÍDA en producción (dueño: Nico)
 
 `/api/chat` y `/api/explicacion` devuelven **500 consistente a los ~6s** en https://mvp-reto-vivienda.vercel.app. El resto del demo está sano: `/`, `/asesor` y `/api/leads` responden 200 contra Supabase.

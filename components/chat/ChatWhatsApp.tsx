@@ -79,6 +79,14 @@ export function ChatWhatsApp({
    * El demo nunca depende de la IA para funcionar (ADR 0002: la lógica de qué
    * preguntar es TS puro). Garantías: el indicador "escribiendo" SIEMPRE se
    * apaga y SIEMPRE queda un mensaje visible.
+   *
+   * Blindaje de latencia: se aborta la petición si el LLM no entrega el primer
+   * token en LIMITE_PRIMER_TOKEN_MS. En producción un lambda FRÍO de Vercel
+   * tarda ~7s en el intercambio JWT→OAuth de Vertex y a veces devuelve 500;
+   * sin este corte el chat se congelaba en "escribiendo…" esos 7s antes de
+   * rendirse. Con el corte cae al texto determinístico en pocos segundos y el
+   * demo deja de depender de que el lambda esté caliente. En cuanto llega el
+   * primer chunk se cancela el timeout y el stream corre hasta el final.
    */
   async function agregarBot(textoBase: string) {
     setEscribiendo(true);
@@ -96,6 +104,13 @@ export function ChatWhatsApp({
       });
     };
 
+    // 3s separa limpio el caso caliente (primer token medido en 1–2s) del frío
+    // (500 a los ~7s). El costo de cortar de más es solo perder el pulido del
+    // LLM en ese mensaje, no la corrección: el fallback es la pregunta real.
+    const LIMITE_PRIMER_TOKEN_MS = 3000;
+    const control = new AbortController();
+    const timeout = setTimeout(() => control.abort(), LIMITE_PRIMER_TOKEN_MS);
+
     try {
       const resp = await fetch("/api/chat", {
         method: "POST",
@@ -104,6 +119,7 @@ export function ChatWhatsApp({
           mensajes: historialRef.current,
           mensaje_a_redactar: textoBase,
         }),
+        signal: control.signal,
       });
       if (!resp.ok || !resp.body) throw new Error("sin streaming disponible");
 
@@ -114,12 +130,15 @@ export function ChatWhatsApp({
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
         if (chunk) {
+          clearTimeout(timeout); // ya hay texto: dejar que el stream fluya sin límite
           acumulado += chunk;
           pintar(acumulado);
         }
       }
     } catch {
-      // red/stream caídos: se resuelve con el fallback de abajo
+      // red/stream caídos o timeout del primer token: fallback de abajo
+    } finally {
+      clearTimeout(timeout);
     }
 
     // Garantía final: si el stream no dejó texto, usar el determinístico.
