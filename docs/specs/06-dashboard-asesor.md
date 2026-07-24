@@ -98,68 +98,37 @@ Quién decide el grupo es `Score.salida`. El puntaje solo ordena **dentro** de u
 
 ```mermaid
 flowchart LR
-    subgraph DATOS["Lo que se guarda"]
-        direction TB
-        L["leads<br/>salida · puntaje · factores<br/>afiliación · fuente · proyecto"]
-        C["conversaciones<br/>turnos · timestamps · rol"]
-        CI["citas<br/>franja elegida"]
-        E["eventos de etapa<br/>NO EXISTE HOY"]
-        A["atribución de canal<br/>NO EXISTE HOY"]
-    end
+    L["<b>leads</b><br/>salida · puntaje · factores<br/>afiliación · fuente · proyecto"]
+    C["<b>conversaciones</b><br/>turnos · timestamps · rol"]
+    CI["<b>citas</b><br/>franja elegida"]
+    E["<b>etapa alcanzada</b><br/>NO SE GUARDA HOY"]
+    A["<b>atribución de canal</b><br/>NO EXISTE EL CAMPO"]
 
-    subgraph METRICAS["Las cifras"]
-        direction TB
-        M1["Leads hoy / 7 días"]
-        M2["% que pasan el corte"]
-        M3["% no afiliados vs. el 10%"]
-        M4["Puntaje promedio"]
-        M5["En nutrición, con trigger"]
-        M6["Duración de conversación"]
-        M7["Abandono por etapa<br/>× proyecto × ingreso × afiliación"]
-        M8["Tasa de abandono"]
-        M9["Proyecto con más interacción"]
-        M10["Atribución de canal"]
-    end
+    HOY["<b>Las 6 cifras que ya salen</b><br/>leads hoy / 7 días · % que pasan el corte<br/>% no afiliados vs. el 10% · puntaje promedio<br/>en nutrición con trigger · proyecto más consultado"]
 
-    subgraph VISTAS["Lo que ve el asesor"]
-        direction TB
-        V1["Bandeja<br/>propenso / no propenso"]
-        V2["Tablero<br/>franja + serie de 14 días"]
-        V3["Ficha del lead<br/>factores · puntaje · proyectos · cita"]
-    end
+    FALTA["<b>Las que pidió el mentor y no se pueden</b><br/>abandono por etapa × proyecto × ingreso × afiliación<br/>tasa de abandono · duración de la conversación<br/>atribución de canal"]
 
-    L -->|"creado_en"| M1
-    L -->|"salida"| M2
-    L -->|"afiliación"| M3
-    L -->|"factores"| M4
-    L -->|"regla + trigger"| M5
-    C -->|"turnos y timestamps"| M6
-    E -.->|"falta instrumentar"| M7
-    E -.->|"falta instrumentar"| M8
-    L -->|"proyecto_interes"| M9
-    A -.->|"falta el campo"| M10
+    L --> HOY
+    L --> FICHA
+    L --> BANDEJA
+    CI --> FICHA
+    C -->|"duración"| FALTA
+    C -.->|"propuesto"| FICHA
+    E -.->|"falta instrumentar"| FALTA
+    A -.->|"falta el campo"| FALTA
 
-    M1 --> V2
-    M2 --> V2
-    M3 --> V2
-    M4 --> V2
-    M5 --> V2
-    M6 -.-> V2
-    M7 -.-> V2
-    M8 -.-> V2
-    M9 -.-> V2
-    M10 -.-> V2
+    HOY --> TABLERO
+    FALTA -.->|"hoy vacías"| TABLERO
 
-    L --> V1
-    L --> V3
-    C -.->|"propuesto: mostrar la conversación"| V3
-    CI --> V3
+    BANDEJA["<b>Bandeja</b><br/>propenso / no propenso"]
+    FICHA["<b>Ficha del lead</b><br/>los 7 factores · el puntaje con su<br/>aritmética · proyectos · cita"]
+    TABLERO["<b>Tablero</b><br/>franja de cifras + serie de 14 días"]
 
     classDef falta stroke-dasharray: 5 5
-    class E,A,M6,M7,M8,M10 falta
+    class E,A,FALTA falta
 ```
 
-**Punteado = no existe todavía.** Las cuatro métricas punteadas son justamente las que el mentor pidió: sin instrumentar la etapa de cada lead y la atribución de canal, no hay de dónde sacarlas.
+**Punteado = no existe todavía.** El bloque de la derecha son justamente las métricas que el mentor pidió: sin guardar la etapa que alcanzó cada lead y sin el campo de atribución, no hay de dónde sacarlas. El detalle métrica por métrica está en la tabla de D3.
 
 ## Preguntas al TEAM
 
