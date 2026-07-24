@@ -73,5 +73,5 @@ El tablero **no vive de conversaciones reales todavía**, porque la cadena no es
 
 ## Dos reglas que gobiernan estas pantallas
 
-- **El puntaje ordena, nunca decide.** Quién decide el grupo es la salida del motor; el puntaje solo ordena dentro de un grupo.
+- **El puntaje ordena, nunca decide.** Quién decide el grupo es la salida del motor; el puntaje solo ordena dentro de un grupo. Desde el 2026-07-24 los dos grupos de "puede comprar" (afiliado y no afiliado) son **uno solo**: dentro manda el puntaje, no la afiliación. Antes un no afiliado con 71 puntos salía debajo de un afiliado con 42.
 - **Ningún puntaje aparece sin su aritmética al lado.** Un número grande con una barra de progreso sería exactamente la caja negra que el proyecto prohíbe.

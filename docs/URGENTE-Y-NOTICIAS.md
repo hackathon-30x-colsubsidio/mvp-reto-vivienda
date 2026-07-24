@@ -10,7 +10,12 @@ El respaldo es del mentor, textual: *"la prioridad siempre son los afiliados, **
 
 **Medido:** dos perfiles idénticos que solo difieren en afiliación quedan a **4,5 puntos** (75 vs 71); un no afiliado con $12M **le gana** a un afiliado con $2,6M (71 vs 42). Carlos pasó de 57 a **71**.
 
-**Sigue abierto, y es del equipo:** el matcher todavía le deja **0 proyectos** al no afiliado sin cupo (los 18 lo tienen agotado), y la cola sigue poniendo a todo no afiliado debajo de todo afiliado sin mirar el puntaje.
+**Y las dos consecuencias también se soltaron (ratificado por Mani a las 19:00):**
+
+- **El matcher ya no descarta por cupo.** El precio es el único descarte; los proyectos con el cupo copado se muestran **de últimos y con la advertencia encima** (*"hay que validar cupo antes de separar"*). **Carlos pasó de 0 a 3 proyectos.**
+- **La cola ya no pone la afiliación por encima del puntaje.** `listo` y `listo_restriccion_cupo` son un solo grupo ordenado por puntaje; nutrición sigue de última porque todavía no puede comprar, no por afiliación.
+
+**Esto supersede la decisión de las 13:50** (regla dura para no esconder el vacío). El hallazgo del 90/10 **no se pierde: cambia de lugar** — se dice en cada recomendación y se sigue midiendo en el tablero, en vez de aparecer como un lead vacío. ⚠️ **Los PNG de los diagramas 03, 04 y 06 quedaron por reexportar.**
 
 ## 🔌 2026-07-24 18:10 — La cadena quedó conectada, y apareció por qué NUNCA se guardó nada
 

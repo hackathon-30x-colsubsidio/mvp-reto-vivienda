@@ -15,7 +15,7 @@ flowchart LR
     PRECIO --> CUPO{"¿es afiliado?"}
 
     CUPO -->|"Sí"| ZONA
-    CUPO -->|"No"| CUPO2["Filtro 2 — cupo 90/10<br/>descarta proyectos sin cupo libre"]
+    CUPO -->|"No"| CUPO2["Marca de cupo 90/10<br/>NO descarta: baja en el orden<br/>y avisa que hay que validar cupo"]
     CUPO2 --> VACIO{"¿quedó<br/>alguno?"}
 
     VACIO -->|"No — hoy, los 18"| SINCUPO["Cero proyectos<br/>el bloqueo es de CUPO, no del lead<br/>se le dice, no se esconde"]
@@ -50,9 +50,9 @@ flowchart LR
 
 **El primer filtro real es el precio.** Se descarta todo lo que esté por encima de lo que su ingreso soporta bajo el tope del 40%. El tope lo calculó el motor; el matcher no lo recalcula, para que no haya dos versiones de la misma regla.
 
-**El segundo filtro solo aplica a los no afiliados: el cupo 90/10.** Y aquí está el momento incómodo y más valioso de todo el reto. Como la regla permite que máximo el 10% de las ventas sea a no afiliados, y **los 18 proyectos ya tienen ese cupo copado**, hoy un no afiliado que pasa el corte financiero recibe **cero proyectos**.
+**La segunda regla solo aplica a los no afiliados: el cupo 90/10, y NO descarta — marca.** Aquí está el momento incómodo y más valioso de todo el reto. La regla permite que máximo el 10% de las ventas sea a no afiliados, y **los 18 proyectos ya tienen ese cupo copado**. Hasta el 2026-07-24 eso dejaba a un no afiliado que pasa el corte financiero con **cero proyectos**; ahora los recibe, ordenados con los copados de último y **cada uno con la advertencia encima**: hay que validar cupo antes de separar.
 
-Eso no es un bug. Es el hallazgo del reto apareciendo en la operación: el 27,1% de los compradores históricos no son afiliados, casi el triple de lo que la regla permite. Decidimos conservar la regla dura y **no esconder el vacío**: el sistema le dice a esa persona que el bloqueo es de cupo, no de ella.
+Eso no es un bug, es el hallazgo del reto apareciendo en la operación: el 27,1% de los compradores históricos no son afiliados, casi el triple de lo que la regla permite. Por eso mismo se cambió — a Colsubsidio **le interesa cerrar la venta**, y castigar al lead con las manos vacías contradice cómo opera de verdad. El hallazgo no se pierde: **se dice en cada recomendación y se mide en el tablero**, en vez de manifestarse como un lead vacío.
 
 **El tercer filtro es la zona**, y está escrito con cuidado: solo se restringe a su zona **si hay al menos dos proyectos ahí**. Si solo hay uno, se le muestran también de otras zonas, porque es mejor darle opciones que encerrarlo.
 
@@ -67,8 +67,8 @@ Eso no es un bug. Es el hallazgo del reto apareciendo en la operación: el 27,1%
 | Rombo | Sí | No |
 |---|---|---|
 | **¿Cayó en nutrición?** | Cero proyectos | Sigue al filtro de precio |
-| **¿Es afiliado?** | Se salta el filtro de cupo | Se le aplica el cupo 90/10 |
-| **¿Quedó algún proyecto?** | Sigue al ranking | Cero proyectos, **por cupo**, y se le dice |
+| **¿Es afiliado?** | No se le menciona el cupo | Cada proyecto le dice cómo va el cupo 90/10 |
+| **¿El proyecto tiene cupo libre?** | Va normal en el ranking | Baja de posición y sale con la advertencia de validar cupo |
 | **¿Agendó?** | Cita registrada | Handoff a humano |
 
 ## Por qué la cita y no la venta

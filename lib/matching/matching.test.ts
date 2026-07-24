@@ -54,20 +54,37 @@ describe("no afiliado listo (Carlos)", () => {
     precio_maximo: preciosMaximos.noAfiliadoListo,
   });
 
-  it("solo recibe proyectos con cupo 90/10 disponible", () => {
-    for (const { ficha } of elegidos) {
-      expect(ficha.cupo_no_afiliados.usado).toBeLessThan(ficha.cupo_no_afiliados.total);
-    }
-  });
-
-  it("nunca ve el proyecto sin cupo, ni siendo el más barato del catálogo", () => {
-    expect(nombres(elegidos)).not.toContain("Ciudadela del Este");
+  // El cupo 90/10 dejó de descartar (2026-07-24): con el catálogo real los 18
+  // proyectos lo tienen copado, así que descartar dejaba con las manos vacías a
+  // un lead que SÍ pasa el corte financiero. El mentor lo puso al revés — a
+  // Colsubsidio le interesa cerrar la venta. Ahora se muestran, ordenados por
+  // cupo y con la advertencia encima.
+  it("el proyecto con el cupo copado queda de último, no de primero", () => {
+    // Sigue viendo "Ciudadela del Este" —el más barato del catálogo, con el
+    // cupo agotado— pero después de los que sí tienen cupo libre.
+    expect(nombres(elegidos)).toContain("Ciudadela del Este");
+    expect(nombres(elegidos).at(-1)).toBe("Ciudadela del Este");
   });
 
   it("le dice cuánto cupo queda, que es la razón para moverse rápido", () => {
     for (const { razones } of elegidos) {
       expect(razones.some((r) => r.includes("regla 90/10"))).toBe(true);
     }
+  });
+
+  it("si el proyecto no tiene cupo, se lo muestra CON la advertencia, no lo esconde", () => {
+    const sinCupo = matchear({
+      lead: leads.noAfiliadoListo,
+      score: scores.noAfiliadoListo,
+      // Solo queda en pie la trampa: el más barato del catálogo, con el cupo copado.
+      catalogo: catalogo.filter((p) => p.nombre === "Ciudadela del Este"),
+      precio_maximo: preciosMaximos.noAfiliadoListo,
+    });
+
+    expect(nombres(sinCupo)).toEqual(["Ciudadela del Este"]);
+    expect(sinCupo[0].razones.some((r) => /copado/.test(r))).toBe(true);
+    // No le promete la unidad: dice quién tiene que validar antes de separar.
+    expect(sinCupo[0].razones.some((r) => /validar cupo/.test(r))).toBe(true);
   });
 
   it("recomienda en Medellín y arranca por el que preguntó", () => {

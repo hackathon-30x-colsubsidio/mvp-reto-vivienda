@@ -104,18 +104,27 @@ describe("colaHistoricaSintetica — respeta los criterios de aceptación", () =
     }
   });
 
-  it("el no afiliado sin cupo entra con 0 proyectos y la explicación lo dice", () => {
-    // Los 18 proyectos del catálogo ya venden por encima del 10% que
-    // permite la regla 90/10, así que el matcher no le deja ninguno.
-    // Ese caso NO se esconde: es la munición del reto.
-    const sinCupo = colaHistoricaSintetica(HOY).filter(
-      (l) =>
-        l.curado.score.salida === "listo_restriccion_cupo" &&
-        l.curado.proyectos.length === 0,
+  it("al no afiliado sí le quedan proyectos, con el cupo copado dicho encima", () => {
+    // Los 18 proyectos del catálogo ya venden por encima del 10% que permite la
+    // regla 90/10. Hasta el 2026-07-24 eso lo dejaba con CERO proyectos aunque
+    // pasara el corte financiero; ahora los recibe con la advertencia al lado
+    // (decisión de Mani con el mentor de respaldo: a Colsubsidio le interesa
+    // cerrar la venta, y el 27,1% de los compradores históricos no son
+    // afiliados). El hallazgo del 90/10 no se pierde: se dice en cada
+    // recomendación y se mide en el tablero.
+    const noAfiliados = colaHistoricaSintetica(HOY).filter(
+      (l) => l.curado.score.salida === "listo_restriccion_cupo",
     );
-    expect(sinCupo.length).toBeGreaterThan(0);
-    for (const item of sinCupo) {
-      expect(item.curado.explicacion).toMatch(/cupo/i);
+    expect(noAfiliados.length).toBeGreaterThan(0);
+
+    const conProyectos = noAfiliados.filter((l) => l.curado.proyectos.length > 0);
+    expect(conProyectos.length).toBeGreaterThan(0);
+
+    for (const item of conProyectos) {
+      // Ninguna recomendación a un no afiliado calla la regla 90/10.
+      for (const proyecto of item.curado.proyectos) {
+        expect(proyecto.porque).toMatch(/90\/10/);
+      }
     }
   });
 });

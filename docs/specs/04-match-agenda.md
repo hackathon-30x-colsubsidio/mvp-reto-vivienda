@@ -33,24 +33,28 @@ Es la misma razón que en el scoring: una recomendación que no se puede justifi
 1. Si el lead cayó en nutrición → cero proyectos.
    (no se le ofrece lo que no puede pagar)
 2. Descartar todo proyecto con precio_desde > precio máximo del lead.
-3. Si es no afiliado → descartar todo proyecto sin cupo 90/10 libre.
-4. Si hay 2+ candidatos en su zona → quedarse solo con esos.
-5. Ordenar: proyecto por el que preguntó → coincide la zona →
+   ES EL ÚNICO DESCARTE.
+3. Si hay 2+ candidatos en su zona → quedarse solo con esos.
+4. Ordenar: proyecto por el que preguntó → coincide la zona →
    (si no afiliado) más cupo libre → precio ascendente.
-6. Tomar los 3 primeros.
+5. Tomar los 3 primeros.
 ```
 
-Los pasos 1-4 son filtros (el QUÉ). **El paso 5 es una opinión** y es lo que hay que ratificar: dice que preferimos el proyecto que le interesa sobre el más barato, y la cercanía sobre el precio. Puede estar bien; nadie lo ha discutido.
+Los pasos 1-3 son filtros (el QUÉ). **El paso 4 es una opinión** y es lo que hay que ratificar: dice que preferimos el proyecto que le interesa sobre el más barato, y la cercanía sobre el precio. Puede estar bien; nadie lo ha discutido.
 
 **[PROPUESTA]** El proyecto por el que entró va de primero **siempre que pase los filtros**, porque es lo que Colsubsidio ya hace hoy: [entraste por Araucaria, te habla de Araucaria](../reto/charla-mentor.md#click-to-whatsapp). Hoy el ranking lo favorece pero un filtro previo puede haberlo eliminado — y si lo eliminó por precio o cupo, **hay que decirlo**, no omitirlo en silencio.
 
-### D3 · Hoy ningún no afiliado recibe proyectos, y es a propósito · [CERRADA — decisión registrada en el handoff]
+### D3 · El cupo 90/10 marca, ya no descarta · [CERRADA — Mani, 2026-07-24, con el mentor de respaldo]
 
-En [`data/sintetica/proyectos.json`](../../data/sintetica/proyectos.json), **los 18 proyectos ya tienen el cupo de no afiliados superado**. Con la regla dura del paso 3, un no afiliado que pasa el corte financiero recibe **cero proyectos**.
+En [`data/sintetica/proyectos.json`](../../data/sintetica/proyectos.json), **los 18 proyectos ya tienen el cupo de no afiliados superado**. Con la regla dura anterior, un no afiliado que pasaba el corte financiero recibía **cero proyectos**: salía del flujo con las manos vacías aunque pudiera comprar.
 
-No es un bug: es el hallazgo del reto apareciendo en la operación. El 27,1% de compradores históricos que no son afiliados, contra el 10% que permite la regla, significa que **el cupo ya está agotado en todos los proyectos**. Se decidió conservar la regla dura y no esconder el vacío ([handoff, 2026-07-24 13:50](../agents/handoff.md)).
+**Se cambió.** El cupo dejó de descartar: ahora los proyectos se muestran, ordenados por cupo libre (los copados al final) y **cada recomendación lleva la advertencia encima** — *"⚠️ el cupo de no afiliados de este proyecto ya está copado: lleva 82 de 37 permitidos (regla 90/10), así que el asesor tiene que validar cupo antes de separar"*. No se le promete la unidad al lead ni se le esconde el límite al asesor.
 
-**[PROPUESTA] Qué se le dice al lead en ese caso.** Hoy queda con 0 proyectos y una explicación que dice que el bloqueo es de cupo. Falta definir el mensaje exacto en la conversación. Propuesta: decirle la verdad —califica, pero el cupo de no afiliados de esos proyectos está copado— y ofrecerle la afiliación como camino, que es un producto real de Colsubsidio. **Esto necesita cabeza del equipo: es la parte más delicada del demo y la más potente del pitch.**
+El argumento es del mentor: a Colsubsidio **le interesa cerrar la venta**, y la afiliación solo debe pesar entre dos perfiles parecidos ([detalle](../reto/charla-mentor.md#90-10-e-ingresos)). La operación real ya funciona así — el 27,1% de los compradores históricos no son afiliados, muy por encima del 10% regulatorio.
+
+**El hallazgo del reto no se pierde, cambia de lugar:** en vez de manifestarse como un lead vacío, se dice en cada recomendación y se mide en el tablero. La decisión anterior (conservar la regla dura para no esconder el vacío, [handoff 2026-07-24 13:50](../agents/handoff.md)) queda superada por esta.
+
+**[PROPUESTA, sigue abierta] Ofrecerle la afiliación como camino.** Es un producto real de Colsubsidio y sería la salida más útil para ese lead. Nadie ha escrito ese mensaje todavía.
 
 ### D4 · Los IDs de proyecto no coinciden entre catálogos · [PROPUESTA + brecha real]
 
@@ -113,7 +117,7 @@ flowchart LR
     PRECIO --> CUPO{"¿es afiliado?"}
 
     CUPO -->|"Sí"| ZONA
-    CUPO -->|"No"| CUPO2["Filtro 2 — cupo 90/10<br/>descarta proyectos sin cupo libre"]
+    CUPO -->|"No"| CUPO2["Marca de cupo 90/10<br/>NO descarta: baja en el orden<br/>y avisa que hay que validar cupo"]
     CUPO2 --> VACIO{"¿quedó<br/>alguno?"}
 
     VACIO -->|"No — hoy, los 18"| SINCUPO["Cero proyectos<br/>el bloqueo es de CUPO, no del lead<br/>se le dice, no se esconde"]
@@ -142,7 +146,7 @@ flowchart LR
 
 ## Preguntas al TEAM
 
-1. **¿Qué le decimos exactamente al no afiliado que califica y no tiene cupo?** (D3) Es la parte más delicada del demo. ¿Le ofrecemos la afiliación como camino?
+1. **¿Le ofrecemos la afiliación como camino al no afiliado que califica?** (D3) Ya no se queda sin proyectos —ahora los recibe marcados—, pero ofrecerle afiliarse sigue sin escribirse y es un producto real de Colsubsidio.
 2. **¿Ratificamos el ranking?** (D2) Hoy dice: primero lo que te interesa, después lo cercano, después lo barato.
 3. **¿Arreglamos los IDs de `slots.json`?** (D4) Sin eso, la cita no funciona con proyectos reales. ¿Quién y cuándo?
 4. **¿Las salas de venta ficticias de Medellín se quedan?** (D4) El catálogo real no tiene Medellín, y uno de los 3 personajes del demo sí.
