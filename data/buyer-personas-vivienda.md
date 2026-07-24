@@ -4,6 +4,8 @@
 
 > 22 slides: 17 proyectos individuales + 5 vistas agregadas (Total, Maipore, Bogotá, Municipios norte, Municipios sur).
 
+> **Saneado por privacidad (ticket 022):** se removieron las 22 tablas de "Top empresas" (nombres reales de empleadores + conteos de compradores) por la restricción no-negociable de `AGENTS.md` — este repo es público. Quedan solo los agregados `%`, que es la data derivada que alimenta el [ticket 016](../docs/tasks/016-distribuciones-por-proyecto.md). El md crudo con los nombres vive local en `docs/recursos-reto/` (gitignored).
+
 
 ## ⚠️ Nota sobre la extracción
 
@@ -76,24 +78,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Chía 5% · Bogotá 45% · Gachancipa 2% · Estándar 6%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| TEXTILES DE TOCANCIPA S.A. | 11 |
-| COLSUBSIDIO | 10 |
-| ALPINA | 7 |
-| TELEPERFORMANCE | 6 |
-| CLUB GUAYMARAL | 5 |
-| SECURITAS COLOMBIA S A | 5 |
-| CLINICA DE MARLY | 4 |
-| ADECCO COLOMBIA S A | 4 |
-| G DE CUNDINAMARCA | 3 |
-| NUTRYR S A | 3 |
-| DUGOTEX S A | 3 |
-
-
 ### Slide 2 — Bosques de Turpial
 
 **Afiliación:** Afiliado 64% · No Afilado 36%
@@ -117,24 +101,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 **Localidad:** Engativá 5% · Suba 12% · Sin Infor 61%
 
 **Departamento:** Cota 1% · Bogotá 45% · Choconta 1% · Estándar 3%
-
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 3 |
-| SONORA MX SAS | 2 |
-| CONSORCIO EXPRESS S A S | 2 |
-| COLSANITAS S.A.S | 2 |
-| G EMPRESARIAL EN LINEA SA | 2 |
-| VETERINARIA ESPECIALIZADA | 1 |
-| OCUPAR TEMPORALES S A | 1 |
-| JIRO S A | 1 |
-| CEMEX COLOMBIA S A | 1 |
-| SEG TECNICA COLOMBIANA | 1 |
-| CANPACK COLOMBIA S.A.S | 1 |
-
 
 ### Slide 3 — La Macarena
 
@@ -160,24 +126,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Funza 1% · Bogotá 42% · Fusagasugá 1% · Estándar 5%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 10 |
-| TELEPERFORMANCE | 9 |
-| CONSORCIO EXPRESS S A S | 7 |
-| SECURITAS COLOMBIA S A | 5 |
-| JERONIMO MARTINS COLOMBI | 4 |
-| MARIO ALBERTO HUERTAS | 3 |
-| ALFAGRES S.A. | 3 |
-| BANCO DE BOGOTA | 3 |
-| COLOMBIANA DE COMERCIO | 3 |
-| BANCO DE OCCIDENTE S A | 3 |
-| VISE LTDA | 3 |
-
-
 ### Slide 4 — Monguí
 
 **Afiliación:** Afiliado 66% · No Afilado 34%
@@ -201,24 +149,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 **Localidad:** C. Bolivar 3% · Kennedy 4% · Sin Infor 65%
 
 **Departamento:** Sibaté 1% · Bogotá 45% · Fusagasugá 1% · Estándar 4%
-
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 20 |
-| TELEPERFORMANCE | 16 |
-| TRANSPORTE INTEGRADO DE B | 8 |
-| SECURITAS COLOMBIA S A | 6 |
-| CONSORCIO EXPRESS S A S | 6 |
-| PERMODA LTDA | 5 |
-| ALFAGRES S.A. | 4 |
-| RECAUDO BOGOTA SAS | 3 |
-| ATENTO COLOMBIA S A | 3 |
-| MUEVE FONTIBON SAS | 3 |
-| C DE TRANSP DE FUSAGASUGA | 3 |
-
 
 ### Slide 5 — Pamplona
 
@@ -244,24 +174,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Sibaté 1% · Bogotá 37% · Mosquera 1% · Estándar 5%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 7 |
-| T INTEGRADO DE BOGOTA SAS | 4 |
-| CONSORCIO EXPRESS S A S | 3 |
-| P A S H SAS | 2 |
-| CLINICA COLSANITAS S.A. | 2 |
-| E SOMOS FONTIBON SAS | 2 |
-| KATHERINE  ALSINA LIZARAZO | 1 |
-| U ANTONIO NARINO | 1 |
-| PRODUCTIVIDAD EMPRESARIA | 1 |
-| AUTOFINANCIERA COLOMBIA | 1 |
-| INVERSIONES EL CARNAL SAS | 1 |
-
-
 ### Slide 6 — Reserva de Guayacán
 
 **Afiliación:** Afiliado 69% · No Afilado 31%
@@ -285,24 +197,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 **Localidad:** Bosa 2% · Engativá 16% · Sin Infor 58%
 
 **Departamento:** Ubaté 2% · Bogotá 40% · Mosquera 2% · Estándar 4%
-
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 3 |
-| TELEPERFORMANCE | 2 |
-| MUNICIPIO DE GIRARDOT | 1 |
-| GRANYPROC S.A.S | 1 |
-| SERCONSTRUCTORES S.A.S. | 1 |
-| ALCIAUTOS LTDA | 1 |
-| JERONIMO MARTINS COLOMBI | 1 |
-| ANARKITECH SOLUCIONES | 1 |
-| RAMA JUDICIAL CONS SUP J | 1 |
-| ANGELA CONSUELO CUELLAR | 1 |
-| ADECCO SERVICIOS COLOMBI | 1 |
-
 
 ### Slide 7 — Reserva de Saman
 
@@ -328,24 +222,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Agua de Dios 2% · Bogotá 59% · Nocaima 2% · Estándar 5%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 6 |
-| GRUPO EMPRESARIAL EN LINE | 3 |
-| G DE CUNDINAMARCA | 2 |
-| DIREC DE IMP Y ADUAN NAL | 2 |
-| MAS TALENTO SAS | 1 |
-| INVERSIONES ANTRI S A | 1 |
-| SEGURIDAD LAGUS LTDA | 1 |
-| BANCO DAVIVIENDA S A | 1 |
-| L DE COSMETICOS SLENDY | 1 |
-| ACCENTURE LTDA | 1 |
-| MERCADOLIBRE COLOMBIA | 1 |
-
-
 ### Slide 8 — INARI
 
 **Afiliación:** Afiliado 64% · No Afilado 36%
@@ -369,24 +245,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 **Localidad:** Engativa 6% · Chia 9% · Sin Infor 61%
 
 **Departamento:** Ubate 14% · Bogotá 29% · Zipaquira 1% · Estándar 2%
-
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 7 |
-| G DE CUNDINAMARCA | 4 |
-| MONGIBELLO S.A.S. | 3 |
-| FLORES IPANEMA S.A.S | 2 |
-| IMAGE QUALITY OUTSOURCIN | 2 |
-| FORTOX S A | 2 |
-| CONSORCIO EXPRESS S A S | 2 |
-| AVSA S A | 2 |
-| KPMG S.A.S. | 2 |
-| PALMA DE ACEITE CENIPALMA | 2 |
-| U ANTONIO NARINO | 2 |
-
 
 ### Slide 9 — La arboleda
 
@@ -412,24 +270,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Bogotá 55% · Estándar 6%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| CONSORCIO EXPRESS S A S | 15 |
-| COLSUBSIDIO | 11 |
-| MEDICALL TALENTO HUMANO | 6 |
-| ADECCO SERVICIOS COLOMBI | 5 |
-| MANUFACTURAS ELIOT S A S | 3 |
-| PROMOAMBIENTAL DISTRITO | 3 |
-| SECURITAS COLOMBIA S A | 3 |
-| SERVI POSTALES NACIONALES | 3 |
-| JERONIMO MARTINS COLOM | 3 |
-| TELEPERFORMANCE | 3 |
-| ADECCO COLOMBIA S A | 2 |
-
-
 ### Slide 10 — Los Nogales
 
 **Afiliación:** Afiliado 40% · No Afilado 60%
@@ -453,24 +293,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 **Localidad:** Chapinero 2% · Engativá 55% · Sin Infor 55%
 
 **Departamento:** Bogotá 76% · Pensionados 9%
-
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 4 |
-| MERCADOLIBRE | 3 |
-| CIMMA CONSTRUCTORA SAS | 2 |
-| IMPUESTOS Y ADUANAS | 2 |
-| SIEMENS ENERGY | 1 |
-| NEC DE COLOMBIA S A | 1 |
-| MARISOL  ROJAS ROMERO | 1 |
-| ADECCO | 1 |
-| PROCREACION MEDICAM | 1 |
-| CENTRAL DE DISOLVENTES | 1 |
-| BRIZGA CORPORATION SAS | 1 |
-
 
 ### Slide 11 — karakali
 
@@ -496,24 +318,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Bogotá 49% · Estándar 3%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 7 |
-| TELEPERFORMANCE | 3 |
-| PROYECTA SOLUCIONES ELITE | 2 |
-| PERFILES Y SOLUCIONES LOGI | 2 |
-| IMPUESTOS Y ADUANAS | 2 |
-| MEDIAWISE SOLUTIONS SAS | 1 |
-| AUTOGERMANA S A S | 1 |
-| ARIDE S.A.S | 1 |
-| A M ELECTRICISTAS | 1 |
-| JOSE JOAQUIN GOMEZ C  Y CIA | 1 |
-| CAPGEMINI COLOMBIA S.A.S. | 1 |
-
-
 ### Slide 12 — Versalles
 
 **Afiliación:** Afiliado 71% · No Afilado 29%
@@ -538,24 +342,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Bogotá 41% · Sibaté 1% · Estándar 7%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| JERONIMO MARTINS COLOMBI | 2 |
-| COLOMBIANA DE COMERCIO | 2 |
-| MEDICALL TALENTO HUMANO | 2 |
-| COLSUBSIDIO | 2 |
-| GMOVIL S A S | 2 |
-| SANIMAX DE COLOMBIA SAS | 1 |
-| MODANOVA S A S | 1 |
-| JUAN DAVID GRACIA CUBILLOS | 1 |
-| ALIANZA FIDUCIARIA S A | 1 |
-| PINABEN MOVIL CARGO SAS | 1 |
-| ALPINA | 1 |
-
-
 ### Slide 13 — Abeto
 
 **Afiliación:** Afiliado 40% · No Afilado 60%
@@ -577,15 +363,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 **Localidad:** Engativa 50% · Sin Infor 50%
 
 **Departamento:** Bogotá 50% · Estándar 0%
-
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| TELEPERFORMANCE | 1 |
-| GESCO SAS | 1 |
-
 
 ### Slide 14 — Payande
 
@@ -610,24 +387,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 **Localidad:** P Aranda 3% · Kennedy 5% · Sin Infor 63%
 
 **Departamento:** Girardot 2% · Bogotá 50% · Soacha 1% · Estándar 3%
-
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 18 |
-| MINUTO DE DIOS | 4 |
-| NTT DATA COLOMBIA S. A. S. | 3 |
-| INPEC | 3 |
-| CONSORCIO EXPRESS S A S | 3 |
-| DIRECCION SECC AMAZONAS | 3 |
-| BRINSA S A | 2 |
-| MULTIENLACE S A | 2 |
-| CLINICA COLSANITAS S.A. | 2 |
-| BANCO DE OCCIDENTE S A | 2 |
-| BISION CONSULTING S A S | 2 |
-
 
 ### Slide 15 — Araucaria
 
@@ -655,24 +414,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Bogotá 56% · Mosquera 3% · Estándar 3%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| BBVA | 2 |
-| ITAU | 1 |
-| AEROVIAS DE INTEGRACION | 1 |
-| NOKIA | 1 |
-| AMADEUS IT GROUP | 1 |
-| A GOMEZ K   CIA S EN C | 1 |
-| AMAZON WEB SERVICES | 1 |
-| METROLOGICAL CENTER SAS | 1 |
-| AMWAY COLOMBIA | 1 |
-| PCM COLOMBIA S A S | 1 |
-| SERITAMPO SAS | 1 |
-
-
 ### Slide 16 — Vibonce
 
 **Afiliación:** Afiliado 64% · No Afilado 36%
@@ -697,15 +438,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Girardot 0% · Bogotá 0% · Soacha 0% · Estándar 0%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| SERENIA SAS | 1 |
-| HF MOTORCYCLES SAS | 1 |
-
-
 ### Slide 17 — Verde Esperanza
 
 **Afiliación:** Afiliado 64% · No Afilado 36%
@@ -727,23 +459,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 **Localidad:** Kenedy 1% · Ubate 26% · Sin Infor 65%
 
 **Departamento:** Mosquera 1% · Ubate 38% · Sibate 1% · Estándar 9%
-
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| FLORES UBATE S A S | 10 |
-| FLORVAL S A S | 9 |
-| COLUMBIA COAL COMPANY | 5 |
-| C I  CARBOCOQUE S A | 5 |
-| UNIDAD MEDICA ORLUZ SAS | 5 |
-| DOMINION COLOMBIA SAS | 4 |
-| PASTELERIA GOURMET MEGA | 4 |
-| UNIMINAS | 4 |
-| DOÃA LECHE ALIMENTOS S A | 3 |
-| INVERSIONES DE LA SABANA | 3 |
-
 
 ### Slide 18 — Total
 
@@ -769,24 +484,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Ubate 2% · Bogota 44% · Chia 1% · Estándar 4%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 109 |
-| TELEPERFORMANCE | 44 |
-| CONSORCIO EXPRESS S A S | 41 |
-| SECURITAS COLOMBIA S A | 21 |
-| G DE CUNDINAMARCA | 18 |
-| TRANS INT DE BOGOTA SAS | 17 |
-| MEDICALL TALENTO HUMANO | 16 |
-| JERONIMO MARTINS COLOMBI | 16 |
-| G EMPRESARIAL EN LINEA SA | 12 |
-| IMP Y ADUANAS NACIONALES | 11 |
-| TOPTEX | 11 |
-
-
 ### Slide 19 — Maipore
 
 **Afiliación:** Afiliado 62% · No Afilado 38%
@@ -808,24 +505,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 **Localidad:** Bosa 3% · Kennedy 4% · Sin Infor 65%
 
 **Departamento:** Fusagasuga 1% · Soacha 10% · Sibate 1% · Estándar 5%
-
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 39 |
-| TELEPERFORMANCE | 26 |
-| CONSORCIO EXPRESS S A S | 17 |
-| TRANSPORTE INTEGRADO BOG | 16 |
-| SECURITAS COLOMBIA S A | 11 |
-| JERONIMO MARTINS COLOMBI | 9 |
-| COLOMBIANA DE COMERCIO | 8 |
-| PERMODA LTDA | 7 |
-| RECAUDO BOGOTA SAS | 7 |
-| ATENTO S A | 7 |
-| ALFAGRES S.A. | 7 |
-
 
 ### Slide 20 — Bogota
 
@@ -849,24 +528,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Soacha 1% · Estándar 5%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 23 |
-| CONSORCIO EXPRESS S A S | 15 |
-| TELEPERFORMANCE | 8 |
-| MEDICALL TALENTO HUMANO | 7 |
-| ADECCO SERVICIOS COLOMBI | 6 |
-| MERCADOLIBRE COLOMBIA | 4 |
-| IMPUESTOS Y ADUANAS | 4 |
-| PROMOAMBIENTAL DISTRITO | 3 |
-| MANUFACTURAS ELIOT S A S | 3 |
-| SECURITAS COLOMBIA S A | 3 |
-| JERONIMO MARTINS COLOMB | 3 |
-
-
 ### Slide 21 — Municipios norte
 
 **Afiliación:** Afiliado 64% · No Afilado 36%
@@ -888,24 +549,6 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 **Localidad:** Engativa 4% · Suba 7% · Sin Infor 61%
 
 **Departamento:** Chia 4% · Ubate 8% · Tocancipa 2% · Estándar 4%
-
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 20 |
-| TOPTEX S.A. | 11 |
-| G DE CUNDINAMARCA | 10 |
-| FLORES UBATE S A S | 10 |
-| FLORVAL S A S | 10 |
-| TELEPERFORMANCE | 8 |
-| ALPINA | 8 |
-| COLUMBIA COAL COMPANY | 7 |
-| SECURITAS COLOMBIA S A | 6 |
-| CONSORCIO EXPRESS S A S | 6 |
-| CARBONIFERA DE SAMACA | 5 |
-
 
 ### Slide 22 — Municipios sur
 
@@ -929,19 +572,3 @@ Los datos vienen de etiquetas de gráficos de torta dispersas en cada slide. La 
 
 **Departamento:** Soacha 2% · Girardot 3% · Fusagasuga 2% · Estándar 4%
 
-
-**Top empresas:**
-
-| Empresa | Compradores |
-|---|---|
-| COLSUBSIDIO | 27 |
-| MINUTO DE DIOS | 5 |
-| INPEC | 4 |
-| G EMPRESARIAL EN LINEA SA | 4 |
-| NTT DATA COLOMBIA S. A. S. | 4 |
-| ADM JUDI DE CUNDINAMARCA | 4 |
-| G DE CUNDINAMARCA | 4 |
-| CONSORCIO EXPRESS S A S | 3 |
-| CLINICA COLSANITAS S.A. | 3 |
-| DIR SECCIONAL ADMON JUDI | 3 |
-| BANCO DE OCCIDENTE S A | 3 |

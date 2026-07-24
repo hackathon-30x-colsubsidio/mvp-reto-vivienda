@@ -8,6 +8,12 @@ docs/recursos-reto/
 *.pptx
 *.ppt
 
+# Una transcripción a .md de un insumo (PPT/Excel) esquiva las reglas de arriba
+# (pasó con data/buyer-personas-vivienda.md, ticket 022). Se ignora todo .md suelto
+# en data/ por defecto; lo derivado y saneado se versiona con excepción explícita.
+data/*.md
+!data/buyer-personas-vivienda.md
+
 # Excepción: la data SINTÉTICA/derivada (generada de las distribuciones reales)
 # sí se versiona — no es data de Colsubsidio y el demo la necesita.
 !data/sintetica/
