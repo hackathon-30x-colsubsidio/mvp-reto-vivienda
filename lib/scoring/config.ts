@@ -34,14 +34,26 @@ export const CONFIG_SCORING = {
    * PROPUESTOS, suman 1.0 — el kickoff los ratifica (spec §7 marca "el peso de
    * cada factor" como supuesto por validar). El gate legal del 40% NO tiene
    * peso: es capa 1, bloquea antes de puntuar, no compite con estos.
+   *
+   * ⚠️ LA AFILIACIÓN ES DESEMPATE, NO CRITERIO (rebalanceado el 2026-07-24).
+   * Pesaba 0,20 — el segundo factor más alto — así que un afiliado arrancaba
+   * 18 puntos arriba de un no afiliado y la afiliación decidía la cola por sí
+   * sola. Eso contradice al mentor, que fue textual: *"la prioridad siempre son
+   * los afiliados, PERO siempre va a ser la prioridad de los ingresos"*
+   * (charla-mentor.md #90-10-e-ingresos). A Colsubsidio le interesa la venta;
+   * la afiliación solo debe romper el empate entre dos perfiles parecidos.
+   *
+   * Por eso el peso bajó a 0,05 (≤5 puntos: alcanza para desempatar, no para
+   * reordenar) y los 0,15 liberados se fueron íntegros a la capacidad de pago,
+   * que es lo que el mentor dijo que manda.
    */
   PESOS: {
-    holgura_capacidad: 0.3, // qué tan por debajo del 40% cae la cuota
-    afiliacion_cupo: 0.2, // afiliado + cupo 90/10 disponible en el proyecto
+    holgura_capacidad: 0.45, // qué tan por debajo del 40% cae la cuota — MANDA
     similitud_compradores: 0.2, // fit con la distribución real del proyecto
     subsidio: 0.15, // cuánto del pago mensual cubre el subsidio
     sin_vivienda: 0.1, // propósito social: priorizar a quien no tiene
     situacion_crediticia: 0.05, // señal autorreportada, no verificación
+    afiliacion_cupo: 0.05, // DESEMPATE entre perfiles parecidos, nada más
   },
 
   /**

@@ -18,8 +18,8 @@ flowchart TD
 
     subgraph PESO["Capa 2 — puntaje de prioridad (no decide, solo ordena)"]
         direction TB
-        F2["holgura de capacidad · 0,30"]
-        F3["cupo 90/10 · 0,20"]
+        F2["holgura de capacidad · 0,45"]
+        F3["cupo 90/10 · 0,05 (desempate)"]
         F5["subsidio aplicable · 0,15"]
         F6["sin vivienda · 0,10"]
         F7["situación crediticia · 0,05"]
@@ -76,7 +76,7 @@ Alguien que gana $4.000.000 mirando un proyecto de $149.000.000, sin subsidio:
 cuota estimada   = 149.000.000 × 0,6%   = $894.000
 cuota / ingreso  = 894.000 / 4.000.000  = 22,4%    ≤ 40% → pasa
 holgura          = (40% − 22,4%) / (40% − 20%) = 0,88
-aporte al puntaje = 0,30 × 0,88 × 100   = 26,4 puntos
+aporte al puntaje = 0,45 × 0,88 × 100   = 39,6 puntos
 ```
 
 Toda la aritmética se muestra en la ficha del asesor. Ese es el sentido de "cero caja negra": no hay un número que salga de un modelo y nadie pueda reconstruir.
@@ -84,7 +84,7 @@ Toda la aritmética se muestra en la ficha del asesor. Ese es el sentido de "cer
 ## Dos cosas raras que conviene saber antes de que alguien pregunte
 
 - **Nadie puede sacar 100.** Como la similitud está fija en un valor neutro, aporta la mitad de sus puntos siempre. El techo real hoy es 90.
-- **Un no afiliado tiene techo 80.** El factor de cupo le da como máximo la mitad de sus puntos. Dos personas idénticas en todo lo demás quedan separadas por 10 puntos según su afiliación. No es un error: es la regla 90/10 expresándose en la prioridad. Pero es una decisión que nadie ha ratificado.
+- **Un no afiliado tiene techo 87,5.** El factor de cupo le da como máximo la mitad de sus puntos. Dos personas idénticas en todo lo demás quedan separadas por 2,5 a 4,5 puntos según su afiliación. **Eso es a propósito y está ratificado (Mani, 2026-07-24): la afiliación desempata, no decide.** Antes pesaba cuatro veces más y la afiliación reordenaba la cola sola, lo que contradecía al mentor — a Colsubsidio le interesa cerrar la venta, y *"siempre va a ser la prioridad de los ingresos"*.
 
 ## Qué no está resuelto
 

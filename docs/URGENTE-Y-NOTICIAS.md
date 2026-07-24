@@ -2,6 +2,16 @@
 
 > El documento más concreto y resumido del repo. Si solo vas a leer un archivo hoy, es este. Se actualiza cada vez que algo cambia el rumbo del equipo.
 
+## ⚖️ 2026-07-24 18:40 — La afiliación ya no decide la cola: desempata
+
+`afiliacion_cupo` pesaba **0,20** en el puntaje, el segundo factor más alto. Un afiliado arrancaba **18 puntos** arriba de un no afiliado idéntico, así que la regla 90/10 reordenaba la cola sola. **Bajó a 0,05** y los 0,15 liberados se fueron a la capacidad de pago (0,30 → **0,45**).
+
+El respaldo es del mentor, textual: *"la prioridad siempre son los afiliados, **pero siempre va a ser la prioridad de los ingresos**"*. A Colsubsidio le interesa cerrar la venta; la afiliación solo debe decidir entre dos perfiles parecidos.
+
+**Medido:** dos perfiles idénticos que solo difieren en afiliación quedan a **4,5 puntos** (75 vs 71); un no afiliado con $12M **le gana** a un afiliado con $2,6M (71 vs 42). Carlos pasó de 57 a **71**.
+
+**Sigue abierto, y es del equipo:** el matcher todavía le deja **0 proyectos** al no afiliado sin cupo (los 18 lo tienen agotado), y la cola sigue poniendo a todo no afiliado debajo de todo afiliado sin mirar el puntaje.
+
 ## 🔌 2026-07-24 18:10 — La cadena quedó conectada, y apareció por qué NUNCA se guardó nada
 
 **Acción obligatoria de quien tenga acceso a Supabase: pegar [`db/migracion-001-puntaje.sql`](../db/migracion-001-puntaje.sql) en el SQL Editor y ejecutarlo.** Son 30 segundos, es idempotente y no borra datos.
