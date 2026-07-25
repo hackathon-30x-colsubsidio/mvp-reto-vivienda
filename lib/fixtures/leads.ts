@@ -20,11 +20,11 @@ const GUION: Record<string, GuionDemo> = {
     evento: eventos.afiliadoListo,
     perfil: perfiles.afiliadoListo,
     consentimientoTs: "2026-07-23T14:32:10-05:00",
+    // Sin edad: su perfil ya la trae, así que el conversador no la pregunta.
     respuestasTecleadas: [
       "Sería la primera",
       "Con mi pareja",
       "Mi Casa Ya",
-      "Tengo 29",
       "Estoy al día con todo",
     ],
   },

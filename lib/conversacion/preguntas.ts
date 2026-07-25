@@ -147,15 +147,26 @@ export function ingresoDesdeRango(rango: string): number | undefined {
  * (`lib/fixtures/guion-demo.ts`). Con dos copias, el personaje sembrado y el
  * mismo personaje conversado darían números distintos.
  */
-export function completarIngreso(
+export function completarDesdePerfil(
   perfil: PerfilConocido,
   respuestas: Lead["respuestas"],
 ): Lead["respuestas"] {
-  if (respuestas.ingreso_hogar_mensual !== undefined || !perfil.rango_ingreso) {
-    return respuestas;
+  let completas = respuestas;
+
+  // El ingreso: punto medio del rango conocido.
+  if (completas.ingreso_hogar_mensual === undefined && perfil.rango_ingreso) {
+    const derivado = ingresoDesdeRango(perfil.rango_ingreso);
+    if (derivado) completas = { ...completas, ingreso_hogar_mensual: derivado };
   }
-  const derivado = ingresoDesdeRango(perfil.rango_ingreso);
-  return derivado ? { ...respuestas, ingreso_hogar_mensual: derivado } : respuestas;
+
+  // La edad: viene ya normalizada del enriquecimiento. No se le preguntó
+  // porque ya la sabíamos, así que el motor la recibe por aquí — si no, la
+  // similitud se quedaría sin uno de sus dos ejes.
+  if (completas.rango_edad === undefined && perfil.rango_edad) {
+    completas = { ...completas, rango_edad: perfil.rango_edad };
+  }
+
+  return completas;
 }
 
 function interpretarIngreso(texto: string): Respuesta {
@@ -512,18 +523,24 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
   // Antes de la crediticia, para que "última de las incómodas" siga siendo
   // verdad. Rango de edad, nunca fecha exacta: alimenta la similitud con
   // compradores reales (las etapas de vida separan mucho los proyectos).
-  pasos.push({
-    campo: "rango_edad",
-    pregunta:
-      "Otra cortica que me ayuda mucho: ¿en qué etapa vas? Con eso te muestro proyectos donde compra gente en tu mismo momento de vida.",
-    placeholder: "Ej: tengo 29",
-    opciones: [
-      { etiqueta: "Entre 20 y 35", ...OPCION_EDAD_20_35 },
-      { etiqueta: "Entre 36 y 45", ...OPCION_EDAD_36_45 },
-      { etiqueta: "Más de 45", ...OPCION_EDAD_46_MAS },
-    ],
-    interpretarTexto: interpretarEdad,
-  });
+  //
+  // ⚠️ Solo si NO la sabemos ya. La base de identidades trae el rango de edad
+  // de las 303 personas, así que a quien reconocimos por su cédula no se le
+  // pregunta — es el mismo criterio 1 que ya aplica al ingreso y a la ciudad.
+  if (!perfil.rango_edad) {
+    pasos.push({
+      campo: "rango_edad",
+      pregunta:
+        "Otra cortica que me ayuda mucho: ¿en qué etapa vas? Con eso te muestro proyectos donde compra gente en tu mismo momento de vida.",
+      placeholder: "Ej: tengo 29",
+      opciones: [
+        { etiqueta: "Entre 20 y 35", ...OPCION_EDAD_20_35 },
+        { etiqueta: "Entre 36 y 45", ...OPCION_EDAD_36_45 },
+        { etiqueta: "Más de 45", ...OPCION_EDAD_46_MAS },
+      ],
+      interpretarTexto: interpretarEdad,
+    });
+  }
 
   pasos.push({
     campo: "situacion_crediticia",

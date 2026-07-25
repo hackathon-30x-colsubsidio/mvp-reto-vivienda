@@ -10,7 +10,7 @@ import type {
 } from "@/lib/types";
 import {
   NOMBRE_AGENTE,
-  completarIngreso,
+  completarDesdePerfil,
   construirPreguntas,
   mensajeAfiliacion,
   mensajeAutorizacion,
@@ -369,7 +369,7 @@ export function ChatWhatsApp({
     const lead: Lead = {
       evento,
       perfil,
-      respuestas: completarIngreso(perfil, respuestasFinales),
+      respuestas: completarDesdePerfil(perfil, respuestasFinales),
     };
 
     await agregarBotInstantaneo(mensajeCierre(evento.nombre), 700);

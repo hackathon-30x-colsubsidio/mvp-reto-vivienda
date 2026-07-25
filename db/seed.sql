@@ -48,8 +48,8 @@ insert into leads (
   '1010123456',
   'LA ARBOLEDA',
   'meta',
-  '{"match":true,"afiliado":true,"ciudad":"Bogotá","segmento":"Beta","rango_ingreso":"3-5 SMMLV"}'::jsonb,
-  '{"consentimiento":{"otorgado":true,"timestamp":"2026-07-23T14:32:10-05:00"},"tiene_vivienda":false,"composicion_familiar":"pareja","subsidios":["Mi Casa Ya"],"rango_edad":"20_35","situacion_crediticia":"buena","ingreso_hogar_mensual":7003620}'::jsonb,
+  '{"match":true,"afiliado":true,"ciudad":"Bogotá","segmento":"Beta","rango_ingreso":"3-5 SMMLV","rango_edad":"20_35"}'::jsonb,
+  '{"consentimiento":{"otorgado":true,"timestamp":"2026-07-23T14:32:10-05:00"},"tiene_vivienda":false,"composicion_familiar":"pareja","subsidios":["Mi Casa Ya"],"situacion_crediticia":"buena","ingreso_hogar_mensual":7003620,"rango_edad":"20_35"}'::jsonb,
   true, '2026-07-23T14:32:10-05:00',
   'listo',
   73,
@@ -78,13 +78,10 @@ insert into conversaciones (lead_id, rol, mensaje, orden) values
   ('lead-001', 'asistente', 'Hablemos de plata a tu favor: el subsidio es lo que más gente deja sobre la mesa por no preguntar. ¿Tienes alguno, o todavía ninguno?', 13),
   ('lead-001', 'lead', 'Mi Casa Ya', 14),
   ('lead-001', 'asistente', '¡Eso suma! 🙌 Un subsidio baja la cuota mensual de verdad, no es letra chiquita. Lo meto en la cuenta.', 15),
-  ('lead-001', 'asistente', 'Otra cortica que me ayuda mucho: ¿en qué etapa vas? Con eso te muestro proyectos donde compra gente en tu mismo momento de vida.', 16),
-  ('lead-001', 'lead', 'Tengo 29', 17),
-  ('lead-001', 'asistente', 'Buena etapa para meterse en esto: el crédito largo juega a tu favor.', 18),
-  ('lead-001', 'asistente', 'Última de las incómodas y te dejo en paz 🙏 ¿Cómo va tu vida crediticia hoy? Pregunto sin juzgar: si hay algo pendiente, es mil veces mejor saberlo ahora que el día que pidas el crédito.', 19),
-  ('lead-001', 'lead', 'Estoy al día con todo', 20),
-  ('lead-001', 'asistente', 'Eso vale oro con el banco 💪 Te abre puertas que mucha gente no tiene.', 21),
-  ('lead-001', 'asistente', 'Eso era todo, Diana 🙌 Con lo que me contaste ya puedo armarte algo que tenga sentido para ti, y no una lista genérica. Le paso tu historia completa a un asesor para que no tengas que repetirla — te escribe muy pronto.', 22);
+  ('lead-001', 'asistente', 'Última de las incómodas y te dejo en paz 🙏 ¿Cómo va tu vida crediticia hoy? Pregunto sin juzgar: si hay algo pendiente, es mil veces mejor saberlo ahora que el día que pidas el crédito.', 16),
+  ('lead-001', 'lead', 'Estoy al día con todo', 17),
+  ('lead-001', 'asistente', 'Eso vale oro con el banco 💪 Te abre puertas que mucha gente no tiene.', 18),
+  ('lead-001', 'asistente', 'Eso era todo, Diana 🙌 Con lo que me contaste ya puedo armarte algo que tenga sentido para ti, y no una lista genérica. Le paso tu historia completa a un asesor para que no tengas que repetirla — te escribe muy pronto.', 19);
 
 
 -- =====================================================================

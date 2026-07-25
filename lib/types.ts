@@ -18,6 +18,14 @@ export interface PerfilConocido {
   ciudad?: string;
   segmento?: string;
   rango_ingreso?: string;
+  /**
+   * Rango de edad, ya normalizado a los mismos tres tramos que usa el motor.
+   *
+   * La base de identidades lo trae para las 303 personas, y el enriquecimiento
+   * lo estaba botando: al lead se le preguntaba la edad aunque ya la
+   * supiéramos — justo lo que el criterio de aceptación 1 prohíbe.
+   */
+  rango_edad?: Lead["respuestas"]["rango_edad"];
 }
 
 // ── A → B: el lead con su conversación terminada ─────────
