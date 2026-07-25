@@ -8,7 +8,7 @@
 //            así el puntaje es 100% trazable: puntaje = Σ aportes.
 
 import { CONFIG_SCORING } from "./config";
-import { cuotaEstimada } from "./capacidad";
+import { cuotaEstimada, cuotaNetaDe } from "./capacidad";
 import { similitudCon } from "./similitud";
 import type { FactorScore, Lead, ProyectoCatalogo, Score } from "../types";
 
@@ -90,9 +90,7 @@ function factorCuotaIngreso40(lead: Lead, proyecto: ProyectoCatalogo): FactorSco
 
   // La cuota se calcula con la anualidad real, no con un porcentaje plano, y
   // el LTV depende de si el proyecto es VIS (Decreto 583 de 2025).
-  const primeraCuotaEstimada = cuotaEstimada(precio, proyecto.vis ?? false);
-  const subsidio = lead.respuestas.subsidio_monto_mensual ?? 0;
-  const cuotaNeta = Math.max(0, primeraCuotaEstimada - subsidio);
+  const cuotaNeta = cuotaNetaDe(lead, precio, proyecto.vis ?? false);
   const ratio = cuotaNeta / ingreso;
   const cumple = ratio <= CONFIG_SCORING.TOPE_CUOTA_SOBRE_INGRESO;
 
@@ -104,7 +102,10 @@ function factorCuotaIngreso40(lead: Lead, proyecto: ProyectoCatalogo): FactorSco
 
   return {
     nombre: "cuota_ingreso_40",
-    valor: `Cuota estimada $${Math.round(cuotaNeta).toLocaleString("es-CO")} = ${(ratio * 100).toFixed(1)}% del ingreso ($${ingreso.toLocaleString("es-CO")}). Tope legal: 40% (Decreto 583 de 2025)`,
+    // El proyecto se NOMBRA: la cuota no significa nada sin saber de qué
+    // vivienda es, y desde el ticket 023 la referencia puede no ser el proyecto
+    // por el que el lead entró. Una cifra sin su proyecto es caja negra.
+    valor: `Cuota estimada de ${proyecto.nombre} $${Math.round(cuotaNeta).toLocaleString("es-CO")} = ${(ratio * 100).toFixed(1)}% del ingreso ($${ingreso.toLocaleString("es-CO")}). Tope legal: 40% (Decreto 583 de 2025)`,
     cumple,
     fuente: "conversacion",
     peso,
@@ -266,11 +267,7 @@ function triggerDelGate(lead: Lead, proyecto: ProyectoCatalogo): string {
     return "Falta el ingreso del hogar para poder evaluar el tope del 40% (Decreto 583 de 2025). Vuelve a calificar apenas lo declare: con ese dato el motor resuelve en el acto.";
   }
 
-  const cuotaNeta = Math.max(
-    0,
-    cuotaEstimada(precio, proyecto.vis ?? false) -
-      (lead.respuestas.subsidio_monto_mensual ?? 0),
-  );
+  const cuotaNeta = cuotaNetaDe(lead, precio, proyecto.vis ?? false);
   const ingresoNecesario = Math.ceil(cuotaNeta / CONFIG_SCORING.TOPE_CUOTA_SOBRE_INGRESO);
   const falta = Math.max(0, ingresoNecesario - ingreso);
   const pesos = (n: number) => `$${n.toLocaleString("es-CO")}`;
