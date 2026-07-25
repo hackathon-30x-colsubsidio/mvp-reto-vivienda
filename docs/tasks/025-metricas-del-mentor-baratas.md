@@ -6,7 +6,7 @@ status: todo
 
 # 025 — 🟡 Las dos métricas del mentor que ya se pueden calcular
 
-**Dueño:** Datos & Motor (P2) · **~30 min, solo si 023 y 024 están verdes** · nace de la [discusión de workflow 2026-07-25](../agents/discusion-workflow-2026-07-25.md) §2.4
+**Dueño:** Datos & Motor (P2) · misma rama que su ticket anterior · **~30 min, solo si 023 y 024 están verdes** · nace de la [discusión de workflow 2026-07-25](../agents/discusion-workflow-2026-07-25.md) §2.4
 
 ## Por qué
 

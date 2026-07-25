@@ -6,7 +6,9 @@ status: todo
 
 # 023 — 🔴 El puente: capacidad primero, proyecto después
 
-**Dueño:** Datos & Motor (P2) · **~1 hora** · nace de la [discusión de workflow 2026-07-25](../agents/discusion-workflow-2026-07-25.md) §2.1
+**Dueño:** Datos & Motor (P2) · rama **`feat/023-puente-capacidad`** · **~1 hora** · nace de la [discusión de workflow 2026-07-25](../agents/discusion-workflow-2026-07-25.md) §2.1
+
+> **Es el primero que entra a `main`** ([reglas de merge](../agents/plan-sabado-25.md)): cambia salidas del motor, así que P4 no graba y P1 no cierra el recorrido hasta que esté mergeado. Al mergear, P1 vuelve a correr el seed en Supabase.
 
 ## El defecto
 

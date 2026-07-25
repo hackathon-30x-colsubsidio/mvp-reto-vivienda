@@ -6,7 +6,9 @@ status: todo
 
 # 024 — 🟠 El ingreso se confirma antes de calificar con él
 
-**Dueño:** Calidad IA & Demo (P3) · **~40 min** · nace de la [discusión de workflow 2026-07-25](../agents/discusion-workflow-2026-07-25.md) §2.2
+**Dueño:** Calidad IA & Demo (P3) · rama **`feat/024-confirmacion-ingreso`** · **~40 min** · nace de la [discusión de workflow 2026-07-25](../agents/discusion-workflow-2026-07-25.md) §2.2
+
+> Arranca en paralelo con el [023](023-puente-capacidad-antes-del-proyecto.md): no comparten ni un archivo. Entra a `main` **después** de él. ⚠️ Si un acuse nuevo rompe un guion de `lib/fixtures/`, **avisa a P2 y él regenera** — las fixtures no se editan a mano ([reglas de merge](../agents/plan-sabado-25.md)).
 
 ## El defecto
 

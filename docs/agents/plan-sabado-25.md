@@ -66,6 +66,30 @@ Son **10 decisiones abiertas**. Ninguna necesita debate largo: cada una viene co
 
 **Se suma a "lo que NO se va a hacer":** banco de preguntas nuevo, agente viendo el score, y **botón de trigger masivo** (el contraargumento de la propia sala es el bueno: siete mensajes seguidos se ven peor que no tener el botón; el tope de frecuencia se dice en el pitch).
 
+### Branches y fronteras · quién toca qué (acordado 12:30)
+
+Los 5 trabajan en paralelo desde `main` al día. **La frontera de archivos no es burocracia: es lo que evita que dos personas reescriban el mismo archivo a 20 horas del cierre**, que es justo lo que pasó el viernes con `ChatWhatsApp.tsx` (un merge "limpio" de git que dejó el pie del chat roto, y lo delató `tsc`, no el marcador de conflicto).
+
+| Rol | Branch | Sus tickets, en orden | **Puede tocar** | **No toca** |
+|---|---|---|---|---|
+| **P1 · Integrador** | ninguna: vive en `main` | [014](../tasks/014-recorrido-criterio-4.md) recorrido + cadenero del merge | Cualquier archivo, **pero solo para arreglar defectos que salieron del recorrido** | Features nuevas. Su trabajo es que lo que existe no se caiga |
+| **P2 · Datos & Motor** | `feat/023-puente-capacidad` | [023](../tasks/023-puente-capacidad-antes-del-proyecto.md) → [019](../tasks/019-franja-impacto.md) → [017](../tasks/017-tabla-subsidios.md) *solo si hay fuente* → [025](../tasks/025-metricas-del-mentor-baratas.md) *si sobra* | `lib/curar.ts` · `lib/scoring/` · `lib/matching/` · `lib/fixtures/` · `lib/tablero/` · `app/asesor/page.tsx` (**solo** la franja de 019) · `scripts/generar-*.ts` y sus generados (`db/seed.sql`, `data/sintetica/slots.json`) | `lib/conversacion/` · `components/chat/` · `docs/pitch/` |
+| **P3 · Calidad IA & Demo** | `feat/024-confirmacion-ingreso` | [024](../tasks/024-confirmacion-del-ingreso.md) → QA adversarial del "soy yo" → revisión visual claro/oscuro/móvil | `lib/conversacion/preguntas.ts` y su test · `components/chat/` | `lib/scoring/` · `lib/curar.ts` · `lib/fixtures/` (ver la regla 3) |
+| **P4 · Pitch & Video** | `docs/guion-y-video` | [015](../tasks/015-guion-y-video.md) guion + grabación → [020](../tasks/020-tramo-implementabilidad.md) implementabilidad | `docs/pitch/` y nada más | Todo el código. ⚠️ **No graba hasta que 023 esté en `main`** |
+| **P5 · Producto (Mani)** | ninguna: docs directo en `main` | Las decisiones abiertas · mentores · README · ensayo de preguntas del jurado · **declarar el freeze a las 17:00** | `README.md` · `docs/URGENTE-Y-NOTICIAS.md` · los checkboxes de `spec.md §7` | Código |
+
+**Por qué este corte y no otro:** 023 y 024 son los dos tickets urgentes y **no comparten ni un archivo** (023 vive en el motor y el orquestador, 024 en la conversación), así que P2 y P3 pueden empezar al mismo tiempo sin coordinarse. Los dos únicos roces posibles están nombrados abajo con su dueño, para que nadie tenga que preguntar.
+
+### Las reglas de merge (cinco, y la 1 es la que ordena el día)
+
+1. **El 023 entra a `main` primero.** Cambia salidas del motor: leads que hoy caen a nutrición pasan a `listo` con proyectos. Hasta que esté mergeado, **P4 no graba** (el flujo del "soy yo" que se ve en cámara cambia) y **P1 no cierra el recorrido de aceptación**. Después entra 024, después 019.
+2. **Nadie mergea sin los tres verdes:** `npm test`, `npx tsc --noEmit`, `npm run lint`. Y el OK de P1, que es el cadenero de `main`.
+3. **`lib/fixtures/` es de P2 en exclusiva.** Si el 024 cambia un acuse que un guion de fixture espera, P3 **avisa y P2 lo regenera** — no lo toca por su cuenta. La razón es histórica y cara: el seed se rompió dos veces por editarse a mano.
+4. **Quien toque una fixture regenera:** `npx tsx scripts/generar-seed.ts`. El test `seed-espejo` caza el olvido, pero mejor no llegar rojo al merge.
+5. **Si el seed cambió, P1 lo vuelve a correr en Supabase** al mergear (023 y 017 lo cambian; 024 no). Sin eso, la URL pública sigue mostrando los números viejos.
+
+**El único roce de archivos previsto:** `app/asesor/page.tsx`, donde P2 mete la franja de 019 y P1 podría entrar por un defecto del recorrido. **P1 avisa en el grupo antes de tocar esa página.**
+
 ---
 
 ## El reparto (5 personas, sábado completo)
