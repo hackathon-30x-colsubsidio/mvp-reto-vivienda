@@ -1,5 +1,6 @@
 import { calcularScore } from "./scoring";
 import { precioMaximoDe } from "./scoring/capacidad";
+import { recursosPara } from "./recursos";
 import { matchear } from "./matching";
 import { catalogo as catalogoReal } from "./matching/catalogo";
 import type { FichaProyecto } from "./matching/tipos";
@@ -163,6 +164,11 @@ export function curar(lead: Lead, fichas: FichaProyecto[] = catalogoReal): LeadC
       proyectos,
       elegidos.length > 0 && elegidos.every((e) => e.fuera_de_zona === true),
     ),
+    // Capa ORTOGONAL a la salida: se deriva de los factores que el motor ya
+    // calculó (cero caja negra). Un `listo` puede llevar recurso igual — no es
+    // el premio de consolación de la nutrición. No se persiste: se recomputa
+    // desde `score.factores` al leer de la DB (ver leadCuradoDesdeFila).
+    recursos: recursosPara(lead, score),
   };
 }
 
