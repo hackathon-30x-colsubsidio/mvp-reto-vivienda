@@ -134,7 +134,15 @@ Las 7 líneas de *"cómo se ve un buen resultado"* del brief son el examen compl
 | 6 | El flujo se recorre sin intervención del equipo | ✅ 3 personajes + "soy yo" | `LandingJurado` |
 | 7 | Multi-canal: demostrar que la lógica escala | ⚠️ por diseño (correcto por scope), pero sin su vocabulario | [ticket 020](../tasks/020-tramo-implementabilidad.md) |
 
-Y lo que el reto **excluye** (pauta, CRM, DataCrédito, aprobación de crédito, escrituración) se respeta hoy. Las **notas de voz** que salieron en la sala: el mentor las mencionó como parte del híbrido, no como requisito. Se nombran en el tramo de implementabilidad, **no se construyen**, y **no se anuncia "próximamente por voz" en la UI**: eso es prometer lo que no existe.
+Y lo que el reto **excluye** (pauta, CRM, DataCrédito, aprobación de crédito, escrituración) se respeta hoy.
+
+**La voz, que en la sala se discutió como algo por hacer, ya está construida** ([`components/chat/useDictado.ts`](../../components/chat/useDictado.ts), commit `c382f4b`): hay un micrófono al lado del campo de texto y se puede contestar hablando. Conviene decirlo con precisión, porque es lo que la sala temía prometer de más:
+
+- **Es dictado**, con la Web Speech API del navegador (es-CO). El texto cae en el campo y la persona lo corrige antes de enviar; entra por el mismo `interpretarTexto` que una respuesta escrita, así que el motor no se enteró de nada.
+- **No es una nota de voz guardada.** Ningún audio se sube ni se persiste, y así hay que decirlo en el pitch. En producción WhatsApp entrega el audio y se transcribe igual, o sea que el punto de entrada al flujo es el mismo.
+- **Degrada callado:** sin soporte del navegador el botón no se pinta, y el campo de texto nunca desaparece.
+
+Lo que sigue fuera es **persistir y transcribir audio en el servidor** (Whisper y compañía). Eso se nombra en el tramo de implementabilidad, no se construye, y no se anuncia en la interfaz.
 
 ---
 
@@ -146,7 +154,7 @@ Sale de la propia sala, y conviene que esté escrito para que nadie lo empiece a
 - **Que el LLM conduzca la conversación.** Cerrado en NO (decisión 1). No se re-litiga.
 - **Que el agente vea el score** (§1.4).
 - **Botón de trigger masivo.** El contraargumento de la propia sala es el correcto: siete mensajes seguidos son incómodos y se ven peor que la ausencia del botón. El trigger por lead ya demuestra el criterio 3. El tope de frecuencia **se dice** en el pitch, no se construye.
-- **Notas de voz, multi-canal construido, métricas de abandono por etapa.**
+- **Transcripción de audio en el servidor, multi-canal construido, métricas de abandono por etapa.** Ojo: el **dictado por voz en el navegador ya existe** y no hay que volverlo a discutir (ver §3); lo que no se hace es subir y guardar audio.
 - **Cambiar el enum de `fuente`.** Toca un CHECK de la base a horas del cierre, sin plano nuevo en el video.
 
 ---

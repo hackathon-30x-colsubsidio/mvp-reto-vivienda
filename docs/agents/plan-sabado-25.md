@@ -192,5 +192,6 @@ Para que nadie lo empiece a las 4 p.m.:
 
 - WhatsApp real, Salesforce, DataCrédito, calendario real → **fuera de alcance por el brief**, y el tramo de implementabilidad ya explica cómo se enchufarían.
 - Métricas de abandono por etapa → exigen guardar el lead desde que autoriza. **Es un cambio de contrato**, no una cifra más.
-- Notas de voz, multi-canal construido, aprendizaje en línea → nombrarlos en el pitch, no construirlos.
+- ~~Notas de voz~~, multi-canal construido, aprendizaje en línea → nombrarlos en el pitch, no construirlos.
+  - ⚠️ **Corregido el 2026-07-25 12:15: el dictado por voz SÍ se construyó** (`c382f4b`, [`useDictado.ts`](../../components/chat/useDictado.ts)) y funciona. Que este plan siguiera diciendo lo contrario es peligroso: alguien podía revertirlo creyéndolo fuera de alcance. Lo que sigue fuera es **subir y transcribir audio en el servidor**; lo construido es dictado del navegador, sin persistir audio.
 - La rama con fecha del trigger de nutrición → hoy ninguna regla fallida es temporal, así que no hay qué mostrar.
