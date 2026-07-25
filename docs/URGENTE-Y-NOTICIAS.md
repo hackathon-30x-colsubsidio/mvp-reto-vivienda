@@ -23,6 +23,23 @@ Rama `feat/consola-asesor`. **Si vas a tocar UI, esto te aplica: `DESIGN.md` cam
 
 **⚠️ Pendiente de verificación humana:** el recorrido a ojo no se hizo (la automatización de navegador no estuvo disponible). Se verificó sirviendo el HTML y el CSS compilado del dev server: las 3 rutas en 200, la ficha con sus 7 factores completos, un solo `.resaltado` por pantalla y las utilidades resolviendo los tokens nuevos. **Falta mirarlo en pantalla, en claro y en oscuro, y en móvil.**
 
+**Al mezclar con `main` se alineó la bandeja con la decisión de las 18:40** (la entrada de abajo): la lista dejó de apilar "Listos" y "Listos · cupo 90/10" como dos secciones, porque eso volvía a poner al no afiliado debajo del afiliado sin importar el puntaje — justo lo que ese cambio corrigió. Ahora es **un solo grupo "Puede comprar ahora"** ordenado por puntaje, con la píldora de cupo distinguiendo a cada quien dentro. El filtro del selector sigue permitiendo aislar las tres salidas.
+
+## ⚖️ 2026-07-24 18:40 — La afiliación ya no decide la cola: desempata
+
+`afiliacion_cupo` pesaba **0,20** en el puntaje, el segundo factor más alto. Un afiliado arrancaba **18 puntos** arriba de un no afiliado idéntico, así que la regla 90/10 reordenaba la cola sola. **Bajó a 0,05** y los 0,15 liberados se fueron a la capacidad de pago (0,30 → **0,45**).
+
+El respaldo es del mentor, textual: *"la prioridad siempre son los afiliados, **pero siempre va a ser la prioridad de los ingresos**"*. A Colsubsidio le interesa cerrar la venta; la afiliación solo debe decidir entre dos perfiles parecidos.
+
+**Medido:** dos perfiles idénticos que solo difieren en afiliación quedan a **4,5 puntos** (75 vs 71); un no afiliado con $12M **le gana** a un afiliado con $2,6M (71 vs 42). Carlos pasó de 57 a **71**.
+
+**Y las dos consecuencias también se soltaron (ratificado por Mani a las 19:00):**
+
+- **El matcher ya no descarta por cupo.** El precio es el único descarte; los proyectos con el cupo copado se muestran **de últimos y con la advertencia encima** (*"hay que validar cupo antes de separar"*). **Carlos pasó de 0 a 3 proyectos.**
+- **La cola ya no pone la afiliación por encima del puntaje.** `listo` y `listo_restriccion_cupo` son un solo grupo ordenado por puntaje; nutrición sigue de última porque todavía no puede comprar, no por afiliación.
+
+**Esto supersede la decisión de las 13:50** (regla dura para no esconder el vacío). El hallazgo del 90/10 **no se pierde: cambia de lugar** — se dice en cada recomendación y se sigue midiendo en el tablero, en vez de aparecer como un lead vacío. ⚠️ **Los PNG de los diagramas 03, 04 y 06 quedaron por reexportar.**
+
 ## 🔌 2026-07-24 18:10 — La cadena quedó conectada, y apareció por qué NUNCA se guardó nada
 
 **Acción obligatoria de quien tenga acceso a Supabase: pegar [`db/migracion-001-puntaje.sql`](../db/migracion-001-puntaje.sql) en el SQL Editor y ejecutarlo.** Son 30 segundos, es idempotente y no borra datos.

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { listarCola } from "@/lib/leads-repo";
-import { PRIORIDAD, type EstadoLead } from "@/lib/types-asesor";
+import type { EstadoLead } from "@/lib/types-asesor";
 import { Tarjeta } from "@/components/ui/Tarjeta";
 import { Pildora } from "@/components/ui/Pildora";
 import { AvisoOrigen } from "./_components/AvisoOrigen";
@@ -12,6 +12,17 @@ export const metadata: Metadata = {
 
 // La cola cambia cuando el asesor dispara un trigger: no se cachea.
 export const dynamic = "force-dynamic";
+
+// El mapa que usa el panel derecho para explicar las secciones. Vive
+// aquí y no en ListaLeads porque es material de la pantalla de entrada;
+// los títulos y subtítulos sí salen de allá, que es la fuente.
+const SECCIONES_EXPLICADAS = [
+  {
+    clave: "puede_comprar" as const,
+    salidas: ["listo", "listo_restriccion_cupo"] as EstadoLead[],
+  },
+  { clave: "nutricion" as const, salidas: ["nutricion"] as EstadoLead[] },
+];
 
 interface Props {
   searchParams: Promise<{ q?: string; estado?: string }>;
@@ -51,20 +62,26 @@ export default async function BandejaAsesorPage({ searchParams }: Props) {
             <AvisoOrigen origen={origen} />
           </div>
 
+          {/* Las dos secciones de la bandeja, explicadas. Son DOS y no
+              tres a propósito: ver el encabezado de ListaLeads. Las
+              píldoras van juntas en la de "puede comprar" porque ahí
+              conviven las dos salidas. */}
           <div className="mt-6 space-y-3">
-            {(Object.keys(PRIORIDAD) as EstadoLead[]).map((e) => (
-              <Tarjeta key={e} className="p-5">
+            {SECCIONES_EXPLICADAS.map(({ clave, salidas }) => (
+              <Tarjeta key={clave} className="p-5">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <Pildora estado={e} />
+                  {salidas.map((e) => (
+                    <Pildora key={e} estado={e} />
+                  ))}
                   <h2 className="text-texto text-[16px] font-bold">
-                    {TITULO_GRUPO[e]}
+                    {TITULO_GRUPO[clave]}
                   </h2>
                   <span className="cifra text-texto-tenue ml-auto text-[15px]">
-                    {conteo(e)}
+                    {salidas.reduce((n, e) => n + conteo(e), 0)}
                   </span>
                 </div>
                 <p className="text-texto-suave mt-2 text-[15px] leading-normal">
-                  {SUBTITULO_GRUPO[e]}
+                  {SUBTITULO_GRUPO[clave]}
                 </p>
               </Tarjeta>
             ))}

@@ -86,7 +86,13 @@ export function explicacionDeterminista(
   partes.push(`${primerNombre} puede comprar hoy: ${cuota}.`);
   partes.push(`${valorDe("afiliacion")}.`);
 
-  if (score.salida === "listo_restriccion_cupo") {
+  if (score.salida === "listo_restriccion_cupo" && proyectos.length > 0) {
+    // Ya no se le esconden los proyectos por el cupo (2026-07-24), pero el
+    // asesor tiene que saber que ahí hay un límite regulatorio que validar.
+    partes.push(
+      "Va contra el cupo del 10% de no afiliados (regla 90/10), que estos proyectos ya tienen copado: hay que validar cupo antes de separar.",
+    );
+  } else if (score.salida === "listo_restriccion_cupo") {
     partes.push(`${valorDe("cupo_90_10")} — el límite es de cupo, no del lead.`);
   }
 

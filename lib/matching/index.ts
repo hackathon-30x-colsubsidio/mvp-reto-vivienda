@@ -57,9 +57,17 @@ export function matchear({
   const zona = zonaDeInteres(lead);
   const esInteres = (p: FichaProyecto) => p.nombre === lead.evento.proyecto_interes;
 
-  const candidatos = catalogo
-    .filter((p) => p.precio_desde <= precio_maximo)
-    .filter((p) => !noAfiliado || cupoLibre(p) > 0);
+  // El precio es el ÚNICO descarte. El cupo 90/10 no bota proyectos: los baja
+  // en el orden y los marca (ver `razonesDe`).
+  //
+  // Antes sí botaba, y con el catálogo real eso dejaba al no afiliado con CERO
+  // proyectos —los 18 tienen el cupo copado— aunque hubiera pasado el corte
+  // financiero. El mentor fue claro en que a Colsubsidio le interesa cerrar la
+  // venta y que la afiliación solo debe pesar entre perfiles parecidos, así que
+  // castigar al lead con las manos vacías contradice la operación real: el
+  // 27,1% de los compradores históricos NO son afiliados. El hallazgo del 90/10
+  // no se pierde — sigue medido en el tablero y dicho en cada recomendación.
+  const candidatos = catalogo.filter((p) => p.precio_desde <= precio_maximo);
 
   // Si en su zona hay con qué armar la recomendación, no se sale de la zona:
   // ofrecerle otra ciudad a quien ya dijo dónde quiere vivir quema el match.
@@ -107,7 +115,12 @@ function razonesDe(
   }
   if (contexto.noAfiliado) {
     razones.push(
-      `tiene ${cupoLibre(proyecto)} de ${proyecto.cupo_no_afiliados.total} cupos de no afiliado disponibles (regla 90/10)`,
+      cupoLibre(proyecto) > 0
+        ? `tiene ${cupoLibre(proyecto)} de ${proyecto.cupo_no_afiliados.total} cupos de no afiliado disponibles (regla 90/10)`
+        : // No se le esconde al asesor ni se le promete la unidad al lead: el
+          // proyecto ya vende por encima del 10% que permite la regla, y quien
+          // valida el cupo es el asesor antes de separar.
+          `⚠️ el cupo de no afiliados de este proyecto ya está copado: lleva ${proyecto.cupo_no_afiliados.usado} de ${proyecto.cupo_no_afiliados.total} permitidos (regla 90/10), así que el asesor tiene que validar cupo antes de separar`,
     );
   }
   if (proyecto.vis) {

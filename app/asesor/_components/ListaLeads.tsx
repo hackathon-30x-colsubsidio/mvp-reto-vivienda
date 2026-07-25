@@ -12,26 +12,45 @@ import { FilaLead } from "./FilaLead";
 // /asesor/[leadId] (con la ficha al lado). Por eso recibe `seleccionado`
 // en vez de leerlo: un layout no puede ver los params de sus hijos.
 //
-// El agrupado en tres secciones se mantiene tal como estaba. Es lo que
-// hace legible "nadie se descarta": el grupo de nutrición se ve, con su
-// conteo, aunque el asesor nunca lo abra. La spec 06 lo tiene como
-// [PROPUESTA] abierta, así que aquí no se cambia el vocabulario.
+// ⚠️ SON DOS SECCIONES, NO TRES, y es una decisión cerrada
+//    ([spec 06](docs/specs/06-dashboard-asesor.md), Mani 2026-07-24).
+//    `listo` y `listo_restriccion_cupo` comparten sección porque
+//    separarlas ponía al no afiliado SIEMPRE debajo del afiliado: uno
+//    con 71 puntos aparecía bajo uno con 42, o sea que la afiliación
+//    decidía a quién llamar primero. El mentor lo puso al revés
+//    —*"siempre va a ser la prioridad de los ingresos"*— así que dentro
+//    del grupo manda el puntaje y la afiliación solo desempata (0,05 en
+//    lib/scoring/config.ts). La píldora de cada fila sigue diciendo
+//    quién trae restricción de cupo: se distingue sin re-ordenar.
+//
+//    Nutrición sigue aparte, y eso NO es por afiliación: es que todavía
+//    no puede comprar. Se ve con su conteo aunque el asesor nunca la
+//    abra, que es lo que hace legible "nadie se descarta".
 //
 // Los subtítulos largos de cada grupo se mudaron al panel derecho de
-// /asesor (ver PanelVacio): en una columna de 380px se comían la lista
-// entera, y ahí es justo donde el jurado aterriza primero.
+// /asesor: en una columna de 380px se comían la lista entera, y ahí es
+// justo donde el jurado aterriza primero.
 // =====================================================================
 
-export const TITULO_GRUPO: Record<EstadoLead, string> = {
-  listo: "Listos para llamar",
-  listo_restriccion_cupo: "Listos, con restricción de cupo 90/10",
+/** Las secciones de la bandeja. El orden es el orden en que se pintan. */
+const SECCIONES = [
+  { clave: "puede_comprar", salidas: ["listo", "listo_restriccion_cupo"] },
+  { clave: "nutricion", salidas: ["nutricion"] },
+] as const satisfies ReadonlyArray<{
+  clave: string;
+  salidas: ReadonlyArray<EstadoLead>;
+}>;
+
+type ClaveSeccion = (typeof SECCIONES)[number]["clave"];
+
+export const TITULO_GRUPO: Record<ClaveSeccion, string> = {
+  puede_comprar: "Puede comprar ahora",
   nutricion: "En nutrición — todavía no pueden comprar",
 };
 
-export const SUBTITULO_GRUPO: Record<EstadoLead, string> = {
-  listo: "Pasaron el corte y son afiliados. Cita agendada y proyectos recomendados.",
-  listo_restriccion_cupo:
-    "Pasaron el corte pero no son afiliados: compiten por el 10% de cupo del proyecto. Validar cupo antes de prometer.",
+export const SUBTITULO_GRUPO: Record<ClaveSeccion, string> = {
+  puede_comprar:
+    "Pasaron el corte, ordenados por puntaje. Los que traen restricción de cupo 90/10 van marcados: hay que validar cupo antes de prometer, pero no por eso se llaman después.",
   nutricion:
     "Nadie se descarta. Cada uno tiene la regla exacta que no pasó y el trigger que lo volvería viable.",
 };
@@ -67,11 +86,18 @@ export function ListaLeads({
     return coincideEstado && coincideNombre;
   });
 
-  const grupos = (Object.keys(PRIORIDAD) as EstadoLead[])
-    // Si el asesor filtró por un estado, las otras dos secciones no
-    // aportan: serían tres cabeceras con "nadie aquí" debajo.
-    .filter((e) => estado === TODOS || e === estado)
-    .map((e) => ({ estado: e, items: visibles.filter((l) => l.curado.score.salida === e) }));
+  const grupos = SECCIONES
+    // Si el asesor filtró por una salida, la otra sección no aporta:
+    // sería una cabecera con "nadie aquí" debajo.
+    .filter((s) => estado === TODOS || (s.salidas as readonly string[]).includes(estado))
+    .map((s) => ({
+      clave: s.clave,
+      // `ordenarCola` ya dejó el arreglo en el orden que manda el spec
+      // (puntaje dentro del grupo); aquí solo se reparte, no se re-ordena.
+      items: visibles.filter((l) =>
+        (s.salidas as readonly string[]).includes(l.curado.score.salida),
+      ),
+    }));
 
   const hayFiltro = aguja !== "" || estado !== TODOS;
 
@@ -127,10 +153,10 @@ export function ListaLeads({
       </form>
 
       <div className="min-h-0 flex-1 lg:overflow-y-auto">
-        {grupos.map(({ estado: e, items }) => (
-          <section key={e}>
+        {grupos.map(({ clave, items }) => (
+          <section key={clave}>
             <h2 className="border-borde bg-surface-sunken text-texto-suave sticky top-0 border-b px-4 py-2 text-[13px] font-bold">
-              {TITULO_GRUPO[e]}{" "}
+              {TITULO_GRUPO[clave]}{" "}
               <span className="cifra text-texto-tenue font-normal">
                 ({items.length})
               </span>

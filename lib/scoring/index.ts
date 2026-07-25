@@ -168,6 +168,18 @@ function factorSimilitudCompradores(proyecto: ProyectoCatalogo): FactorScore {
   };
 }
 
+/**
+ * El cupo 90/10 como DESEMPATE, no como criterio.
+ *
+ * Pesa 0,05 a propósito (ver `config.ts`): entre dos perfiles parecidos, el
+ * afiliado queda arriba; frente a un no afiliado con mejor capacidad de pago,
+ * no alcanza para adelantarlo. Es la traducción de lo que dijo el mentor —
+ * *"la prioridad siempre son los afiliados, pero siempre va a ser la prioridad
+ * de los ingresos"*— y de que a Colsubsidio le interesa cerrar la venta.
+ *
+ * El cupo sigue siendo un límite regulatorio real y por eso se MUESTRA con su
+ * número; lo que ya no hace es hundir al lead en la cola.
+ */
 function factorCupo90_10(proyecto: ProyectoCatalogo, afiliado: boolean): FactorScore {
   const peso = CONFIG_SCORING.PESOS.afiliacion_cupo;
   if (afiliado) {

@@ -84,6 +84,10 @@ Existen porque "leads por día" con 3 leads del mismo día no es una serie. Es u
 
 Quién decide el grupo es `Score.salida`. El puntaje solo ordena **dentro** de un grupo. Y nunca aparece sin la aritmética que lo sostiene.
 
+**[CERRADA — Mani, 2026-07-24] Los dos grupos de "puede comprar" se fundieron en uno.** `listo` y `listo_restriccion_cupo` eran grupos separados, con el no afiliado siempre debajo: un no afiliado con 71 puntos aparecía debajo de un afiliado con 42, o sea que la afiliación decidía a quién llamar primero. El mentor lo puso al revés — *"siempre va a ser la prioridad de los ingresos"* — así que ahora **comparten grupo y dentro manda el puntaje**; la afiliación ya solo pesa como desempate dentro de ese puntaje (0,05, [spec 03](03-scoring.md)). Nutrición sigue de última, y eso no es por afiliación: es que todavía no puede comprar. Vive en [`ordenarCola`](../../lib/types-asesor.ts).
+
+> ⚠️ La vista `cola_asesor` de Supabase todavía trae `orden_prioridad` con tres niveles (1/2/3). No es contradicción sino orden inicial de la consulta: **quien decide el orden que se ve es `ordenarCola` en TypeScript**, que re-ordena lo que llega. Si algún día se pagina en la DB, hay que alinear la vista.
+
 ## Estado hoy vs contrato
 
 | Qué | Hoy | Brecha |

@@ -22,7 +22,7 @@ Ejemplo completo, para que se vea que no hay caja negra (lead con ingreso $4.000
 ```
 cuota estimada = 149.000.000 × 0,6%  = 894.000
 cuota / ingreso = 894.000 / 4.000.000 = 22,4%   ≤ 40%  → pasa el gate
-holgura = (40% − 22,4%) / (40% − 20%) = 0,88     → aporta 0,30 × 0,88 × 100 = 26,4 puntos
+holgura = (40% − 22,4%) / (40% − 20%) = 0,88     → aporta 0,45 × 0,88 × 100 = 39,6 puntos
 ```
 
 ### D2 · Cómo se estima la cuota · [HOY — así está construido, ratificar]
@@ -38,8 +38,8 @@ Todos los factores que el motor evalúa se muestran. Ninguno se filtra de la pan
 | # | Factor | Qué es | Peso | Bloquea? |
 |---|---|---|---|---|
 | 1 | `afiliacion` | Afiliado o no. Determina **cuál** de las dos salidas de "listo" | sin peso propio | No |
-| 2 | `cuota_ingreso_40` | El gate legal + la holgura como señal | 0,30 | **Sí** |
-| 3 | `cupo_90_10` | Cupo de no afiliados que le queda al proyecto | 0,20 | No |
+| 2 | `cuota_ingreso_40` | El gate legal + la holgura como señal | **0,45** | **Sí** |
+| 3 | `cupo_90_10` | Cupo de no afiliados que le queda al proyecto | **0,05** — desempate | No |
 | 4 | `similitud_compradores_reales` | Parecido con quienes ya compraron ahí | 0,20 | No |
 | 5 | `subsidio_aplicable` | Cuánto de la cuota cubre el subsidio | 0,15 | No |
 | 6 | `ya_tiene_vivienda` | Propósito social: prioriza a quien no tiene | 0,10 | No |
@@ -51,14 +51,16 @@ La similitud **nunca corta**. `spec.md §4` la define como *evidencia de respald
 
 ### D4 · Los pesos son propuestos, no ratificados · [PROPUESTA — TEAM decide]
 
-Los seis pesos (0,30 / 0,20 / 0,20 / 0,15 / 0,10 / 0,05) suman 1,0 y están escritos en [`config.ts`](../../lib/scoring/config.ts) con el comentario "PROPUESTOS, no definitivos". [`spec.md §7`](../spec.md) lo tiene como supuesto abierto: *"el qué se evalúa está cerrado; el cuánto pesa y dónde cae la línea, no"*.
+Los seis pesos (0,45 / 0,20 / 0,15 / 0,10 / 0,05 / 0,05) suman 1,0 y están escritos en [`config.ts`](../../lib/scoring/config.ts) con el comentario "PROPUESTOS, no definitivos". [`spec.md §7`](../spec.md) lo tiene como supuesto abierto: *"el qué se evalúa está cerrado; el cuánto pesa y dónde cae la línea, no"*.
 
-**Este spec es donde el equipo los firma o los cambia.** El orden actual dice, en palabras: *primero cuánto margen le sobra para pagar, después si tiene cupo, después si se parece a quienes ya compraron, y de últimas su situación crediticia autorreportada porque nadie la verificó*. Si el equipo no está de acuerdo con esa frase, el que cambia es el peso.
+**Este spec es donde el equipo los firma o los cambia.** El orden actual dice, en palabras: *primero, y por encima de todo, cuánto margen le sobra para pagar; después si se parece a quienes ya compraron ahí; después el subsidio; y de últimas, empatadas y casi sin peso, su situación crediticia autorreportada —porque nadie la verificó— y su afiliación*. Si el equipo no está de acuerdo con esa frase, el que cambia es el peso.
+
+**[CERRADA — Mani, 2026-07-24] La afiliación pasó de 0,20 a 0,05: es desempate, no criterio.** Con 0,20 era el segundo factor más pesado y un afiliado arrancaba **18 puntos** arriba, así que la afiliación reordenaba la cola por sí sola. Contradice al mentor, textual: *"la prioridad siempre son los afiliados, PERO siempre va a ser la prioridad de los ingresos"* ([detalle](../reto/charla-mentor.md#90-10-e-ingresos)); a Colsubsidio le interesa cerrar la venta. Los 0,15 liberados se fueron íntegros a la holgura de capacidad. Medido después del cambio: dos perfiles idénticos que solo difieren en afiliación quedan a **4,5 puntos** (75 vs 71), y un no afiliado con $12M le gana a un afiliado con $2,6M (71 vs 42).
 
 ### D5 · Dos observaciones aritméticas que el equipo debería conocer · [HOY — verificable sumando]
 
 1. **Nadie puede sacar 100.** La similitud está fija en 0,5 mientras no existan las distribuciones por proyecto ([ticket 016](../tasks/016-distribuciones-por-proyecto.md)), así que aporta 10 de sus 20 puntos siempre. El techo real hoy es **90**.
-2. **Un no afiliado tiene techo 80.** `cupo_90_10` para un no afiliado da como máximo señal 0,5, o sea 10 de 20 puntos. Un afiliado y un no afiliado idénticos en todo lo demás quedan separados por 10 puntos de puntaje.
+2. **Un no afiliado tiene techo 87,5.** `cupo_90_10` para un no afiliado da como máximo señal 0,5, o sea 2,5 de sus 5 puntos. Un afiliado y un no afiliado idénticos en todo lo demás quedan separados por **2,5 a 4,5 puntos** según el cupo que le quede al proyecto — el desempate que pidió el mentor, no una condena (antes eran 10 a 18 puntos).
 
 Ninguna de las dos es un bug: la primera es un provisional declarado, la segunda es la regla 90/10 expresándose en la prioridad. **Pero las dos son decisiones**, y hoy nadie las ratificó. Con ellas encima, la pregunta al equipo es si el techo móvil confunde al asesor.
 
@@ -137,8 +139,8 @@ flowchart TD
 
     subgraph PESO["Capa 2 — puntaje de prioridad (no decide, solo ordena)"]
         direction TB
-        F2["holgura de capacidad · 0,30"]
-        F3["cupo 90/10 · 0,20"]
+        F2["holgura de capacidad · 0,45"]
+        F3["cupo 90/10 · 0,05 (desempate)"]
         F5["subsidio aplicable · 0,15"]
         F6["sin vivienda · 0,10"]
         F7["situación crediticia · 0,05"]
