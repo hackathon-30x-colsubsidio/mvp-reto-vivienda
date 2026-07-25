@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { curar, resolverProyectoDeReferencia } from "./curar";
+import { curar, referenciaParaCalificar, resolverProyectoDeReferencia } from "./curar";
 import { catalogo } from "./matching/catalogo";
-import { precioMaximoDe, cuotaEstimada } from "./scoring/capacidad";
+import { calcularScore } from "./scoring";
+import { cabeEnElTope, precioMaximoDe, cuotaEstimada } from "./scoring/capacidad";
 import { CONFIG_SCORING } from "./scoring/config";
 import * as leads from "./fixtures/leads";
 import type { Lead } from "./types";
@@ -56,6 +57,75 @@ describe("resolverProyectoDeReferencia", () => {
 
   it("devuelve null con catálogo vacío en vez de reventar", () => {
     expect(resolverProyectoDeReferencia(leads.afiliadoListo, [])).toBeNull();
+  });
+});
+
+describe("referenciaParaCalificar — capacidad primero, proyecto después (ticket 023)", () => {
+  // El proyecto más caro del catálogo contra el ingreso de Carlos ($4.000.000):
+  // la cuota se le va al 121% y antes eso lo mandaba a nutrición con CERO
+  // proyectos, aunque le quepan varios. El jurado lo reproduce en el primer
+  // intento, porque el "soy yo" elige el proyecto de una lista con los 18.
+  const conAraucaria: Lead = {
+    ...leads.noAfiliadoListo,
+    evento: { ...leads.noAfiliadoListo.evento, proyecto_interes: "ARAUCARIA" },
+  };
+
+  it("cuando el proyecto de entrada no le cabe, califica contra el más barato que sí", () => {
+    const { referencia, no_le_cabe } = referenciaParaCalificar(conAraucaria, catalogo);
+    expect(no_le_cabe?.nombre).toBe("ARAUCARIA");
+    expect(cabeEnElTope(conAraucaria, referencia!.precio_desde, referencia!.vis ?? false)).toBe(
+      true,
+    );
+  });
+
+  it("no toca la referencia cuando el proyecto de entrada sí le cabe", () => {
+    const { referencia, no_le_cabe } = referenciaParaCalificar(
+      leads.noAfiliadoListo,
+      catalogo,
+    );
+    expect(no_le_cabe).toBeUndefined();
+    expect(referencia?.nombre).toBe(leads.noAfiliadoListo.evento.proyecto_interes);
+  });
+
+  it("el lead deja de perder el catálogo entero por la vivienda que miró", () => {
+    const curado = curar(conAraucaria);
+    expect(curado.score.salida).not.toBe("nutricion");
+    expect(curado.proyectos.length).toBeGreaterThan(0);
+  });
+
+  it("no cambia de proyecto en silencio: la explicación nombra al descartado y su cuota", () => {
+    const { explicacion } = curar(conAraucaria);
+    expect(explicacion).toContain("ARAUCARIA");
+    expect(explicacion).toMatch(/121[.,]6% de su ingreso/);
+    expect(explicacion).toMatch(/por encima del tope del 40%/);
+  });
+
+  // El puente no puede volverse una puerta trasera: si NADA del catálogo cabe,
+  // la respuesta honesta sigue siendo nutrición (criterio 3, con su trigger).
+  it("si no le cabe nada del catálogo, sigue siendo nutrición con razón y trigger", () => {
+    const sinCapacidad: Lead = {
+      ...conAraucaria,
+      respuestas: { ...conAraucaria.respuestas, ingreso_hogar_mensual: 900_000 },
+    };
+    const curado = curar(sinCapacidad);
+    expect(curado.score.salida).toBe("nutricion");
+    expect(curado.proyectos).toHaveLength(0);
+    expect(curado.score.regla_fallida).toBeTruthy();
+    expect(curado.score.trigger_nutricion).toBeTruthy();
+  });
+});
+
+describe("cabeEnElTope", () => {
+  // Si esto se desincroniza del motor, el puente mandaría a calificar contra un
+  // proyecto que el gate después rechaza (o al revés): el lead vería una salida
+  // que no corresponde a su cuota. Se prueba contra el catálogo real completo.
+  it("responde exactamente lo mismo que el gate del motor, proyecto por proyecto", () => {
+    for (const lead of CANONICOS) {
+      for (const proyecto of catalogo) {
+        const gate = calcularScore(lead, proyecto).salida !== "nutricion";
+        expect(cabeEnElTope(lead, proyecto.precio_desde, proyecto.vis ?? false)).toBe(gate);
+      }
+    }
   });
 });
 

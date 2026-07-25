@@ -44,6 +44,33 @@ export function cuotaEstimada(precio: number, vis = false): number {
 }
 
 /**
+ * Lo que este lead pagaría al mes por esa vivienda, ya descontado el subsidio.
+ *
+ * Es la cifra que entra al gate. Vive aquí y no en cada consumidor porque la
+ * misma resta estaba escrita en tres lugares (el factor de la cuota, el trigger
+ * de nutrición y ahora el puente del ticket 023): tres copias de una norma es
+ * como se desincronizan las pantallas del asesor.
+ */
+export function cuotaNetaDe(lead: Lead, precio: number, vis = false): number {
+  const subsidio = lead.respuestas.subsidio_monto_mensual ?? 0;
+  return Math.max(0, cuotaEstimada(precio, vis) - subsidio);
+}
+
+/**
+ * El gate del 40% preguntado sobre UN proyecto: ¿su cuota le cabe a este lead?
+ *
+ * Es la misma condición que evalúa `factorCuotaIngreso40`, no una aproximación:
+ * quien pregunte esto y quien califique tienen que responder igual, o el sistema
+ * recomendaría lo que el gate rechaza. Sin ingreso o sin precio devuelve
+ * `false` — el caso conservador, igual que `precioMaximoDe`.
+ */
+export function cabeEnElTope(lead: Lead, precio: number, vis = false): boolean {
+  const ingreso = lead.respuestas.ingreso_hogar_mensual ?? 0;
+  if (ingreso <= 0 || precio <= 0) return false;
+  return cuotaNetaDe(lead, precio, vis) / ingreso <= CONFIG_SCORING.TOPE_CUOTA_SOBRE_INGRESO;
+}
+
+/**
  * El precio de vivienda más alto que este lead puede pagar sin pasarse del
  * tope legal del 40% del ingreso del hogar (Decreto 583 de 2025).
  *

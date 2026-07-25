@@ -1,5 +1,5 @@
 import { calcularScore } from "./scoring";
-import { precioMaximoDe } from "./scoring/capacidad";
+import { cabeEnElTope, cuotaNetaDe, precioMaximoDe } from "./scoring/capacidad";
 import { recursosPara } from "./recursos";
 import { matchear } from "./matching";
 import { catalogo as catalogoReal } from "./matching/catalogo";
@@ -56,6 +56,46 @@ export function resolverProyectoDeReferencia(
 }
 
 /**
+ * Capacidad primero, proyecto después (ticket 023).
+ *
+ * El gate compara la cuota de UN proyecto contra el ingreso, así que calificar
+ * obliga a elegir uno — pero elegir mal castigaba al lead por la vivienda que
+ * miró, no por lo que puede pagar: quien entraba por ARAUCARIA ($619.800.000)
+ * con $4.000.000 de ingreso salía a nutrición con CERO proyectos, aunque 13 de
+ * los 18 del catálogo le cupieran. El catálogo entero no se miraba.
+ *
+ * Ahora la capacidad se resuelve antes: si el proyecto de referencia no le cabe
+ * pero alguno del catálogo sí, se recalifica contra ese. El elegido es **el más
+ * económico que le cabe**, que es el mismo criterio del fallback de arriba: si
+ * ni el más barato entra bajo el 40%, la respuesta honesta es nutrición.
+ *
+ * Se devuelve también el proyecto descartado, y no es un detalle de
+ * implementación: cambiar de referencia sin decirlo es caja negra
+ * (`AGENTS.md`), así que la explicación lo nombra con su número.
+ *
+ * Si NADA del catálogo cabe, la referencia sigue siendo la original: el trigger
+ * de nutrición habla entonces del proyecto que el lead sí tenía en la cabeza.
+ */
+export function referenciaParaCalificar(
+  lead: Lead,
+  fichas: FichaProyecto[],
+): { referencia: FichaProyecto | null; no_le_cabe?: FichaProyecto } {
+  const referencia = resolverProyectoDeReferencia(lead, fichas);
+  if (!referencia) return { referencia: null };
+
+  const cabe = (p: FichaProyecto) => cabeEnElTope(lead, p.precio_desde, p.vis ?? false);
+  if (cabe(referencia)) return { referencia };
+
+  const alcanzables = fichas.filter(cabe);
+  if (alcanzables.length === 0) return { referencia };
+
+  const masBarato = alcanzables.reduce((barato, p) =>
+    p.precio_desde < barato.precio_desde ? p : barato,
+  );
+  return { referencia: masBarato, no_le_cabe: referencia };
+}
+
+/**
  * El porqué global, redactado sin LLM.
  *
  * Se arma con los `valor` de los factores que el motor ya calculó, así que
@@ -70,6 +110,8 @@ export function explicacionDeterminista(
   proyectos: ProyectoRecomendado[],
   /** `true` cuando TODO lo recomendado es alternativa fuera de la zona pedida. */
   fueraDeZona = false,
+  /** El puente del ticket 023: contra qué se calificó cuando no fue el proyecto de entrada. */
+  puente?: { descartado: FichaProyecto; referencia: FichaProyecto },
 ): string {
   const primerNombre = lead.evento.nombre.split(" ")[0];
   const valorDe = (nombre: string) =>
@@ -87,6 +129,25 @@ export function explicacionDeterminista(
   }
 
   partes.push(`${primerNombre} puede comprar hoy: ${cuota}.`);
+
+  if (puente) {
+    // Cero caja negra: la referencia cambió, y el asesor tiene que ver por qué
+    // el número de arriba no habla del proyecto que el lead vino a mirar.
+    const ingreso = lead.respuestas.ingreso_hogar_mensual ?? 0;
+    const cuotaDescartado = cuotaNetaDe(
+      lead,
+      puente.descartado.precio_desde,
+      puente.descartado.vis ?? false,
+    );
+    const porcentaje = ingreso > 0 ? ((cuotaDescartado / ingreso) * 100).toFixed(1) : "—";
+    partes.push(
+      `Ojo: la calificación NO se hizo contra ${puente.descartado.nombre}, el proyecto por el que entró — ` +
+        `esa vivienda (desde $${puente.descartado.precio_desde.toLocaleString("es-CO")}) le daría una cuota de ` +
+        `$${Math.round(cuotaDescartado).toLocaleString("es-CO")}, el ${porcentaje}% de su ingreso, por encima del tope del 40%. ` +
+        `Se calificó contra ${puente.referencia.nombre}, que sí le cabe, y las recomendaciones salen de todo el catálogo.`,
+    );
+  }
+
   partes.push(`${valorDe("afiliacion")}.`);
 
   if (score.salida === "listo_restriccion_cupo" && proyectos.length > 0) {
@@ -133,7 +194,7 @@ export function explicacionDeterminista(
  * No persiste nada: eso lo hace `/api/curar`, que es quien habla con la DB.
  */
 export function curar(lead: Lead, fichas: FichaProyecto[] = catalogoReal): LeadCurado {
-  const referencia = resolverProyectoDeReferencia(lead, fichas);
+  const { referencia, no_le_cabe } = referenciaParaCalificar(lead, fichas);
   if (!referencia) {
     throw new Error("El catálogo de proyectos está vacío: no se puede calificar");
   }
@@ -163,6 +224,7 @@ export function curar(lead: Lead, fichas: FichaProyecto[] = catalogoReal): LeadC
       score,
       proyectos,
       elegidos.length > 0 && elegidos.every((e) => e.fuera_de_zona === true),
+      no_le_cabe ? { descartado: no_le_cabe, referencia } : undefined,
     ),
     // Capa ORTOGONAL a la salida: se deriva de los factores que el motor ya
     // calculó (cero caja negra). Un `listo` puede llevar recurso igual — no es
