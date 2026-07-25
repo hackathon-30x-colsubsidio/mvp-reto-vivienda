@@ -1,5 +1,8 @@
 # Tracks del equipo
 
+> 🔁 **HISTÓRICO (2026-07-23) — el reparto vigente es el de [`../agents/plan-sabado-25.md`](../agents/plan-sabado-25.md) (P1-P5).**
+> Los 4 tracks A/B/C/D terminaron su construcción el viernes. Estos prompts describen un repo sin scaffold y nombran Claude como proveedor de IA (hoy es Gemini): **no los uses para arrancar una sesión**. Se conservan como registro de cómo se repartió el arranque.
+
 Contexto breve de qué hace cada prompt (`prompt-a.md`–`prompt-d.md`). Detalle completo y contratos en [`../reparto-inicial.md`](../reparto-inicial.md).
 
 | Track | Nombre | Qué construye |

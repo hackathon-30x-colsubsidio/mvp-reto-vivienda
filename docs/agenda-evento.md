@@ -1,5 +1,8 @@
 # Agenda del evento — Reto Vivienda (perfilamiento inteligente de leads)
 
+> 🔁 **HISTÓRICO (2026-07-23) — el plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).**
+> Semilla del brainstorm inicial; sus checkboxes y su cuenta de días quedaron congelados en el jueves. Lo que sigue vivo de aquí: el **pre-filtro por video** (solo 6 finalistas pasan a presentar) y los criterios de evaluación.
+
 > **Esto es el día a día del evento**, no el plan del build. El plan del build es [`plan.md`](plan.md) y sus tickets en [`tasks/`](tasks/). (Este archivo se llamaba `plan-hackathon.md`; se renombró para que exista un solo "plan" en el repo.)
 
 ✅ **Reto cerrado: Vivienda.** Ver el porqué en `adr/0001-eleccion-reto-vivienda.md` y el arranque en `URGENTE-Y-NOTICIAS.md`. Ya no se decide reto — este plan es para definir y construir el MVP.

@@ -3,7 +3,7 @@
 > Un **interesado en vivienda que llega por pauta** necesita **saber si puede comprar y cuál proyecto le sirve**, y logra **llegar al asesor con capacidad validada, proyecto y cita**, sin **sentirse interrogado ni quedar descartado si aún no puede**.
 
 > [!NOTE]
-> Frase de apuesta a **ratificar en el kickoff** (máx. 10 min). Deriva del borrador de [`mvp-layout.md`](mvp-layout.md) y no debería cambiar de fondo; si cambia, este spec cambia con ella.
+> El kickoff formal nunca ocurrió: la ratificación de decisiones pasó a la **sala de decisiones del sábado 25** ([`docs/agents/plan-sabado-25.md`](agents/plan-sabado-25.md)). La frase de apuesta no cambió de fondo.
 >
 > Este spec baja [`docs/mvp-layout.md`](mvp-layout.md) a contrato de producto. Lo que el layout dejó abierto se resolvió en la entrevista de `/spec` (2026-07-23) o quedó en el bloque 7. Nada aquí está inventado.
 
@@ -13,7 +13,7 @@
 
 Un **workflow de curado de leads** que toma un lead de pauta digital (Meta, Google Ads, formulario web) y lo entrega al asesor comercial tan calificado como un lead orgánico: con capacidad de compra validada contra reglas explícitas, 2-3 proyectos recomendados con su porqué en lenguaje natural, y una cita agendada en sala de ventas.
 
-El pipeline es **determinista y auditable**; la IA vive en dos puntos acotados: el conversador adaptativo y el experto que redacta el porqué y matchea proyectos. Toda decisión de corte es por reglas visibles.
+El pipeline es **determinista y auditable**; la IA vive en un punto acotado: el conversador adaptativo (pulido de tono en streaming). El matcheo es por reglas, y **el porqué que ve el asesor se redacta determinista** desde los factores que el motor ya calculó — decisión de la sala del sábado 25: no depende de que un modelo esté vivo, y se dice como ventaja. `/api/explicacion` (el experto LLM) existe como pulido opcional fuera del camino crítico. Toda decisión de corte es por reglas visibles.
 
 Nadie se descarta. El lead que hoy no puede comprar cae a **nutrición** con la regla exacta que no pasó y un trigger de recontacto derivado de ella.
 
@@ -30,7 +30,7 @@ Del grill de scope y de la entrevista de spec:
 - **No corre sobre WhatsApp real.** Chat web con estética WhatsApp + disclaimer visible: "en producción corre sobre WhatsApp Business API". Video del flujo real es nice-to-have, no entregable.
 - **No hay webhook real de Meta Lead Ads.** La ingesta es un lead-evento con esquema estándar; el multi-canal se demuestra por diseño, no construyendo canales.
 - **No hay integración de calendario.** Las franjas de cita son slots simulados en la DB.
-- **No hay dashboard analítico** (funnel, CPL, cohortes). El panel de impacto, si entra, es una franja de 3 cifras dentro de la vista del asesor, no una superficie propia.
+- **No hay analítica de marketing** (funnel, CPL, cohortes). — *Enmienda (sala del sábado 25, decisión 4):* la vista **Métricas** de la consola del asesor (`/asesor/tablero`: cifras operativas, serie diaria, reparto por afiliación) **sí es parte del MVP y del pitch**; lo que sigue fuera es la analítica de pauta. Detalle en [spec 06 D8](specs/06-dashboard-asesor.md).
 - **No existe el estado "descartado".** Contradice el propósito social del reto; el corte tiene 3 salidas y ninguna es la basura.
 - **No se construye más de un canal conversacional.**
 - **La data real de Colsubsidio no entra al repo.** Lo que se versiona en `data/sintetica/` es derivado.
@@ -61,9 +61,11 @@ Sub-caso crítico: el **no afiliado**. Por la regla 90/10 tiene espacio limitado
 
 ### Factores del scoring (todos visibles, ninguno oculto)
 
+> El motor emite **7 factores visibles, 6 con peso** (la afiliación se muestra sin peso: es desempate, no criterio). Esta tabla resume la naturaleza de cada señal; la lista exacta y sus pesos viven en [spec 03 D3-D4](specs/03-scoring.md) y `lib/scoring/config.ts`.
+
 | Factor | Fuente | Naturaleza |
 |---|---|---|
-| Afiliación | `PERIODO_AFILIADO` (enriquecimiento) o pregunta | Determina la salida y la marca 90/10 |
+| Afiliación | `PERIODO_AFILIADO` (enriquecimiento por cédula) | Marca la salida 90/10 y **desempata** entre perfiles parecidos; no decide la cola. **Nunca se pregunta** (sala del sábado 25, decisión 6): sale de la cédula, y sin match se asume no afiliado — el caso conservador |
 | Primera cuota estimada ≤ 40% del ingreso del hogar | Ingreso declarado + precio del proyecto | **Tope regulatorio duro**, no heurística |
 | Subsidio aplicable | Perfil + preguntas | Puede bajar la cuota bajo el 40% |
 | Ya tiene vivienda | Pregunta | Afecta subsidio y prioridad |
@@ -83,7 +85,8 @@ Landing con **3 personajes pre-sembrados** (afiliado listo, no afiliado listo, l
 1. **No repreguntar lo conocido.** Dado un lead cuya cédula existe en la base de identidades, cuando inicia la conversación, entonces el conversador no le pregunta ningún dato que el enriquecimiento ya devolvió y se lo hace saber explícitamente. **Hacérselo saber no es recitarle su ficha:** el mensaje dice que sus datos ya están y que no se los repreguntaremos, y *usa* lo que sabe (busca opciones en su ciudad) en vez de enumerarlo — el ingreso no se le menciona nunca, porque leerle sus propios datos suena a expediente ([spec 02, nodo 3](specs/02-conversador.md)). Quien ve la ficha completa es el asesor. *Verificable:* la intersección entre el set de campos preguntados y el set de campos enriquecidos debe ser vacía.
 2. **Cero caja negra en el score.** Dado cualquier lead calificado (listo o de nutrición), cuando el asesor abre su ficha, entonces ve todos los factores del score con su valor y su aporte, más una explicación en lenguaje natural que cita cada factor. *Verificable:* el conteo de factores que el motor evaluó debe ser igual al conteo de factores visibles en la ficha.
 3. **Nadie se descarta.** Dado un lead que no supera el corte, cuando el motor lo clasifica, entonces queda en nutrición con la regla exacta que falló y un trigger derivado de ella, y al pulsar "simular trigger" vuelve a la conversación. *Verificable:* ningún lead termina el flujo sin una de las 3 salidas, y todo lead en nutrición tiene razón y trigger no vacíos.
-4. **El lead listo llega cerrable.** Dado un lead que supera el corte, cuando termina la conversación, entonces tiene entre 2 y 3 proyectos del catálogo con su porqué, una franja de cita registrada, y aparece en la cola del asesor con esos tres elementos visibles. *Verificable:* recorrido del demo de punta a punta sin narración.
+4. **El lead listo llega cerrable.** Dado un lead que supera el corte, cuando termina la conversación, entonces tiene **hasta 3** proyectos del catálogo con su porqué, una franja de cita registrada, y aparece en la cola del asesor con esos tres elementos visibles. *Verificable:* recorrido del demo de punta a punta sin narración.
+   > **Redacción corregida el 2026-07-25 (sala del sábado, decisión 9).** Decía "entre 2 y 3", y el CHECK de la DB rechazaba exactamente 1 proyecto: con eso **se perdía el lead entero**, que choca de frente con "nadie se descarta". Hoy el límite es `≤ 3` ([ADR 0003](adr/0003-esquema-db-leads.md), enmienda). El principio que manda: se le muestran **varios proyectos potenciales**, no solo el de entrada — y si el catálogo solo da uno, ese uno se entrega; el lead nunca se cae por aritmética.
 
 ## 6. Datos
 
@@ -126,7 +129,8 @@ Los 4 que el brief lista como capacidad de compra ([brief:20](reto/perfilamiento
 
 - [ ] **¿Un lead form de pauta puede pedir la cédula?** Es la llave del enriquecimiento, pero pedirla en Meta/Google mete fricción justo donde el brief dice "sin sentirse como un interrogatorio". Preguntar a mentores. *Plan B si no:* celular como llave, con match más débil. **Grilling 2026-07-24: se sostiene** la cédula en el demo (ya construido, es el momento wow del criterio 1); Rol 4 lo pregunta al mentor hoy y solo si dicen no se pasa al plan B. — **Evidencia nueva (charla con el mentor, 2026-07-24): la piden sí o sí.** Es lo que resuelve afiliado / no afiliado, y si eres afiliado *no te piden nada más* porque ya tienen la data ([detalle](reto/charla-mentor.md#autorizacion-de-datos)). Falta que el TEAM marque el checkbox.
 - [ ] **¿Qué sabe Colsubsidio en la vida real de un lead que llega por pauta?** Supuesto de trabajo: si es afiliado lo conocen, si no, no. Ya estaba abierto en [`mvp-layout.md` §7](mvp-layout.md).
-- [ ] **El umbral del corte y el peso de cada factor.** El *qué* se evalúa está cerrado (tabla del bloque 4); el *cuánto pesa* y dónde cae la línea listo / nutrición, no. Se cierra en el ticket del motor con fundamento, no a ojo.
+- [ ] **El umbral del corte y el peso de cada factor.** El *qué* se evalúa está cerrado (tabla del bloque 4); el *cuánto pesa*, no. **Sigue abierto a propósito (sala del sábado 25, decisión 8): Mani dejó los pesos calibrables** — los valores de hoy (0,45 capacidad / 0,20 similitud / 0,15 subsidio / 0,10 vivienda / 0,05 crediticia / 0,05 afiliación) son una propuesta defendible con su razón escrita en [spec 03 D4](specs/03-scoring.md), no un número absoluto. Lo que **sí** está cerrado es la línea listo / nutrición: la fija el gate legal del 40%, no un umbral elegido.
+- [ ] **El 0,6% que estima la cuota mensual.** Es la heurística que convierte precio en cuota: se asume que el lead financia el **70%** del valor (30% de cuota inicial) y que la mensualidad es el **0,6% de lo financiado**, lo que aproxima un crédito a ~20 años con tasas colombianas típicas. De ahí sale la cuota que se compara contra el 40% del Decreto 583. **No es un dato de Colsubsidio ni fórmula bancaria certificada: es un supuesto nuestro, y se declara como tal ante el jurado.** Pendiente de ratificar (sala del sábado 25, decisión 7).
 - [x] **Reglas concretas de subsidio aplicable.** ~~Sin esto el factor existe pero no calcula.~~ **Cerrado en el grilling 2026-07-24:** tabla simple de 2-3 subsidios reales de Colsubsidio con montos y fuente citada (cero inventos); el motor resta el subsidio de la cuota antes del corte del 40%. Ticket [017](tasks/017-tabla-subsidios.md).
 - [x] **Trigger de nutrición con plazo estimado.** ~~Añadirle una fecha estimada queda abierto a discusión.~~ **Cerrado en el grilling 2026-07-24: híbrido.** La fecha entra solo cuando la regla fallida es **temporal y derivable del dato del lead** (ej. antigüedad de afiliación → fecha exacta de recontacto); en el resto (cuota>40%, subsidio) queda condición pura. Cero fechas inventadas. El personaje de nutrición del demo es el caso CON fecha.
 - [x] **Panel de impacto en la vista del asesor.** ~~Opcional, no descartado.~~ **Cerrado en el grilling 2026-07-24: entra como franja** de 3 cifras (% leads curados, horas comerciales ahorradas, alerta 90/10 por proyecto), **timeboxed a medio día** y lo primero que se corta si el sábado aprieta. Ticket [019](tasks/019-franja-impacto.md).
@@ -134,9 +138,11 @@ Los 4 que el brief lista como capacidad de compra ([brief:20](reto/perfilamiento
 - [ ] **Convergencia multi-canal a WhatsApp.** ¿El reto espera tratamiento por canal o basta una conversación única? Preguntar a mentores. — **Evidencia nueva (charla con el mentor, 2026-07-24): pidió literalmente "un centralizador que me vaya filtrando todo independientemente de dónde entre"** ([detalle](reto/charla-mentor.md#lo-que-ve-el-asesor)), lo que apunta a conversación única. También describió los 4 canales reales, que no son los que hoy acepta `LeadEvento.fuente` ([spec 01 D3](specs/01-ingesta-enriquecimiento.md)). Falta que el TEAM lo cierre.
 - [ ] **Cruces Ministerio de Vivienda / buró.** ¿Demostrados o basta simularlos? Ya estaba en [`URGENTE-Y-NOTICIAS.md`](URGENTE-Y-NOTICIAS.md).
 - [ ] **Esquema de la DB central.** Los campos que este spec implica están claros; el esquema formal se cierra en `/plan` y va como ADR.
-- [x] **Stack.** ~~Sin decidir.~~ **Decidido 2026-07-23:** Next.js + Vercel + Supabase + API de Claude — ver [ADR 0002](adr/0002-stack-mvp.md). Feedback loops de [`AGENTS.md`](../AGENTS.md) ya llenados.
-- [x] **Performance del conversador.** **Cerrado con el stack:** streaming obligatorio en toda llamada a Claude, primer token < 2s ([ADR 0002](adr/0002-stack-mvp.md)).
+- [x] **Stack.** ~~Sin decidir.~~ **Decidido 2026-07-23:** Next.js + Vercel + Supabase + LLM en streaming — ver [ADR 0002](adr/0002-stack-mvp.md). El proveedor terminó siendo **Google Gemini** (`gemini-2.5-flash` en Vertex), no Anthropic: se cambió por disponibilidad de key y está registrado en la nota del ADR. Feedback loops de [`AGENTS.md`](../AGENTS.md) ya llenados.
+- [x] **Performance del conversador.** **Cerrado con el stack:** streaming obligatorio en toda llamada al LLM, primer token < 2s ([ADR 0002](adr/0002-stack-mvp.md)).
+- [x] **¿El LLM conduce la conversación?** **Cerrado en la sala del sábado 25 (decisión 1): NO.** El flujo determinista conduce y el LLM solo pule el tono ([spec 02 D1](specs/02-conversador.md), opción A).
+- [x] **Vocabulario "propenso / no propenso" en la bandeja.** **Cerrado en la sala del sábado 25 (decisión 10): NO.** La bandeja va con dos grupos que no suenan a descarte ("Pueden comprar hoy" / "Todavía no pueden comprar").
 
 ---
 
-**Siguiente paso:** hecho — [`docs/plan.md`](plan.md) + tickets en [`docs/tasks/`](tasks/README.md) (2026-07-23). El kickoff sigue pendiente y cierra la frase de apuesta, los supuestos marcados "decidir en el kickoff" y los dos cambios de contrato de [`plan.md §8`](plan.md).
+**Estado (2026-07-25):** el flujo corre de punta a punta y los 4 criterios de aceptación están construidos y probados. El plan del día vigente es [`docs/agents/plan-sabado-25.md`](agents/plan-sabado-25.md); [`docs/plan.md`](plan.md) y sus tickets quedan como registro histórico del build.

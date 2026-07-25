@@ -1,5 +1,8 @@
 # plan — el build del MVP Vivienda
 
+> 🔁 **HISTÓRICO (2026-07-23) — el plan vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).**
+> Se conserva como registro de cómo se ordenó el build. **Sus 9 costuras (§3) están todas cerradas** y su secuencia (§4) y sus abiertas (§6) quedaron superadas. De §8, la propuesta de que `/api/match` reciba `{ lead, score }` se implementó; `Score.precio_maximo` se descartó a favor de `precioMaximoDe(lead)` en `lib/scoring/capacidad.ts`. Estado real del build: [`agents/handoff.md`](agents/handoff.md).
+
 > Baja [`spec.md`](spec.md) a orden de construcción. **No reemplaza a [`reparto-inicial.md`](reparto-inicial.md)** (qué hace cada track) ni a los [prompts de arranque](prompts/): este documento se ocupa de lo que el reparto **no cubre** — las costuras entre tracks, la secuencia hasta el freeze y la trazabilidad criterio → pieza.
 >
 > Escrito el 2026-07-23 (jueves), con el scaffold aún sin existir y los 4 tracks arrancando. Los tickets finos salen de aquí sólo después del checkpoint humano.

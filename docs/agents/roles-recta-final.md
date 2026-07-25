@@ -1,5 +1,8 @@
 # Roles de cierre — recta final (grilling 2026-07-24)
 
+> 🔁 **HISTÓRICO (2026-07-24) — el reparto vigente es el de [`plan-sabado-25.md`](plan-sabado-25.md) (P1-P5, con bloques horarios y 3 checkpoints).**
+> Sus prompts describen un estado que ya no existe: dicen que "la IA está caída en producción" (resuelto el 24 a las 11:30), que "el chat solo hace `console.log`" (la cadena se conectó a las 18:10) y que hay que cablear el catálogo real (hecho a las 13:50). **No arranques una sesión desde aquí.**
+
 > A ~48h del deadline (dom 26 jul, 11:30 a.m.), el reparto de construcción A/B/C/D ya cumplió: casi todo existe. Lo que falta es **transversal** (conectar la cadena, integración, video, QA). El equipo se recasta a **4 roles de cierre**; cada quien conserva la propiedad del código que ya escribió. Este doc reemplaza a [`reparto-inicial.md`](../reparto-inicial.md) para las últimas 48h.
 >
 > **Cómo usarlo:** toma tu rol y **pega su bloque de prompt en una sesión fresca** de tu herramienta de IA sobre este repo. Cada prompt es autocontenido. El detalle de las decisiones que fijaron esto está en [`handoff.md`](handoff.md) (Memory 2026-07-24 10:52) y [`URGENTE-Y-NOTICIAS.md`](../URGENTE-Y-NOTICIAS.md).

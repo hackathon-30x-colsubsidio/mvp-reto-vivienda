@@ -4,22 +4,34 @@ MVP del reto **Vivienda** (perfilamiento inteligente de leads) para la hackathon
 
 Si algo no está resuelto, NO lo inventes: márcalo como supuesto por validar. Toda decisión dura es fundamentada.
 
-## La apuesta (borrador — cerrar en kickoff)
+## La apuesta
 
-Un workflow que hace que los leads pagos se parezcan a los orgánicos: el lead entra por pauta, conversa con un perfilador estilo WhatsApp que pregunta solo lo que falta, un motor transparente lo califica y matchea con 2-3 proyectos, y al asesor le llega un lead curado con cita agendada y el porqué. Los que aún no pueden comprar no se botan: quedan en nutrición con el trigger que los volvería listos. Detalle en [`docs/mvp-layout.md`](docs/mvp-layout.md).
+Un workflow que hace que los leads pagos se parezcan a los orgánicos: el lead entra por pauta, conversa con un perfilador estilo WhatsApp que pregunta solo lo que falta, un motor transparente lo califica y matchea con hasta 3 proyectos, y al asesor le llega un lead curado con cita agendada y el porqué. Los que aún no pueden comprar no se botan: quedan en nutrición con el trigger que los volvería listos. Detalle en [`docs/mvp-layout.md`](docs/mvp-layout.md).
+
+## Empieza aquí (estado del proyecto, 2026-07-25)
+
+El flujo corre de punta a punta y los 4 criterios de aceptación están construidos. **Antes de tocar nada, en este orden:**
+
+1. **[`docs/agents/plan-sabado-25.md`](docs/agents/plan-sabado-25.md)** — qué se hace HOY: el reparto por 5 personas, las 10 decisiones, los 3 checkpoints, las reglas del día y el **recetario para probar sin pisar a los 3 personajes** del demo.
+2. **[`docs/agents/handoff.md`](docs/agents/handoff.md)** — la memoria del build (lo nuevo arriba) y el roadmap de lo que queda.
+3. **[`docs/URGENTE-Y-NOTICIAS.md`](docs/URGENTE-Y-NOTICIAS.md)** — lo que cambia el rumbo del equipo.
+
+> **Cómo leer los docs de este repo:** todo documento superado lleva un banner `🔁 HISTÓRICO` en su primera línea que dice cuál es el vigente. Si un doc no lo tiene, está vivo y su contenido cuenta. Si encuentras un doc vivo que el código desmiente, **arréglalo o pon el banner** — no lo dejes derivar.
 
 ## Agent skills
 
 Este repo está preparado para ingeniería agéntica. Leer antes de trabajar:
 
-- **Spec** ([`docs/spec.md`](docs/spec.md)) — qué hace y qué NO hace el MVP, en 7 bloques (lo construye `/spec`). El contrato de producto; leerlo antes de planear o construir. Lo incierto vive en su bloque de *supuestos por validar*, nunca inventado como hecho. Escrito el 2026-07-23; la frase de apuesta y varios supuestos se ratifican en el kickoff.
+- **Spec** ([`docs/spec.md`](docs/spec.md)) — qué hace y qué NO hace el MVP, en 7 bloques (lo construye `/spec`). El contrato de producto; leerlo antes de planear o construir. Lo incierto vive en su bloque de *supuestos por validar*, nunca inventado como hecho. Puesto al día el 2026-07-25 con las decisiones de la sala del sábado; los supuestos que siguen en `[ ]` **están abiertos de verdad** (los pesos del motor y el 0,6% de la cuota, a propósito).
 - **Specs por componente** ([`docs/specs/`](docs/specs/README.md)) — el detalle de cada parte del MVP: ingesta, conversador, scoring, match+agenda, nutrición y dashboard, **cada uno con su diagrama mermaid**, más el [unificado](docs/specs/00-mvp-unificado.md) que supersede el strawman de `mvp-layout.md §3`. Detallan el spec, no lo contradicen. **Es un borrador vivo para el equipo:** separan el *QUÉ* (contrato con fuente citada) del *CÓMO* (propuesta discutible) y marcan cada decisión como `[CERRADA — fuente]`, `[HOY — así está construido]` o `[PROPUESTA — TEAM decide]`. Antes de tocar un componente se lee su spec; si algo está marcado `[PROPUESTA]`, **no está decidido** y no se implementa sin ratificarlo.
-- **Plan + tickets** ([`docs/plan.md`](docs/plan.md), [`docs/tasks/`](docs/tasks/README.md)) — el build ordenado derivado del spec (lo construye `/plan`). La app en un diagrama, el modelo de datos, **las costuras entre tracks** (lo que el reparto no le asignó a nadie) y la secuencia hasta el freeze. Cada ticket cabe en una ventana de contexto limpia y cita el criterio de aceptación que sirve. Nunca saltar del spec directo al código. Escrito el 2026-07-23; §6 y §8 se ratifican en el kickoff.
-- **Reparto por tracks** ([`docs/reparto-inicial.md`](docs/reparto-inicial.md) + [`docs/prompts/`](docs/prompts/README.md)) — qué construye cada una de las 4 personas y los contratos de `lib/types.ts`. El reparto cubre las **cajas** del workflow; el plan cubre las **flechas** entre ellas. Se leen juntos.
+- **Tickets** ([`docs/tasks/`](docs/tasks/README.md)) — la unidad de trabajo del build: cada uno cabe en una ventana de contexto limpia y cita el criterio de aceptación que sirve. Nunca saltar del spec directo al código. Los abiertos hoy son 014-020; el reparto vigente de quién los toma es el de `plan-sabado-25.md`, no la columna Dueño A/B/C/D.
 - **Handoff** ([`docs/agents/handoff.md`](docs/agents/handoff.md)) — memoria de sesión + roadmap. Leer al inicio de cada sesión, actualizar al final. Así el siguiente agente (o tu yo futuro) no arranca de cero.
-- **Roles de cierre** ([`docs/agents/roles-recta-final.md`](docs/agents/roles-recta-final.md)) — los **4 roles de la recta final** (grilling 2026-07-24) y el **prompt de arranque de cada uno** para pegar en una sesión fresca. Reemplaza al reparto por tracks para las últimas 48h: si tomas un rol, empieza por aquí.
-- **Context** ([`docs/agents/context.md`](docs/agents/context.md)) — glosario del dominio (afiliado, 90/10, CPL, nutrición…). Leerlo antes de nombrar variables, funciones o archivos. Afinar con `/grill-with-docs`.
-- **ADRs** ([`docs/adr/`](docs/adr/)) — decisiones y su porqué. La elección del reto es el [ADR 0001](docs/adr/0001-eleccion-reto-vivienda.md); no se re-litiga.
+- **Auditoría** ([`docs/agents/auditoria-2026-07-24.md`](docs/agents/auditoria-2026-07-24.md)) — la revisión externa de docs vs código que destapó los 4 bloqueantes del demo, con su estado de corrección hallazgo por hallazgo.
+- **Context** ([`docs/agents/context.md`](docs/agents/context.md)) — glosario del dominio (afiliado, 90/10, curado, holgura de capacidad, nutrición…). Leerlo antes de nombrar variables, funciones o archivos. Afinar con `/grill-with-docs`.
+- **ADRs** ([`docs/adr/`](docs/adr/)) — decisiones y su porqué. La elección del reto es el [ADR 0001](docs/adr/0001-eleccion-reto-vivienda.md); no se re-litiga. El [0005](docs/adr/0005-afiliacion-cupo-y-explicacion.md) trae las tres decisiones que gobiernan hoy el motor y la ficha.
+- **Pitch** ([`docs/pitch/`](docs/pitch/)) — el guion del video de 2 min (el entregable con pre-filtro) y las preguntas a mentores. Si tocas el flujo del demo, el guion se desactualiza: avísalo.
+
+Históricos del arranque (llevan banner y **no se usan para arrancar una sesión**): [`docs/plan.md`](docs/plan.md) (las 9 costuras, todas cerradas), [`docs/reparto-inicial.md`](docs/reparto-inicial.md) + [`docs/prompts/`](docs/prompts/README.md) (los 4 tracks A/B/C/D) y [`docs/agents/roles-recta-final.md`](docs/agents/roles-recta-final.md) (los 4 roles del viernes).
 
 Propios de este repo, leer también:
 
@@ -27,6 +39,8 @@ Propios de este repo, leer también:
 
 - **[`docs/mvp-layout.md`](docs/mvp-layout.md)** — el layout macro de la solución: 8 decisiones cerradas, las abiertas, el workflow en mermaid (strawman a curar) y el mapeo del demo de 2 min.
 - **[`docs/reto/`](docs/reto/)** — el brief oficial de Colsubsidio, el doc de los insumos y el digest de la [charla con el mentor](docs/reto/charla-mentor.md) (cómo funciona hoy la operación). La fuente de verdad de qué se pide. El transcript crudo de la charla **no se versiona**: este repo es público.
+- **[`docs/explicaciones-referencia.md`](docs/explicaciones-referencia.md)** — las 3 explicaciones "perfectas" sobre los personajes canónicos: es la **vara de medir** de la calidad del texto que ve el asesor, y el fallback del [ticket 010](docs/tasks/010-fallback-conversador.md).
+- **[`docs/proyectos/`](docs/proyectos/)** — el material extraído de los 18 brochures públicos. Respaldo documental para preguntas del jurado sobre el catálogo; **hoy ningún código lo consume** (el catálogo que sí corre es `data/sintetica/proyectos.json`).
 
 **Este repo es el canon de los docs vivos.** [`docs/agents/handoff.md`](docs/agents/handoff.md) (memoria del build) y [`docs/URGENTE-Y-NOTICIAS.md`](docs/URGENTE-Y-NOTICIAS.md) (lo que cambia el rumbo del equipo) se mantienen **aquí**, no en `plan-research`: ese repo queda como archivo histórico de investigación y datos crudos. Ambos docs deben estar siempre al día. `docs/agenda-evento.md` es la semilla del brainstorm inicial (día a día del evento).
 
@@ -77,7 +91,7 @@ Trampas ya halladas en el Excel real. Quien construya el motor de scoring limpia
 
 - **`VLR_VIVIENDA` trae 4 ceros de más** → ÷10.000 para el precio real.
 - **No hay columna "afiliado"**: se infiere de `PERIODO_AFILIADO` vacío/lleno.
-- `SEGMENTO_POBLACIONAL` / `CATEGORIA` / `PIRAMIDE_NUEVA` vienen anonimizados con **letras griegas**, no las categorías del brief. Decisión abierta: clusters anónimos vs. inferir el mapeo.
+- `SEGMENTO_POBLACIONAL` / `CATEGORIA` / `PIRAMIDE_NUEVA` vienen anonimizados con **letras griegas**, no las categorías del brief. **Decidido (grilling 2026-07-24): se tratan como clusters anónimos ante el jurado**; el mapeo descifrado viaja solo como etiqueta `[inferido]`, nunca presentado como oficial.
 - `RANGO_EDAD` y `ETAPA` traen dos formatos para el mismo valor.
 
 Munición de impacto ya validada para el pitch: **27,1% de los compradores históricos NO son afiliados** (vs. el 10% que permite la regla 90/10), y los **16 proyectos** con ubicación conocida incumplen el límite.
