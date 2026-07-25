@@ -535,6 +535,15 @@ h4 {
   background-color: var(--surface-card);
   background-image: var(--vidrio-hueco);
   border-color: var(--filo-borde);
+  /* Sombra hacia abajo: sin ella el renglón que queda cortado contra el
+     borde inferior se lee como texto roto, no como contenido pasando
+     por debajo. Opacidad sola no bastaba — el corte necesitaba que la
+     cabecera se leyera como una capa ENCIMA. */
+  box-shadow: 0 6px 10px -8px rgb(15 23 42 / 0.45);
+}
+
+[data-theme="dark"] .vidrio-solido {
+  box-shadow: 0 6px 12px -8px rgb(0 0 0 / 0.8);
 }
 
 /* El fondo que el vidrio refracta. Dos manchas de marca muy diluidas y
