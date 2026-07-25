@@ -47,6 +47,12 @@ typography:
     fontSize: "20px"
     fontWeight: 700
     lineHeight: 1.2
+  headline-sm:
+    fontFamily: "Sora, system-ui, sans-serif"
+    fontSize: "24px"
+    fontWeight: 800
+    lineHeight: 1.1
+    letterSpacing: "-0.02em"
   title:
     fontFamily: "Sora, system-ui, sans-serif"
     fontSize: "16px"

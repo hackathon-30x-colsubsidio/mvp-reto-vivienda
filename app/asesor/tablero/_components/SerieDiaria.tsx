@@ -49,7 +49,10 @@ export function SerieDiaria({ datos, dias = 14 }: { datos: DatosTablero; dias?: 
   const afiliados = serie.reduce((s, d) => s + d.afiliados, 0);
 
   return (
-    <div className="vidrio flex h-full min-h-0 flex-col p-4">
+    // `h-full` con un piso: la gráfica necesita alto para decir algo,
+    // pero si el contenedor da menos que el piso, prefiere que el panel
+    // scrollee a aplastarse hasta volverse ilegible.
+    <div className="vidrio flex h-full min-h-[260px] flex-col p-4">
       {/* La tabla accesible, invisible pero completa: es la que lee un
           lector de pantalla, con las tres cifras de cada día. */}
       <table className="sr-only">

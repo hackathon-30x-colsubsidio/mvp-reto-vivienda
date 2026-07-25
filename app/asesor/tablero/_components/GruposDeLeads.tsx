@@ -25,7 +25,9 @@ export function GruposDeLeads({
   const grupos = agrupador.grupos(datos);
 
   return (
-    <div className="grid h-full min-h-0 gap-3 lg:grid-cols-2">
+    // Mismo criterio que la serie: alto completo con un piso. Una
+    // columna de leads por debajo de ~260px no muestra ni tres filas.
+    <div className="grid h-full min-h-[260px] gap-3 lg:grid-cols-2">
       {grupos.map((grupo) => (
         <section
           key={grupo.clave}
