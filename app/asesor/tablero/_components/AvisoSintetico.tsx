@@ -20,17 +20,19 @@ export function AvisoSintetico({ datos }: { datos: DatosTablero }) {
 
   return (
     <p className="border-filo-borde text-texto-suave rounded-[10px] border border-dashed px-3.5 py-2 text-[12px] leading-normal">
-      {/* Redactado corto a propósito: vive en el pie de una vista que
-          tiene que caber en una pantalla. Se dice lo mismo —cuántos son
-          reales, de dónde salen los otros, y que sus veredictos los
-          calculó el motor— sin cuatro renglones. */}
+      {/* Redactado a DOS renglones a propósito: vive en el pie de una
+          vista que tiene que caber en una pantalla, y cada renglón de
+          más se lo quita a las cifras. Se conserva lo que hace honesto
+          al aviso —cuántos son reales, cuántos generados, de dónde
+          salen y que sus veredictos los calculó el motor de verdad—;
+          se fue lo redundante ("no están escritos a mano" ya lo dice
+          "los calculó el motor real"). */}
       <strong className="text-texto">Histórico sintético.</strong>{" "}
-      <span className="cifra">{reales}</span> reales (del demo,{" "}
-      {datos.origen === "supabase" ? "desde Supabase" : "desde fixtures"}) y{" "}
+      <span className="cifra">{reales}</span> reales y{" "}
       <span className="cifra">{sinteticos}</span> generados desde{" "}
-      <code>data/sintetica/</code> para que las métricas por día tengan serie;
-      sus veredictos los calculó el motor real, no están escritos a mano. En las
-      listas van marcados <EtiquetaSimulado texto="histórico" />.
+      <code>data/sintetica/</code> para dar serie a las métricas por día; sus
+      veredictos los calculó el motor real. Van marcados{" "}
+      <EtiquetaSimulado texto="histórico" />.
     </p>
   );
 }
