@@ -2,7 +2,7 @@
 
 > Output del grill de scope (2026-07-23, Mani + Claude). Es el **layout general, sin tecnicismos**, que sirve de base para crear el repo del MVP y bajar a specs, tasks y diagramas definitivos. Lo cerrado aquí no se re-litiga sin razón nueva; lo abierto está marcado y se resuelve con el equipo o los mentores.
 
-## 1. La apuesta (borrador — cerrar en kickoff)
+## 1. La apuesta
 
 Un **workflow de curado de leads** que hace que los leads pagos se parezcan a los orgánicos: el lead entra por pauta, conversa con un perfilador estilo WhatsApp que pregunta solo lo que falta, un motor transparente lo califica y matchea con 2-3 proyectos, y al asesor le llega un **lead curado con cita agendada y el porqué** — listo solo para cerrar. Los que hoy no pueden comprar no se botan: quedan calificados en nutrición con la condición que los volvería listos.
 
@@ -26,7 +26,7 @@ Borrador de frase de apuesta: *"Un interesado en vivienda que llega por pauta lo
 > 🔁 **SUPERSEDED (2026-07-24) → [`docs/specs/00-mvp-unificado.md`](specs/00-mvp-unificado.md).**
 > El strawman de abajo cumplió su función: arrancar la discusión. El diagrama vigente, con los nodos y las ramas curadas contra el código real y la [charla con el mentor](reto/charla-mentor.md), vive ahora en el [paquete de specs por componente](specs/README.md). Este se queda como registro histórico — no lo uses para construir.
 
-> ⚠️ **Strawman, no definitivo.** Este diagrama existe para que la discusión del equipo arranque de algo concreto; sentarse a curarlo es tarea del kickoff.
+> ⚠️ **Strawman, ya superado.** Este diagrama existía para que la discusión arrancara de algo concreto. El workflow real, curado y por componente, vive en [`specs/00-mvp-unificado.md`](specs/00-mvp-unificado.md); esto se conserva como registro.
 
 ```mermaid
 flowchart TD
