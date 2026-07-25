@@ -24,7 +24,7 @@ capital        = 149.000.000 × 80%            = 119.200.000   (VIS financia el 
 tasa mensual   = (1 + 13% E.A.)^(1/12) − 1    = 1,0237%
 cuota estimada = capital × i / (1 − (1+i)^−240) = 1.336.291
 cuota / ingreso = 1.336.291 / 4.000.000        = 33,4%   ≤ 40%  → pasa el gate
-holgura = (40% − 33,4%) / (40% − 20%) = 0,33    → aporta 0,45 × 0,33 × 100 = 14,9 puntos
+holgura = (40% − 33,4%) / (40% − 30%) = 0,66    → aporta 0,45 × 0,66 × 100 = 29,7 puntos
 ```
 
 ### D2 · Cómo se estima la cuota · [CERRADA — 2026-07-25, con fuentes]
@@ -99,9 +99,11 @@ Sumando, el máximo alcanzable hoy:
 | No afiliado, cupo libre | igual, con 2,5 de cupo | **72,5** |
 | No afiliado, cupo copado | igual, con 0,5 de cupo | **70,5** |
 
-Contra el seed: Diana **51**, Carlos **27**, Yuliana **0**. La separación afiliado / no afiliado idénticos queda en **2,5 a 4,5 puntos** — el desempate que pidió el mentor, no una condena (antes eran 10 a 18).
+Contra el seed: Diana **75** (justo en el techo), Carlos **28**, Yuliana **0**. La separación afiliado / no afiliado idénticos queda en **2,5 a 4,5 puntos** — el desempate que pidió el mentor, no una condena (antes eran 10 a 18).
 
-> ⚠️ **Los puntajes bajaron el 2026-07-25 y no es un bug: es la cuota real.** Con el 0,6% plano Diana daba 74; con la anualidad de verdad su cuota es el 30,6% del ingreso en vez del 20,4%, y la holgura —que pesa 0,45— cae con ella. **Queda una pregunta de calibración para el TEAM:** `RATIO_HOLGURA_PLENA` sigue en 20%, o sea que "holgura plena" exige que la cuota sea la mitad del tope legal. Con cuotas reales eso es mucho más difícil de alcanzar, así que los puntajes se comprimen hacia abajo. Mover ese ancla es legítimo (los pesos están abiertos a propósito), pero **hay que hacerlo mirando la cola completa, no para que un personaje se vea mejor**.
+> **Calibración del 2026-07-25, en dos pasos.** Al reemplazar el 0,6% por la cuota real los puntajes cayeron (Diana quedó en 51), porque con `RATIO_HOLGURA_PLENA` en 20% "holgura plena" exigía que la cuota fuera la **mitad** del tope legal — casi inalcanzable con cuotas de verdad. Mani lo movió a **30%**, que no es un número a dedo: **era el tope legal anterior** (Decreto 145 de 2000, hasta que el 583 lo subió al 40%). Ahora "holgura plena" significa algo defendible: *la cuota le cabría incluso bajo la norma más estricta que regía hasta el año pasado*.
+>
+> ⚠️ **El efecto secundario, dicho:** la banda quedó estrecha (30%–40%), así que **todo el que esté por debajo del 30% satura en 45 puntos**. Diana, con 24,8%, es una de esas. El factor deja de distinguir entre "cómodo" y "muy cómodo" — a cambio de distinguir muy bien entre "apenas pasa" y "pasa con aire", que es la decisión que el asesor toma al elegir a quién llamar.
 
 ⚠️ **Ojo con el tablero:** los 57 leads sintéticos de [`cola-historica.ts`](../../lib/fixtures/cola-historica.ts) **sí traen `subsidio_monto_mensual`**, así que pueden pasar de 75. El "puntaje promedio" y el ranking mezclan dos techos, y el aviso de datos simulados no lo dice.
 

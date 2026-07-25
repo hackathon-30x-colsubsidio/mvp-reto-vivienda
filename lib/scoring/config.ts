@@ -80,10 +80,19 @@ export const CONFIG_SCORING = {
 
   /**
    * Normalización de la holgura de capacidad: la cuota/ingreso va de 0 puntos
-   * en el tope legal (40%) a 1 punto en RATIO_HOLGURA_PLENA (20%) o menos.
-   * Lineal entre ambos. Aísla "apenas pasa" de "pasa con mucho margen".
+   * en el tope legal (40%) a 1 punto en RATIO_HOLGURA_PLENA o menos. Lineal
+   * entre ambos. Aísla "apenas pasa" de "pasa con mucho margen".
+   *
+   * **30% no es un número escogido a dedo: era el tope legal ANTERIOR.** El
+   * Decreto 145 de 2000 lo fijaba ahí y el Decreto 583 de 2025 lo subió al 40%.
+   * Así que "holgura plena" significa algo defendible ante un jurado: *la cuota
+   * le cabría incluso bajo la norma más estricta que regía hasta el año pasado*.
+   *
+   * (Estuvo en 20% hasta el 2026-07-25, cuando se corrigió la estimación de la
+   * cuota. Con la cuota real, exigir la mitad del tope legal para "holgura
+   * plena" comprimía todos los puntajes hacia abajo.)
    */
-  RATIO_HOLGURA_PLENA: 0.2,
+  RATIO_HOLGURA_PLENA: 0.3,
 
   /**
    * Normalización de la situación crediticia autorreportada → señal 0–1.

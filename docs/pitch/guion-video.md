@@ -13,7 +13,7 @@ dueño: Rol 4 (Pitch & Video)
 
 > ⚠️ **Dos frases que NO se pueden decir, y las dos se dijeron en la sala del sábado** ([discusión de workflow](../agents/discusion-workflow-2026-07-25.md)):
 > 1. **"El que no está afiliado entra a nutrición."** Falso: el no afiliado que pasa el gate del 40% sale **listo con restricción de cupo**, con sus proyectos y su advertencia. La única causa de nutrición es la cuota sobre el 40%. Decirlo al revés contradice la pantalla del beat 3, donde Carlos aparece con 3 proyectos.
-> 2. **No decir el puntaje "sobre 100".** El techo alcanzable hoy es **75** (el subsidio aporta 0 a todo lead real y la similitud aporta la mitad fija), así que la fracción sobre 100 subvende. **Números vigentes desde el 2026-07-25** (al reemplazar el 0,6% por la cuota real, los puntajes bajaron): **Diana 51 · Carlos 27 · Yuliana 0**. Lo seguro es no decir la cifra y hablar de **el orden de la cola**: quién está más cerca de comprar. Si se dice, se dice contra el techo de 75, nunca sobre 100.
+> 2. **No decir el puntaje "sobre 100".** El techo alcanzable hoy es **75** (el subsidio aporta 0 a todo lead real y la similitud aporta la mitad fija), así que la fracción sobre 100 subvende — y **Diana está justo en ese techo**. **Números vigentes desde el 2026-07-25** (al reemplazar el 0,6% por la cuota real, los puntajes bajaron): **Diana 75 · Carlos 28 · Yuliana 0**. Lo seguro es no decir la cifra y hablar de **el orden de la cola**: quién está más cerca de comprar. Si se dice, se dice contra el techo de 75, nunca sobre 100.
 
 ## Presupuesto de tiempo (120 s duros)
 

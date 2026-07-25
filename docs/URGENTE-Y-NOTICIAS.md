@@ -10,13 +10,16 @@
 
 **Tres cosas que hay que saber antes de grabar:**
 
-1. **Los puntajes bajaron, y no es un bug: es la cuota real.** Diana pasa de 74 a **51**, Carlos de 32 a **27**, Yuliana sigue en 0. Con el 0,6% la cuota de Diana era el 20,4% de su ingreso; con la anualidad es el **30,6%**, y la holgura —que pesa 0,45— cae con ella. ⚠️ **El guion decía "Diana con 74 está a un punto del techo de 75": eso ya no es cierto.** Lo seguro en cámara es no decir la cifra y hablar del **orden de la cola**.
+1. **Los puntajes de hoy son Diana 75 · Carlos 28 · Yuliana 0** (antes 74/32/0, con otra aritmética debajo). Diana queda **justo en el techo alcanzable**, que sigue siendo 75 y no 100. Lo seguro en cámara es no decir la cifra y hablar del **orden de la cola**; si se dice, se dice contra 75.
 2. **A Carlos hubo que subirle el ingreso** de $2.850.000 a **$4.000.000**. PAYANDÉ es VIS, o sea que financia el 80% y su cuota es más alta: con el ingreso viejo se iba al 45% y **caía en nutrición**, perdiendo el personaje del 90/10. Con $4.000.000 queda en **39,3% — apenas pasa**, que es exactamente su historia y explica su puntaje bajo.
 3. **Hay que volver a correr `db/seed.sql`.** Los factores y los puntajes sembrados cambiaron.
 
 **Una consecuencia contraintuitiva que conviene tener lista para el jurado:** una VIS permite financiar **más** (80% vs 70%), así que **a igual precio su cuota mensual es más alta**. Por eso el matcher ahora calcula el techo **por proyecto** y no con un número plano — con uno solo, una VIS cara se colaba con la cuota por encima del 40%.
 
-**Queda abierto, y es de calibración:** `RATIO_HOLGURA_PLENA` sigue en 20%, o sea que "holgura plena" exige que la cuota sea la mitad del tope legal. Con cuotas reales eso es mucho más difícil, así que los puntajes se comprimen. Moverlo es legítimo —los pesos están abiertos a propósito— pero mirando la cola completa, no para que un personaje se vea mejor.
+**Y dos calibraciones que decidió Mani, ya aplicadas:**
+
+- **`RATIO_HOLGURA_PLENA` pasó de 20% a 30%.** Con la cuota real, exigir que fuera la mitad del tope legal para dar "holgura plena" comprimía todos los puntajes. El 30% no es a dedo: **era el tope legal anterior** (Decreto 145 de 2000, hasta que el 583 lo subió al 40%), así que ahora "holgura plena" significa *le cabría incluso bajo la norma más estricta de antes*. Efecto secundario, dicho: la banda quedó estrecha (30–40%), así que **todo el que esté por debajo del 30% satura en 45 puntos**.
+- **El SMMLV pasó a $1.750.905** (2026, Decretos 1469/1470 de 2025). A quien contesta "gano 3 salarios mínimos" ya no se le calcula 23% menos, y el rango "3-5 SMMLV" de Diana ahora vale $7.003.620. ⚠️ **Esto mueve el umbral VIS del generador de ~$213M a ~$263M**: al regenerar `proyectos.json`, seis proyectos pasarían de no-VIS a VIS (ZARZAL, PAMPLONA, BOSQUE DE TURPIAL, RESERVA DE AGUAYACÁN, KARAKALI, SAMÁN) y su cuota subiría, porque la VIS financia el 80%. **No se pudo regenerar aquí** —los CSV del Excel real no viven en el repo—, así que el JSON conserva las banderas viejas. Está anotado en el script.
 
 > ⚠️ **Para P2 (ticket 023):** esto tocó `config.ts`, `capacidad.ts`, `scoring/index.ts`, `matching/index.ts`, las fixtures y el seed. Si tu rama ya empezó, **rebasa antes de seguir**.
 

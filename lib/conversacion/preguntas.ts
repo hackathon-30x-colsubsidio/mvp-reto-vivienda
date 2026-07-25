@@ -28,12 +28,15 @@ import { catalogo } from "@/lib/matching/catalogo";
 export const NOMBRE_AGENTE = "Sara";
 
 /**
- * ⚠️ SUPUESTO POR VALIDAR: salario mínimo de 2025 ($1.423.500). Se duplica a
- * propósito el valor de `lib/fixtures/cola-historica.ts` — este módulo lo
- * carga el cliente y no debe arrastrar las fixtures al bundle. Si cambia el
- * año, cambian los dos.
+ * Salario mínimo mensual legal vigente. **$1.750.905 en 2026**, fijado por los
+ * Decretos 1469 y 1470 del 29 de diciembre de 2025 (+23% sobre 2025). Ya NO es
+ * un supuesto: tiene fuente — ver docs/credito-y-subsidios.md.
+ *
+ * Se duplica a propósito el valor de `lib/fixtures/cola-historica.ts`: este
+ * módulo lo carga el cliente y no debe arrastrar las fixtures al bundle. Si
+ * cambia el año, cambian los dos (y `scripts/generar_sintetica.py`).
  */
-const SMMLV_SUPUESTO = 1_423_500;
+const SMMLV = 1_750_905;
 
 export type CampoPregunta = Exclude<keyof Lead["respuestas"], "consentimiento">;
 
@@ -112,7 +115,7 @@ export function parsearIngresoMensual(texto: string): number | undefined {
 
   if (/mill|\bmm\b/.test(limpio)) return Math.round(conMedio * 1_000_000);
   if (/m[íi]nimo|salario|smmlv|smlv/.test(limpio)) {
-    return Math.round(conMedio * SMMLV_SUPUESTO);
+    return Math.round(conMedio * SMMLV);
   }
   if (/\bmil\b/.test(limpio)) return Math.round(conMedio * 1_000);
 

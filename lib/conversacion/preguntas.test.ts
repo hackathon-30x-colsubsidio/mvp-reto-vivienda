@@ -31,8 +31,8 @@ describe("parsearIngresoMensual", () => {
     ["2 millones y medio", 2_500_000],
     ["4.5 millones", 4_500_000],
     ["entre 2 y 3 millones", 2_500_000],
-    ["3 salarios mínimos", 3 * 1_423_500],
-    ["3-5 SMMLV", 4 * 1_423_500],
+    ["3 salarios mínimos", 3 * 1_750_905],
+    ["3-5 SMMLV", 4 * 1_750_905],
     ["800 mil", 800_000],
     ["gano 3", 3_000_000], // forma corta de "3 millones" al preguntar cuánto entra al mes
   ])("entiende %s", (texto, esperado) => {

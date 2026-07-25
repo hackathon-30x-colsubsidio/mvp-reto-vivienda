@@ -108,10 +108,22 @@ def resolver_ciudad_zona(nombre, ubicacion, incierta: bool) -> tuple[str, str | 
 
 # VIS = Vivienda de Interés Social. El Excel real NO trae esta bandera; se
 # aproxima con el tope legal (~150 SMMLV, Decreto vigente de vivienda) usando
-# un SMMLV de referencia. ES UNA HEURÍSTICA, no un dato oficial del reto —
-# a verificar/ratificar en el kickoff, igual que el resto de umbrales.
-SMMLV_REFERENCIA = 1_423_500
-TOPE_VIS_ESTIMADO = round(150 * SMMLV_REFERENCIA, -6)  # ~$213.5M, redondeado
+# el SMMLV vigente. ES UNA HEURÍSTICA, no un dato oficial del reto.
+#
+# ⚠️ EL SMMLV SUBIÓ A $1.750.905 EN 2026 (+23%, Decretos 1469/1470 de 2025) y
+#    eso mueve este umbral de ~$213M a ~$263M. Consecuencia: al regenerar,
+#    VARIOS PROYECTOS PASAN DE no-VIS A VIS (los que están entre esos dos
+#    valores: ZARZAL, PAMPLONA, BOSQUE DE TURPIAL, RESERVA DE AGUAYACÁN,
+#    KARAKALI, SAMÁN). No es cosmético: la VIS financia el 80% en vez del 70%,
+#    así que su cuota estimada SUBE y esos proyectos se vuelven menos
+#    alcanzables (ver lib/scoring/capacidad.ts).
+#
+#    `data/sintetica/proyectos.json` NO se pudo regenerar cuando esto cambió
+#    —los CSV de entrada salen del Excel real y no viven en el repo—, así que
+#    hoy trae las banderas VIS del SMMLV viejo. Quien tenga los insumos: correr
+#    este script y revisar el diff antes de confiar en la clasificación.
+SMMLV_REFERENCIA = 1_750_905  # 2026, Decretos 1469/1470 de 2025
+TOPE_VIS_ESTIMADO = round(150 * SMMLV_REFERENCIA, -6)  # ~$263M
 
 
 def generar_proyectos() -> list[dict]:

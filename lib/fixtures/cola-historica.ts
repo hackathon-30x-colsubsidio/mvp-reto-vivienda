@@ -42,11 +42,12 @@ const LEADS_A_GENERAR = 57;
  * SMMLV usado para traducir los rangos de ingreso de las identidades a
  * pesos, que es lo que el motor necesita para el tope del 40%.
  *
- * ⚠️  SUPUESTO POR VALIDAR: es el salario mínimo de 2025 ($1.423.500).
- *     El de 2026 no está publicado al escribir esto. Se marca como
- *     supuesto en vez de inventarse un número (AGENTS.md).
+ * **$1.750.905 en 2026**, fijado por los Decretos 1469 y 1470 del 29 de
+ * diciembre de 2025 (+23% sobre 2025). Ya no es supuesto: tiene fuente
+ * (docs/credito-y-subsidios.md). Si cambia el año, cambia también en
+ * `lib/conversacion/preguntas.ts` y en `scripts/generar_sintetica.py`.
  */
-const SMMLV_SUPUESTO = 1_423_500;
+const SMMLV = 1_750_905;
 
 /** Rango de ingreso mensual del hogar por banda, en múltiplos de SMMLV. */
 const BANDAS_INGRESO: Record<string, [number, number]> = {
@@ -165,7 +166,7 @@ function ingresoDe(azar: () => number, identidad: Identidad): number {
   const enSmmlv = min + azar() * (max - min);
   // Se redondea a la decena de miles: un ingreso declarado en un chat no
   // llega con centavos.
-  return Math.round((enSmmlv * SMMLV_SUPUESTO) / 10_000) * 10_000;
+  return Math.round((enSmmlv * SMMLV) / 10_000) * 10_000;
 }
 
 /**
