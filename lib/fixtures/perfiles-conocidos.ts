@@ -22,6 +22,9 @@ export const afiliadoListo: PerfilConocido = {
   ciudad: "Bogotá",
   segmento: "Beta",
   rango_ingreso: "3-5 SMMLV",
+  // De una afiliada, Colsubsidio también sabe la edad: la base de identidades
+  // la trae para las 303 personas. Por eso a Diana NO se le pregunta.
+  rango_edad: "20_35",
 };
 
 export const noAfiliadoListo: PerfilConocido = {

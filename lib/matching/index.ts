@@ -1,11 +1,26 @@
 import type { Lead } from "@/lib/types";
 import { precioMaximoDe } from "@/lib/scoring/capacidad";
+import { similitudCon } from "@/lib/scoring/similitud";
+import { coincideBarrio, coincideZona } from "./geografia";
 import type { EntradaMatch, FichaProyecto, ProyectoElegido } from "./tipos";
 
 // El matcher es determinista y sin LLM: elige y deja la traza de por qué.
-// El experto (prompt-experto.ts) solo redacta el porqué de lo ya elegido.
+// El experto (prompt-experto.ts) solo redacta el porqué de lo ya elegido —
+// puede ordenar y enamorar, pero no puede colar un proyecto que las reglas
+// duras no dejaron pasar.
 
 const MAXIMO_RECOMENDADOS = 3;
+
+/** Fuera de la zona del lead solo se muestran ALTERNATIVAS marcadas, y pocas. */
+const MAXIMO_ALTERNATIVAS_FUERA_DE_ZONA = 2;
+
+/**
+ * Bonos del ranking (no del puntaje del motor): se suman a la similitud 0–1
+ * para ordenar candidatos YA filtrados por precio y zona. Números visibles y
+ * con nombre — el orden también es "cero caja negra".
+ */
+const BONO_VIS_CON_SUBSIDIO = 0.15; // proyecto VIS cuando el lead declaró subsidio
+const BONO_BARRIO_EXACTO = 0.1; // nombró el sector del proyecto, no solo la ciudad
 
 // "$194.023.050", sin el espacio duro que mete `style: "currency"`: es el mismo
 // formato que usa el motor en el valor de sus factores, y el espacio duro además
@@ -32,71 +47,59 @@ function cupoLibre(proyecto: FichaProyecto): number {
  * "el que se pasó por menos unidades" — que es solo otra forma de decir **el
  * proyecto más pequeño**: ZARZAL (1 permitido, 2 vendidos → −1) le ganaba a
  * LA MACARENA (37 permitidos, 82 vendidos → −45), aunque sea $77M más caro.
- * Como el cupo se compara ANTES que el precio, el precio dejaba de contar y
- * todo no afiliado terminaba viendo los mismos 3 proyectos.
+ * Como el cupo se compara ANTES que la similitud/precio, el resto dejaba de
+ * contar y todo no afiliado terminaba viendo los mismos proyectos chicos.
  *
- * Con el tope en 0, todos los copados empatan y el desempate cae al precio,
- * que es lo que le sirve al lead. El cupo sigue desempatando **mientras haya
- * cupo de verdad**, que es lo que la regla 90/10 quiere decir.
+ * Con el tope en 0, todos los copados empatan y el desempate cae más abajo.
+ * El cupo sigue desempatando **mientras haya cupo de verdad**, que es lo que
+ * la regla 90/10 quiere decir.
  */
 function cupoDisponible(proyecto: FichaProyecto): number {
   return Math.max(0, cupoLibre(proyecto));
 }
 
-/** Sin tildes y en minúsculas: "Bogotá" y "bogota" son la misma ciudad. */
-function normalizar(texto: string): string {
-  return texto
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "");
-}
-
-/**
- * ¿Este proyecto queda donde el lead quiere vivir?
- *
- * La comparación es por **inclusión en los dos sentidos**, no por igualdad: la
- * pregunta del chat es *"¿dónde te imaginas viviendo?"* con texto libre, así que
- * la respuesta real es "Bogotá, por el norte" o "en Chía", casi nunca la ciudad
- * pelada. Con igualdad exacta, esas respuestas NO coincidían con nada y el lead
- * perdía el filtro de zona sin que nada fallara.
- *
- * Dos guardas:
- * - se piden 3 caracteres mínimo, para que un "a" suelto no matchee todo;
- * - un proyecto con la **ubicación sin confirmar** nunca cuenta como
- *   coincidencia: su ciudad dice dos cosas distintas y prometerla sería inventar.
- */
-function coincideZona(proyecto: FichaProyecto, zona: string | undefined): boolean {
-  if (!zona || proyecto.ubicacion_incierta) return false;
-
-  const buscada = normalizar(zona);
-  if (buscada.length < 3) return false;
-
-  return [proyecto.ciudad, proyecto.zona].some((campo) => {
-    if (!campo) return false;
-    const delProyecto = normalizar(campo);
-    return delProyecto.includes(buscada) || buscada.includes(delProyecto);
-  });
+function tieneSubsidio(lead: Lead): boolean {
+  return (
+    (lead.respuestas.subsidios ?? []).length > 0 ||
+    (lead.respuestas.subsidio_monto_mensual ?? 0) > 0
+  );
 }
 
 /**
  * Elige 2-3 proyectos del catálogo por reglas explícitas.
  *
- * Orden de las reglas (solo la primera descarta, las demás rankean):
- * 1. Fuera todo proyecto por encima del `precio_maximo` que calculó el motor
- *    con el tope del 40% (Decreto 583 de 2025). El Track C no recalcula la norma.
- *    **Es el ÚNICO descarte.**
- * 2. El cupo 90/10 ya NO descarta (cambiado el 2026-07-24, spec 04 D3): los
- *    proyectos con el cupo copado se muestran de últimos y con la advertencia
- *    encima. En el catálogo real los 18 lo tienen agotado, así que la regla dura
- *    dejaba al no afiliado con cero proyectos aunque pasara el corte financiero.
- *    El hallazgo no se pierde: se dice en cada recomendación (ver `razonesDe`) y
- *    se sigue midiendo en el tablero.
- * 3. Si hay 2+ candidatos en su zona, se recomienda solo dentro de la zona.
- * 4. Ranking: primero el proyecto por el que preguntó, luego los de su zona,
- *    luego (si es no afiliado) los de más cupo libre, y al final el más barato.
+ * FILTROS (descartan, en orden):
+ * 1. Precio: fuera todo proyecto por encima de su techo. El techo se calcula
+ *    POR PROYECTO, no con un número plano: una VIS permite financiar el 80%
+ *    en vez del 70% (Decreto 583 de 2025), así que a igual precio su cuota
+ *    mensual es más alta y el máximo que el lead aguanta es más bajo. Con un
+ *    solo número, una VIS cara se colaba con una cuota por encima del 40%.
+ *    `precio_maximo` (el que calculó el motor, no-VIS) sigue mandando como
+ *    techo del que llama; `techoDe` nunca lo supera, solo lo puede bajar.
+ * 2. Zona: si el lead dijo dónde quiere vivir (o el enriquecimiento trajo su
+ *    ciudad), solo se recomienda AHÍ — aunque quede un solo proyecto. El match
+ *    es por tokens normalizados (lib/matching/geografia.ts): "Bogotá, por el
+ *    norte" sí encuentra Bogotá. Un proyecto con `ubicacion_incierta` (la
+ *    fuente original se contradice) NUNCA cuenta como coincidencia — se puede
+ *    recomendar por precio, con la advertencia encima, nunca prometido por zona.
+ *    Murió el fallback que, si la zona no daba 2+ candidatos, recomendaba de
+ *    todo el catálogo en silencio: un bogotano recibía Girardot sin que nadie
+ *    se lo dijera (corregido 2026-07-25).
+ *    · Si en su zona no hay NADA que le alcance, se devuelven hasta 2
+ *      alternativas marcadas `fuera_de_zona: true` con la razón honesta —
+ *      la decisión es del lead y del asesor, no del matcher.
+ *    · Sin zona conocida no se inventa una: compite todo el catálogo.
  *
- * En nutrición devuelve vacío: no se recomienda lo que el lead no puede pagar.
+ * RANKING (ordena, nunca descarta): interés declarado primero; después
+ * similitud con los compradores reales del proyecto (ticket 016) + bonos
+ * visibles (VIS si declaró subsidio, barrio exacto); cupo disponible para el
+ * no afiliado (nunca negativo — ver `cupoDisponible`); y el precio queda de
+ * ÚLTIMO desempate — antes era el criterio dominante y todo el mundo recibía
+ * los 3 proyectos más baratos del catálogo, ganara 3 o 15 millones.
+ *
+ * El cupo 90/10 NO descarta (spec 04 D3, 2026-07-24): se muestra con su
+ * advertencia. En nutrición devuelve vacío: no se recomienda lo que el lead
+ * no puede pagar.
  */
 export function matchear({
   lead,
@@ -107,52 +110,56 @@ export function matchear({
   if (score.salida === "nutricion") return [];
 
   const noAfiliado = score.salida === "listo_restriccion_cupo";
+  const afiliado = !noAfiliado;
   const zona = zonaDeInteres(lead);
+  const conSubsidio = tieneSubsidio(lead);
   const esInteres = (p: FichaProyecto) => p.nombre === lead.evento.proyecto_interes;
 
-  // El precio es el ÚNICO descarte. El cupo 90/10 no bota proyectos: los baja
-  // en el orden y los marca (ver `razonesDe`).
-  //
-  // Antes sí botaba, y con el catálogo real eso dejaba al no afiliado con CERO
-  // proyectos —los 18 tienen el cupo copado— aunque hubiera pasado el corte
-  // financiero. El mentor fue claro en que a Colsubsidio le interesa cerrar la
-  // venta y que la afiliación solo debe pesar entre perfiles parecidos, así que
-  // castigar al lead con las manos vacías contradice la operación real: el
-  // 27,1% de los compradores históricos NO son afiliados. El hallazgo del 90/10
-  // no se pierde — sigue medido en el tablero y dicho en cada recomendación.
-  // El techo se calcula POR PROYECTO, no con un número plano: una VIS permite
-  // financiar el 80% en vez del 70%, así que a igual precio su cuota mensual es
-  // más alta y el máximo que el lead aguanta es más bajo. Con un solo número,
-  // una VIS cara se colaba con una cuota por encima del 40% — justo lo que la
-  // obligación 3 de este spec prohíbe. `precio_maximo` sigue mandando como
-  // techo del que llama (es el contrato de `EntradaMatch`).
-  const techoDe = (p: FichaProyecto) =>
-    Math.min(precio_maximo, precioMaximoDe(lead, p.vis));
-
+  // FILTRO 1 — precio: el único descarte financiero, techo por proyecto (VIS
+  // financia más, así que su techo es más bajo a igual precio).
+  const techoDe = (p: FichaProyecto) => Math.min(precio_maximo, precioMaximoDe(lead, p.vis));
   const candidatos = catalogo.filter((p) => p.precio_desde <= techoDe(p));
 
-  // Si en su zona hay con qué armar la recomendación, no se sale de la zona:
-  // ofrecerle otra ciudad a quien ya dijo dónde quiere vivir quema el match.
-  const enZona = candidatos.filter((p) => coincideZona(p, zona));
+  // FILTRO 2 — zona: si la conocemos, manda.
+  const enZona = zona ? candidatos.filter((p) => coincideZona(p, zona)) : candidatos;
+  const fueraDeZona = zona !== undefined && enZona.length === 0;
+  const elegibles = fueraDeZona ? candidatos : enZona;
+  const maximo = fueraDeZona ? MAXIMO_ALTERNATIVAS_FUERA_DE_ZONA : MAXIMO_RECOMENDADOS;
 
-  return (enZona.length >= 2 ? enZona : candidatos)
+  // RANKING — puntos visibles por proyecto (similitud + bonos), calculados una
+  // vez y no dentro del comparador.
+  const puntosDe = new Map<string, number>(
+    elegibles.map((p) => {
+      const sim = similitudCon(lead, p.proyecto_id, afiliado).valorNorm;
+      const bonoVis = conSubsidio && p.vis ? BONO_VIS_CON_SUBSIDIO : 0;
+      const bonoBarrio = coincideBarrio(p, zona) ? BONO_BARRIO_EXACTO : 0;
+      return [p.proyecto_id, sim + bonoVis + bonoBarrio];
+    }),
+  );
+
+  return elegibles
     .sort(
       (a, b) =>
         Number(esInteres(b)) - Number(esInteres(a)) ||
-        Number(coincideZona(b, zona)) - Number(coincideZona(a, zona)) ||
+        (puntosDe.get(b.proyecto_id) ?? 0) - (puntosDe.get(a.proyecto_id) ?? 0) ||
         // Solo desempata mientras quede cupo de verdad: si están todos copados
         // (hoy, los 18), esto da 0 y manda el precio. Ver `cupoDisponible`.
         (noAfiliado ? cupoDisponible(b) - cupoDisponible(a) : 0) ||
         a.precio_desde - b.precio_desde,
     )
-    .slice(0, MAXIMO_RECOMENDADOS)
+    .slice(0, maximo)
     .map((ficha) => ({
       ficha,
+      fuera_de_zona: fueraDeZona || undefined,
       razones: razonesDe(ficha, {
+        lead,
+        afiliado,
         precio_maximo: techoDe(ficha),
         zona,
         noAfiliado,
+        conSubsidio,
         esInteres: esInteres(ficha),
+        fueraDeZona,
       }),
     }));
 }
@@ -164,31 +171,58 @@ export function matchear({
 function razonesDe(
   proyecto: FichaProyecto,
   contexto: {
+    lead: Lead;
+    afiliado: boolean;
     precio_maximo: number;
     zona: string | undefined;
     noAfiliado: boolean;
+    conSubsidio: boolean;
     esInteres: boolean;
+    fueraDeZona: boolean;
   },
 ): string[] {
-  const razones = [
+  const razones: string[] = [];
+
+  if (contexto.fueraDeZona) {
+    // La advertencia va PRIMERO: es una alternativa, no una recomendación normal.
+    razones.push(
+      `⚠️ fuera de tu zona: en ${contexto.zona} no hay proyectos del catálogo dentro de tu presupuesto — esta es una alternativa en ${proyecto.ciudad}`,
+    );
+  }
+
+  razones.push(
     `precio desde ${pesos.format(proyecto.precio_desde)}, dentro del máximo de ${pesos.format(
       contexto.precio_maximo,
     )} que le permite el tope del 40% del ingreso (Decreto 583 de 2025)`,
-  ];
+  );
 
   if (contexto.esInteres) {
     razones.push("es el proyecto por el que preguntó al dejar sus datos");
   }
   if (coincideZona(proyecto, contexto.zona)) {
-    razones.push(`queda en ${proyecto.ciudad}, la zona que le interesa`);
+    razones.push(
+      coincideBarrio(proyecto, contexto.zona) && proyecto.zona
+        ? `queda en ${proyecto.zona} (${proyecto.ciudad}), el sector que nombró`
+        : `queda en ${proyecto.ciudad}, la zona que le interesa`,
+    );
   }
   if (proyecto.ubicacion_incierta) {
-    // Entra por precio, nunca por zona (ver `coincideZona`), y el asesor tiene
-    // que saber por qué no se le promete una ciudad: la fuente dice dos.
+    // Entra por precio, nunca por zona (ver coincideZona en geografia.ts), y
+    // el asesor tiene que saber por qué no se le promete una ciudad: la fuente
+    // original dice dos.
     razones.push(
       `⚠️ la ubicación de este proyecto no está confirmada — el insumo original lo reporta en dos ciudades distintas (${proyecto.ciudad}), así que hay que verificarla antes de ofrecérsela`,
     );
   }
+
+  // Similitud con compradores reales: las evidencias salen del ÚNICO punto que
+  // redacta los % (lib/scoring/similitud.ts). Si el equipo decide no citar el
+  // PPT, se vacían allá y esta razón desaparece sola.
+  const { evidencias } = similitudCon(contexto.lead, proyecto.proyecto_id, contexto.afiliado);
+  if (evidencias.length > 0) {
+    razones.push(`gente como él ya compró aquí: ${evidencias.join("; ")}`);
+  }
+
   if (contexto.noAfiliado) {
     razones.push(
       cupoLibre(proyecto) > 0
@@ -200,7 +234,11 @@ function razonesDe(
     );
   }
   if (proyecto.vis) {
-    razones.push("es VIS, así que admite los subsidios de vivienda de interés social");
+    razones.push(
+      contexto.conSubsidio
+        ? `es VIS, así que el subsidio que declaró (${(contexto.lead.respuestas.subsidios ?? []).join(", ") || "por confirmar"}) aplica aquí`
+        : "es VIS, así que admite los subsidios de vivienda de interés social",
+    );
   }
 
   return razones;

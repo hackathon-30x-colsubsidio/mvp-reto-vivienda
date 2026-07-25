@@ -63,3 +63,44 @@ describe("enriquecimiento por cédula", () => {
     expect(campos).not.toContain("zona_interes");
   });
 });
+
+describe("la edad también se sabe: no se le pregunta a quien ya conocemos", () => {
+  // La base trae `rango_edad` de las 303 personas y el enriquecimiento lo
+  // botaba, así que el chat le preguntaba la edad a alguien de quien ya la
+  // teníamos. Es el mismo criterio 1 del ingreso y la ciudad.
+  it("normaliza los DOS formatos que trae el Excel real", () => {
+    // "20 a 35 años" y "20 - 35 años" son el mismo valor escrito distinto: es
+    // una de las trampas anotadas en AGENTS.md, y con comparación literal más
+    // de la mitad de la base se leería como "sin edad".
+    const conEdad = (identidades as { cedula: string; rango_edad: string }[]).filter((i) =>
+      /^20/.test(i.rango_edad),
+    );
+    expect(conEdad.length).toBeGreaterThan(100);
+    for (const identidad of conEdad.slice(0, 40)) {
+      expect(enriquecerPorCedula(identidad.cedula).rango_edad, identidad.rango_edad).toBe("20_35");
+    }
+  });
+
+  it("a quien trae edad NO se le pregunta la edad", () => {
+    const alguien = (identidades as { cedula: string }[])[0];
+    const perfil = enriquecerPorCedula(alguien.cedula);
+
+    expect(perfil.rango_edad).toBeDefined();
+    expect(construirPreguntas(perfil).map((p) => p.campo)).not.toContain("rango_edad");
+  });
+
+  it("a quien NO la trae sí se le pregunta", () => {
+    const campos = construirPreguntas({ match: false }).map((p) => p.campo);
+    expect(campos).toContain("rango_edad");
+  });
+
+  it("un tramo que no cabe en los tres buckets no se inventa", () => {
+    // "Menor de 19 años" no es 20-35: se deja sin dato y se le pregunta, que es
+    // preferible a meterlo a la fuerza en un tramo que no es el suyo.
+    const menor = (identidades as { cedula: string; rango_edad: string }[]).find((i) =>
+      /menor de 19/i.test(i.rango_edad),
+    );
+    if (!menor) return; // si la base cambia y ya no hay, el test no miente
+    expect(enriquecerPorCedula(menor.cedula).rango_edad).toBeUndefined();
+  });
+});

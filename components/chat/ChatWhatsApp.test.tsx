@@ -105,7 +105,10 @@ describe("criterio 4 — el lead listo sale con una cita agendada", () => {
       // Autoriza sus datos (habeas data) y contesta con los atajos.
       await tocar(/Sí, la comparto/i);
       await tocar(/Sería la primera/i);
+      await tocar(/Con mi pareja/i);
       await tocar(/Ninguno todavía/i);
+      // Sin paso de edad: el perfil de Diana ya la trae del enriquecimiento y
+      // el conversador no repregunta lo que sabe (criterio de aceptación 1).
       await tocar(/Al día con todo/i);
 
       // Al cerrar, el chat ofrece las franjas de la sala de ventas.

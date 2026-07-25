@@ -1,7 +1,7 @@
 ---
 id: 016
 serves: "spec §4 — factor 'similitud con compradores reales' (evidencia por proyecto) + decisión de grilling 2026-07-24 (buyer personas al workflow)"
-status: todo
+status: done
 ---
 
 # 016 — Distribuciones por proyecto + buyer_personas.json
@@ -18,9 +18,9 @@ Hacer calculable el factor "similitud con compradores reales": hoy `data/sinteti
 - Fuera: cambiar la forma de `proyectos.json` (ya está estable para el matcher de C).
 
 ## Done cuando
-- [ ] Un agregado por `proyecto_id` existe (en `distribuciones.json` o un archivo nuevo) con lo que consume la similitud.
-- [ ] `buyer_personas.json` existe con las variables extra del PPT, marcadas `[derivado]`.
-- [ ] Rol 3 puede citar "el X% de compradores de este proyecto…" sin inventar el número.
+- [x] Un agregado por `proyecto_id` existe (en `distribuciones.json` o un archivo nuevo) con lo que consume la similitud. → `data/sintetica/buyer_personas.json`, generado por `scripts/generar-buyer-personas.ts` (2026-07-25).
+- [x] `buyer_personas.json` existe con las variables extra del PPT, marcadas `[derivado]`. Género excluido y slides rotos marcados `confiable: false`, como pedía la nota de extracción.
+- [x] Rol 3 puede citar "el X% de compradores de este proyecto…" sin inventar el número. → `lib/scoring/similitud.ts` (`similitudCon`) es el ÚNICO punto que redacta los %; los consume el factor del motor y el ranking del matcher.
 
 ## Notas
 Decisión de grilling: griegos = clusters anónimos con etiqueta `[inferido]`, nunca oficial. Cero data real al repo público (restricción no-negociable de `AGENTS.md`).

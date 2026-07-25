@@ -53,12 +53,12 @@ export default async function MetricasPage({ searchParams }: Props) {
       : Math.round(((noAfiliados?.leads.length ?? 0) / datos.leads.length) * 100);
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col px-5 py-4 lg:overflow-hidden lg:px-7">
+    <main className="flex min-h-0 flex-1 flex-col px-5 py-3.5 lg:overflow-hidden lg:px-7">
       {/* CABECERA — compacta y fija. Todo en UNA línea de altura: el
           título, el hecho que decide la pantalla y el selector.
           La compacidad no es estética: el alto útil de una ventana de
           1440×900 es ~530px, no 900. Medido, no estimado. */}
-      <header className="mb-2.5 flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-2">
+      <header className="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-2">
         <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
           <h1 className="text-texto text-[24px] leading-none font-extrabold tracking-[-0.02em]">
             Métricas
@@ -112,7 +112,7 @@ export default async function MetricasPage({ searchParams }: Props) {
 
       {/* Los avisos van al PIE: son verdad que el jurado debe poder ver,
           pero no son el titular de la pantalla. */}
-      <footer className="mt-2 shrink-0 space-y-1.5">
+      <footer className="mt-1.5 shrink-0 space-y-1.5">
         <AvisoOrigen origen={datos.origen} />
         <AvisoSintetico datos={datos} />
       </footer>

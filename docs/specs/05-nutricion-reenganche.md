@@ -26,6 +26,8 @@ El punto 5 es importante y viene de la operación real: Colsubsidio **nunca comp
 
 El motor solo tiene una regla que bloquea, así que hoy **la única razón posible es la cuota sobre el 40%**. Pero un lead puede quedarse por el camino de otras formas, y esas hoy no se registran:
 
+> **No confundir con los recursos (ADR 0007).** La capa de recursos es **ortogonal** a esta tabla: no es una razón para caer en nutrición. Un lead `listo` recibe recurso igual, y un lead de nutrición recibe recurso *además* de su razón+trigger. Las razones de abajo siguen siendo del corte; los recursos cuelgan de los factores, no de la salida.
+
 | # | Razón | ¿Existe hoy? | Trigger propuesto |
 |---|---|---|---|
 | 1 | La cuota supera el 40% del ingreso **de todo el catálogo** | ⚠️ Ver el aviso de abajo | Condicional: sube el ingreso, aplica un subsidio, o entra un proyecto más barato |
@@ -51,17 +53,19 @@ Nunca se inventa una fecha para que se vea bonito.
 
 > ⚠️ **Corregido el 2026-07-25.** Esta sección decía *"el personaje de nutrición del demo es, a propósito, el caso con fecha"*. **No lo es:** Yuliana falla por cuota > 40%, que es una regla **condicional**, y `triggerDelGate()` le produce un trigger sin fecha (con el monto exacto que lo destraba: *"le faltan $110.286"*). **Hoy ninguna regla fallida del demo es temporal, así que la rama con fecha no tiene qué mostrar** — está dicho también en la lista de "lo que NO se va a hacer" de [`plan-sabado-25.md`](../agents/plan-sabado-25.md).
 
-### D3 · Qué se le dice al lead · [PROPUESTA]
+> **[HOY — construido, 2026-07-25, ADR 0007]** La rama del *trigger* sigue sin fecha (lo de arriba se mantiene: el gate del 40% no es temporal). Lo que sí existe ahora es una fecha, pero **en la capa de recursos, no en `trigger_nutricion`**: lo temporal no es la cuota, es la **antigüedad de afiliación** — 6 meses de aporte del 2% antes de poder postular al subsidio. Esa fecha la computa [`lib/recursos/elegibilidad.ts`](../../lib/recursos/elegibilidad.ts) (TS puro, "hoy + 6 meses") y alimenta el `porque` del recurso de afiliación. Como ese recurso se dispara para **todo no-afiliado**, el "caso con fecha" aparece esté el lead `listo` o en `nutrición` — sin tocar el trigger del gate, que sigue condicional.
+
+### D3 · Qué se le dice al lead · [HOY — construido, 2026-07-25, ADR 0007]
 
 Hoy el `trigger_nutricion` está redactado para el asesor. Al lead hay que decírselo distinto, y hay una tensión: **decirle "no calificas" es exactamente lo que el reto no quiere**, pero mentirle es peor.
 
-Propuesta de contenido, no de redacción exacta:
+El molde quedó construido en [`lib/recursos/mensajes.ts`](../../lib/recursos/mensajes.ts), con **dos variantes** porque el caso "listo + recurso" no es el mismo que "nutrición + recurso":
 1. Qué sí tiene a favor (que se le reconozca algo real).
-2. Cuál es el obstáculo concreto, con la norma citada si aplica.
-3. **Qué lo destrabaría**, en acciones que él puede tomar.
-4. Que le vamos a escribir cuando eso pase.
+2. Cuál es el obstáculo concreto (el de nutrición ya vive en el trigger).
+3. **Qué lo destrabaría**, en acciones que él puede tomar = el recurso concreto + su link.
+4. Para el **listo**: que un asesor lo va a contactar (el recurso es un "además"). Para **nutrición**: que le escribimos cuando la condición cambie.
 
-El punto 3 es el que convierte esto en nutrición y no en un rechazo.
+El punto 3 es el que convierte esto en nutrición y no en un rechazo. **Regla de tono no negociable, blindada por test:** el molde nunca contiene "no calificaste / descartado / rechazo" y el de nutrición siempre dice "te escribimos". El LLM solo pule tono después; nunca decide el contenido.
 
 ### D4 · Cómo se retoma la conversación · [PROPUESTA + brecha]
 

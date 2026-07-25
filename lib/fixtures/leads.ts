@@ -20,7 +20,13 @@ const GUION: Record<string, GuionDemo> = {
     evento: eventos.afiliadoListo,
     perfil: perfiles.afiliadoListo,
     consentimientoTs: "2026-07-23T14:32:10-05:00",
-    respuestasTecleadas: ["Sería la primera", "Mi Casa Ya", "Estoy al día con todo"],
+    // Sin edad: su perfil ya la trae, así que el conversador no la pregunta.
+    respuestasTecleadas: [
+      "Sería la primera",
+      "Con mi pareja",
+      "Mi Casa Ya",
+      "Estoy al día con todo",
+    ],
   },
 
   // Carlos: está en la base pero no es afiliado, así que de él solo se sabe la
@@ -37,8 +43,10 @@ const GUION: Record<string, GuionDemo> = {
     // que su puntaje de prioridad sea bajo.
     respuestasTecleadas: [
       "No, sería la primera",
+      "Con mi esposa y nuestros dos hijos",
       "4.000.000 entre mi esposa y yo",
       "Ninguno todavía",
+      "38",
       "Al día, nunca me he atrasado",
     ],
   },
@@ -50,8 +58,10 @@ const GUION: Record<string, GuionDemo> = {
     consentimientoTs: "2026-07-23T16:20:03-05:00",
     respuestasTecleadas: [
       "No, vivo en arriendo",
+      "Yo sola con mi hija",
       "Entre 1 y 2 salarios mínimos",
       "Ninguno",
+      "Tengo 24 años",
       "Tuve una mora hace poco",
       "Bogotá, por el sur",
     ],

@@ -147,15 +147,26 @@ export function ingresoDesdeRango(rango: string): number | undefined {
  * (`lib/fixtures/guion-demo.ts`). Con dos copias, el personaje sembrado y el
  * mismo personaje conversado darían números distintos.
  */
-export function completarIngreso(
+export function completarDesdePerfil(
   perfil: PerfilConocido,
   respuestas: Lead["respuestas"],
 ): Lead["respuestas"] {
-  if (respuestas.ingreso_hogar_mensual !== undefined || !perfil.rango_ingreso) {
-    return respuestas;
+  let completas = respuestas;
+
+  // El ingreso: punto medio del rango conocido.
+  if (completas.ingreso_hogar_mensual === undefined && perfil.rango_ingreso) {
+    const derivado = ingresoDesdeRango(perfil.rango_ingreso);
+    if (derivado) completas = { ...completas, ingreso_hogar_mensual: derivado };
   }
-  const derivado = ingresoDesdeRango(perfil.rango_ingreso);
-  return derivado ? { ...respuestas, ingreso_hogar_mensual: derivado } : respuestas;
+
+  // La edad: viene ya normalizada del enriquecimiento. No se le preguntó
+  // porque ya la sabíamos, así que el motor la recibe por aquí — si no, la
+  // similitud se quedaría sin uno de sus dos ejes.
+  if (completas.rango_edad === undefined && perfil.rango_edad) {
+    completas = { ...completas, rango_edad: perfil.rango_edad };
+  }
+
+  return completas;
 }
 
 function interpretarIngreso(texto: string): Respuesta {
@@ -206,6 +217,33 @@ function interpretarCrediticia(texto: string): Respuesta {
   if (/sali|salir|me report|estuve|arregl|pagu[ée]|ya me quit|reciente/.test(t)) return CREDITO_SALIENDO;
   if (/mora|report|datacr|deb[oa]|atras|deuda|embarg|mal/.test(t)) return CREDITO_EN_MORA;
   return { patch: { situacion_crediticia: "sin_info" }, acuse: "Perfecto, gracias por decírmelo." };
+}
+
+function interpretarComposicion(texto: string): Respuesta {
+  const t = texto.toLowerCase();
+  // El orden importa: "yo sola con mi hija" es monoparental, no "familia con
+  // hijos" ni "sola" — se descarta primero el caso más específico.
+  if (/(sol[oa]s?\b.*\bhij|hij[oa]s?.*\bsol[oa]|yo con mis? hij|monoparental|madre soltera|padre soltero)/.test(t)) {
+    return OPCION_MONOPARENTAL;
+  }
+  if (/hij|niñ|bebé|bebe|chiquit|pelad[oa]s/.test(t)) return OPCION_FAMILIA_HIJOS;
+  if (/pareja|espos[oa]|novi[oa]|conyug|señora|marido|prometid/.test(t)) return OPCION_PAREJA;
+  if (/sol[oa]\b|yo sol|nadie|independiente|por mi cuenta/.test(t)) return OPCION_SOLO;
+  return { patch: {}, acuse: "Listo, lo tengo presente para buscarte lo que mejor te quede." };
+}
+
+function interpretarEdad(texto: string): Respuesta {
+  const edad = numerosDe(texto).find((n) => n >= 14 && n <= 99);
+  if (edad === undefined) {
+    const t = texto.toLowerCase();
+    if (/veinti|treinta y (uno|dos|tres|cuatro|cinco)\b|^treinta\b/.test(t)) return OPCION_EDAD_20_35;
+    if (/treinta y (seis|siete|ocho|nueve)|cuarenta/.test(t)) return OPCION_EDAD_36_45;
+    if (/cincuenta|sesenta|setenta/.test(t)) return OPCION_EDAD_46_MAS;
+    return { patch: {}, acuse: "Listo, gracias 🙏" };
+  }
+  if (edad <= 35) return OPCION_EDAD_20_35;
+  if (edad <= 45) return OPCION_EDAD_36_45;
+  return OPCION_EDAD_46_MAS;
 }
 
 // ── La zona: la respuesta más impredecible de todas ──────
@@ -369,6 +407,50 @@ const CREDITO_SIN_HISTORIAL: Respuesta = {
     "Sin historial también hay camino — se empieza a construir, y hay proyectos pensados justo para eso.",
 };
 
+// Composición del hogar — alimenta la similitud con compradores reales
+// (ticket 016). Se pregunta por la CASA ("con quién la compartirías"), no por
+// el estado civil: es la misma regla de hablar de la casa y no del trámite.
+
+const OPCION_SOLO: Respuesta = {
+  patch: { composicion_familiar: "solo" },
+  acuse: "Tu espacio, tus reglas 🙌 Hay proyectos donde medio edificio empezó exactamente así.",
+};
+
+const OPCION_PAREJA: Respuesta = {
+  patch: { composicion_familiar: "pareja" },
+  acuse: "Qué bonito arrancar eso de a dos 💛 Lo tengo en cuenta para el espacio que necesitan.",
+};
+
+const OPCION_FAMILIA_HIJOS: Respuesta = {
+  patch: { composicion_familiar: "familia_con_hijos" },
+  acuse:
+    "Con razón la estás buscando en serio: una casa para los hijos no es cualquier compra. Busco donde ya viven familias como la tuya.",
+};
+
+const OPCION_MONOPARENTAL: Respuesta = {
+  patch: { composicion_familiar: "monoparental" },
+  acuse:
+    "Sacar esto adelante así tiene doble mérito 💪 Y ojo: hay subsidios donde eso cuenta a favor, no en contra.",
+};
+
+// Edad — el otro dato que más separa a los proyectos entre sí en el histórico
+// de compradores. Rango, nunca fecha de nacimiento: menos dato, misma señal.
+
+const OPCION_EDAD_20_35: Respuesta = {
+  patch: { rango_edad: "20_35" },
+  acuse: "Buena etapa para meterse en esto: el crédito largo juega a tu favor.",
+};
+
+const OPCION_EDAD_36_45: Respuesta = {
+  patch: { rango_edad: "36_45" },
+  acuse: "Perfecto, lo anoto — es de las etapas donde más gente da el paso.",
+};
+
+const OPCION_EDAD_46_MAS: Respuesta = {
+  patch: { rango_edad: "46_mas" },
+  acuse: "Anotado 🙌 Nunca es tarde para dejar de pagar arriendo.",
+};
+
 /**
  * Dado un PerfilConocido, decide qué se pregunta y en qué orden.
  * El único guion fijo es la ausencia de guion: quien ya trajo el dato del
@@ -391,6 +473,22 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
       { etiqueta: "Ya tengo vivienda", ...OPCION_YA_TIENE_VIVIENDA },
     ],
     interpretarTexto: interpretarVivienda,
+  });
+
+  // Sigue en la parte que ilusiona: se pregunta por la casa compartida, no por
+  // el estado civil. El dato alimenta la similitud con compradores reales.
+  pasos.push({
+    campo: "composicion_familiar",
+    pregunta:
+      "Y cuéntame, para imaginarla contigo: ¿con quién la compartirías? Con eso te busco proyectos donde ya viven hogares como el tuyo.",
+    placeholder: "Ej: con mi pareja y los niños...",
+    opciones: [
+      { etiqueta: "Solo yo", ...OPCION_SOLO },
+      { etiqueta: "Con mi pareja", ...OPCION_PAREJA },
+      { etiqueta: "Con mi familia e hijos", ...OPCION_FAMILIA_HIJOS },
+      { etiqueta: "Yo con mis hijos", ...OPCION_MONOPARENTAL },
+    ],
+    interpretarTexto: interpretarComposicion,
   });
 
   if (!perfil.rango_ingreso) {
@@ -421,6 +519,28 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
     ],
     interpretarTexto: interpretarSubsidios,
   });
+
+  // Antes de la crediticia, para que "última de las incómodas" siga siendo
+  // verdad. Rango de edad, nunca fecha exacta: alimenta la similitud con
+  // compradores reales (las etapas de vida separan mucho los proyectos).
+  //
+  // ⚠️ Solo si NO la sabemos ya. La base de identidades trae el rango de edad
+  // de las 303 personas, así que a quien reconocimos por su cédula no se le
+  // pregunta — es el mismo criterio 1 que ya aplica al ingreso y a la ciudad.
+  if (!perfil.rango_edad) {
+    pasos.push({
+      campo: "rango_edad",
+      pregunta:
+        "Otra cortica que me ayuda mucho: ¿en qué etapa vas? Con eso te muestro proyectos donde compra gente en tu mismo momento de vida.",
+      placeholder: "Ej: tengo 29",
+      opciones: [
+        { etiqueta: "Entre 20 y 35", ...OPCION_EDAD_20_35 },
+        { etiqueta: "Entre 36 y 45", ...OPCION_EDAD_36_45 },
+        { etiqueta: "Más de 45", ...OPCION_EDAD_46_MAS },
+      ],
+      interpretarTexto: interpretarEdad,
+    });
+  }
 
   pasos.push({
     campo: "situacion_crediticia",

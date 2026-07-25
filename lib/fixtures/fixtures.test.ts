@@ -17,9 +17,13 @@ describe("fixtures de los 3 personajes", () => {
     expect(leadsCurados.afiliadoListo.cita).toBeDefined();
   });
 
-  it("listo_restriccion_cupo trae 2-3 proyectos y cita", () => {
+  it("listo_restriccion_cupo trae 1-3 proyectos y cita", () => {
+    // Carlos es de Ricaurte y con la zona estricta (2026-07-25) solo Payandé
+    // le queda en SU zona: 1 proyecto es el resultado honesto, no un bug. La
+    // DB lo acepta (db/migracion-001, `listo_tiene_hasta_3_proyectos`).
     expect(leadsCurados.noAfiliadoListo.score.salida).toBe("listo_restriccion_cupo");
-    expect(leadsCurados.noAfiliadoListo.proyectos.length).toBeGreaterThanOrEqual(2);
+    expect(leadsCurados.noAfiliadoListo.proyectos.length).toBeGreaterThanOrEqual(1);
+    expect(leadsCurados.noAfiliadoListo.proyectos.length).toBeLessThanOrEqual(3);
     expect(leadsCurados.noAfiliadoListo.cita).toBeDefined();
   });
 

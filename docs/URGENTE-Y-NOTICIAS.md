@@ -16,7 +16,7 @@
 - **No:** que Sara recomiende o compare proyectos. Está **prohibido en el prompt**: consulta precios y ubicaciones, recomendar es del matcher determinista. Si alguien le pide que recomiende, le dice que en un momento le arma opciones.
 - **No:** montos de subsidio. Se responde para qué sirve y quién puede pedirlo, **sin cifra**, porque las fuentes se contradicen.
 
-⚠️ **Para el merge:** la rama toca [`components/chat/ChatWhatsApp.tsx`](../components/chat/ChatWhatsApp.tsx) (roce con **P3 / ticket 024**) y `FilaLead.tsx` (roce con el recorrido de **P1**). **No toca** `preguntas.ts`, `lib/fixtures/`, `lib/scoring/`, `lib/matching/` ni `app/asesor/page.tsx`. Ya está rebasada sobre `main` con el cambio de la cuota y el SMMLV. Orden acordado: **023 → 024 → esta**. Decisiones en el [ADR 0006](adr/0006-prompt-maestro-y-desvio.md).
+✅ **Ya mergeada a `main`** (2026-07-25 noche, 338 tests verdes; detalle de la reconciliación en el [handoff](agents/handoff.md)). El orden acordado **023 → 024 → esta** no se cumplió: los tickets 023 y 024 siguen abiertos y no chocan técnicamente con esta rama. Decisiones en el [ADR 0006](adr/0006-prompt-maestro-y-desvio.md).
 
 ## ✅ 2026-07-25 14:00 — El 0,6% ya no existe: la cuota se calcula de verdad
 
@@ -98,6 +98,16 @@ Su techo es $266.666.666. Cae por la vivienda que miró, no por su capacidad, y 
 1. **El techo real del puntaje es 75, no 100 ni 90.** El subsidio aporta 0 a todo lead real (nadie pregunta el monto) y la similitud aporta la mitad fija. **Diana con 74 está a UN punto del máximo alcanzable**, no a 26. Si alguien dice "74 sobre 100" en el video, se está subvendiendo. ⚠️ Los 57 leads sintéticos del tablero **sí** traen subsidio, así que el promedio mezcla dos techos.
 2. **`/api/match` y `/api/explicacion` no las llama ninguna pantalla.** No es deuda (decisión 5), pero que nadie invierta tiempo ahí creyendo que están en el camino del demo.
 3. **El hilo de la conversación se guarda y nunca se lee.** Es la brecha más barata de cerrar y la que da paridad con lo que el asesor ya tiene hoy en su plataforma.
+
+## 🟠 2026-07-25 15:00 — El matcher cambió (zona estricta + similitud real) y eso mueve TRES cosas que el equipo tiene que saber
+
+Detalle completo en [`handoff.md` 2026-07-25 15:00](agents/handoff.md). **211 tests verdes, typecheck y lint limpios.** Lo que le cambia el día a cada quien:
+
+1. **`db/seed.sql` cambió OTRA VEZ → hay que volver a correrlo en Supabase antes de grabar.** Los guiones de los 3 personajes ahora responden 2 preguntas nuevas y sus puntajes/proyectos los recalculó el motor con la similitud real. El seed viejo en producción muestra fichas que el código ya no produce.
+2. **La ficha de Carlos cambió de narrativa: ahora recibe 1 SOLO proyecto (Payandé).** Es la zona estricta funcionando — Carlos es de Ricaurte y Payandé es lo único de su zona que le cabe. Antes recibía 3 de ciudades ajenas. Si el guion del video decía "3 proyectos marcados por cupo", ya no es verdad: ahora la historia es *"solo se recomienda donde quiere vivir, y se le dice por qué"*.
+3. **`lib/types.ts` cambió (contrato entre tracks):** `respuestas` tiene 2 campos nuevos, `composicion_familiar` y `rango_edad` — el chat los pregunta ("¿con quién la compartirías?" y rango de edad) y la similitud los consume. Si tu track construye contra `Lead`, typecheck te lo va a decir.
+
+**Y una decisión reversible a un solo punto:** las recomendaciones ahora citan % del PPT de buyer personas ("el 91% gana hasta 2 SMLV, como tu hogar"). Daniel duda de si esos números son distribuibles al público — si el equipo decide que no, se vacían las `evidencias` en `similitudCon()` (`lib/scoring/similitud.ts`) y desaparecen de ficha, porqué y prompt a la vez, sin tocar nada más.
 
 ## 🔴 2026-07-24 21:00 — HAY QUE CORRER `db/seed.sql` ANTES DE GRABAR (y los 4 bloqueantes ya están corregidos)
 

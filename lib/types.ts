@@ -18,6 +18,14 @@ export interface PerfilConocido {
   ciudad?: string;
   segmento?: string;
   rango_ingreso?: string;
+  /**
+   * Rango de edad, ya normalizado a los mismos tres tramos que usa el motor.
+   *
+   * La base de identidades lo trae para las 303 personas, y el enriquecimiento
+   * lo estaba botando: al lead se le preguntaba la edad aunque ya la
+   * supiéramos — justo lo que el criterio de aceptación 1 prohíbe.
+   */
+  rango_edad?: Lead["respuestas"]["rango_edad"];
 }
 
 // ── A → B: el lead con su conversación terminada ─────────
@@ -33,6 +41,10 @@ export interface Lead {
     subsidio_monto_mensual?: number; // cuánto baja la cuota mensual estimada, si aplica
     situacion_crediticia?: "buena" | "regular" | "mala" | "sin_info";
     zona_interes?: string;
+    /** Rango de edad del titular — alimenta la similitud con compradores reales (ticket 016). */
+    rango_edad?: "20_35" | "36_45" | "46_mas";
+    /** Conformación del hogar (categorías del PPT de buyer personas) — alimenta la similitud. */
+    composicion_familiar?: "solo" | "pareja" | "familia_con_hijos" | "monoparental";
     afiliado_autoreportado?: boolean; // solo se pregunta si perfil.match = false (spec §4 paso 2-3)
   };
 }
@@ -64,6 +76,12 @@ export interface ResultadoCurado {
    * le quedó ningún proyecto — ahí no hay nada que agendar.
    */
   proyecto_cita?: { proyecto_id: string; nombre: string };
+  /**
+   * Recursos recomendados al cerrar la conversación (capa ortogonal). Aditivo y
+   * opcional: el chat los usa para mostrarle al lead su(s) siguiente(s) paso(s).
+   * Vacío o ausente si ningún factor disparó recurso.
+   */
+  recursos?: RecursoRecomendado[];
   /**
    * Si es `false`, al cerrar se le ofrece **afiliarse** (spec 04 D3): con Mi
    * Casa Ya sin presupuesto en 2026, el subsidio de la caja es solo para
@@ -116,12 +134,33 @@ export interface ProyectoRecomendado {
   porque: string; // en lenguaje natural, cita los factores
 }
 
+/**
+ * Un recurso recomendado al lead (capa ortogonal a `Score.salida`, ver ADR de
+ * recursos). NO es una salida ni el premio de consolación de la nutrición: un
+ * lead `listo` con cita agendada puede recibir uno igual, porque un factor
+ * salió débil y le conviene fortalecerlo. La regla es "recurso + esperar al
+ * asesor", nunca "recurso EN VEZ DE asesor".
+ *
+ * Se DERIVA de los factores que el motor ya emitió (cero caja negra): cada
+ * recurso cita el factor que lo disparó. No se persiste — se recomputa desde
+ * `Score.factores` (limitación conocida en el ADR: derivado, no histórico).
+ */
+export interface RecursoRecomendado {
+  recurso_id: string;
+  nombre: string;
+  url: string;
+  tipo: "colsubsidio" | "aliado_externo"; // los externos NUNCA se presentan como oferta propia
+  factor_disparador: string; // el `nombre` del FactorScore que lo activó
+  porque: string; // en lenguaje natural, cita el factor
+}
+
 export interface LeadCurado {
   lead: Lead;
   score: Score;
   proyectos: ProyectoRecomendado[]; // 2-3, vacío si nutrición
   cita?: { fecha: string; sala_ventas: string };
   explicacion: string; // el porqué global, redactado por el experto
+  recursos?: RecursoRecomendado[]; // capa ortogonal, derivada de los factores. Aditivo/opcional.
 }
 
 // ── Data sintética que el motor consume (data/sintetica/proyectos.json) ──

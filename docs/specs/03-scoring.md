@@ -71,6 +71,8 @@ La afiliación **no tiene peso propio a propósito**: su efecto en el puntaje vi
 
 La similitud **nunca corta**. `spec.md §4` la define como *evidencia de respaldo*, no como criterio. Un lead no se cae por no parecerse a los compradores de un proyecto.
 
+> **[HOY — 2026-07-25, ADR 0007]** Estos mismos factores alimentan una segunda cosa además del puntaje: la **capa de recursos**. Cada factor desfavorable (no afiliado, crediticia mala/regular, sin subsidio declarado) mapea a un recurso que se le recomienda al lead — derivado de los factores que el motor ya emite, sin tocar el motor ni el `Score`. **El gate del 40% (`cuota_ingreso_40`) NO dispara recurso directo:** esa cuota se deriva del precio, no de deudas ni ahorro, así que un recurso que dijera atenderla sería caja negra; lo que mueve el gate es la afiliación (→ subsidio). Es ortogonal a la salida: un `listo` recibe recurso igual. Detalle en [ADR 0007](../adr/0007-capa-de-recursos.md) y [`lib/recursos/`](../../lib/recursos/).
+
 ### D4 · Los pesos son propuestos, no ratificados · [ABIERTA A PROPÓSITO — Mani, 2026-07-25]
 
 > **Sala del sábado 25, decisión 8: se deja abierta.** Palabras de Mani: *"lo de los pesos no es algo absoluto ahorita"*. Los valores de hoy son una propuesta con su razón escrita abajo, defendible ante el jurado, y **siguen calibrables** — cambiarlos es tocar dos números de `config.ts`. Lo que **no** está abierto es la línea listo / nutrición: la fija el gate legal del 40%, no un umbral elegido.
@@ -82,24 +84,15 @@ Los seis pesos (0,45 / 0,20 / 0,15 / 0,10 / 0,05 / 0,05) suman 1,0 y están escr
 
 **[CERRADA — Mani, 2026-07-24] La afiliación pasó de 0,20 a 0,05: es desempate, no criterio.** Con 0,20 era el segundo factor más pesado y un afiliado arrancaba **18 puntos** arriba, así que la afiliación reordenaba la cola por sí sola. Contradice al mentor, textual: *"la prioridad siempre son los afiliados, PERO siempre va a ser la prioridad de los ingresos"* ([detalle](../reto/charla-mentor.md#90-10-e-ingresos)); a Colsubsidio le interesa cerrar la venta. Los 0,15 liberados se fueron íntegros a la holgura de capacidad. Medido después del cambio: dos perfiles idénticos que solo difieren en afiliación quedan a **4,5 puntos** (75 vs 71), y un no afiliado con $12M le gana a un afiliado con $2,6M (71 vs 42).
 
-### D5 · El techo real del puntaje es 75, no 100 · [HOY — verificable sumando]
+### D5 · El techo del puntaje ya no es un número fijo · [HOY — verificable sumando]
 
-> ⚠️ **Corregido el 2026-07-25.** Este bloque decía "el techo real hoy es 90" y "un no afiliado tiene techo 87,5". **Estaba mal: no descontaba el subsidio.** Un lead que sale 74 no está "a 26 puntos de lo ideal", está a **uno** del máximo alcanzable.
+> ⚠️ **Dos correcciones el 2026-07-25, en el mismo día.** Primero se descubrió que este bloque no descontaba el subsidio (un lead que sale 74 no estaba "a 26 puntos de lo ideal", estaba a uno del máximo alcanzable). Después se cerró el [ticket 016](../tasks/016-distribuciones-por-proyecto.md): la similitud **dejó de estar fija en 0,5**, así que la tabla de techos por perfil de abajo (75 / 72,5 / 70,5) **ya no aplica tal cual** — el techo real hoy varía por lead y por proyecto, según qué tan parecido sea a los compradores históricos.
 
-Dos factores no pueden aportar todo su peso hoy, y hay que sumarlos a los dos:
+1. **La similitud ya es real, no un piso parejo.** `similitudCon()` ([`lib/scoring/similitud.ts`](../../lib/scoring/similitud.ts)) compara al lead contra las distribuciones reales por proyecto (`data/sintetica/buyer_personas.json`, derivado del PPT de buyer personas) en afiliación, banda SMLV, edad y composición del hogar, y **cita sus % en el factor**. Sigue sin cortar jamás (spec §4). Solo cae al 0,5 neutro cuando el proyecto no tiene distribución confiable (Zarzal sin slide; Abeto/Vibonce/Araucaria/Los Nogales/Karakali marcados `confiable: false` por la nota de extracción del md) — un lead nunca se castiga por un hueco del PPT. Consecuencia: el "techo teórico" de 20 puntos de este factor ahora sí se puede acercar, si el lead se parece de verdad a quienes ya compraron ahí.
+2. **El subsidio sigue aportando 0 a casi todo lead real.** Nadie pregunta `subsidio_monto_mensual` como monto verificado, así que la cobertura da 0 salvo que el asesor lo valide: se pierden los **15 puntos** completos. Sigue siendo el ticket [017](../tasks/017-tabla-subsidios.md).
+3. **Un no afiliado tiene el cupo tope en 2,5 de sus 5 puntos.** `cupo_90_10` para un no afiliado da como máximo señal 0,5. Un afiliado y un no afiliado idénticos en todo lo demás quedan separados por **2,5 a 4,5 puntos** según el cupo que le quede al proyecto — el desempate que pidió el mentor, no una condena (antes eran 10 a 18 puntos).
 
-1. **La similitud aporta la mitad, siempre.** Está fija en `valor_norm = 0,5` mientras no existan las distribuciones por proyecto ([ticket 016](../tasks/016-distribuciones-por-proyecto.md)): 10 de sus 20 puntos, para todo el mundo. No diferencia a nadie, y el propio factor lo declara en su texto.
-2. **El subsidio aporta 0 a todo lead real.** Nadie pregunta `subsidio_monto_mensual`, así que la cobertura da 0: se pierden los **15 puntos** completos. Es el ticket [017](../tasks/017-tabla-subsidios.md).
-
-Sumando, el máximo alcanzable hoy:
-
-| Perfil | Aritmética | Techo |
-|---|---|---|
-| Afiliado | 45 capacidad + 10 similitud + 0 subsidio + 10 sin vivienda + 5 crediticia + 5 cupo | **75** |
-| No afiliado, cupo libre | igual, con 2,5 de cupo | **72,5** |
-| No afiliado, cupo copado | igual, con 0,5 de cupo | **70,5** |
-
-Contra el seed: Diana **75** (justo en el techo), Carlos **28**, Yuliana **0**. La separación afiliado / no afiliado idénticos queda en **2,5 a 4,5 puntos** — el desempate que pidió el mentor, no una condena (antes eran 10 a 18).
+**La tabla de techos por perfil queda obsoleta y no se reemplaza por otra fija a propósito:** con similitud real, el máximo depende de cuánto se parece CADA lead a los compradores de CADA proyecto, así que ya no hay un solo número por perfil. Para ver el techo real de un caso, correr `npx tsx scripts/demo-motor.ts` o mirar el seed regenerado (`db/seed.sql`) — no se documentan aquí números que el motor puede recalcular distinto la próxima vez que cambie una calibración.
 
 > **Calibración del 2026-07-25, en dos pasos.** Al reemplazar el 0,6% por la cuota real los puntajes cayeron (Diana quedó en 51), porque con `RATIO_HOLGURA_PLENA` en 20% "holgura plena" exigía que la cuota fuera la **mitad** del tope legal — casi inalcanzable con cuotas de verdad. Mani lo movió a **30%**, que no es un número a dedo: **era el tope legal anterior** (Decreto 145 de 2000, hasta que el 583 lo subió al 40%). Ahora "holgura plena" significa algo defendible: *la cuota le cabría incluso bajo la norma más estricta que regía hasta el año pasado*.
 >
@@ -154,7 +147,7 @@ El motor es TypeScript puro, determinista, sin red. La IA solo **redacta** expli
 |---|---|---|
 | Gate del 40% | Funciona, con la norma citada en el texto del factor | — |
 | 7 factores visibles | Los 7 se emiten y la ficha los recorre con `.map()` | — |
-| Similitud real | Fija en 0,5, **y el factor lo dice en su propio texto** ("señal neutra 0,5 para todos: hoy no diferencia leads"), igual que declara que el "~N compradores" es una derivación del cupo ×10 y no un dato leído del Excel | Espera [016](../tasks/016-distribuciones-por-proyecto.md); [018](../tasks/018-similitud-en-explicacion.md) la lleva a la explicación |
+| Similitud real | 🟢 **Encendida (2026-07-25):** compara contra las distribuciones reales por proyecto y el factor cita sus % ("Fit 74% … el 91% gana hasta 2 SMLV, como tu hogar"). Neutra 0,5 solo sin distribución confiable, y lo dice | [016](../tasks/016-distribuciones-por-proyecto.md) y [018](../tasks/018-similitud-en-explicacion.md) done |
 | Escala del puntaje | 🟢 **Una sola** (D6) | — |
 | Pesos ratificados | No | Kickoff |
 | Subsidio | El motor resta `subsidio_monto_mensual`, pero nadie lo llena. **El factor ya no dice "Aplica" con aporte 0 en silencio:** dice "Declarado … sin monto verificado todavía, así que NO baja la cuota estimada ni suma puntos" | Tabla de subsidios, [017](../tasks/017-tabla-subsidios.md) |
@@ -184,7 +177,7 @@ flowchart TD
         F7["situación crediticia · 0,05"]
     end
 
-    SIM["similitud con compradores · 0,20<br/>evidencia, NUNCA corta<br/>(hoy fija en 0,5)"] -.-> PESO
+    SIM["similitud con compradores · 0,20<br/>evidencia, NUNCA corta<br/>(real desde 2026-07-25: buyer_personas.json)"] -.-> PESO
 
     PESO --> SUMA["puntaje = Σ aportes<br/>0–100, trazable factor por factor"]
 

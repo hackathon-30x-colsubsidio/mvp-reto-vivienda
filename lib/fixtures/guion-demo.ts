@@ -1,5 +1,5 @@
 import {
-  completarIngreso,
+  completarDesdePerfil,
   construirPreguntas,
   mensajeAutorizacion,
   mensajeCierre,
@@ -24,7 +24,7 @@ import type { Lead, LeadEvento, MensajeConversacion, PerfilConocido } from "@/li
 //
 // CÓMO SE ARREGLA DE RAÍZ: aquí no se escriben respuestas, se escribe lo que la
 // persona TECLEA. El guion se replaya contra el MISMO código que corre en el
-// chat (`construirPreguntas` + `interpretarTexto` + `completarIngreso`), así que
+// chat (`construirPreguntas` + `interpretarTexto` + `completarDesdePerfil`), así que
 // el personaje sembrado y ese mismo personaje conversado en vivo producen el
 // mismo `Lead`, y de ahí el mismo `Score`. No hay dos fuentes que puedan
 // divergir: hay una.
@@ -98,7 +98,7 @@ export function replayGuion(guion: GuionDemo): ConversacionDemo {
   hilo.push({ rol: "asistente", mensaje: mensajeCierre(evento.nombre) });
 
   return {
-    lead: { evento, perfil, respuestas: completarIngreso(perfil, respuestas) },
+    lead: { evento, perfil, respuestas: completarDesdePerfil(perfil, respuestas) },
     hilo,
   };
 }

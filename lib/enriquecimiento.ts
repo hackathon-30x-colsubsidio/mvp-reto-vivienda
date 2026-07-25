@@ -27,12 +27,34 @@ interface IdentidadSintetica {
   ciudad?: string;
   segmento?: string;
   rango_ingreso?: string;
+  rango_edad?: string;
 }
 
 /** Los rangos que la base marca como desconocidos no son un rango. */
 function rangoUtil(rango: string | undefined): string | undefined {
   if (!rango) return undefined;
   return /no disponible|sin dato|desconocid/i.test(rango) ? undefined : rango;
+}
+
+/**
+ * La edad de la base, llevada a los tres tramos que usa el motor.
+ *
+ * ⚠️ El Excel real trae **dos formatos para el mismo valor** ("20 a 35 años" y
+ * "20 - 35 años") — es una de las trampas que `AGENTS.md` tiene anotadas, y aquí
+ * se paga: con una comparación literal, más de la mitad de la base se leería
+ * como "sin edad" y se le preguntaría a gente que ya conocemos.
+ *
+ * "Menor de 19 años" devuelve `undefined` a propósito: no cabe en ninguno de
+ * los tres tramos y **inventarle uno sería peor que preguntarle**.
+ */
+function edadNormalizada(rango: string | undefined): PerfilConocido["rango_edad"] {
+  if (!rango) return undefined;
+  const plano = rango.toLowerCase();
+
+  if (/\b20\b/.test(plano)) return "20_35";
+  if (/\b36\b/.test(plano)) return "36_45";
+  if (/\b46\b/.test(plano) || /mayor de 55/.test(plano)) return "46_mas";
+  return undefined;
 }
 
 function perfilDesdeIdentidad(identidad: IdentidadSintetica): PerfilConocido {
@@ -43,6 +65,11 @@ function perfilDesdeIdentidad(identidad: IdentidadSintetica): PerfilConocido {
     ...(identidad.segmento ? { segmento: identidad.segmento } : {}),
     ...(rangoUtil(identidad.rango_ingreso)
       ? { rango_ingreso: rangoUtil(identidad.rango_ingreso) }
+      : {}),
+    // La edad se conoce de toda la base —también de los no afiliados, porque
+    // están ahí por haber comprado— así que no se le vuelve a preguntar.
+    ...(edadNormalizada(identidad.rango_edad)
+      ? { rango_edad: edadNormalizada(identidad.rango_edad) }
       : {}),
   };
 }

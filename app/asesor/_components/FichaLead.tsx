@@ -7,6 +7,7 @@ import { TablaFactores } from "./TablaFactores";
 import { BloqueProyectos } from "./BloqueProyectos";
 import { BloqueCita } from "./BloqueCita";
 import { BloqueNutricion } from "./BloqueNutricion";
+import { BloqueRecursos } from "./BloqueRecursos";
 import { TablaPuntaje } from "./TablaPuntaje";
 import {
   etiquetaCrediticia,
@@ -182,6 +183,11 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
           {curado.cita && <BloqueCita cita={curado.cita} />}
         </>
       )}
+
+      {/* Capa ORTOGONAL: va en ambas ramas. Un `listo` con cita puede recibir
+          recurso igual (Carlos); se auto-oculta si el lead no tiene ninguno
+          (Diana). No es el premio de consolación de la nutrición. */}
+      <BloqueRecursos recursos={curado.recursos} />
 
       {/* Lo que ya sabíamos vs. lo que preguntamos. Hace visible el
           criterio 1 (no repreguntar lo conocido) desde la ficha. */}

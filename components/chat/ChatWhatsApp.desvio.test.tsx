@@ -103,6 +103,7 @@ describe("una duda a mitad del perfilamiento no consume el paso", () => {
 
       // El paso no se saltó: se contesta después y el dato llega completo.
       await tocar(/Sería la primera/i);
+      await tocar(/Con mi pareja/i);
       await tocar(/Ninguno todavía/i);
       await tocar(/Al día con todo/i);
 
@@ -147,6 +148,7 @@ describe("pedir un asesor humano deja rastro (spec 02 D6)", () => {
         timeout: 10_000,
       });
       await tocar(/Sería la primera/i);
+      await tocar(/Con mi pareja/i);
       await tocar(/Ninguno todavía/i);
       await tocar(/Al día con todo/i);
 

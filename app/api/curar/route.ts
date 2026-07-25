@@ -60,6 +60,9 @@ export async function POST(request: Request) {
     puntaje: curado.score.puntaje,
     proyectos: curado.proyectos.length,
     explicacion: curado.explicacion,
+    // Recursos recomendados (capa ortogonal): viajan en la respuesta para que el
+    // chat le muestre al lead su(s) siguiente(s) paso(s). Ausente si ninguno aplica.
+    ...(curado.recursos?.length ? { recursos: curado.recursos } : {}),
     // Lo usa el chat para ofrecerle afiliarse al que no lo es (spec 04 D3).
     // Sale de la MISMA función que usa el motor: si cada lado lo dedujera por
     // su cuenta, el chat podría invitar a afiliarse a alguien ya afiliado.

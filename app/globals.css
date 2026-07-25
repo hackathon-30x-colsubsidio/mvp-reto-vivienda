@@ -79,12 +79,18 @@
      pintara con el amarillo corporativo, un acento decorativo y un
      estado se leerían igual. En este producto un chip amarillo NUNCA
      es un estado. */
+  /* Desaturados respecto al kit (2026-07-25). El verde venía en 81% de
+     saturación y el ámbar en 100%: a pantalla completa leían como neón
+     de dashboard genérico, no como los estados de un producto serio.
+     Se bajó la saturación conservando el matiz Y la luminosidad, así
+     que el contraste con su tinta no se movió — recalculado, no
+     supuesto. */
   --state-green: #16a30c;
-  --state-green-bg: #21c714;
-  --state-green-on: #08340a; /* 6,2:1 */
+  --state-green-bg: #3daa31; /* 4,7:1 con su tinta */
+  --state-green-on: #08340a;
   --state-amber: #d98600;
-  --state-amber-bg: #ffab1a;
-  --state-amber-on: #3d2600; /* 7,5:1 */
+  --state-amber-bg: #e6a433; /* 6,6:1 con su tinta */
+  --state-amber-on: #3d2600;
   --state-nutricion: #1f7fc4;
   --state-nutricion-bg: #2f95e0;
   /* El zip trae blanco aquí, y sobre #2f95e0 da 3,26:1 — por debajo de
@@ -184,6 +190,11 @@
   --sombra-vidrio: 0 1px 1px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.18);
   --sombra-vidrio-alta: 0 1px 1px rgb(15 23 42 / 0.05), 0 16px 40px -16px rgb(15 23 42 / 0.24);
 
+  /* Sombra de cabecera fija. Más marcada que `--sombra-vidrio` a
+     propósito: su trabajo no es elevar una tarjeta sino cortar el
+     renglón que pasa por debajo al scrollear. */
+  --sombra-fija: 0 6px 10px -8px hsl(var(--shadow-color) / 0.45);
+
   /* --- Escala tipográfica del zip (tokens/typography.css) ---
      Vive como variables CSS y NO entra a `@theme`: meterla ahí
      redefiniría `text-sm`/`text-lg` para toda la app —chat y landing
@@ -242,6 +253,13 @@
 
   --rojo: #f2555f;
 
+  /* En claro este color (luminosidad 20%) es más oscuro que el papel y
+     sirve de sombra. En oscuro la superficie baja al 9%, así que el
+     MISMO color queda más CLARO que el fondo: las sombras se volvían un
+     halo. Se baja casi a negro — arregla de paso `--sombra-xs/sm/md/lg`,
+     que en oscuro eran invisibles o al revés. */
+  --shadow-color: 220 20% 2%;
+
   /* En oscuro el vidrio ACLARA sobre el fondo en vez de blanquear: un
      gradiente blanco translúcido encima de #14171a se lee como niebla
      sucia, no como vidrio. El filo también se invierte —claro arriba,
@@ -264,6 +282,9 @@
 
   --sombra-vidrio: 0 1px 1px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.55);
   --sombra-vidrio-alta: 0 1px 1px rgb(0 0 0 / 0.35), 0 16px 40px -16px rgb(0 0 0 / 0.6);
+  /* En oscuro la sombra tiene que ser bastante más densa para leerse
+     sobre una superficie ya oscura. */
+  --sombra-fija: 0 6px 12px -8px hsl(var(--shadow-color) / 0.95);
 }
 
 /* ---------------------------------------------------------------------
@@ -477,12 +498,66 @@ h4 {
     var(--sombra-vidrio);
 }
 
+/* La superficie de la cifra que decide la pantalla. Se distingue por
+   TINTE y por un filo de marca a la izquierda, no por sombra ni por
+   tamaño de caja: así rompe la uniformidad de la rejilla sin desalinear
+   nada. Como máximo una por pantalla (ver `Metrica.principal`). */
+.vidrio-principal {
+  background-image:
+    linear-gradient(
+      160deg,
+      rgb(0 103 177 / 0.07) 0%,
+      rgb(0 103 177 / 0.02) 100%
+    ),
+    var(--vidrio);
+  border-color: rgb(0 103 177 / 0.28);
+  box-shadow:
+    inset 3px 0 0 0 var(--brand-azul),
+    inset 0 1px 0 0 var(--filo),
+    var(--sombra-vidrio);
+}
+
+[data-theme="dark"] .vidrio-principal {
+  background-image:
+    linear-gradient(
+      160deg,
+      rgb(51 133 193 / 0.16) 0%,
+      rgb(51 133 193 / 0.04) 100%
+    ),
+    var(--vidrio);
+  border-color: rgb(51 133 193 / 0.35);
+}
+
 .vidrio-cromo {
   background-image: var(--vidrio-hueco);
   border-color: var(--filo-borde);
   /* Aquí sí: detrás de una barra de navegación no hay nada que leer. */
   backdrop-filter: blur(14px) saturate(1.4);
   -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+
+/* Cabecera fija CON contenido pasando por detrás (los encabezados de
+   grupo de la bandeja, la barra de filtros).
+
+   Es OPACA, y esa es toda su razón de ser: `.vidrio-cromo` translúcido
+   + blur de 14px NO tapa texto de 15px que scrollea debajo — se sigue
+   leyendo, difuminado, encima del título. Se veía en la bandeja al
+   subir la lista.
+
+   La regla que sale de esto: el blur decora superficies con NADA
+   detrás. En cuanto algo scrollea por detrás, la superficie es opaca. */
+.vidrio-solido {
+  background-color: var(--surface-card);
+  background-image: var(--vidrio-hueco);
+  border-color: var(--filo-borde);
+  /* Sombra hacia abajo: sin ella el renglón que queda cortado contra el
+     borde inferior se lee como texto roto, no como contenido pasando
+     por debajo. Opacidad sola no bastaba — el corte necesitaba que la
+     cabecera se leyera como una capa ENCIMA.
+
+     El valor sale del token, no de un literal aquí: la capa 1 es la
+     única que define color (ver el encabezado de este archivo). */
+  box-shadow: var(--sombra-fija);
 }
 
 /* El fondo que el vidrio refracta. Dos manchas de marca muy diluidas y

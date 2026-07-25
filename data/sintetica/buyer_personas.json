@@ -1,0 +1,387 @@
+{
+  "_meta": {
+    "nota": "[derivado] Distribuciones de compradores históricos por proyecto, agregados % del PPT Buyer_Person (corte 15/01/2026) vía data/buyer-personas-vivienda.md. NO es data cruda de Colsubsidio: solo porcentajes agregados y anónimos. Género excluido (extracción no confiable) y cero nombres de empresas (ticket 022).",
+    "generado": "ARCHIVO GENERADO — no editar a mano. Se regenera con `npx tsx scripts/generar-buyer-personas.ts` a partir de data/buyer-personas-vivienda.md.",
+    "confiable_false": "Slides con escala cruzada o muestra diminuta según la nota de extracción del md: la similitud los trata como señal neutra."
+  },
+  "distribuciones": {
+    "bosque-de-arrayan": {
+      "confiable": true,
+      "afiliado_pct": 63,
+      "salario": {
+        "hasta_2_smlv": 66,
+        "mas_2_smlv": 34
+      },
+      "edad": {
+        "20_35": 50,
+        "36_45": 29
+      },
+      "familia": {
+        "monoparental": 6,
+        "nuclear": 12,
+        "pareja": 4,
+        "sin_grupo": 44
+      },
+      "estrato": {
+        "1": 2,
+        "2": 13,
+        "3": 18,
+        "4": 2
+      }
+    },
+    "bosque-de-turpial": {
+      "confiable": true,
+      "afiliado_pct": 64,
+      "salario": {
+        "hasta_2_smlv": 82,
+        "mas_2_smlv": 18
+      },
+      "edad": {
+        "20_35": 70,
+        "36_45": 13
+      },
+      "familia": {
+        "monoparental": 5,
+        "nuclear": 7,
+        "sin_grupo": 54
+      },
+      "estrato": {
+        "1": 4,
+        "2": 13,
+        "3": 13,
+        "4": 4
+      }
+    },
+    "la-macarena": {
+      "confiable": true,
+      "afiliado_pct": 56,
+      "salario": {
+        "hasta_2_smlv": 91,
+        "mas_2_smlv": 9
+      },
+      "edad": {
+        "20_35": 54,
+        "36_45": 26
+      },
+      "familia": {
+        "monoparental": 7,
+        "nuclear": 3,
+        "sin_grupo": 50
+      },
+      "estrato": {
+        "1": 3,
+        "2": 16,
+        "3": 10,
+        "4": 1
+      }
+    },
+    "mongui": {
+      "confiable": true,
+      "afiliado_pct": 66,
+      "salario": {
+        "hasta_2_smlv": 87,
+        "mas_2_smlv": 13
+      },
+      "edad": {
+        "20_35": 56,
+        "36_45": 26
+      },
+      "familia": {
+        "monoparental": 2,
+        "nuclear": 7,
+        "sin_grupo": 40
+      },
+      "estrato": {
+        "1": 5,
+        "2": 14,
+        "3": 11,
+        "4": 2
+      }
+    },
+    "pamplona": {
+      "confiable": true,
+      "afiliado_pct": 65,
+      "salario": {
+        "hasta_2_smlv": 87,
+        "mas_2_smlv": 13
+      },
+      "edad": {
+        "20_35": 46,
+        "36_45": 30
+      },
+      "familia": {
+        "monoparental": 2,
+        "nuclear": 17,
+        "sin_grupo": 35
+      },
+      "estrato": {
+        "1": 5,
+        "2": 13,
+        "3": 7,
+        "4": 0
+      }
+    },
+    "reserva-de-aguayacan": {
+      "confiable": true,
+      "afiliado_pct": 69,
+      "salario": {
+        "hasta_2_smlv": 68,
+        "mas_2_smlv": 32
+      },
+      "edad": {
+        "20_35": 56,
+        "36_45": 30
+      },
+      "familia": {
+        "monoparental": 16,
+        "nuclear": 10,
+        "sin_grupo": 46
+      },
+      "estrato": {
+        "1": 0,
+        "2": 14,
+        "3": 20,
+        "5": 64
+      }
+    },
+    "saman": {
+      "confiable": true,
+      "afiliado_pct": 77,
+      "salario": {
+        "hasta_2_smlv": 64,
+        "mas_2_smlv": 36
+      },
+      "edad": {
+        "20_35": 41,
+        "36_45": 31
+      },
+      "familia": {
+        "nuclear": 15,
+        "sin_grupo": 37
+      },
+      "estrato": {
+        "2": 20,
+        "3": 12,
+        "4": 2,
+        "6": 2
+      }
+    },
+    "inari": {
+      "confiable": true,
+      "afiliado_pct": 64,
+      "salario": {
+        "hasta_2_smlv": 72,
+        "mas_2_smlv": 28
+      },
+      "edad": {
+        "20_35": 56,
+        "36_45": 26
+      },
+      "familia": {
+        "nuclear": 6,
+        "sin_grupo": 57
+      },
+      "estrato": {
+        "1": 1,
+        "2": 19,
+        "3": 9,
+        "4": 3
+      }
+    },
+    "la-arboleda": {
+      "confiable": true,
+      "afiliado_pct": 64,
+      "salario": {
+        "hasta_2_smlv": 90,
+        "mas_2_smlv": 10
+      },
+      "edad": {
+        "20_35": 53,
+        "36_45": 33
+      },
+      "familia": {
+        "nuclear": 8,
+        "sin_grupo": 30
+      },
+      "estrato": {
+        "1": 7,
+        "2": 20,
+        "3": 4,
+        "4": 3
+      }
+    },
+    "los-nogales": {
+      "confiable": false,
+      "afiliado_pct": 40,
+      "edad": {
+        "20_35": 15,
+        "36_45": 40
+      },
+      "familia": {
+        "nuclear": 24,
+        "sin_grupo": 35
+      },
+      "estrato": {
+        "3": 36,
+        "4": 4,
+        "6": 4
+      }
+    },
+    "karakali": {
+      "confiable": false,
+      "afiliado_pct": 59,
+      "salario": {
+        "hasta_2_smlv": 47,
+        "mas_2_smlv": 53
+      },
+      "edad": {
+        "20_35": 57,
+        "36_45": 21
+      },
+      "familia": {
+        "nuclear": 9,
+        "sin_grupo": 68
+      },
+      "estrato": {
+        "1": 3,
+        "2": 3,
+        "3": 22,
+        "4": 4
+      }
+    },
+    "versalles": {
+      "confiable": true,
+      "afiliado_pct": 71,
+      "salario": {
+        "hasta_2_smlv": 100,
+        "mas_2_smlv": 0
+      },
+      "edad": {
+        "20_35": 61,
+        "36_45": 29
+      },
+      "familia": {
+        "nuclear": 13,
+        "sin_grupo": 34
+      },
+      "estrato": {
+        "1": 4,
+        "2": 11,
+        "3": 8,
+        "4": 2
+      }
+    },
+    "abeto": {
+      "confiable": false,
+      "afiliado_pct": 40,
+      "salario": {
+        "hasta_2_smlv": 0,
+        "mas_2_smlv": 50
+      },
+      "edad": {
+        "20_35": 50,
+        "36_45": 0
+      },
+      "familia": {
+        "monoparental": 0,
+        "nuclear": 0,
+        "pareja": 0,
+        "sin_grupo": 100
+      },
+      "estrato": {
+        "1": 0,
+        "2": 0,
+        "3": 50,
+        "4": 0
+      }
+    },
+    "payande": {
+      "confiable": true,
+      "afiliado_pct": 64,
+      "salario": {
+        "hasta_2_smlv": 65,
+        "mas_2_smlv": 35
+      },
+      "edad": {
+        "20_35": 37,
+        "36_45": 31
+      },
+      "familia": {
+        "monoparental": 3,
+        "nuclear": 9,
+        "sin_grupo": 51
+      },
+      "estrato": {
+        "1": 4,
+        "2": 11,
+        "3": 11,
+        "4": 4
+      }
+    },
+    "araucaria": {
+      "confiable": false,
+      "afiliado_pct": 38,
+      "edad": {
+        "20_35": 38,
+        "36_45": 25
+      },
+      "familia": {
+        "monoparental": 16,
+        "nuclear": 16,
+        "sin_grupo": 47
+      },
+      "estrato": {
+        "2": 34,
+        "3": 34,
+        "4": 3,
+        "6": 3
+      }
+    },
+    "vibo-once": {
+      "confiable": false,
+      "afiliado_pct": 64,
+      "salario": {
+        "hasta_2_smlv": 100,
+        "mas_2_smlv": 0
+      },
+      "edad": {
+        "20_35": 50,
+        "36_45": 0
+      },
+      "familia": {
+        "monoparental": 0,
+        "nuclear": 0,
+        "sin_grupo": 50
+      },
+      "estrato": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      }
+    },
+    "verde-esperanza": {
+      "confiable": true,
+      "afiliado_pct": 64,
+      "salario": {
+        "hasta_2_smlv": 94,
+        "mas_2_smlv": 6
+      },
+      "edad": {
+        "20_35": 52,
+        "36_45": 23
+      },
+      "familia": {
+        "monoparental": 4,
+        "nuclear": 22,
+        "sin_grupo": 25
+      },
+      "estrato": {
+        "1": 2,
+        "2": 5,
+        "3": 22,
+        "4": 1
+      }
+    }
+  }
+}
