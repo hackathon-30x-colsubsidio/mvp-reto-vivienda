@@ -47,6 +47,10 @@ Todos los factores que el motor evalúa se muestran. Ninguno se filtra de la pan
 
 La afiliación **no tiene peso propio a propósito**: su efecto en el puntaje viaja dentro de `cupo_90_10`. Si tuviera peso además, contaría doble.
 
+**[HOY — 2026-07-25] Tres de los siete son INFORMATIVOS y la ficha los muestra como tales.** `afiliacion`, `cupo_90_10` y `similitud_compradores_reales` no tienen sentido de cumple / no cumple: informan. Llevaban `cumple: true` para decir "no bloquea", y la ficha lo pintaba como un **"✓ Cumple" verde al lado de "No afiliado a Colsubsidio"** — una contradicción en la pantalla que sostiene la restricción de cero caja negra. Ahora `FactorScore` tiene `informativo?: boolean` y esos tres se rinden como *"Informativo"*, neutro. Los que sí evalúan (cuota, subsidio, vivienda, crediticia) conservan su cumple / no cumple, y el conteo *"X de Y factores cumplen"* de la ficha ya no los infla.
+
+**Y la fuente de la afiliación dice la verdad.** Cuando el enriquecimiento no encuentra la cédula, el motor **asume** no afiliado (`afiliadoEfectivo`) porque la pregunta no existe (spec 02 D3 nodo 4). Antes ese factor se marcaba `fuente: "conversacion"` y la ficha lo mostraba como *"Lo dijo en el chat"*: le atribuía a la persona algo que nunca dijo. `FactorScore.fuente` ganó el valor **`supuesto`** ("Lo asumió el motor") y el valor del factor lo declara — *"No afiliado (asumido: su cédula no está en la base y no se le preguntó)"*. Ojo: para un lead **con** match que no es afiliado —como Carlos— sigue siendo `enriquecimiento`, porque ahí sí es un dato.
+
 La similitud **nunca corta**. `spec.md §4` la define como *evidencia de respaldo*, no como criterio. Un lead no se cae por no parecerse a los compradores de un proyecto.
 
 ### D4 · Los pesos son propuestos, no ratificados · [ABIERTA A PROPÓSITO — Mani, 2026-07-25]

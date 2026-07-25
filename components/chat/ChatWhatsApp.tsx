@@ -341,7 +341,14 @@ export function ChatWhatsApp({
     };
     setRespuestas(nuevasRespuestas);
 
-    if (respuesta.acuse) await agregarBotInstantaneo(respuesta.acuse);
+    // Casi todos los acuses son instantáneos a propósito: humanizan sin costar
+    // latencia. Los marcados `pulir` (hoy, la zona) pasan por el LLM porque la
+    // respuesta es impredecible y un acuse de plantilla se nota de lejos —
+    // `agregarBot` trae su propio blindaje de 3s y cae a este mismo texto.
+    if (respuesta.acuse) {
+      if (respuesta.pulir) await agregarBot(respuesta.acuse);
+      else await agregarBotInstantaneo(respuesta.acuse);
+    }
 
     const siguienteIndice = indicePaso + 1;
     if (siguienteIndice < pasos.length) {

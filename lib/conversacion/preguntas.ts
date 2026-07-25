@@ -1,4 +1,5 @@
 import type { Lead, LeadEvento, PerfilConocido } from "@/lib/types";
+import { catalogo } from "@/lib/matching/catalogo";
 
 // Set de preguntas del spec §6: los 4 que el brief lista como capacidad de
 // compra + la zona de interés para el matcher. NUNCA se pregunta lo que el
@@ -41,6 +42,15 @@ export interface Respuesta {
   patch: Partial<Lead["respuestas"]>;
   /** Lo que el agente contesta antes de seguir. Es lo que separa conversar de encuestar. */
   acuse?: string;
+  /**
+   * El acuse pasa por el LLM para que suene único en vez de plantilla.
+   *
+   * Se usa donde la respuesta es impredecible —la zona— y un acuse fijo se nota
+   * de lejos. Cuesta latencia, así que NO se activa en todos: el resto de acuses
+   * son instantáneos a propósito. El blindaje de 3s de `agregarBot` aplica igual,
+   * y si el LLM no contesta se pinta este mismo texto.
+   */
+  pulir?: boolean;
 }
 
 /** Un chip del footer. Lleva su valor, así el texto puede ser humano y el dato exacto. */
@@ -195,10 +205,107 @@ function interpretarCrediticia(texto: string): Respuesta {
   return { patch: { situacion_crediticia: "sin_info" }, acuse: "Perfecto, gracias por decírmelo." };
 }
 
+// ── La zona: la respuesta más impredecible de todas ──────
+//
+// A "¿dónde te imaginas viviendo?" la gente contesta cualquier cosa: una ciudad,
+// un barrio, un deseo ("que tenga buenas zonas comunes"), o dónde queda el
+// colegio de los niños. El acuse era uno fijo —"esa zona la tengo bien
+// mapeada"— y quedaba absurdo cuando nadie había nombrado una zona.
+//
+// Se responde a lo que DIJO, con datos que ya tenemos:
+//   · nombró una ciudad del catálogo  → se le dice cuántos proyectos hay ahí
+//   · nombró una ciudad donde no hay  → se le dice de frente, y dónde sí hay
+//   · dijo un deseo, no un lugar      → se le acusa el deseo y se dice qué se hará
+// Y el `patch` guarda la CIUDAD limpia cuando se reconoce, no la frase entera:
+// el matcher filtra por zona y "espero que tenga excelentes zonas comunes" no
+// es una zona.
+
+/** Ciudades del catálogo real, con cuántos proyectos tiene cada una. */
+const CIUDADES_CON_PROYECTOS: { ciudad: string; cuantos: number }[] = Object.entries(
+  catalogo.reduce<Record<string, number>>((cuenta, p) => {
+    cuenta[p.ciudad] = (cuenta[p.ciudad] ?? 0) + 1;
+    return cuenta;
+  }, {}),
+).map(([ciudad, cuantos]) => ({ ciudad, cuantos }));
+
+/** Barrios y sectores que el catálogo conoce (los trae el brochure). */
+const ZONAS_CONOCIDAS = catalogo
+  .map((p) => p.zona)
+  .filter((z): z is string => Boolean(z));
+
+/**
+ * Ciudades grandes de Colombia donde HOY no hay proyectos. No es data del reto:
+ * es reconocer un nombre para poder decir la verdad en vez de un "anotado" que
+ * suena a que sí tenemos algo allá.
+ */
+const CIUDADES_SIN_PROYECTOS = [
+  "Medellín", "Cali", "Barranquilla", "Cartagena", "Bucaramanga", "Pereira",
+  "Santa Marta", "Cúcuta", "Ibagué", "Manizales", "Villavicencio", "Neiva",
+  "Armenia", "Popayán", "Pasto", "Montería", "Valledupar", "Tunja",
+];
+
+/** Lo que la gente nombra cuando habla de cómo quiere vivir, no de dónde. */
+const DESEOS = /zonas? comunes?|amenidad|piscina|gimnasio|parque|colegio|trabajo|mam[áa]|familia|tranquil|segur|verde|centro comercial|transporte|metro|cerca de todo/i;
+
+const sinTildes = (t: string) =>
+  t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+function buscarEn(lista: string[], texto: string): string | undefined {
+  const plano = sinTildes(texto);
+  return lista.find((candidato) => plano.includes(sinTildes(candidato)));
+}
+
 function interpretarZona(texto: string): Respuesta {
+  const conProyectos = CIUDADES_CON_PROYECTOS.find(({ ciudad }) =>
+    sinTildes(texto).includes(sinTildes(ciudad)),
+  );
+
+  if (conProyectos) {
+    const { ciudad, cuantos } = conProyectos;
+    return {
+      // Se guarda la ciudad, no la frase: es lo que el matcher sabe filtrar.
+      patch: { zona_interes: ciudad },
+      acuse:
+        cuantos > 1
+          ? `¡${ciudad}! 📍 Ahí tengo ${cuantos} proyectos, así que puedo ser concreta contigo.`
+          : `¡${ciudad}! 📍 Ahí tengo un proyecto, y te lo miro con lupa.`,
+      pulir: true,
+    };
+  }
+
+  const barrio = buscarEn(ZONAS_CONOCIDAS, texto);
+  if (barrio) {
+    return {
+      patch: { zona_interes: barrio },
+      acuse: `${barrio} 📍 Justo por ahí tenemos algo, déjame mirarlo con calma.`,
+      pulir: true,
+    };
+  }
+
+  const lejos = buscarEn(CIUDADES_SIN_PROYECTOS, texto);
+  if (lejos) {
+    const donde = CIUDADES_CON_PROYECTOS.map((c) => c.ciudad).join(", ");
+    return {
+      patch: { zona_interes: texto },
+      // Preferible a un "anotado" que insinúa que sí tenemos algo allá.
+      acuse: `Te soy honesta: en ${lejos} hoy no tenemos proyectos. Donde sí tenemos es en ${donde}. Te dejo anotado que te interesa ${lejos}, por si abrimos.`,
+      pulir: true,
+    };
+  }
+
+  if (DESEOS.test(texto)) {
+    return {
+      patch: { zona_interes: texto },
+      acuse:
+        "Eso me sirve muchísimo y lo dejo anotado para el asesor 🙌 Como no me diste una ciudad, te busco en todas las que tenemos y él afina contigo.",
+      pulir: true,
+    };
+  }
+
   return {
     patch: { zona_interes: texto },
-    acuse: "Anotado 📍 Esa zona la tengo bien mapeada, así que puedo ser concreta contigo.",
+    acuse: "Anotado 📍 Lo tengo en cuenta para escoger qué mostrarte.",
+    pulir: true,
   };
 }
 

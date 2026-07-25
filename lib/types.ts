@@ -71,7 +71,21 @@ export interface FactorScore {
   nombre: string; // p.ej. "cuota_ingreso_40"
   valor: string; // lo evaluado, legible
   cumple: boolean;
-  fuente: "enriquecimiento" | "conversacion" | "catalogo" | "historico";
+  /**
+   * De dónde salió el dato. `supuesto` NO es un dato: es lo que el motor asumió
+   * a falta de uno, y por eso se muestra distinto — decir "lo dijo en el chat"
+   * de algo que nadie preguntó le atribuye a la persona algo que no dijo.
+   */
+  fuente: "enriquecimiento" | "conversacion" | "catalogo" | "historico" | "supuesto";
+  /**
+   * El factor NO tiene sentido de cumple / no cumple: solo informa.
+   *
+   * Sin esto, la ficha pintaba un "✓ Cumple" verde junto a "No afiliado a
+   * Colsubsidio" —porque `cumple` estaba en `true` para decir "no bloquea"— y
+   * eso se lee como una contradicción justo en la pantalla que sostiene la
+   * restricción de cero caja negra.
+   */
+  informativo?: boolean;
   // Puntaje ponderado (spec §4, capa 2). Additivo: los factores que solo son
   // gate legal o señal informativa los dejan sin definir. Cuando están, el
   // aporte del factor al puntaje total es peso * valor_norm * 100.

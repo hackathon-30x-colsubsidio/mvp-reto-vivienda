@@ -150,3 +150,44 @@ describe("interpretación del texto libre", () => {
     ]);
   });
 });
+
+describe("la zona: el agente contesta lo que la persona dijo", () => {
+  // El acuse era uno fijo —"esa zona la tengo bien mapeada"— y quedaba absurdo
+  // cuando nadie había nombrado una zona: a "espero que tenga excelentes zonas
+  // comunes" le contestaba que la tenía bien mapeada. Además guardaba la frase
+  // entera en `zona_interes`, y el matcher filtra por eso.
+  const zona = () => paso(SIN_DATOS, "zona_interes");
+
+  it("si nombra una ciudad del catálogo, la guarda LIMPIA y dice cuántos proyectos hay", () => {
+    const r = zona().interpretarTexto("Bogotá, por el norte");
+    // Lo que se guarda es la ciudad, no la frase: es lo que el matcher entiende.
+    expect(r.patch.zona_interes).toBe("Bogotá");
+    expect(r.acuse).toMatch(/Bogotá/);
+    expect(r.acuse).toMatch(/\d+ proyectos/);
+  });
+
+  it("reconoce la ciudad sin tildes y en minúsculas", () => {
+    expect(zona().interpretarTexto("me gustaria en chia").patch.zona_interes).toBe("Chía");
+  });
+
+  it("si pide una ciudad donde NO hay proyectos, lo dice de frente", () => {
+    const r = zona().interpretarTexto("quiero algo en Medellín");
+    expect(r.acuse).toMatch(/no tenemos proyectos/i);
+    // Y no la deja en el aire: le dice dónde sí hay.
+    expect(r.acuse).toMatch(/Bogotá/);
+  });
+
+  it("si describe un deseo en vez de un lugar, acusa el deseo y no finge una zona", () => {
+    const r = zona().interpretarTexto("espero que tenga excelentes zonas comunes");
+    expect(r.acuse).not.toMatch(/bien mapeada/i);
+    expect(r.acuse).toMatch(/no me diste una ciudad/i);
+    // El texto crudo sí se conserva: al asesor le sirve saber qué le importa.
+    expect(r.patch.zona_interes).toBe("espero que tenga excelentes zonas comunes");
+  });
+
+  it("el acuse de la zona se pule con el LLM; los demás no", () => {
+    // Es la respuesta más impredecible del set, así que ahí sí vale la latencia.
+    expect(zona().interpretarTexto("Bogotá").pulir).toBe(true);
+    expect(paso(SIN_DATOS, "situacion_crediticia").interpretarTexto("al día").pulir).toBeUndefined();
+  });
+});
