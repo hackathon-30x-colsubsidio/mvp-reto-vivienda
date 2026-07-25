@@ -26,6 +26,14 @@ import {
   type PasoPregunta,
   type Respuesta,
 } from "@/lib/conversacion/preguntas";
+import {
+  detectarDesvio,
+  mensajeHandoffAsesor,
+  notaSistemaHandoff,
+  repreguntar,
+  respuestaDeterministaDuda,
+  type Desvio,
+} from "@/lib/conversacion/desvio";
 import { fechaLarga } from "@/lib/formato";
 import { useDictado } from "./useDictado";
 import { MensajeBurbuja, type Mensaje } from "./MensajeBurbuja";
@@ -241,8 +249,17 @@ export function ChatWhatsApp({
    * rendirse. Con el corte cae al texto determinístico en pocos segundos y el
    * demo deja de depender de que el lambda esté caliente. En cuanto llega el
    * primer chunk se cancela el timeout y el stream corre hasta el final.
+   *
+   * `duda` cambia el MODO de la llamada, no el mecanismo: el LLM ya no pule un
+   * texto, sino que responde lo que la persona preguntó (con el catálogo y la
+   * tabla de subsidios como grounding, ver `prompt-maestro.ts`). Todo el
+   * blindaje de arriba se reutiliza tal cual, y el fallback sigue siendo
+   * `textoBase` — que en modo duda es una respuesta correcta por sí sola.
    */
-  async function agregarBot(textoBase: string) {
+  async function agregarBot(
+    textoBase: string,
+    duda?: { modo: "duda"; pregunta: string },
+  ) {
     setEscribiendo(true);
     const id = nuevoId();
     let acumulado = "";
@@ -263,6 +280,8 @@ export function ChatWhatsApp({
         body: JSON.stringify({
           mensajes: historialRef.current,
           mensaje_a_redactar: textoBase,
+          ...(duda ?? {}),
+          proyecto_interes: evento.proyecto_interes,
         }),
         signal: control.signal,
       });
@@ -492,7 +511,48 @@ export function ChatWhatsApp({
     const texto = textoInput.trim();
     if (!texto || fase !== "pregunta" || escribiendo) return;
     setTextoInput("");
+
+    // Antes, TODO lo que la persona tecleaba se consumía como respuesta al paso
+    // actual: preguntar "¿cuánto vale?" se parseaba como si fuera el dato que se
+    // le pidió, y pedir un asesor no hacía nada. Si se salió del guion, se le
+    // responde y se retoma — el paso NO avanza.
+    const desvio = detectarDesvio(texto);
+    if (desvio) {
+      void manejarDesvio(texto, desvio);
+      return;
+    }
+
     void responderPregunta(texto, pasos[indicePaso].interpretarTexto(texto));
+  }
+
+  /**
+   * La persona preguntó algo, o pidió un humano, a mitad del perfilamiento.
+   *
+   * Nunca avanza `indicePaso`: se atiende el desvío y se vuelve a la misma
+   * pregunta. Es lo que hace que responder una duda no le cueste a la persona
+   * el dato que estaba dando — y que el `Lead` final salga igual de completo.
+   *
+   * La petición de asesor queda como fila `sistema` en el hilo (ADR 0003), así
+   * que el asesor la ve en la ficha: el handoff no se pierde por seguir la
+   * conversación.
+   */
+  async function manejarDesvio(texto: string, desvio: Desvio) {
+    agregarUsuario(texto);
+
+    if (desvio.tipo === "asesor") {
+      anotar("sistema", notaSistemaHandoff());
+      await agregarBotInstantaneo(mensajeHandoffAsesor(evento.nombre));
+    } else {
+      // El texto determinista viaja como fallback de la llamada que lo va a
+      // reemplazar: si el LLM no contesta, la persona igual recibe la respuesta.
+      await agregarBot(respuestaDeterministaDuda(desvio, evento.proyecto_interes), {
+        modo: "duda",
+        pregunta: texto,
+      });
+    }
+
+    await pausa(500);
+    await agregarBot(repreguntar(pasos[indicePaso]));
   }
 
   const pasoActual = fase === "pregunta" ? pasos[indicePaso] : undefined;
