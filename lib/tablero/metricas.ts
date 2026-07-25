@@ -135,11 +135,87 @@ const EN_NUTRICION: Metrica = {
 };
 
 /**
+ * Cuenta cuántas veces aparece cada valor y devuelve el más repetido.
+ * Empate: gana el primero que apareció, que es orden de llegada del lead.
+ */
+function masFrecuente(valores: string[]): { valor: string; veces: number } | null {
+  const conteo = new Map<string, number>();
+  for (const v of valores) conteo.set(v, (conteo.get(v) ?? 0) + 1);
+
+  let lider: { valor: string; veces: number } | null = null;
+  for (const [valor, veces] of conteo) {
+    if (!lider || veces > lider.veces) lider = { valor, veces };
+  }
+  return lider;
+}
+
+/**
+ * Métrica #4 de la lista del mentor: qué proyecto mueve más gente.
+ *
+ * Sale del `proyecto_interes` con el que el lead entró, que ya se persiste
+ * en cada lead — por eso esta métrica costaba minutos y no un cambio de
+ * contrato, a diferencia de las tres de abandono (ver el ticket 025).
+ */
+const PROYECTO_MAS_PEDIDO: Metrica = {
+  id: "proyecto-mas-pedido",
+  titulo: "Proyecto que más piden",
+  descripcion:
+    "Conteo del proyecto por el que el lead entró (su interés declarado en la pauta), no de lo que el motor le terminó recomendando.",
+  calcular({ leads }) {
+    const declarados = leads
+      .map((l) => l.curado.lead.evento.proyecto_interes?.trim())
+      .filter((p): p is string => Boolean(p));
+
+    const lider = masFrecuente(declarados);
+    if (!lider) return { valor: "—", detalle: "Ningún lead entró con un proyecto en mente." };
+
+    const sinProyecto = leads.length - declarados.length;
+    return {
+      valor: lider.valor,
+      detalle: `${lider.veces} de ${declarados.length} leads que llegaron con un proyecto en mente${
+        sinProyecto > 0 ? ` (otros ${sinProyecto} llegaron sin ninguno)` : ""
+      }.`,
+    };
+  },
+};
+
+/**
+ * Métrica #5 del mentor, **en grueso y hay que decirlo así**.
+ *
+ * Él pidió atribución con campaña y QR (spec 01 D4); eso no existe y no se
+ * va a insinuar que sí. Lo que hay es el canal por el que entró el lead, que
+ * es un enum de tres valores. Prometer atribución mostrando canal sería
+ * exactamente la caja negra que AGENTS.md prohíbe.
+ */
+const CANAL_DE_INGRESO: Metrica = {
+  id: "canal-ingreso",
+  titulo: "Canal que más trae",
+  descripcion:
+    "Reparto por el canal de entrada del lead. Es canal en grueso, NO atribución de campaña: la campaña y el QR no se capturan hoy.",
+  calcular({ leads }) {
+    const lider = masFrecuente(leads.map((l) => ETIQUETA_FUENTE[l.curado.lead.evento.fuente]));
+    if (!lider) return { valor: "—" };
+
+    return {
+      valor: lider.valor,
+      detalle: `${lider.veces} de ${leads.length} leads (${porcentaje(lider.veces, leads.length)}). Sin campaña ni pieza: solo el canal.`,
+    };
+  },
+};
+
+/** Los tres canales del enum `fuente`, con el nombre que usa el negocio. */
+const ETIQUETA_FUENTE: Record<"meta" | "google" | "web", string> = {
+  meta: "Meta Ads",
+  google: "Google Ads",
+  web: "Formulario web",
+};
+
+/**
  * Las métricas que rinde la franja, en orden de aparición.
  *
  * El orden es el orden de lectura del especialista: primero cuánto
  * entra, después qué tan bueno es lo que entra, después qué pasa con lo
- * que no pasó.
+ * que no pasó, y al final de dónde vino.
  */
 export const METRICAS: Metrica[] = [
   LEADS_HOY,
@@ -148,4 +224,6 @@ export const METRICAS: Metrica[] = [
   NO_AFILIADOS,
   PUNTAJE_PROMEDIO,
   EN_NUTRICION,
+  PROYECTO_MAS_PEDIDO,
+  CANAL_DE_INGRESO,
 ];

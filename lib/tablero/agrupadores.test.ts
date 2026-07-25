@@ -94,3 +94,30 @@ describe("METRICAS — el contrato del registry", () => {
     }
   });
 });
+
+describe("las dos métricas del mentor que ya se podían (ticket 025)", () => {
+  const metrica = (id: string) => METRICAS.find((m) => m.id === id)!;
+
+  it("el proyecto más pedido cuenta el interés declarado, no lo recomendado", () => {
+    const salida = metrica("proyecto-mas-pedido").calcular(DATOS);
+    const declarados = DATOS.leads
+      .map((l) => l.curado.lead.evento.proyecto_interes)
+      .filter(Boolean);
+
+    // El valor es uno de los proyectos por los que alguien entró, y es el
+    // más repetido: si contara recomendaciones, podría salir uno que nadie pidió.
+    expect(declarados).toContain(salida.valor);
+    const veces = declarados.filter((p) => p === salida.valor).length;
+    for (const otro of new Set(declarados)) {
+      expect(veces).toBeGreaterThanOrEqual(declarados.filter((p) => p === otro).length);
+    }
+  });
+
+  // El mentor pidió atribución con campaña y QR, y eso NO existe. Mostrar
+  // canal llamándolo atribución sería la caja negra que AGENTS.md prohíbe.
+  it("el canal se declara como canal en grueso, nunca como atribución", () => {
+    const canal = metrica("canal-ingreso");
+    expect(canal.descripcion).toMatch(/NO atribución de campaña/i);
+    expect(canal.calcular(DATOS).detalle).toMatch(/solo el canal/i);
+  });
+});

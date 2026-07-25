@@ -18,8 +18,11 @@ export const VISTAS = [
     clave: "resumen",
     texto: "Resumen",
     titulo: "La operación en cifras",
+    // Sin contar cuántas son: el registry promete que agregar una métrica no
+    // obliga a tocar la pantalla, y un número escrito aquí rompía esa promesa
+    // en silencio (decía "seis" con ocho en pantalla, ticket 025).
     descripcion:
-      "Seis cifras con la fuente de la que sale cada una. Ninguna es un tooltip: si un número no dice de dónde viene, es caja negra.",
+      "Cada cifra con la fuente de la que sale. Ninguna es un tooltip: si un número no dice de dónde viene, es caja negra.",
   },
   {
     clave: "entrada",
