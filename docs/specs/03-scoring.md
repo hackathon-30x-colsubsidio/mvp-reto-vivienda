@@ -71,6 +71,8 @@ La afiliación **no tiene peso propio a propósito**: su efecto en el puntaje vi
 
 La similitud **nunca corta**. `spec.md §4` la define como *evidencia de respaldo*, no como criterio. Un lead no se cae por no parecerse a los compradores de un proyecto.
 
+> **[HOY — 2026-07-25, ADR 0005]** Estos mismos factores alimentan una segunda cosa además del puntaje: la **capa de recursos**. Cada factor desfavorable (no afiliado, crediticia mala/regular, sin subsidio declarado) mapea a un recurso que se le recomienda al lead — derivado de los factores que el motor ya emite, sin tocar el motor ni el `Score`. **El gate del 40% (`cuota_ingreso_40`) NO dispara recurso directo:** esa cuota se deriva del precio, no de deudas ni ahorro, así que un recurso que dijera atenderla sería caja negra; lo que mueve el gate es la afiliación (→ subsidio). Es ortogonal a la salida: un `listo` recibe recurso igual. Detalle en [ADR 0005](../adr/0005-capa-de-recursos.md) y [`lib/recursos/`](../../lib/recursos/).
+
 ### D4 · Los pesos son propuestos, no ratificados · [ABIERTA A PROPÓSITO — Mani, 2026-07-25]
 
 > **Sala del sábado 25, decisión 8: se deja abierta.** Palabras de Mani: *"lo de los pesos no es algo absoluto ahorita"*. Los valores de hoy son una propuesta con su razón escrita abajo, defendible ante el jurado, y **siguen calibrables** — cambiarlos es tocar dos números de `config.ts`. Lo que **no** está abierto es la línea listo / nutrición: la fija el gate legal del 40%, no un umbral elegido.

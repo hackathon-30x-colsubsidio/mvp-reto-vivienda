@@ -8,6 +8,7 @@ import type {
 import type { EstadoLead, LeadEnCola } from "@/lib/types-asesor";
 import { ordenarCola } from "@/lib/types-asesor";
 import * as fixtures from "@/lib/fixtures/leads-curados";
+import { recursosPara } from "@/lib/recursos";
 import { getSupabase } from "@/lib/supabase";
 
 /**
@@ -106,41 +107,49 @@ export function filaDesdeLeadCurado(curado: LeadCurado): Omit<FilaLead, "creado_
 export function leadCuradoDesdeFila(fila: FilaLead): LeadCurado {
   const respuestas = (fila.respuestas ?? {}) as LeadCurado["lead"]["respuestas"];
 
-  return {
-    lead: {
-      evento: {
-        lead_id: fila.lead_id,
-        nombre: fila.nombre,
-        celular: fila.celular,
-        cedula: fila.cedula,
-        ...(fila.proyecto_interes ? { proyecto_interes: fila.proyecto_interes } : {}),
-        fuente: fila.fuente as LeadCurado["lead"]["evento"]["fuente"],
-      },
-      perfil: fila.perfil ?? { match: false },
-      respuestas: {
-        ...respuestas,
-        // La columna manda sobre el jsonb: es la que la DB garantiza.
-        consentimiento: {
-          otorgado: fila.consentimiento_otorgado,
-          timestamp: fila.consentimiento_ts ?? "",
-        },
-      },
-    },
-    score: {
+  const lead: LeadCurado["lead"] = {
+    evento: {
       lead_id: fila.lead_id,
-      // La vista `cola_asesor` ya filtra estado not null, así que llegar
-      // aquí con null significaría un lead aún en conversación.
-      salida: (fila.estado ?? "nutricion") as EstadoLead,
-      puntaje: fila.puntaje ?? 0,
-      factores: fila.factores ?? [],
-      ...(fila.regla_fallida ? { regla_fallida: fila.regla_fallida } : {}),
-      ...(fila.trigger_nutricion ? { trigger_nutricion: fila.trigger_nutricion } : {}),
+      nombre: fila.nombre,
+      celular: fila.celular,
+      cedula: fila.cedula,
+      ...(fila.proyecto_interes ? { proyecto_interes: fila.proyecto_interes } : {}),
+      fuente: fila.fuente as LeadCurado["lead"]["evento"]["fuente"],
     },
+    perfil: fila.perfil ?? { match: false },
+    respuestas: {
+      ...respuestas,
+      // La columna manda sobre el jsonb: es la que la DB garantiza.
+      consentimiento: {
+        otorgado: fila.consentimiento_otorgado,
+        timestamp: fila.consentimiento_ts ?? "",
+      },
+    },
+  };
+
+  const score: LeadCurado["score"] = {
+    lead_id: fila.lead_id,
+    // La vista `cola_asesor` ya filtra estado not null, así que llegar
+    // aquí con null significaría un lead aún en conversación.
+    salida: (fila.estado ?? "nutricion") as EstadoLead,
+    puntaje: fila.puntaje ?? 0,
+    factores: fila.factores ?? [],
+    ...(fila.regla_fallida ? { regla_fallida: fila.regla_fallida } : {}),
+    ...(fila.trigger_nutricion ? { trigger_nutricion: fila.trigger_nutricion } : {}),
+  };
+
+  return {
+    lead,
+    score,
     proyectos: fila.proyectos ?? [],
     ...(fila.cita_fecha && fila.cita_sala_ventas
       ? { cita: { fecha: fila.cita_fecha, sala_ventas: fila.cita_sala_ventas } }
       : {}),
     explicacion: fila.explicacion ?? "",
+    // Los recursos NO se persisten: se recomputan desde los factores guardados
+    // (limitación conocida del ADR — derivados, no históricos). Así la ficha del
+    // asesor los muestra aunque la fila venga de una DB que no tiene la columna.
+    recursos: recursosPara(lead, score),
   };
 }
 
