@@ -1,7 +1,7 @@
 ---
 id: 004
 serves: "spec §4 — 'primera cuota estimada ≤ 40% del ingreso del hogar' (Decreto 583 de 2025), tope regulatorio duro"
-status: doing (2026-07-24 — existe lib/scoring/capacidad.ts y lo usa el orquestador; falta que C lo importe y el caso borde 39/41%)
+status: done (2026-07-24 — `lib/scoring/capacidad.ts::precioMaximoDe` es la única aritmética; la consumen `curar()`, `/api/match` y `/api/explicacion`, y hay test del borde 39/41%)
 ---
 
 # 004 — La regla del 40% como función compartida

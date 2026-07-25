@@ -1,6 +1,6 @@
 # 0003 — Esquema de la DB central de leads
 
-**Estado:** Propuesta (ratificar en el kickoff) · **Fecha:** 2026-07-23 · **Track:** D
+**Estado:** **Aceptada** (ratificada de hecho: corre en producción desde el 2026-07-24 y la sala de decisiones del sábado 25 confirmó su enmienda del `≤ 3`) · **Fecha:** 2026-07-23 · **Track:** D
 
 ## Contexto
 
@@ -100,6 +100,6 @@ El `0` permitido en la regla de proyectos es deliberado: deja escribir el lead c
 - **Contrato para el resto del equipo:** nadie escribe a Supabase directo. `POST /api/leads` recibe un `LeadCurado`; `POST /api/citas` persiste la franja elegida. Un solo lugar valida y mapea.
 - **`lib/types.ts` no se toca.** El mapeo contrato ↔ fila vive en `lib/leads-repo.ts`; los tipos internos de D, en `lib/types-asesor.ts`.
 - **Si un track viola un criterio de aceptación, el insert falla en desarrollo**, no en el demo frente al jurado. Es el efecto buscado; el precio es que un `POST` mal formado devuelve error en vez de guardar basura.
-- **`db/seed.sql` es un espejo de `lib/fixtures/`, no la fuente.** Los personajes canónicos viven en el código ([ticket 001](../tasks/001-personajes-canonicos.md) / costura S6). Si un número cambia allá, cambia aquí — nunca al revés. Si los dos se contradicen, el demo se contradice a sí mismo en pantalla.
+- **`db/seed.sql` se GENERA desde `lib/fixtures/`, no se escribe.** Los personajes canónicos viven en el código ([ticket 001](../tasks/001-personajes-canonicos.md) / costura S6). Nació como "espejo que se copia a mano" y **se rompió dos veces sin que nadie lo notara** (primero le faltó el ingreso: todo lead caía a nutrición; después el puntaje: la ficha mostraba 0/100). Un espejo copiado a mano es una segunda fuente. Desde el 2026-07-24 lo produce `npx tsx scripts/generar-seed.ts` y [`lib/fixtures/seed-espejo.test.ts`](../../lib/fixtures/seed-espejo.test.ts) compara el archivo en disco contra el generador: si quedó viejo, el test falla.
 - **Fallback a fixtures.** `lib/leads-repo.ts` cae a `lib/fixtures/` si Supabase no responde o está vacío, y la UI lo **avisa en pantalla**. La pantalla del clímax se ve aunque la DB se caiga el sábado; el jurado nunca ve datos falsos presentados como reales.
 - **Las credenciales nunca entran al repo:** `NEXT_PUBLIC_SUPABASE_URL` y `SUPABASE_KEY` van en `.env` local (ya en `.gitignore`) y en las env vars de Vercel. `SUPABASE_KEY` no lleva prefijo `NEXT_PUBLIC_` **a propósito** — es la clave secreta y nunca debe llegar al navegador.

@@ -1,7 +1,7 @@
 ---
 id: 011
 serves: "criterio de aceptación 1 — no repreguntar lo conocido (intersección vacía entre campos preguntados y enriquecidos)"
-status: doing (los dos casos ya están verdes contra fixtures; falta correrlos contra el enriquecimiento real de 003)
+status: done (2026-07-24 — el criterio 1 corre contra el enriquecimiento real de las 303 identidades)
 ---
 
 # 011 — Test del criterio 1

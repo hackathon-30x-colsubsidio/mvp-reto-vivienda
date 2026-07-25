@@ -1,7 +1,7 @@
 ---
 id: 010
 serves: "restricción no-negociable 'demo autogestionado' (AGENTS.md) — el jurado recorre el flujo solo, sin nadie que reintente"
-status: todo
+status: done (2026-07-24 — `lib/matching/explicacion-fallback.ts`; ojo: la ficha ya no llama al LLM, la explicación que se ve es determinista por decisión del 2026-07-25)
 ---
 
 # 010 — Fallback del conversador si Claude falla
@@ -17,7 +17,7 @@ Que una caída de la API, un rate limit o un timeout no rompan el demo mientras 
 - Fuera: reintentos sofisticados, cola, cache. Un `try/catch` con el guion al lado alcanza.
 
 ## Done cuando
-- [ ] Con la `ANTHROPIC_API_KEY` inválida a propósito, los 3 personajes siguen recorriéndose de punta a punta.
+- [ ] Con la credencial del LLM inválida a propósito, los 3 personajes siguen recorriéndose de punta a punta.
 - [ ] El fallback no miente: nada en pantalla afirma que la respuesta la generó el modelo cuando no fue así.
 
 ## Notas

@@ -1,7 +1,7 @@
 ---
 id: 001
 serves: "spec §4 — Cómo entra el jurado (3 personajes pre-sembrados); insumo de los 4 criterios de aceptación"
-status: todo
+status: done (2026-07-24 — los 3 personajes se rehicieron contra el catálogo real y hoy se DERIVAN del motor: el fixture declara lo que la persona teclea y `replayGuion` lo corre contra el conversador real)
 ---
 
 # 001 — Personajes canónicos del demo

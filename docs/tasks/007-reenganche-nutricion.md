@@ -1,7 +1,7 @@
 ---
 id: 007
 serves: "criterio de aceptación 3 — nadie se descarta (al pulsar 'simular trigger' el lead vuelve a la conversación)"
-status: doing
+status: done (2026-07-24 — `app/page.tsx` lee `?lead_id=&reenganche=1` y retoma nombrando la razón original, con test en `ChatWhatsApp.test.tsx`)
 ---
 
 # 007 — Re-enganche del lead en nutrición

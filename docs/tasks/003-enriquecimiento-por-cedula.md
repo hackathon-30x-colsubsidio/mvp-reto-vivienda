@@ -1,7 +1,7 @@
 ---
 id: 003
 serves: "spec §4 paso 2 (se enriquece antes de hablar) + criterio de aceptación 1 (no repreguntar lo conocido)"
-status: todo
+status: done (2026-07-24 — `lib/enriquecimiento.ts` resuelve las 303 identidades vía `GET /api/enriquecer`, server-side porque el JSON pesa 100 KB)
 ---
 
 # 003 — Enriquecimiento real: cédula → `PerfilConocido`

@@ -21,7 +21,7 @@ Lo hace quien tome el **Track A** (o quien esté libre primero). Los demás arra
 
 1. `create-next-app` (TypeScript, App Router) en la raíz del repo.
 2. Crear `lib/types.ts` con los contratos de abajo y `lib/fixtures/` con un ejemplo de cada uno.
-3. `.env.example` (sin valores): `ANTHROPIC_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_KEY`.
+3. `.env.example` (sin valores). Hoy trae `GOOGLE_CLOUD_PROJECT`, `GOOGLE_APPLICATION_CREDENTIALS_JSON`, `GEMINI_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL` y `SUPABASE_KEY` — el proveedor de IA cambió a Gemini el 2026-07-23.
 4. Conectar el repo a Vercel (auto-deploy de `main`) y verificar que el deploy vacío carga.
 5. Verificar los 3 feedback loops de [`AGENTS.md`](../AGENTS.md) y pushear. **Avisar al grupo: "scaffold listo".**
 

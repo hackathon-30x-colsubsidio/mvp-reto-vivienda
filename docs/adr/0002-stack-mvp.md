@@ -2,7 +2,11 @@
 
 **Estado:** Aceptada · **Fecha:** 2026-07-23
 
-> **Actualización 2026-07-23 — proveedor de IA: Claude → Google Gemini.** A la hora de deployar, el equipo solo tenía disponible una **key de Gemini**, no de Anthropic. Como el criterio que gobierna es "que funcione el domingo", se cambió el proveedor de IA a **Google Gemini** (`gemini-2.5-flash`) vía el SDK `@google/genai`. Todo lo demás del stack queda igual. Reglas que **no** cambian: la IA vive solo en `/api/chat` y `/api/explicacion` en **streaming** (primer token < 2s), la key es **solo server-side** (`GEMINI_API_KEY`, `.env.example` sin valores), y el scoring/corte siguen siendo TS puro sin LLM. El proveedor está aislado en un solo archivo, [`lib/gemini.ts`](../../lib/gemini.ts), así que volver a Claude (o cambiar de modelo) es un cambio de un archivo. Donde abajo diga "Anthropic / `claude-opus-4-8`", léase "Gemini / `gemini-2.5-flash`".
+> **Actualización 2026-07-23 — proveedor de IA: Claude → Google Gemini.** A la hora de deployar, el equipo solo tenía disponible una **key de Gemini**, no de Anthropic. Como el criterio que gobierna es "que funcione el domingo", se cambió el proveedor de IA a **Google Gemini** vía el SDK `@google/genai`. Todo lo demás del stack queda igual. Reglas que **no** cambian: la IA en **streaming** (primer token < 2s), la key **solo server-side** (`.env.example` sin valores), y el scoring/corte siguen siendo TS puro sin LLM. El proveedor está aislado en un solo archivo, [`lib/gemini.ts`](../../lib/gemini.ts), así que cambiarlo es un cambio de un archivo.
+>
+> **Enmienda 2026-07-24 — el modelo depende del backend, y eso costó dos deploys.** No hay "un" modelo: `gemini-2.5-flash` está **retirado en AI Studio pero vivo en Vertex**, y los `gemini-3.x` **no existen en Vertex**. Una sola constante rompe siempre una de las dos rutas, así que [`lib/gemini.ts`](../../lib/gemini.ts) fija **un modelo por backend** (Vertex → `gemini-2.5-flash`; AI Studio → `gemini-3.5-flash`), con test que exige que sigan siendo distintos. Se corre sobre **Vertex** (gasta el crédito de Google Cloud, no la tarjeta). Se descartó también el *adaptive thinking* que esta tabla proponía: va con thinking apagado a propósito, porque lo que se juega es el primer token.
+>
+> **Enmienda 2026-07-25 — el porqué que ve el asesor ya no lo escribe el LLM.** Se redacta determinista desde los factores calculados, y eso se vende como ventaja: no depende de que un modelo esté vivo. El LLM queda solo en el conversador. Ver el [ADR 0005](0005-afiliacion-cupo-y-explicacion.md).
 
 ## Contexto
 
@@ -10,7 +14,7 @@ Quedan ~3 días de desarrollo (cierre: domingo 26, 11:30 a.m.). El entregable es
 
 ## Decisión
 
-**Una sola app Next.js deployada en Vercel, con Supabase como DB y la API de Anthropic para la IA.**
+**Una sola app Next.js deployada en Vercel, con Supabase como DB y un LLM en streaming para la IA** (hoy Google Gemini sobre Vertex — ver la actualización de arriba).
 
 | Pieza | Elección | Regla |
 |---|---|---|
@@ -18,7 +22,7 @@ Quedan ~3 días de desarrollo (cierre: domingo 26, 11:30 a.m.). El entregable es
 | Deploy | **Vercel**, conectado al repo de GitHub | Cada push a `main` redeploya solo. El link público existe desde el día 1 |
 | DB mutable | **Supabase** (Postgres, free tier) | Solo para lo que muta: `leads`, `conversaciones`, `citas`. 2-3 tablas, sin sobre-modelar |
 | Datos estáticos | **JSON versionados en `data/sintetica/`** | Base sintética de identidades, fichas de proyectos, distribuciones derivadas. Sin DB — se importan directo. Los genera un script Python **offline** (ver abajo) |
-| IA | **API de Anthropic** desde API routes, `claude-opus-4-8`, adaptive thinking, **streaming** | Solo en `/api/chat` (conversador) y `/api/explicacion` (experto). El scoring y el corte son TypeScript puro, sin LLM — cero caja negra |
+| IA | **LLM desde API routes, en streaming** (hoy Gemini sobre Vertex, un modelo por backend, sin thinking) | Solo en `/api/chat` (conversador) y `/api/explicacion` (experto, hoy fuera del camino crítico). El scoring y el corte son TypeScript puro, sin LLM — cero caja negra |
 | Secretos | **Env vars en Vercel** + `.env` local | El repo es **público**: ninguna key entra jamás al repo. Mantener `.env.example` sin valores |
 
 ### Dónde vive cada cosa
@@ -48,8 +52,8 @@ Los contratos entre tracks (`Lead`, `Score`, `LeadCurado`) viven en `lib/types.t
 ## Reglas no-negociables derivadas
 
 1. **Python nunca en producción.** Solo en `scripts/` para generar los JSON. El deploy es un solo runtime (Node).
-2. **La API key de Anthropic solo vive server-side** (API routes). Nunca en el cliente, nunca en el repo.
-3. **Streaming en toda llamada a Claude.** Evita el límite de tiempo de las funciones de Vercel (plan free) y hace que el chat se vea vivo en el video.
+2. **La API key del LLM solo vive server-side** (API routes). Nunca en el cliente, nunca en el repo.
+3. **Streaming en toda llamada al LLM.** Evita el límite de tiempo de las funciones de Vercel (plan free) y hace que el chat se vea vivo en el video.
 4. **El scoring no llama al LLM.** Reglas explícitas en `lib/scoring/`, testeables sin red. El LLM redacta el porqué *a partir de* factores ya calculados; jamás decide el corte.
 5. **Commits frecuentes y push a `main` desplegable.** Si `main` se rompe, el link del demo se rompe. Feature branches por track; merge solo con typecheck en verde.
 

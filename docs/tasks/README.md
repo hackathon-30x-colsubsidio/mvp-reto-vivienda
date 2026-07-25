@@ -1,5 +1,7 @@
 # Tickets del build
 
+> **Estado al 2026-07-25:** los tickets 001-013 están **cerrados** (su `status:` dice con qué evidencia). Lo que queda abierto es **014-020**, y quién los toma hoy lo dice [`agents/plan-sabado-25.md`](../agents/plan-sabado-25.md) — la columna "Dueño" de abajo es histórica (los tracks A/B/C/D del jueves, después los 4 roles del viernes; hoy el reparto es P1-P5).
+
 Cada ticket es **una unidad de trabajo que cabe en una ventana de contexto limpia** y cita el criterio del [`spec.md`](../spec.md) al que sirve. Salen de [`plan.md`](../plan.md), no del spec directo.
 
 **Qué cubren y qué no:** los tickets 001-015 son las **costuras entre tracks** y los **tests de los criterios de aceptación** — lo que no le tocaba a nadie. El trabajo dentro de cada track (el chat, el motor, el matcher, la vista del asesor) vive en [`reparto-inicial.md`](../reparto-inicial.md) y en los [prompts de arranque](../prompts/). Un track no espera estos tickets para arrancar.

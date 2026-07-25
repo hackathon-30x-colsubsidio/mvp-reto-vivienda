@@ -1,7 +1,7 @@
 ---
 id: 005
 serves: "spec §4 paso 4 (el agendador ofrece franjas) + criterio de aceptación 4 (el lead listo llega con cita registrada)"
-status: doing
+status: done (2026-07-24 — el chat ofrece las 3 franjas del proyecto #1 y `POST /api/citas` persiste la elegida; `slots.json` se genera desde el catálogo real)
 ---
 
 # 005 — Agendador: ofrecer y registrar la franja
