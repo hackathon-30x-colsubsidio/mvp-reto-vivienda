@@ -25,6 +25,7 @@ interface ProyectoCrudo {
   cupo_no_afiliados: { usado: number; total: number };
   brochure: string | null;
   recorrido_360: string | null;
+  ubicacion_incierta?: boolean;
 }
 
 export const catalogo: FichaProyecto[] = (crudo as ProyectoCrudo[]).map((p) => ({
@@ -37,4 +38,8 @@ export const catalogo: FichaProyecto[] = (crudo as ProyectoCrudo[]).map((p) => (
   cupo_no_afiliados: p.cupo_no_afiliados,
   brochure: p.brochure ?? undefined,
   recorrido_360: p.recorrido_360 ?? undefined,
+  // VIBO ONCE y KARAKALI aparecen en dos ciudades distintas según la hoja del
+  // insumo. El matcher lo necesita para no prometer una zona que no está
+  // confirmada; sin este campo, la ciudad se leería como un hecho.
+  ...(p.ubicacion_incierta ? { ubicacion_incierta: true } : {}),
 }));
