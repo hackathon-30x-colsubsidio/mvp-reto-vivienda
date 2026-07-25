@@ -46,6 +46,48 @@ describe("parsearIngresoMensual", () => {
       expect(parsearIngresoMensual(texto)).toBeUndefined();
     },
   );
+
+  // Ticket 024: el ingreso es el insumo del ÚNICO gate legal, así que un número
+  // mal leído cambia el veredicto sin que nadie se entere. Los tres primeros
+  // pasaban como monto válido hasta el 2026-07-25.
+  it.each([
+    ["2+2"], // una cuenta, no un monto: entraba como $2.000.000
+    ["-3"], // un negativo: entraba como $3.000.000
+    ["999999999999"], // absurdo: pasaba entero
+    ["400.000"], // por debajo del piso plausible
+  ])("no acepta %s como ingreso", (texto) => {
+    expect(parsearIngresoMensual(texto)).toBeUndefined();
+  });
+
+  it("sigue leyendo un rango con guion, que sí es válido", () => {
+    expect(parsearIngresoMensual("2-3 millones")).toBe(2_500_000);
+  });
+});
+
+describe("el ingreso se confirma antes de calificar con él (ticket 024)", () => {
+  const ingreso = (perfil: PerfilConocido, texto: string) =>
+    paso(perfil, "rango_ingreso_hogar").interpretarTexto(texto);
+
+  it("le devuelve a la persona el número que entendió, para que lo corrija", () => {
+    const { patch, acuse } = ingreso(SIN_DATOS, "4.500.000");
+    expect(patch.ingreso_hogar_mensual).toBe(4_500_000);
+    expect(acuse).toContain("$4.500.000");
+    expect(acuse).toMatch(/corrijo|equivoqu/i);
+  });
+
+  it("lo que no logra leer no se califica: repregunta una vez y no inventa el monto", () => {
+    const respuesta = ingreso(SIN_DATOS, "no sé");
+    expect(respuesta.repreguntar).toBe(true);
+    expect(respuesta.patch.ingreso_hogar_mensual).toBeUndefined();
+    // El texto crudo no se pierde: el asesor lo ve tal cual.
+    expect(respuesta.patch.rango_ingreso_hogar).toBe("no sé");
+    expect(respuesta.acuseSiInsiste).toBeTruthy();
+  });
+
+  it("un monto absurdo tampoco llega al gate", () => {
+    expect(ingreso(SIN_DATOS, "999999999999").patch.ingreso_hogar_mensual).toBeUndefined();
+    expect(ingreso(SIN_DATOS, "2+2").patch.ingreso_hogar_mensual).toBeUndefined();
+  });
 });
 
 describe("construirPreguntas", () => {

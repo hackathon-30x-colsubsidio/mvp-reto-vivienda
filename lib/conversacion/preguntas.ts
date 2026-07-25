@@ -54,6 +54,14 @@ export interface Respuesta {
    * y si el LLM no contesta se pinta este mismo texto.
    */
   pulir?: boolean;
+  /**
+   * La respuesta no dejó un dato usable: se acusa y se vuelve a preguntar SIN
+   * avanzar el paso (mismo mecanismo del desvío). El chat solo lo concede una
+   * vez por pregunta — a la segunda se sigue, porque insistir es interrogar.
+   */
+  repreguntar?: boolean;
+  /** Qué decir cuando ya se repreguntó una vez y toca seguir de todos modos. */
+  acuseSiInsiste?: string;
 }
 
 /** Un chip del footer. Lleva su valor, así el texto puede ser humano y el dato exacto. */
@@ -106,6 +114,7 @@ function numerosDe(texto: string): number[] {
  */
 export function parsearIngresoMensual(texto: string): number | undefined {
   const limpio = texto.toLowerCase();
+  if (NO_ES_MONTO.test(limpio)) return undefined;
   const numeros = numerosDe(limpio);
   if (numeros.length === 0) return undefined;
 
@@ -113,17 +122,47 @@ export function parsearIngresoMensual(texto: string): number | undefined {
   const base = numeros.length >= 2 ? (numeros[0] + numeros[1]) / 2 : numeros[0];
   const conMedio = /\by\s+medio\b/.test(limpio) ? base + 0.5 : base;
 
-  if (/mill|\bmm\b/.test(limpio)) return Math.round(conMedio * 1_000_000);
+  if (/mill|\bmm\b/.test(limpio)) return plausible(conMedio * 1_000_000);
   if (/m[íi]nimo|salario|smmlv|smlv/.test(limpio)) {
-    return Math.round(conMedio * SMMLV);
+    return plausible(conMedio * SMMLV);
   }
-  if (/\bmil\b/.test(limpio)) return Math.round(conMedio * 1_000);
+  if (/\bmil\b/.test(limpio)) return plausible(conMedio * 1_000);
 
   // Sin unidad: un monto completo se escribe con sus ceros; un número pequeño
   // es la forma corta de "millones" ("gano 3" tras preguntar cuánto entra al mes).
-  if (conMedio >= 100_000) return Math.round(conMedio);
-  if (conMedio <= 30) return Math.round(conMedio * 1_000_000);
+  if (conMedio >= 100_000) return plausible(conMedio);
+  if (conMedio <= 30) return plausible(conMedio * 1_000_000);
   return undefined;
+}
+
+/**
+ * Lo escrito no es un monto sino una cuenta, un signo o un error de dedo.
+ *
+ * Sin esto, `2+2` entraba como $2.000.000 y `-3` como $3.000.000: el parser ve
+ * los dígitos y no el operador. Ojo con el guion — `2-3` SÍ es un rango válido
+ * ("entre 2 y 3"), así que solo se rechaza cuando ABRE el texto, que es la
+ * forma de un negativo.
+ */
+const NO_ES_MONTO = /[+*/=%]|^\s*-/;
+
+/**
+ * Ingresos mensuales fuera de los cuales no se califica sin confirmar.
+ *
+ * ⚠️ Los dos números son **supuesto nuestro, no dato de Colsubsidio**: el piso
+ * queda por debajo del salario mínimo (nadie compra vivienda con menos, y casi
+ * siempre es un cero que faltó) y el techo, en cien millones al mes, es
+ * absurdo para este catálogo. Existen porque el ingreso es el insumo del ÚNICO
+ * gate legal del sistema: un número mal leído cambia el veredicto en silencio.
+ */
+export const INGRESO_MINIMO_PLAUSIBLE = 500_000;
+export const INGRESO_MAXIMO_PLAUSIBLE = 100_000_000;
+
+/** El monto solo cuenta si cae en un rango que una persona puede tener de verdad. */
+function plausible(monto: number): number | undefined {
+  const redondeado = Math.round(monto);
+  return redondeado >= INGRESO_MINIMO_PLAUSIBLE && redondeado <= INGRESO_MAXIMO_PLAUSIBLE
+    ? redondeado
+    : undefined;
 }
 
 /** El rango del enriquecimiento ("3-5 SMMLV") llevado a un monto usable por el motor. */
@@ -169,16 +208,30 @@ export function completarDesdePerfil(
   return completas;
 }
 
+/**
+ * El ingreso es el único dato con el que el sistema puede equivocarse en serio:
+ * de él sale el gate del 40% (Decreto 583 de 2025). Por eso, cuando se entiende,
+ * **se devuelve el número entendido** para que la persona lo corrija si está
+ * mal; y cuando no, se pregunta otra vez en vez de calificar con una suposición.
+ */
 function interpretarIngreso(texto: string): Respuesta {
   const monto = parsearIngresoMensual(texto);
+
+  if (monto === undefined) {
+    return {
+      patch: { rango_ingreso_hogar: texto },
+      acuse:
+        "Perdona, ese número no logré leerlo bien 😅 ¿Me lo dices como lo que entra al mes? " +
+        "Por ejemplo: 4.500.000, «2 millones y medio» o «3 salarios mínimos».",
+      repreguntar: true,
+      acuseSiInsiste:
+        "Sin problema 🙏 Lo dejo anotado tal cual me lo dijiste y el asesor lo confirma contigo.",
+    };
+  }
+
   return {
-    patch: {
-      rango_ingreso_hogar: texto,
-      ...(monto ? { ingreso_hogar_mensual: monto } : {}),
-    },
-    acuse: monto
-      ? "Gracias por la confianza 🙏 Con eso ya puedo calcular con números reales y no ofrecerte algo que después te apriete."
-      : "Gracias por contármelo 🙏 Lo dejo anotado tal cual me lo dijiste.",
+    patch: { rango_ingreso_hogar: texto, ingreso_hogar_mensual: monto },
+    acuse: `Gracias por la confianza 🙏 Entonces hago las cuentas con $${monto.toLocaleString("es-CO")} al mes — si me equivoqué, dime el número y lo corrijo.`,
   };
 }
 

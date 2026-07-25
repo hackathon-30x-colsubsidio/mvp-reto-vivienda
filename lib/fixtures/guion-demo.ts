@@ -88,6 +88,17 @@ export function replayGuion(guion: GuionDemo): ConversacionDemo {
     // atajos, el texto libre es el contrato (spec 02 D4).
     const respuesta = paso.interpretarTexto(tecleado);
 
+    // Si el conversador le repreguntaría esto a una persona real, el personaje
+    // del demo quedaría con el dato a medias y nadie se enteraría hasta ver la
+    // ficha. Que grite aquí, como cuando el guion se desalinea.
+    if (respuesta.repreguntar) {
+      throw new Error(
+        `Guion inválido para ${evento.lead_id}: el conversador NO entiende ` +
+          `"${tecleado}" como respuesta a "${paso.campo}" y le repreguntaría. ` +
+          `Corrige el guion en lib/fixtures/leads.ts.`,
+      );
+    }
+
     hilo.push({ rol: "asistente", mensaje: paso.pregunta });
     hilo.push({ rol: "lead", mensaje: tecleado });
     if (respuesta.acuse) hilo.push({ rol: "asistente", mensaje: respuesta.acuse });

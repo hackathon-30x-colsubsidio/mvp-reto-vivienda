@@ -146,6 +146,8 @@ export function ChatWhatsApp({
    * eventos y no mensajes de nadie, y que son las que dejan el hilo auditable.
    */
   const transcripcionRef = useRef<MensajeConversacion[]>([]);
+  /** En qué paso ya se repreguntó. Se concede una vez: insistir es interrogar. */
+  const repreguntadoEn = useRef<number | null>(null);
 
   function anotar(rol: MensajeConversacion["rol"], mensaje: string) {
     transcripcionRef.current = [...transcripcionRef.current, { rol, mensaje }];
@@ -361,13 +363,28 @@ export function ChatWhatsApp({
     };
     setRespuestas(nuevasRespuestas);
 
+    // La respuesta no dejó un dato usable (hoy: un ingreso ilegible, que es el
+    // insumo del gate del 40%). Se vuelve a preguntar SIN avanzar, igual que en
+    // un desvío. Solo una vez por paso: a la segunda se sigue con lo que haya,
+    // porque insistir deja de ser cuidado y se vuelve interrogatorio.
+    if (respuesta.repreguntar && repreguntadoEn.current !== indicePaso) {
+      repreguntadoEn.current = indicePaso;
+      if (respuesta.acuse) await agregarBotInstantaneo(respuesta.acuse);
+      await pausa(400);
+      await agregarBot(repreguntar(pasos[indicePaso]));
+      return;
+    }
+
     // Casi todos los acuses son instantáneos a propósito: humanizan sin costar
     // latencia. Los marcados `pulir` (hoy, la zona) pasan por el LLM porque la
     // respuesta es impredecible y un acuse de plantilla se nota de lejos —
     // `agregarBot` trae su propio blindaje de 3s y cae a este mismo texto.
-    if (respuesta.acuse) {
-      if (respuesta.pulir) await agregarBot(respuesta.acuse);
-      else await agregarBotInstantaneo(respuesta.acuse);
+    const acuse = respuesta.repreguntar
+      ? (respuesta.acuseSiInsiste ?? respuesta.acuse)
+      : respuesta.acuse;
+    if (acuse) {
+      if (respuesta.pulir) await agregarBot(acuse);
+      else await agregarBotInstantaneo(acuse);
     }
 
     const siguienteIndice = indicePaso + 1;
