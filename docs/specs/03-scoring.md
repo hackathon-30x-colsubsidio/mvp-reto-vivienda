@@ -49,7 +49,10 @@ La afiliación **no tiene peso propio a propósito**: su efecto en el puntaje vi
 
 La similitud **nunca corta**. `spec.md §4` la define como *evidencia de respaldo*, no como criterio. Un lead no se cae por no parecerse a los compradores de un proyecto.
 
-### D4 · Los pesos son propuestos, no ratificados · [PROPUESTA — TEAM decide]
+### D4 · Los pesos son propuestos, no ratificados · [ABIERTA A PROPÓSITO — Mani, 2026-07-25]
+
+> **Sala del sábado 25, decisión 8: se deja abierta.** Palabras de Mani: *"lo de los pesos no es algo absoluto ahorita"*. Los valores de hoy son una propuesta con su razón escrita abajo, defendible ante el jurado, y **siguen calibrables** — cambiarlos es tocar dos números de `config.ts`. Lo que **no** está abierto es la línea listo / nutrición: la fija el gate legal del 40%, no un umbral elegido.
+
 
 Los seis pesos (0,45 / 0,20 / 0,15 / 0,10 / 0,05 / 0,05) suman 1,0 y están escritos en [`config.ts`](../../lib/scoring/config.ts) con el comentario "PROPUESTOS, no definitivos". [`spec.md §7`](../spec.md) lo tiene como supuesto abierto: *"el qué se evalúa está cerrado; el cuánto pesa y dónde cae la línea, no"*.
 
@@ -57,12 +60,26 @@ Los seis pesos (0,45 / 0,20 / 0,15 / 0,10 / 0,05 / 0,05) suman 1,0 y están escr
 
 **[CERRADA — Mani, 2026-07-24] La afiliación pasó de 0,20 a 0,05: es desempate, no criterio.** Con 0,20 era el segundo factor más pesado y un afiliado arrancaba **18 puntos** arriba, así que la afiliación reordenaba la cola por sí sola. Contradice al mentor, textual: *"la prioridad siempre son los afiliados, PERO siempre va a ser la prioridad de los ingresos"* ([detalle](../reto/charla-mentor.md#90-10-e-ingresos)); a Colsubsidio le interesa cerrar la venta. Los 0,15 liberados se fueron íntegros a la holgura de capacidad. Medido después del cambio: dos perfiles idénticos que solo difieren en afiliación quedan a **4,5 puntos** (75 vs 71), y un no afiliado con $12M le gana a un afiliado con $2,6M (71 vs 42).
 
-### D5 · Dos observaciones aritméticas que el equipo debería conocer · [HOY — verificable sumando]
+### D5 · El techo real del puntaje es 75, no 100 · [HOY — verificable sumando]
 
-1. **Nadie puede sacar 100.** La similitud está fija en 0,5 mientras no existan las distribuciones por proyecto ([ticket 016](../tasks/016-distribuciones-por-proyecto.md)), así que aporta 10 de sus 20 puntos siempre. El techo real hoy es **90**.
-2. **Un no afiliado tiene techo 87,5.** `cupo_90_10` para un no afiliado da como máximo señal 0,5, o sea 2,5 de sus 5 puntos. Un afiliado y un no afiliado idénticos en todo lo demás quedan separados por **2,5 a 4,5 puntos** según el cupo que le quede al proyecto — el desempate que pidió el mentor, no una condena (antes eran 10 a 18 puntos).
+> ⚠️ **Corregido el 2026-07-25.** Este bloque decía "el techo real hoy es 90" y "un no afiliado tiene techo 87,5". **Estaba mal: no descontaba el subsidio.** Un lead que sale 74 no está "a 26 puntos de lo ideal", está a **uno** del máximo alcanzable.
 
-Ninguna de las dos es un bug: la primera es un provisional declarado, la segunda es la regla 90/10 expresándose en la prioridad. **Pero las dos son decisiones**, y hoy nadie las ratificó. Con ellas encima, la pregunta al equipo es si el techo móvil confunde al asesor.
+Dos factores no pueden aportar todo su peso hoy, y hay que sumarlos a los dos:
+
+1. **La similitud aporta la mitad, siempre.** Está fija en `valor_norm = 0,5` mientras no existan las distribuciones por proyecto ([ticket 016](../tasks/016-distribuciones-por-proyecto.md)): 10 de sus 20 puntos, para todo el mundo. No diferencia a nadie, y el propio factor lo declara en su texto.
+2. **El subsidio aporta 0 a todo lead real.** Nadie pregunta `subsidio_monto_mensual`, así que la cobertura da 0: se pierden los **15 puntos** completos. Es el ticket [017](../tasks/017-tabla-subsidios.md).
+
+Sumando, el máximo alcanzable hoy:
+
+| Perfil | Aritmética | Techo |
+|---|---|---|
+| Afiliado | 45 capacidad + 10 similitud + 0 subsidio + 10 sin vivienda + 5 crediticia + 5 cupo | **75** |
+| No afiliado, cupo libre | igual, con 2,5 de cupo | **72,5** |
+| No afiliado, cupo copado | igual, con 0,5 de cupo | **70,5** |
+
+Contra el seed: Diana **74** (a un punto del techo), Carlos **32**. La separación afiliado / no afiliado idénticos queda en **2,5 a 4,5 puntos** — el desempate que pidió el mentor, no una condena (antes eran 10 a 18).
+
+⚠️ **Ojo con el tablero:** los 57 leads sintéticos de [`cola-historica.ts`](../../lib/fixtures/cola-historica.ts) **sí traen `subsidio_monto_mensual`**, así que pueden pasar de 75. El "puntaje promedio" y el ranking mezclan dos techos, y el aviso de datos simulados no lo dice.
 
 ### D6 · Una sola escala de puntaje · [CERRADA — 2026-07-24 15:20, ya no hay decisión que tomar]
 
@@ -84,7 +101,7 @@ Por qué el binario además era *peor* y no solo distinto: `cuota_ingreso_40` (3
 
 **No existe "descartado".** Contradice el propósito social del reto.
 
-### D8 · Propenso / no propenso como capa de presentación · [PROPUESTA]
+### D8 · Propenso / no propenso — descartado como vocabulario · [CERRADA — sala del sábado 25, decisión 10]
 
 El mentor pidió dos categorías para el asesor: [propenso a comprar o no](../reto/charla-mentor.md#lo-que-ve-el-asesor). Nuestras tres salidas mapean así:
 
@@ -93,11 +110,11 @@ propenso     = listo + listo_restriccion_cupo
 no propenso  = nutricion
 ```
 
-**Es solo vocabulario de pantalla; el motor no cambia.** La propuesta es adoptar las palabras del mentor arriba y conservar las tres salidas como sub-secciones (ver spec [06](06-dashboard-asesor.md) D1). Riesgo que el equipo debe sopesar: "no propenso" suena a descarte y nuestro discurso entero es que nadie se descarta.
+**Se adopta la agrupación, no las palabras.** El corte en dos es exactamente lo que el mentor pidió y así está la bandeja; pero los rótulos son **"Pueden comprar hoy" / "Todavía no pueden comprar"**, porque "no propenso" suena a descarte y el discurso entero del reto es que nadie se descarta. El motor no cambia en ninguna de las dos versiones: esto siempre fue vocabulario de pantalla (ver spec [06](06-dashboard-asesor.md) D1).
 
-### D9 · El 90/10 se marca en el motor y bloquea en el matcher · [HOY — así está construido]
+### D9 · El 90/10 se marca en el motor y el matcher lo advierte · [HOY — así está construido]
 
-El motor **nunca** bloquea por cupo: `cupo_90_10` siempre marca `cumple: true` y solo baja la señal. Quien deja a un no afiliado sin proyectos es el matcher (spec [04](04-match-agenda.md) D2).
+El motor **nunca** bloquea por cupo: `cupo_90_10` siempre marca `cumple: true` y solo baja la señal. El matcher tampoco descarta desde el 2026-07-24: los proyectos con el cupo copado **se recomiendan igual, de últimos y con la advertencia encima** para que el asesor valide cupo antes de separar (spec [04](04-match-agenda.md) D3).
 
 Es coherente con lo que dijo el mentor: [la prioridad son los afiliados, pero "siempre va a ser la prioridad de los ingresos"](../reto/charla-mentor.md#90-10-e-ingresos). El motor mide capacidad; el cupo es una restricción de inventario que se aplica después.
 
@@ -163,12 +180,12 @@ Leer el diagrama: **solo el rombo del 40% tiene poder de decisión.** Todo lo de
 
 ## Preguntas al TEAM
 
-1. **¿Ratificamos el 0,6% como estimador de la cuota?** (D2) Es el número del que depende todo el gate. ¿Alguien puede validarlo con un asesor financiero antes del domingo?
+1. **🔴 ABIERTA — ¿ratificamos el 0,6% como estimador de la cuota?** (D2) Es el número del que depende todo el gate. Significa: se financia el 70% del valor y la mensualidad es el 0,6% de eso (≈20 años a tasas colombianas típicas). Es supuesto nuestro, no dato de Colsubsidio, y así se declara. Quedó pendiente en la sala del sábado (decisión 7).
 2. ~~**¿Cuál escala de puntaje es la canónica?**~~ (D6) **Ya no es pregunta: hay una sola desde el 2026-07-24.** No gastar reunión aquí.
-3. **¿Los pesos quedan como están?** (D4) Si alguien no está de acuerdo con la frase "la situación crediticia es lo que menos pesa porque nadie la verificó", hay que cambiarla.
-4. **¿Molesta que el techo del puntaje sea 90 (y 80 para no afiliados)?** (D5) ¿Se normaliza sobre lo evaluable, se declara en pantalla, o se deja así?
-5. **¿Adoptamos "propenso / no propenso"?** (D8) Son las palabras del mentor, pero chocan con "nadie se descarta".
-6. **¿Qué pasa con un lead que pasa el gate contra un proyecto y no contra otro?** El motor califica `(lead, proyecto)`, o sea el puntaje depende del proyecto contra el que se corra. Hoy nadie definió cuál es "el" proyecto de referencia cuando el lead no preguntó por ninguno. **Vacío real, sin respuesta en el canon.**
+3. **🟡 ABIERTA A PROPÓSITO — ¿los pesos quedan como están?** (D4) Mani los dejó calibrables el 2026-07-25 (decisión 8): la frase que los defiende está escrita, los números no son absolutos.
+4. ~~**¿Molesta que el techo del puntaje sea 90?**~~ (D5) **La premisa estaba mal: el techo es 75.** Corregido el 2026-07-25. Sigue en pie la pregunta menor de si se declara en pantalla, pero ya no es material de reunión.
+5. ~~**¿Adoptamos "propenso / no propenso"?**~~ (D8) **Resuelto: no.** Se adopta la agrupación en dos, con rótulos que no suenan a descarte.
+6. ~~**¿Qué pasa con un lead que pasa el gate contra un proyecto y no contra otro?**~~ **Ya tiene respuesta en código:** `resolverProyectoDeReferencia()` ([`lib/curar.ts`](../../lib/curar.ts)) usa el proyecto de entrada del lead y, si no trajo ninguno, **el más económico del catálogo** — el caso más favorable, para no mandar a nutrición a alguien que sí podía con otra opción.
 7. **¿El asesor puede ver el puntaje sin su desglose en algún lado?** Hoy no, y `DESIGN.md` lo prohíbe. Confirmar que nadie quiere un "score grande" en la bandeja.
 
 ## Fuentes
@@ -177,5 +194,5 @@ Leer el diagrama: **solo el rombo del 40% tiene poder de decisión.** Todo lo de
 - [`spec.md §7`](../spec.md) — umbral y pesos, marcados como supuesto por validar.
 - [Decreto 583 de 2025](https://minvivienda.gov.co/normativa/decreto-0583-2025) — el tope del 40%.
 - [Charla con el mentor](../reto/charla-mentor.md#90-10-e-ingresos) — la prioridad de los ingresos; [las dos categorías](../reto/charla-mentor.md#lo-que-ve-el-asesor).
-- Código: [`lib/scoring/index.ts`](../../lib/scoring/index.ts), [`config.ts`](../../lib/scoring/config.ts), [`puntaje.ts`](../../lib/scoring/puntaje.ts).
+- Código: [`lib/scoring/index.ts`](../../lib/scoring/index.ts), [`config.ts`](../../lib/scoring/config.ts), [`capacidad.ts`](../../lib/scoring/capacidad.ts) (el precio máximo: el gate despejado al revés), [`lib/curar.ts`](../../lib/curar.ts) (encadena motor → matcher → explicación).
 - [`AGENTS.md`](../../AGENTS.md) — cero caja negra; [ADR 0002](../adr/0002-stack-mvp.md) — scoring sin LLM.

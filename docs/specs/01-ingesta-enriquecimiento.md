@@ -149,4 +149,4 @@ flowchart LR
 - [`spec.md §4` paso 1-2 y `§6`](../spec.md) — el lead-evento, el enriquecimiento, el consentimiento.
 - [Charla con el mentor](../reto/charla-mentor.md#fuentes-y-canales) — los canales; [autorización y cédula](../reto/charla-mentor.md#autorizacion-de-datos); [atribución](../reto/charla-mentor.md#metricas).
 - [brief:47-50](../reto/perfilamiento-leads-03.md) — CRM fuera de alcance.
-- Código: [`lib/types.ts`](../../lib/types.ts), [`enriquecimiento-simulado.ts`](../../lib/conversacion/enriquecimiento-simulado.ts).
+- Código: [`lib/types.ts`](../../lib/types.ts), [`lib/enriquecimiento.ts`](../../lib/enriquecimiento.ts) (las 303 identidades + los 3 canónicos), [`app/api/enriquecer/route.ts`](../../app/api/enriquecer/route.ts) (server-side: el JSON pesa 100 KB).

@@ -29,7 +29,9 @@ Todo lo demás de este documento es el **CÓMO**, y es discutible.
 
 ## El CÓMO — straw proposal
 
-### D1 · Quién conduce la conversación · [PROPUESTA — la decisión de arquitectura]
+### D1 · Quién conduce la conversación · [CERRADA — sala del sábado 25, decisión 1: se queda A]
+
+> **Decidido el 2026-07-25: conduce el código, no el LLM.** A ~30 horas del cierre, con el flujo determinista probado y el tono ya reescrito (los acuses, el "para qué sirve" antes de cada pregunta, el híbrido chips+texto), saltar a B es riesgo puro sin ganancia visible en un video de 2 minutos. La propuesta B se conserva abajo porque es la respuesta correcta si esto sigue después del domingo.
 
 Hay dos formas de construir esto y hoy tenemos una construida:
 
@@ -136,7 +138,7 @@ De las tres brechas de datos que rompían el motor, **dos se cerraron el 2026-07
 
 | Otras brechas | Hoy | Dónde |
 |---|---|---|
-| `afiliado_autoreportado` | El contrato de tipos dice que se pregunta si no hay match; **la pregunta no existe** y el motor asume no afiliado | D3 nodo 4 — sigue siendo decisión del TEAM |
+| `afiliado_autoreportado` | 🟢 **Resuelto por decisión, no por código (2026-07-25): la afiliación NUNCA se pregunta.** Sale de la cédula, que es lo que hace Colsubsidio en la vida real; sin match se asume no afiliado, que es el caso conservador. El campo queda en el tipo sin que nadie lo escriba | D3 nodo 4 |
 | Cierre de la conversación | 🟢 **Cerrado el 2026-07-24.** Llama a [`/api/curar`](../../app/api/curar/route.ts): califica con el motor, matchea y persiste el lead **con su hilo completo** en Supabase | [Ticket 006](../tasks/006-orquestador.md) |
 | Oferta de franjas | 🟢 **Cerrado el 2026-07-24.** Al cerrar, el chat ofrece 3 franjas de la sala de ventas del proyecto recomendado y persiste la elegida (`POST /api/citas`). Si fallan, lo dice y pasa a asesor humano — no finge una cita | [Ticket 005](../tasks/005-agendador.md) |
 | Re-enganche | 🟢 **Cerrado el 2026-07-24.** El chat lee `?lead_id=`, retoma nombrando la razón original y pregunta solo lo que pudo cambiar | [Ticket 007](../tasks/007-reenganche-nutricion.md) |
@@ -217,20 +219,20 @@ stateDiagram-v2
 
 **Sobre la arquitectura**
 
-1. **¿LLM conduce (B) o determinista conduce (A)?** (D1) Es la decisión grande, y tiene calendario encima. Si es B, ¿quién la construye y hasta cuándo se puede volver atrás?
+1. ~~**¿LLM conduce (B) o determinista conduce (A)?**~~ (D1) **Resuelto (sala del sábado 25, decisión 1): se queda A.** No gastar reunión aquí.
 2. **¿Qué entra al contexto del agente?** (D2) Especialmente: ¿le damos el catálogo completo o solo el proyecto de entrada?
 
 **Sobre los nodos**
 
-3. **¿El orden 5→9 se mantiene, o el ingreso se pregunta más tarde?** Es la pregunta más invasiva y va de primera. ¿Enamora primero y pregunta después?
-4. **¿Se pregunta la afiliación explícitamente?** (D3 nodo 4) Hoy no se pregunta y el motor asume "no afiliado", lo que manda al lead al cupo del 10% sin que él lo haya dicho.
+3. **¿El orden 5→9 se mantiene, o el ingreso se pregunta más tarde?** El orden vigente ya pone primero lo que ilusiona (¿primera vivienda?) y después lo incómodo (ingreso, crédito). Confirmar que así se queda.
+4. ~~**¿Se pregunta la afiliación explícitamente?**~~ (D3 nodo 4) **Resuelto (sala del sábado 25, decisión 6): NO se pregunta nunca.** La cédula es la fuente — es lo que hace Colsubsidio en la vida real, y el mentor lo describió así: si eres afiliado *no te piden nada más* porque ya tienen la data. Sin match se asume no afiliado (caso conservador) y el asesor lo ve en la ficha.
 5. **¿Cuántos turnos puede durar la conversación?** Nadie fijó un techo. El mentor mide la duración promedio como métrica.
 
-**Sobre las tres brechas de datos (lo más urgente)**
+**Sobre las brechas de datos**
 
-6. **¿Cómo obtenemos el ingreso como número?** (brecha 1) Hoy **cualquier lead nuevo cae a nutrición** por esto. Opciones: preguntar un monto en vez de un rango, o convertir el rango a su punto medio. Hay que elegir una hoy.
-7. **¿Preguntamos el monto del subsidio?** (brecha 2) Sin eso el subsidio nunca baja la cuota y el factor es decorativo.
-8. **¿Quick reply o normalización para la situación crediticia?** (brecha 3)
+6. ~~**¿Cómo obtenemos el ingreso como número?**~~ (brecha 1) **Cerrada el 2026-07-24:** `parsearIngresoMensual()` entiende montos, millones y salarios mínimos; a quien ya trajo rango del enriquecimiento se le toma el punto medio.
+7. **🔴 ABIERTA — ¿preguntamos el monto del subsidio?** (brecha 2) Es la única de las tres que sigue viva: sin monto, el subsidio nunca baja la cuota y el factor aporta 0 a todo lead real (15 puntos que nadie puede ganar). Es el ticket [017](../tasks/017-tabla-subsidios.md).
+8. ~~**¿Quick reply o normalización para la situación crediticia?**~~ (brecha 3) **Cerrada el 2026-07-24:** chips con el enum + normalización del texto libre.
 
 **Sobre el agente**
 

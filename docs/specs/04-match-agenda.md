@@ -21,9 +21,13 @@ Qué proyectos se le recomiendan a un lead que pasó el corte, con qué porqué,
 
 ## El CÓMO
 
-### D1 · El match es determinista; el LLM solo redacta · [HOY — así está construido]
+### D1 · El match es determinista y el porqué también · [CERRADA — sala del sábado 25, decisión 5]
 
-[`lib/matching/`](../../lib/matching/) elige los proyectos con reglas de TypeScript y deja una **traza** de por qué entró cada uno. El LLM recibe esa traza y la convierte en prosa. Nunca elige.
+[`lib/matching/`](../../lib/matching/) elige los proyectos con reglas de TypeScript y deja una **traza** de por qué entró cada uno. Nunca elige un modelo.
+
+**Y el porqué que ve el asesor también se redacta determinista**, desde los `valor` que el motor ya calculó (`explicacionDeterminista()` en [`lib/curar.ts`](../../lib/curar.ts)). Decidido el 2026-07-25, y **se dice como ventaja en el pitch**: *el porqué no depende de que un modelo esté vivo*. Es la respuesta directa a la pregunta del jurado "¿qué pasa si el LLM se cae?".
+
+[`/api/explicacion`](../../app/api/explicacion/route.ts) (el experto LLM, con su prompt grounded y su fallback) **sigue existiendo y ninguna pantalla lo llama**: queda como pulido opcional fuera del camino crítico, no como deuda.
 
 Es la misma razón que en el scoring: una recomendación que no se puede justificar con factores visibles no entra al demo.
 
@@ -141,13 +145,13 @@ flowchart LR
 ## Preguntas al TEAM
 
 1. **¿Le ofrecemos la afiliación como camino al no afiliado que califica?** (D3) Ya no se queda sin proyectos —ahora los recibe marcados—, pero ofrecerle afiliarse sigue sin escribirse y es un producto real de Colsubsidio.
-2. **¿Ratificamos el ranking?** (D2) Hoy dice: primero lo que te interesa, después lo cercano, después lo barato.
-3. **¿Arreglamos los IDs de `slots.json`?** (D4) Sin eso, la cita no funciona con proyectos reales. ¿Quién y cuándo?
-4. **¿Las salas de venta ficticias de Medellín se quedan?** (D4) El catálogo real no tiene Medellín, y uno de los 3 personajes del demo sí.
-5. **¿El experto usa los brochures como grounding?** (D5) Haría el porqué mucho más concreto (alcobas, m², zonas sociales).
+2. **¿Ratificamos el ranking?** (D2) Hoy dice: primero lo que te interesa, después lo cercano, después lo barato. ⚠️ Ajustado el 2026-07-25: con **todos** los proyectos del catálogo por encima de su cupo, ordenar por "más cupo libre" equivalía a "el proyecto más pequeño" y tapaba el precio; ahora los copados empatan en 0 y manda el precio.
+3. ~~**¿Arreglamos los IDs de `slots.json`?**~~ (D4) **Ya está: el archivo se genera** desde `proyectos.json` (`scripts/generar-slots.ts`), una sala por proyecto real.
+4. ~~**¿Las salas ficticias de Medellín se quedan?**~~ (D4) **No existen:** al generarse desde el catálogo real, no hay Medellín.
+5. **¿El experto usa los brochures como grounding?** (D5) Haría el porqué mucho más concreto (alcobas, m², zonas sociales). ⚠️ Sin dueño ni bloque asignado para el domingo: hoy es un [PROPUESTA] que el calendario ya cerró.
 6. **¿Se puede agendar sin elegir proyecto?** (D6) Y si ninguna franja le sirve, ¿qué?
 7. **¿Vendemos la cita como proxy de la separación?** (D7) Es lo honesto, y hay que decirlo con las palabras correctas en el pitch.
-8. **Vacío del canon:** ¿2 o 3 proyectos? El brief dice "no todo el catálogo", el criterio de aceptación dice "entre 2 y 3", y el matcher devuelve **hasta** 3 — o sea puede devolver 1. Un lead con un solo proyecto viable **incumple el criterio 4** tal como está escrito.
+8. ~~**Vacío del canon: ¿2 o 3 proyectos?**~~ **Resuelto (sala del sábado 25, decisión 9): hasta 3, y 1 es válido.** El criterio 4 decía "entre 2 y 3" y el CHECK rechazaba exactamente 1: con eso **se perdía el lead entero**, que choca con "nadie se descarta". `spec.md §5` y el [ADR 0003](../adr/0003-esquema-db-leads.md) ya están corregidos.
 
 ## Fuentes
 
