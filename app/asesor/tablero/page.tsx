@@ -53,62 +53,66 @@ export default async function MetricasPage({ searchParams }: Props) {
       : Math.round(((noAfiliados?.leads.length ?? 0) / datos.leads.length) * 100);
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col gap-4 px-5 py-5 lg:overflow-hidden lg:px-7 lg:py-6">
-      {/* CABECERA — fija. Lo único que se repite entre los tres cortes,
-          porque es el hecho que decide la pantalla. */}
-      <header className="shrink-0">
-        <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
-          <div className="min-w-0">
-            <h1 className="text-texto text-[30px] leading-tight font-extrabold tracking-[-0.02em]">
-              Métricas
-            </h1>
-            <p className="text-texto-suave mt-1.5 max-w-[72ch] text-[15px] leading-normal">
-              <span className="cifra text-texto">{datos.leads.length}</span> leads
-              perfilados en los últimos 14 días.{" "}
-              {/* El ÚNICO trazo de resaltador de esta pantalla, sobre el
-                  hecho que la decide: el reparto de afiliación contra el
-                  límite que fija la regla 90/10. */}
-              <span className="resaltado font-bold">
-                {`El ${pctNoAfiliados}% no son afiliados, y la regla 90/10 solo permite el 10%`}
-              </span>
-              .
-            </p>
-          </div>
-          <SelectorVista activa={activa} />
-        </div>
-      </header>
-
-      {/* EL CORTE ACTIVO — es lo único que ocupa el alto restante. */}
-      <section className="flex min-h-0 flex-1 flex-col">
-        <div className="mb-3 shrink-0">
-          <h2 className="text-texto text-[17px] font-bold">{vista.titulo}</h2>
-          <p className="text-texto-suave mt-0.5 max-w-[72ch] text-[13px] leading-normal">
-            {vista.descripcion}
+    <main className="flex min-h-0 flex-1 flex-col px-5 py-4 lg:overflow-hidden lg:px-7">
+      {/* CABECERA — compacta y fija. Todo en UNA línea de altura: el
+          título, el hecho que decide la pantalla y el selector.
+          La compacidad no es estética: el alto útil de una ventana de
+          1440×900 es ~530px, no 900. Medido, no estimado. */}
+      <header className="mb-2.5 flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-2">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h1 className="text-texto text-[24px] leading-none font-extrabold tracking-[-0.02em]">
+            Métricas
+          </h1>
+          <p className="text-texto-suave text-[13px] leading-snug">
+            <span className="cifra text-texto">{datos.leads.length}</span> leads en
+            14 días ·{" "}
+            {/* El ÚNICO trazo de resaltador de esta pantalla, sobre el
+                hecho que la decide: el reparto de afiliación contra el
+                límite que fija la regla 90/10. */}
+            <span className="resaltado font-bold">
+              {`el ${pctNoAfiliados}% no son afiliados, y la regla 90/10 solo permite el 10%`}
+            </span>
           </p>
         </div>
+        <SelectorVista activa={activa} />
+      </header>
 
-        {activa === "resumen" && (
-          <div className="min-h-0 flex-1">
-            <FranjaMetricas datos={datos} />
-          </div>
-        )}
+      {/* EL CORTE ACTIVO — ocupa todo el alto restante.
+          `overflow-y-auto` es la RED DE SEGURIDAD: en una pantalla con
+          alto suficiente no se activa nunca y la vista cabe entera; en
+          una pantalla baja el panel se recorre por dentro. Lo que NO
+          hace es comprimir las tarjetas por debajo de su contenido —
+          eso derramaba el texto de una encima de otra. */}
+      <section className="flex min-h-0 flex-1 flex-col">
+        {/* El título del corte va en `sr-only`: el selector de arriba ya
+            lo nombra, y repetirlo en pantalla costaba 58px de los ~230
+            que quedan para los datos. Para un lector de pantalla sí
+            importa —anuncia qué sección empieza—, así que no se borra:
+            se deja de pintar. La descripción viaja en `aria-describedby`
+            por la misma razón. */}
+        <h2 id="titulo-corte" className="sr-only">
+          {vista.titulo}
+        </h2>
+        <p id="desc-corte" className="sr-only">
+          {vista.descripcion}
+        </p>
 
-        {activa === "entrada" && (
-          <div className="min-h-0 flex-1">
-            <SerieDiaria datos={datos} />
-          </div>
-        )}
-
-        {activa === "reparto" && (
-          <div className="min-h-0 flex-1 lg:overflow-hidden">
+        <div
+          aria-labelledby="titulo-corte"
+          aria-describedby="desc-corte"
+          className="min-h-0 flex-1 lg:overflow-y-auto"
+        >
+          {activa === "resumen" && <FranjaMetricas datos={datos} />}
+          {activa === "entrada" && <SerieDiaria datos={datos} />}
+          {activa === "reparto" && (
             <GruposDeLeads agrupador={AGRUPADOR_ACTIVO} datos={datos} />
-          </div>
-        )}
+          )}
+        </div>
       </section>
 
-      {/* Los avisos van al PIE y en una línea: son verdad que el jurado
-          debe poder ver, pero no son el titular de la pantalla. */}
-      <footer className="shrink-0 space-y-2">
+      {/* Los avisos van al PIE: son verdad que el jurado debe poder ver,
+          pero no son el titular de la pantalla. */}
+      <footer className="mt-2 shrink-0 space-y-1.5">
         <AvisoOrigen origen={datos.origen} />
         <AvisoSintetico datos={datos} />
       </footer>
