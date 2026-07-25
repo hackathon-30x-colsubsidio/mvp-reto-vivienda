@@ -24,7 +24,13 @@ export function FilaLeadPuntaje({ item }: { item: LeadEnCola }) {
     <Link
       href={`/asesor/${evento.lead_id}`}
       data-testid="fila-lead"
-      className="hover:bg-surface-sunken flex flex-wrap items-baseline gap-x-4 gap-y-2 px-4 py-3 transition-colors duration-[120ms]"
+      // Estructura FIJA: puntaje a la izquierda y una sola columna a la
+      // derecha. Antes el contenedor llevaba `flex-wrap` y el orden
+      // colapsaba según el largo del texto — un lead con cita empujaba
+      // su propio nombre al renglón de abajo y la fila se veía distinta
+      // de sus vecinas. El wrap ahora ocurre DENTRO de cada bloque,
+      // nunca entre bloques.
+      className="hover:bg-surface-sunken flex items-baseline gap-x-3 px-4 py-3 transition-colors duration-[120ms]"
     >
       {/* El puntaje primero: es el orden de la lista, y leerlo en la
           primera columna es lo que hace la lista escaneable. */}
@@ -36,8 +42,8 @@ export function FilaLeadPuntaje({ item }: { item: LeadEnCola }) {
         <span className="text-texto-tenue text-[12px] font-normal">/100</span>
       </span>
 
-      <span className="min-w-0 grow">
-        <span className="text-texto block text-[15px] font-bold">
+      <span className="min-w-0 flex-1">
+        <span className="text-texto block text-[15px] font-bold text-balance">
           {evento.nombre}
         </span>
         <span className="text-texto-suave mt-0.5 block text-[13px]">
@@ -52,12 +58,11 @@ export function FilaLeadPuntaje({ item }: { item: LeadEnCola }) {
             </>
           )}
         </span>
-      </span>
-
-      <span className="flex flex-wrap items-center gap-1.5">
-        {item.sintetico && <EtiquetaSimulado texto="histórico" />}
-        {item.re_enganchado_en && <PildoraReEnganchado />}
-        <Pildora estado={curado.score.salida} />
+        <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          {item.sintetico && <EtiquetaSimulado texto="histórico" />}
+          {item.re_enganchado_en && <PildoraReEnganchado />}
+          <Pildora estado={curado.score.salida} />
+        </span>
       </span>
     </Link>
   );

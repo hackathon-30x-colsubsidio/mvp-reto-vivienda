@@ -114,7 +114,7 @@ export function ListaLeads({
     >
       <form
         method="get"
-        className="vidrio-cromo sticky top-0 z-10 flex shrink-0 flex-col gap-2 border-b p-4"
+        className="vidrio-solido sticky top-0 z-20 flex shrink-0 flex-col gap-2 border-b p-4"
       >
         <div className="flex gap-2">
           <CampoBusqueda
@@ -162,7 +162,7 @@ export function ListaLeads({
       <div className="min-h-0 flex-1 lg:overflow-y-auto">
         {grupos.map(({ clave, titulo, vacio, items }) => (
           <section key={clave}>
-            <h2 className="vidrio-cromo text-texto-suave sticky top-0 border-b px-4 py-2 text-[13px] font-bold">
+            <h2 className="vidrio-solido text-texto-suave sticky top-0 z-10 border-b px-4 py-2 text-[13px] font-bold">
               {titulo}{" "}
               <span className="cifra text-texto-tenue font-normal">
                 ({items.length})
