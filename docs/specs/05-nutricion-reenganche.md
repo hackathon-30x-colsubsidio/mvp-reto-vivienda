@@ -28,12 +28,15 @@ El motor solo tiene una regla que bloquea, así que hoy **la única razón posib
 
 | # | Razón | ¿Existe hoy? | Trigger propuesto |
 |---|---|---|---|
-| 1 | La cuota supera el 40% del ingreso | ✅ Sí | Condicional: sube el ingreso, aplica un subsidio, o un proyecto más barato |
+| 1 | La cuota supera el 40% del ingreso **de todo el catálogo** | ⚠️ Ver el aviso de abajo | Condicional: sube el ingreso, aplica un subsidio, o entra un proyecto más barato |
+| 1b | La cuota supera el 40% **del proyecto que miró**, aunque otros le quepan | 🔴 Hoy cae a nutrición, y no debería | Ninguno: no es un caso de nutrición, es un match mal hecho |
 | 2 | Califica pero **no hay cupo 90/10** en ningún proyecto | ❌ No, hoy sale "listo" con 0 proyectos | Condicional: se libera cupo, o se afilia |
 | 3 | No hay proyecto en su zona o rango | ❌ No | Condicional: entra un proyecto que le sirva |
 | 4 | **Abandonó en la autorización de datos** | ❌ No | Ninguno — sin autorización no se le puede escribir |
 | 5 | **Abandonó eligiendo proyecto** | ❌ No | Condicional, si alcanzó a autorizar |
 | 6 | Abandonó a mitad de la indagación | ❌ No | Condicional |
+
+> 🔴 **La razón 1 hay que leerla con cuidado desde el 2026-07-25** ([discusión de workflow](../agents/discusion-workflow-2026-07-25.md) §2.1). El gate se evalúa **contra un solo proyecto**, así que hoy la fila 1b existe de hecho: un lead con ingreso de $4.000.000 que eligió ARAUCARIA cae a `nutricion` con cero proyectos, cuando **13 de los 18 del catálogo le caben**. Eso no es nutrición, es un match mal hecho, y contamina la métrica "En nutrición, con trigger" del tablero. → [ticket 023](../tasks/023-puente-capacidad-antes-del-proyecto.md). Cuando cierre, nutrición vuelve a significar lo único que debería: **no le cabe nada de lo que vendemos**.
 
 Las razones 4 y 5 son [los dos puntos de fuga que el mentor mide](../reto/charla-mentor.md#puntos-de-fuga) y no logra explicar. **Si las registramos, le damos exactamente el dato que dijo no tener.**
 

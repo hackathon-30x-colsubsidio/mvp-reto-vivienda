@@ -46,6 +46,28 @@ Son **10 decisiones abiertas**. Ninguna necesita debate largo: cada una viene co
 
 ---
 
+## Addendum 12:00 · lo que salió de la discusión de workflow
+
+> Delta de este plan, no reemplazo. Desglose completo con la evidencia de cada punto en [`discusion-workflow-2026-07-25.md`](discusion-workflow-2026-07-25.md).
+
+**Tres tickets nuevos, en este orden:**
+
+| # | Qué | Quién | Cuánto | Por qué entra hoy |
+|---|---|---|---|---|
+| [023](../tasks/023-puente-capacidad-antes-del-proyecto.md) | 🔴 Capacidad primero, proyecto después | P2 | ~1 h | Es el **único defecto abierto que el jurado reproduce solo**: elegir un proyecto caro lo manda a nutrición con 0 proyectos aunque le quepan 13 de los 18. Los 3 personajes **no se mueven** |
+| [024](../tasks/024-confirmacion-del-ingreso.md) | 🟠 Confirmar el ingreso | P3 | ~40 min | `2+2` se entiende como $2.000.000 y el acuse dice "ya puedo calcular con números reales". Es el insumo del único gate legal |
+| [025](../tasks/025-metricas-del-mentor-baratas.md) | 🟡 Dos métricas del mentor | P2 | ~30 min | Solo si 023 y 024 están verdes. El tablero tiene 0 de las 5 que él pidió; dos ya tienen su dato guardado |
+
+**Tres cosas que se dijeron en la sala y el código desmiente.** Importan porque se pueden decir en cámara:
+
+1. **Nutrición no es por afiliación.** La única causa es el gate del 40%; el no afiliado sale `listo_restriccion_cupo` con proyectos y advertencia de cupo. Va al ensayo de preguntas del jurado de P5.
+2. **El agente sí tiene system prompt** (28 líneas en `app/api/chat/route.ts`). El defecto del ingreso es TypeScript, no IA.
+3. **Los dos "motores" ya existen** (`calcularScore` y `matchear`), y el "40% factorizado arriba" también (`precioMaximoDe`). Lo que falta es el puente, que es el 023.
+
+**Se suma a "lo que NO se va a hacer":** banco de preguntas nuevo, agente viendo el score, y **botón de trigger masivo** (el contraargumento de la propia sala es el bueno: siete mensajes seguidos se ven peor que no tener el botón; el tope de frecuencia se dice en el pitch).
+
+---
+
 ## El reparto (5 personas, sábado completo)
 
 ### P1 · Integrador — *dueño de que el demo esté vivo*

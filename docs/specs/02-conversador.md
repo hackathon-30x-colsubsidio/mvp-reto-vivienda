@@ -128,13 +128,15 @@ Si el equipo aprueba D1-B, este flujo **deja de ser el primario y pasa a ser la 
 
 ## Estado hoy vs contrato
 
-De las tres brechas de datos que rompían el motor, **dos se cerraron el 2026-07-24** al reescribir la conversación (rama `feat/conversacion-humana`); la tercera sigue abierta:
+De las tres brechas de datos que rompían el motor, **dos se cerraron el 2026-07-24** al reescribir la conversación (rama `feat/conversacion-humana`); la tercera sigue abierta, y el 2026-07-25 apareció una cuarta:
 
 | # | Qué dice el contrato | Qué pasa hoy | Consecuencia |
 |---|---|---|---|
 | 1 | El motor necesita `ingreso_hogar_mensual` (un **número**) para el gate del 40% | 🟡 **Cerrada con las dos opciones de la pregunta 6, a falta de ratificar:** el texto libre se parsea a monto (`parsearIngresoMensual` entiende "4.500.000", "2 millones y medio", "3 salarios mínimos", "entre 2 y 3"), y cuando el enriquecimiento trajo el rango se usa su **punto medio** sin repreguntar. Si la frase queda ambigua ("depende del mes") no se adivina: se guarda solo el texto | Deja de caer todo el mundo a nutrición. **El TEAM aún decide si el punto medio es aceptable** o prefiere preguntar el monto también a quien ya tiene rango |
 | 2 | El motor resta `subsidio_monto_mensual` de la cuota | 🔴 **Abierta.** Se pregunta qué subsidios tiene, pero nunca el monto (es la pregunta 7 al TEAM) | El subsidio **nunca** baja la cuota. El factor existe y no puede cambiar el resultado |
 | 3 | `situacion_crediticia` es un enum (`buena`/`regular`/`mala`/`sin_info`) | 🟢 **Cerrada.** Cuatro chips que llevan el enum en el valor, y el texto libre se normaliza contra los mismos cuatro casos | El motor recibe la categoría que espera, venga de chip o de texto |
+
+| 4 | El ingreso que entra al gate tiene que ser el que la persona **quiso decir** | 🔴 **Abierta (hallada el 2026-07-25).** No se valida ni se confirma: `2+2` → **$2.000.000**, `-3` → $3.000.000, `999999999999` pasa entero, y `no sé` / `depende del mes` **no se repregunta**. Encima el acuse contesta *"con eso ya puedo calcular con números reales"*. ⚠️ **No lo arregla el system prompt** (existe, son 28 líneas y es estricto): el parseo es TS puro y el LLM no está en ese camino | Es el insumo del **único gate legal** del sistema: un número mal entendido cambia el veredicto y nadie se entera → [ticket 024](../tasks/024-confirmacion-del-ingreso.md) |
 
 | Otras brechas | Hoy | Dónde |
 |---|---|---|

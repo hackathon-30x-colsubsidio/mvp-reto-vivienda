@@ -59,6 +59,8 @@ Sub-caso crítico: el **no afiliado**. Por la regla 90/10 tiene espacio limitado
 | **Listo con restricción de cupo** | No afiliado que pasa el corte | Mismo tratamiento, marcado contra el 10% del proyecto. El asesor ve el cupo del proyecto al abrirlo |
 | **Nutrición** | Cualquiera que no pasa el corte | Razón + trigger de recontacto. Botón "simular trigger" lo re-engancha en el demo |
 
+> 🔴 **Defecto abierto contra este contrato (2026-07-25).** "No pasa el corte" debería significar *no le cabe nada del catálogo*, y hoy significa *no le cabe el proyecto que miró*: el gate se evalúa contra un solo proyecto, así que un lead con capacidad para 13 de los 18 proyectos cae a nutrición por haber elegido uno caro. Choca con la salida "Listo" que le corresponde y con el criterio 4. Medición y arreglo: [`docs/agents/discusion-workflow-2026-07-25.md`](agents/discusion-workflow-2026-07-25.md) §2.1 → [ticket 023](tasks/023-puente-capacidad-antes-del-proyecto.md). **La afiliación, en cambio, nunca manda a nadie a nutrición** (se dijo al revés en la sala del sábado): el no afiliado que pasa el gate sale *Listo con restricción de cupo*.
+
 ### Factores del scoring (todos visibles, ninguno oculto)
 
 > El motor emite **7 factores visibles, 6 con peso** (la afiliación se muestra sin peso: es desempate, no criterio). Esta tabla resume la naturaleza de cada señal; la lista exacta y sus pesos viven en [spec 03 D3-D4](specs/03-scoring.md) y `lib/scoring/config.ts`.

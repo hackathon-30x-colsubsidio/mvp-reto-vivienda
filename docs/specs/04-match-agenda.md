@@ -46,6 +46,8 @@ Es la misma razón que en el scoring: una recomendación que no se puede justifi
 
 Los pasos 1-3 son filtros (el QUÉ). **El paso 4 es una opinión** y es lo que hay que ratificar: dice que preferimos el proyecto que le interesa sobre el más barato, y la cercanía sobre el precio. Puede estar bien; nadie lo ha discutido.
 
+> 🔴 **Defecto abierto en el paso 1 (hallado el 2026-07-25, [discusión de workflow](../agents/discusion-workflow-2026-07-25.md) §2.1).** "Cayó en nutrición" hoy se decide **contra un solo proyecto**: el de entrada, o el más barato si no hay ([`resolverProyectoDeReferencia`](../../lib/curar.ts)). Así que un lead que eligió un proyecto caro sale con **cero proyectos** aunque el catálogo tenga varios dentro de su techo. Medido: ingreso $4.000.000 + ARAUCARIA → `nutricion`, 0 proyectos, cuando **13 de los 18 le caben**. Es el mismo patrón que ya se corrigió en el cupo (D3): el filtro correcto castigaba al lead equivocado. Se arregla en [`lib/curar.ts`](../../lib/curar.ts), no aquí: el matcher hace bien su trabajo, lo que está mal es contra qué proyecto se calificó antes de llamarlo → [ticket 023](../tasks/023-puente-capacidad-antes-del-proyecto.md).
+
 **[PROPUESTA]** El proyecto por el que entró va de primero **siempre que pase los filtros**, porque es lo que Colsubsidio ya hace hoy: [entraste por Araucaria, te habla de Araucaria](../reto/charla-mentor.md#click-to-whatsapp). Hoy el ranking lo favorece pero un filtro previo puede haberlo eliminado — y si lo eliminó por precio o cupo, **hay que decirlo**, no omitirlo en silencio.
 
 ### D3 · El cupo 90/10 marca, ya no descarta · [CERRADA — Mani, 2026-07-24, con el mentor de respaldo]

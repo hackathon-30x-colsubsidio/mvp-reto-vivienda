@@ -4,6 +4,29 @@
 >
 > El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
 
+## 🔴 2026-07-25 12:00 — La discusión de workflow destapó UN defecto que el jurado puede reproducir
+
+**Lo que hay que saber en una línea:** los dos motores ya existen, pero **el lead que elige un proyecto que no le cabe pierde el catálogo entero y cae a nutrición**, aunque le quepan 13 de los 18 proyectos. Desglose completo en [`agents/discusion-workflow-2026-07-25.md`](agents/discusion-workflow-2026-07-25.md).
+
+**Medido, no supuesto** (mismo lead: ingreso $4.000.000, sin vivienda, crédito al día):
+
+| Entrada | Salida | Puntaje | Proyectos |
+|---|---|---|---|
+| sin proyecto de interés | `listo_restriccion_cupo` | 65 | LA MACARENA, MONGUI, LA ARBOLEDA |
+| eligió ARAUCARIA ($619.800.000) | **`nutricion`** | **0** | **ninguno** |
+
+Su techo es $266.666.666. Cae por la vivienda que miró, no por su capacidad, y desde que el "soy yo" elige el proyecto **de una lista con los 18 y sus precios**, el jurado lo reproduce en el primer intento. Choca de frente con *"nadie se descarta"* y con el brief (*"recomienda proyectos acordes al perfil"*). → **[Ticket 023](tasks/023-puente-capacidad-antes-del-proyecto.md), ~1 hora, y los 3 personajes no se mueven** (Yuliana sigue en nutrición legítima: su techo es $100M y el proyecto más barato cuesta $149,7M).
+
+**Lo segundo: el ingreso no se valida.** `2+2` se entiende como **$2.000.000**, `-3` como $3.000.000, y `no sé` no se repregunta. Es el insumo del único gate legal del sistema. ⚠️ **No es el system prompt** (existe y es estricto): el parseo es TypeScript y el LLM no está en ese camino. → [Ticket 024](tasks/024-confirmacion-del-ingreso.md), ~40 min.
+
+**Tres cosas que la sala dio por ciertas y el código desmiente** (importan porque se pueden decir en cámara):
+
+1. **Nutrición NO es por afiliación.** La única causa es el gate del 40%. El no afiliado sale `listo_restriccion_cupo`, con sus proyectos y su advertencia de cupo.
+2. **El agente sí tiene system prompt** ([`app/api/chat/route.ts`](../app/api/chat/route.ts), 28 líneas).
+3. **El tablero no tiene ninguna de las 5 métricas del mentor.** Dos de ellas (proyecto con más interacción, canal de ingreso en grueso) cuestan media hora porque el dato ya se guarda → [ticket 025](tasks/025-metricas-del-mentor-baratas.md), opcional.
+
+**Y lo que se decidió NO hacer, para que nadie lo empiece a las 4 p.m.:** banco de preguntas nuevo, LLM conduciendo, agente viendo el score, botón de trigger masivo (siete mensajes seguidos se ven peor que no tener el botón: el tope de frecuencia **se dice**, no se construye), notas de voz, y cambiar el enum de `fuente`.
+
 ## 📋 2026-07-25 — Decisiones de Mani + los docs quedaron al día (audit completo)
 
 **Lo que hay que saber en una línea:** el tablero **entra al MVP y al pitch**, la afiliación **nunca se le pregunta al lead** (sale de la cédula), **nadie se descarta ni por aritmética** (un solo proyecto viable ya no bota el lead), y los **pesos del motor quedan abiertos a propósito**.

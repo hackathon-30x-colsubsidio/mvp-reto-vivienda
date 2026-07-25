@@ -11,6 +11,10 @@ dueño: Rol 4 (Pitch & Video)
 >
 > Se graba **el sábado p.m., después de la integración total** ([ticket 014](../tasks/014-recorrido-criterio-4.md)): grabar antes es grabar algo que va a cambiar. Este doc es el guion; la grabación es el paso 5 del rol.
 
+> ⚠️ **Dos frases que NO se pueden decir, y las dos se dijeron en la sala del sábado** ([discusión de workflow](../agents/discusion-workflow-2026-07-25.md)):
+> 1. **"El que no está afiliado entra a nutrición."** Falso: el no afiliado que pasa el gate del 40% sale **listo con restricción de cupo**, con sus proyectos y su advertencia. La única causa de nutrición es la cuota sobre el 40%. Decirlo al revés contradice la pantalla del beat 3, donde Carlos aparece con 3 proyectos.
+> 2. **"74 sobre 100."** El techo alcanzable hoy es **75** (el subsidio aporta 0 a todo lead real y la similitud aporta la mitad fija), así que Diana con 74 está a un punto del máximo. Se dice el techo, o no se dice la fracción.
+
 ## Presupuesto de tiempo (120 s duros)
 
 | # | Tramo | En pantalla | Criterio / gancho | Seg |

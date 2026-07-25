@@ -57,6 +57,8 @@ Esto es lo que pidió y no tiene ([detalle](../reto/charla-mentor.md#metricas)).
 | 4 | **Proyecto con más interacción** | Conteo de `proyecto_interes` + proyecto de entrada | ✅ Se puede ya |
 | 5 | **Atribución de canal** | El campo de atribución de la ingesta (spec [01](01-ingesta-enriquecimiento.md) D4) | ❌ No existe el campo |
 
+> ⚠️ **Marcador del 2026-07-25** ([discusión de workflow](../agents/discusion-workflow-2026-07-25.md) §2.4). De estas 5, el tablero hoy calcula **cero**, y en la sala se dio por hecho que ya estaban. Dos son baratas y siguen sin hacerse: la **#4** (`proyecto_interes` ya se persiste en cada lead) y la **#5 en grueso** (`fuente` también, con `meta/google/web`). El registry de [`metricas.ts`](../../lib/tablero/metricas.ts) está hecho para esto: se agrega un objeto al array y la pantalla no se toca. → [ticket 025](../tasks/025-metricas-del-mentor-baratas.md). Ojo con no inflar la #5: lo que se puede mostrar es el **canal**, no la campaña ni el QR.
+
 **La #1 es la madre de todas y hoy es imposible**, porque solo persistimos leads que llegan al final. Habilitarla implica guardar el lead **desde que autoriza**, no desde que termina. Es un cambio de contrato, no una métrica más.
 
 **Fuera de alcance, declarado sin rodeos:**
