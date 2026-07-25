@@ -589,6 +589,43 @@ export function preguntasDeReenganche(): PasoPregunta[] {
   ];
 }
 
+// ── Afiliarse: la salida más útil para el no afiliado ────
+//
+// Cierra la propuesta que el spec 04 D3 dejó abierta ("ofrecerle la afiliación
+// como camino… nadie ha escrito ese mensaje todavía"), y ahora tiene fundamento:
+//
+//   · **Mi Casa Ya no tiene presupuesto en 2026**, así que el subsidio de
+//     vivienda vigente es el de las CAJAS DE COMPENSACIÓN — y ese es solo para
+//     afiliados. Para un no afiliado, afiliarse dejó de ser un trámite: hoy es
+//     la palanca financiera más grande que tiene.
+//   · Afiliarse además lo saca de la fila del **10%** que la regla 90/10 le
+//     reserva a los no afiliados, que en los 18 proyectos ya está copada.
+//   · Y puede hacerlo **él mismo**: Colsubsidio tiene modalidad para trabajador
+//     independiente, no solo la de empresa.
+//
+// Fuentes y el detalle: docs/credito-y-subsidios.md
+//
+// ⚠️ SIN CIFRAS A PROPÓSITO. Las fuentes se contradicen en el monto del
+// subsidio de la caja (30 SMMLV ≈ $52,5M en una, "hasta $30 millones" en otra) y
+// depende de la convocatoria y del ingreso. Prometerle un número a alguien que
+// está decidiendo la compra de su vida, con fuentes que no coinciden, es
+// exactamente lo que este proyecto no hace. Quien verifique el monto oficial
+// puede agregarlo aquí, citando de dónde salió.
+const URL_AFILIACION = "https://www.colsubsidio.com/afiliaciones";
+
+/**
+ * La invitación a afiliarse. Solo se le muestra a quien NO es afiliado, y
+ * cambia según si pudo comprar o no: para quien pasó el corte el argumento es
+ * el cupo; para quien no pasó, es que el subsidio le bajaría la cuota — que es
+ * justamente su trigger de nutrición.
+ */
+export function mensajeAfiliacion(paso: boolean): string {
+  if (paso) {
+    return `Ah, y algo que te puede servir de verdad 💡 Como todavía no estás afiliado a Colsubsidio, en estos proyectos entras por el cupo del 10% que la regla les reserva a los no afiliados. Afiliarte te saca de esa fila y te abre el subsidio de vivienda de la caja, que es solo para afiliados — y puedes hacerlo tú mismo, incluso si trabajas por tu cuenta: ${URL_AFILIACION}`;
+  }
+  return `Y te dejo el camino más corto que veo para ti 💡 El subsidio de vivienda de Colsubsidio baja la cuota mensual, que es justo lo que hoy no te cuadra, pero es solo para afiliados. Puedes afiliarte tú mismo, incluso si trabajas por tu cuenta: ${URL_AFILIACION}`;
+}
+
 export function mensajeCierre(nombre: string): string {
   const primerNombre = nombre.split(" ")[0];
   return `Eso era todo, ${primerNombre} 🙌 Con lo que me contaste ya puedo armarte algo que tenga sentido para ti, y no una lista genérica. Le paso tu historia completa a un asesor para que no tengas que repetirla — te escribe muy pronto.`;

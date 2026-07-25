@@ -60,7 +60,17 @@ El argumento es del mentor: a Colsubsidio **le interesa cerrar la venta**, y la 
 
 **El hallazgo del reto no se pierde, cambia de lugar:** en vez de manifestarse como un lead vacío, se dice en cada recomendación y se mide en el tablero. La decisión anterior (conservar la regla dura para no esconder el vacío, [handoff 2026-07-24 13:50](../agents/handoff.md)) queda superada por esta.
 
-**[PROPUESTA, sigue abierta] Ofrecerle la afiliación como camino.** Es un producto real de Colsubsidio y sería la salida más útil para ese lead. Nadie ha escrito ese mensaje todavía.
+**[CERRADA — 2026-07-25] Ofrecerle la afiliación como camino: hecho, y con fundamento nuevo.** El mensaje que "nadie había escrito" ya existe ([`mensajeAfiliacion`](../../lib/conversacion/preguntas.ts)) y lo manda el chat al cerrar, **solo a quien no es afiliado**, con el enlace a la página oficial.
+
+Lo que lo convirtió de cortesía en la salida más útil que tiene ese lead ([investigación](../credito-y-subsidios.md)):
+
+- **Mi Casa Ya no tiene presupuesto en 2026.** El subsidio de vivienda vigente es el de las **cajas de compensación** — o sea el de Colsubsidio — y es **solo para afiliados**.
+- Afiliarse además lo saca de la fila del **10%** que la regla 90/10 reserva a los no afiliados, que en los 18 proyectos ya está copada.
+- Y **puede hacerlo él mismo**: Colsubsidio tiene modalidad para trabajador independiente, no solo la de empresa.
+
+Dos decisiones de redacción, y las dos importan: **va de último**, después de resolverle lo que vino a buscar —si no, se lee como que le vendemos la afiliación en vez de ayudarle—, y **no lleva cifras**. Las fuentes se contradicen en el monto del subsidio de la caja (30 SMMLV ≈ $52,5M en una, "hasta $30 millones" en otra) y depende de la convocatoria; prometerle un número a alguien que está decidiendo la compra de su vida, con fuentes que no coinciden, es lo que este proyecto no hace. Quien verifique el monto oficial puede agregarlo citando de dónde salió.
+
+El texto cambia según el caso: al que **pasó el corte** se le habla del cupo; al que **no pasó**, de que el subsidio le bajaría la cuota — que es literalmente su trigger de nutrición.
 
 ### D4 · Un solo espacio de IDs: los slugs del catálogo real · [CERRADA — 2026-07-24, `slots.json` se genera]
 

@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ChatWhatsApp } from "./ChatWhatsApp";
 import * as leadsEvento from "@/lib/fixtures/leads-evento";
 import * as perfilesConocidos from "@/lib/fixtures/perfiles-conocidos";
+import type { ResultadoCurado } from "@/lib/types";
 
 // =====================================================================
 // Contestar hablando (spec 02, pregunta 12 — el mentor pidió notas de voz).
@@ -142,4 +143,52 @@ describe("dictado por voz", () => {
     fireEvent.change(campo, { target: { value: "sería la primera" } });
     expect(campo).toHaveValue("sería la primera");
   });
+});
+
+describe("invitación a afiliarse (spec 04 D3)", () => {
+  // Con Mi Casa Ya sin presupuesto en 2026, el subsidio de vivienda vigente es
+  // el de la caja — y es SOLO para afiliados. Para un no afiliado, afiliarse
+  // dejó de ser un trámite: es la palanca financiera más grande que tiene.
+  function chatQueTermina(veredicto: Partial<ResultadoCurado>) {
+    render(
+      <ChatWhatsApp
+        evento={leadsEvento.nutricion}
+        perfil={perfilesConocidos.nutricion}
+        reenganche={{ respuestasPrevias: { consentimiento: { otorgado: true, timestamp: "t" } } }}
+        onTerminar={async () => ({ guardado: true, ...veredicto })}
+        onVolver={() => {}}
+      />,
+    );
+  }
+
+  /** Contesta la única pregunta del re-enganche, esperando a que el agente
+   *  termine de escribirla (si no, `enviarTexto` la ignora por `escribiendo`). */
+  async function responderIngreso(valor: string) {
+    await screen.findByText(/cuánto está entrando al mes/i, undefined, { timeout: 10_000 });
+    const campo = screen.getByLabelText("Tu respuesta");
+    fireEvent.change(campo, { target: { value: valor } });
+    fireEvent.submit(campo.closest("form")!);
+  }
+
+  it("al NO afiliado que no pasó el corte se le ofrece, con el enlace real", async () => {
+    chatQueTermina({ afiliado: false, salida: "nutricion" });
+    await responderIngreso("2.000.000");
+
+    const invitacion = await screen.findByText(/subsidio de vivienda de Colsubsidio/i, undefined, {
+      timeout: 15_000,
+    });
+    expect(invitacion).toBeInTheDocument();
+    // El enlace es clickeable y apunta a la página oficial de afiliación.
+    const enlace = screen.getByRole("link", { name: /colsubsidio\.com\/afiliaciones/i });
+    expect(enlace).toHaveAttribute("href", "https://www.colsubsidio.com/afiliaciones");
+    expect(enlace).toHaveAttribute("rel", expect.stringContaining("noopener"));
+  }, 20_000);
+
+  it("al AFILIADO no se le ofrece: ya lo es", async () => {
+    chatQueTermina({ afiliado: true, salida: "listo" });
+    await responderIngreso("8.000.000");
+
+    await screen.findByText(/Eso era todo/i, undefined, { timeout: 15_000 });
+    expect(screen.queryByRole("link", { name: /afiliaciones/i })).toBeNull();
+  }, 20_000);
 });

@@ -12,6 +12,7 @@ import {
   NOMBRE_AGENTE,
   completarIngreso,
   construirPreguntas,
+  mensajeAfiliacion,
   mensajeAutorizacion,
   mensajeCierre,
   mensajeConsentimiento,
@@ -398,11 +399,29 @@ export function ChatWhatsApp({
     // proyectos. Sin esto la conversación terminaba en "te escribe un asesor",
     // que es justo el silencio que el reto quiere quitar.
     if (veredicto.proyecto_cita) {
-      await ofrecerFranjas(veredicto.proyecto_cita);
+      await ofrecerFranjas(veredicto);
       return;
     }
 
+    await invitarAfiliacion(veredicto);
     setFase("terminado");
+  }
+
+  /**
+   * Al que NO es afiliado se le ofrece afiliarse, que hoy es la salida más útil
+   * que tiene (spec 04 D3, propuesta que quedó abierta hasta el 2026-07-25).
+   *
+   * Va de ÚLTIMO a propósito: primero se le resuelve lo que vino a buscar
+   * —sus proyectos, su cita, o la razón honesta de por qué todavía no— y solo
+   * después se le abre la puerta. Al revés se leería como que le estamos
+   * vendiendo la afiliación en vez de ayudarle.
+   */
+  async function invitarAfiliacion(veredicto: ResultadoCurado) {
+    if (veredicto.afiliado !== false) return;
+    await agregarBotInstantaneo(
+      mensajeAfiliacion(veredicto.salida !== "nutricion"),
+      700,
+    );
   }
 
   /**
@@ -413,7 +432,8 @@ export function ChatWhatsApp({
    * asesor puede cambiarlo en la llamada. Los otros proyectos igual le llegan al
    * asesor en la ficha.
    */
-  async function ofrecerFranjas(proyecto: { proyecto_id: string; nombre: string }) {
+  async function ofrecerFranjas(veredicto: ResultadoCurado) {
+    const proyecto = veredicto.proyecto_cita!;
     try {
       const resp = await fetch(
         `/api/citas?proyecto_id=${encodeURIComponent(proyecto.proyecto_id)}&limite=3`,
@@ -434,6 +454,7 @@ export function ChatWhatsApp({
         "Los horarios de la sala de ventas no me cargaron en este momento 😕 No se pierde nada: un asesor te escribe para cuadrar la visita, y ya tiene todo lo que me contaste.",
         500,
       );
+      await invitarAfiliacion(veredicto);
       setFase("terminado");
     }
   }
@@ -460,11 +481,13 @@ export function ChatWhatsApp({
         `¡Listo! 🎉 Te espero el ${cuando} en ${franja.sala_ventas}. Le paso tu cita y tu historia completa al asesor, así que llegas y no tienes que explicar nada otra vez.`,
         600,
       );
+      if (resultado) await invitarAfiliacion(resultado);
     } catch {
       await agregarBotInstantaneo(
         `Anoté que quieres ir el ${cuando}, pero no pude confirmar la cita en el sistema. Un asesor te la confirma — no la pierdes.`,
         500,
       );
+      if (resultado) await invitarAfiliacion(resultado);
     }
   }
 

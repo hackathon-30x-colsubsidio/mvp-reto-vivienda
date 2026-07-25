@@ -742,6 +742,19 @@
   align-items: center;
   justify-content: center;
 }
+/* Los enlaces dentro de una burbuja: subrayados y en negrita, porque el color
+   solo no puede ser el portador del significado (misma regla que el "cumple"
+   de la ficha). Se ven sobre el fondo de la burbuja, no sobre el de marca. */
+.bubble a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.bubble a:hover {
+  text-decoration-thickness: 2px;
+}
+
 .send:disabled {
   opacity: 0.45;
   cursor: not-allowed;

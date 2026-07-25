@@ -64,6 +64,12 @@ export interface ResultadoCurado {
    * le quedó ningún proyecto — ahí no hay nada que agendar.
    */
   proyecto_cita?: { proyecto_id: string; nombre: string };
+  /**
+   * Si es `false`, al cerrar se le ofrece **afiliarse** (spec 04 D3): con Mi
+   * Casa Ya sin presupuesto en 2026, el subsidio de la caja es solo para
+   * afiliados, y además saldría de la fila del 10% de la regla 90/10.
+   */
+  afiliado?: boolean;
 }
 
 // ── B → C: el veredicto del motor ────────────────────────
