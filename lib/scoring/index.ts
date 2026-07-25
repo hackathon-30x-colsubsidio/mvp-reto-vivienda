@@ -38,11 +38,30 @@ export function afiliadoEfectivo(lead: Lead): boolean {
 
 function factorAfiliacion(lead: Lead): FactorScore {
   const afiliado = afiliadoEfectivo(lead);
+  // De dónde salió la afiliación, en serio. Antes decía "conversacion" siempre
+  // que no hubiera match, y la ficha lo mostraba como "Lo dijo en el chat" —
+  // pero al lead NUNCA se le pregunta (spec 02 D3 nodo 4, decisión abierta del
+  // TEAM): el motor lo ASUME. Atribuirle a alguien algo que no dijo es peor que
+  // no saberlo.
+  const laDijoEnElChat = lead.respuestas.afiliado_autoreportado !== undefined;
+  const fuente = lead.perfil.match
+    ? "enriquecimiento"
+    : laDijoEnElChat
+      ? "conversacion"
+      : "supuesto";
+
   return {
     nombre: "afiliacion",
-    valor: afiliado ? "Afiliado a Colsubsidio" : "No afiliado a Colsubsidio",
-    cumple: true, // informativo: no bloquea, determina la salida (listo vs. restricción de cupo)
-    fuente: lead.perfil.match ? "enriquecimiento" : "conversacion",
+    valor: afiliado
+      ? "Afiliado a Colsubsidio"
+      : fuente === "supuesto"
+        ? "No afiliado (asumido: su cédula no está en la base y no se le preguntó)"
+        : "No afiliado a Colsubsidio",
+    // No bloquea y no tiene sentido de cumple/no cumple: determina CUÁL de las
+    // dos salidas de "listo" aplica, nada más.
+    cumple: true,
+    informativo: true,
+    fuente,
     // sin peso: el aporte de la afiliación al puntaje vive en el factor cupo_90_10.
   };
 }
@@ -170,6 +189,7 @@ function factorSimilitudCompradores(proyecto: ProyectoCatalogo): FactorScore {
         ? `${proyecto.nombre} tiene ~${nAproximado.toLocaleString("es-CO")} compradores históricos (derivado: el cupo 90/10 del proyecto ×10). Señal neutra 0,5 para todos: la similitud por perfil todavía no se calcula (ticket 016), así que este factor hoy no diferencia leads`
         : "Sin histórico de compradores para este proyecto",
     cumple: true, // nunca bloquea (spec §4)
+    informativo: true, // evidencia de respaldo: no es un cumple/no cumple
     fuente: "historico",
     peso,
     valor_norm: valorNorm,
@@ -197,6 +217,7 @@ function factorCupo90_10(proyecto: ProyectoCatalogo, afiliado: boolean): FactorS
       nombre: "cupo_90_10",
       valor: "No aplica: el lead es afiliado",
       cumple: true,
+      informativo: true, // el cupo marca, no aprueba ni reprueba (spec 03 D9)
       fuente: "catalogo",
       peso,
       valor_norm: 1,
@@ -215,6 +236,7 @@ function factorCupo90_10(proyecto: ProyectoCatalogo, afiliado: boolean): FactorS
         ? `Quedan ${quedan} de ${total} cupos para no afiliados en ${proyecto.nombre} (regla: máx. 10%)`
         : `Cupo de no afiliados superado en ${proyecto.nombre}: ${usado} de ${total} permitidos (regla: máx. 10%)`,
     cumple: true, // se marca, no bloquea (el reto ya opera con 27,1% no afiliados por encima del 10% regulatorio)
+    informativo: true, // un cupo copado no "reprueba" al lead: es del proyecto
     fuente: "catalogo",
     peso,
     valor_norm: valorNorm,

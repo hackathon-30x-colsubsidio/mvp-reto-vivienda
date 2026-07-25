@@ -30,8 +30,12 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
   const { evento, perfil, respuestas } = curado.lead;
   const esNutricion = curado.score.salida === "nutricion";
   const puntaje = curado.score.puntaje;
-  const cumplen = curado.score.factores.filter((f) => f.cumple).length;
-  const total = curado.score.factores.length;
+  // Se cuentan solo los factores que de verdad cumplen o no: la afiliación, el
+  // cupo 90/10 y la similitud son informativos, y meterlos en el conteo inflaba
+  // el "cumplen" con filas que nunca podían no cumplir.
+  const evaluables = curado.score.factores.filter((f) => !f.informativo);
+  const cumplen = evaluables.filter((f) => f.cumple).length;
+  const total = evaluables.length;
 
   return (
     <article className="mx-auto max-w-3xl space-y-4">
