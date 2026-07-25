@@ -4,6 +4,24 @@
 >
 > El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
 
+## 🟢 2026-07-25 (noche) — Cerrados 023, 024 y 025; los recursos ya llegan al chat. Y dos cosas que cambian lo que se dice en cámara
+
+**357 tests verdes, typecheck y lint limpios, todo en `main`.** Recorrido en el navegador con el LLM vivo.
+
+**Lo que se arregló:**
+
+1. **[023](tasks/023-puente-capacidad-antes-del-proyecto.md) — el único defecto que el jurado reproducía solo.** Quien entraba por un proyecto caro perdía el catálogo entero. Verificado en pantalla: un lead con $4.000.000 que elige **ARAUCARIA** pasa de *nutrición con cero proyectos* a **listo con LA MACARENA y cita agendada**. Y la ficha **lo dice**: *"la calificación NO se hizo contra ARAUCARIA… le daría una cuota del 121,6% de su ingreso… se calificó contra LA MACARENA, que sí le cabe"*. Cambiar de proyecto en silencio habría sido caja negra.
+2. **[024](tasks/024-confirmacion-del-ingreso.md) — el ingreso ya no se adivina.** `2+2`, `-3` y `999999999999` dejaron de pasar como monto. Y el agente **devuelve el número que entendió** (*"hago las cuentas con $4.000.000 al mes — si me equivoqué, dime el número y lo corrijo"*), que en cámara se lee como cuidado. Lo que no logra leer lo repregunta **una vez**, nunca en bucle.
+3. **La capa de recursos ya le llega al lead** (antes solo la veía el asesor). Con ella se cierra la decisión que estaba abierta: **el recurso reemplaza a la invitación a afiliarse**, no se suman. Le hablan a la misma persona de lo mismo, y el recurso además dice por qué y **cuándo cumpliría los 6 meses** que el subsidio exige.
+4. **[025](tasks/025-metricas-del-mentor-baratas.md) — dos métricas del mentor** en el tablero: proyecto que más piden y canal que más trae. La de canal **declara en pantalla que no es atribución de campaña**, porque él pidió campaña y QR y eso no se captura.
+
+**🔴 Dos cosas que hay que atender antes de grabar:**
+
+- **Hay que volver a correr [`db/seed.sql`](../db/seed.sql) en Supabase.** El seed se regeneró (el factor de la cuota ahora nombra el proyecto). Y en la bandeja **en vivo** se ve el desfase: la explicación de Carlos dice *"cuota de PAYANDÉ ($1.053.000), el 36,9%"* cuando el motor calcula **$1.573.834 = 39,3%**. Son filas viejas contradiciendo al motor, en la pantalla que es el clímax del demo.
+- **Los puntajes que citan los docs están viejos: son 73 · 24 · 0, no 75 · 28 · 0.** Verificado contra el seed generado por el motor. Diana sigue **justo en el techo alcanzable** (que sigue siendo 75, no 100), así que la recomendación de no decir la cifra en cámara **no cambia** — pero si alguien la dice, que diga la de verdad.
+
+**📣 Decisión de producto (Mani): el pitch NO habla del 27,1% vs. el 10%.** Con eso se **descarta el [ticket 019](tasks/019-franja-impacto.md)** (la franja de impacto) y hay que **reescribir el beat 0 del [guion](pitch/guion-video.md)**, que abría con esa cifra y la llamaba "la munición". El gancho pasa a ser el hueco real: la página de vivienda sin formulario y sin proyectos — *no existe el embudo*. ⚠️ Queda una decisión pendiente para Mani: la métrica **"Leads no afiliados"** del tablero sigue enunciando esa comparación y va marcada como la principal. No se tocó (el tablero ya estaba fuera del video); quitarla o dejarla es decisión suya.
+
 ## 💬 2026-07-25 15:30 — El jurado ya puede preguntarle a Sara en medio del chat (y pedir un asesor)
 
 **Hecho**, en la rama `feat/026-sara-agente-y-ficha` (294 tests verdes). Hasta ahora, **cualquier cosa que el visitante escribiera se tragaba como respuesta al paso actual**: teclear *"¿cuánto vale?"* se parseaba como si fuera el dato que se le había pedido, y pedir un asesor —el trigger 3 de la operación real— no hacía nada. Es lo primero que hace cualquiera que abre un chat, así que era reproducible en el primer intento.

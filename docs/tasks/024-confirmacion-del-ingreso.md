@@ -1,7 +1,7 @@
 ---
 id: 024
 serves: "spec §6 (el ingreso como insumo del gate del 40%) + obligación 4 del spec 02 (no sonar a robot)"
-status: todo
+status: done (2026-07-25 noche — `NO_ES_MONTO` + rango plausible declarado en `preguntas.ts`, acuse que devuelve el número entendido, y repregunta UNA vez reutilizando el mecanismo del desvío. Tests de los 4 casos de la tabla + 2 de chat contra el bucle)
 ---
 
 # 024 — 🟠 El ingreso se confirma antes de calificar con él

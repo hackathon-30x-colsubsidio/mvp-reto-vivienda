@@ -1,10 +1,14 @@
 ---
 id: 019
 serves: "spec §7 (panel de impacto opcional) + criterio de impacto del demo"
-status: todo
+status: descartado (2026-07-25 noche, decisión de Mani — el pitch NO habla del 27,1% vs 10%, así que la franja pierde su razón de ser. Ver URGENTE)
 ---
 
 # 019 — Franja de impacto en /asesor
+
+> 🔁 **DESCARTADO el 2026-07-25 (noche), decisión de Mani.** El pitch **no va a hablar del 27,1% vs. el 10%**, y esa comparación era la primera de las tres cifras y la razón de ser de la franja. No se construye.
+>
+> ⚠️ Lo que esto deja abierto, y que decide Mani: la métrica **"Leads no afiliados"** del tablero (`lib/tablero/metricas.ts`) sigue viva, va marcada `principal: true` y su descripción **es** esa comparación; el encabezado de `/asesor/tablero` también la enuncia. No se tocaron: quitar producto probado necesita una decisión explícita, no una inferencia. El tablero, eso sí, ya estaba fuera del video (decisión 4 del plan del sábado).
 
 **Dueño:** Rol 2 (Datos & Motor) · **timebox medio día** · nace del grilling 2026-07-24
 

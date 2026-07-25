@@ -1,7 +1,7 @@
 ---
 id: 025
 serves: "spec 06 D3 (las métricas del mentor) — las dos que ya se pueden calcular"
-status: todo
+status: done (2026-07-25 noche — `PROYECTO_MAS_PEDIDO` y `CANAL_DE_INGRESO` en `lib/tablero/metricas.ts`, visibles en /asesor/tablero con su fuente; la de canal declara que NO es atribución de campaña)
 ---
 
 # 025 — 🟡 Las dos métricas del mentor que ya se pueden calcular

@@ -1,7 +1,7 @@
 ---
 id: 023
 serves: "criterio de aceptación 4 (el lead listo llega cerrable) + criterio 3 (nadie se descarta) + brief:22 (recomienda proyectos acordes al perfil)"
-status: todo
+status: done (2026-07-25 noche — `referenciaParaCalificar()` en `lib/curar.ts`; medido en el navegador: un lead que entra por ARAUCARIA con $4.000.000 pasa de `nutricion` sin proyectos a `listo_restriccion_cupo` con LA MACARENA y cita agendada. Los 3 canónicos no se movieron: 73/24/0)
 ---
 
 # 023 — 🔴 El puente: capacidad primero, proyecto después

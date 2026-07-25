@@ -11,15 +11,16 @@ dueño: Rol 4 (Pitch & Video)
 >
 > Se graba **el sábado p.m., después de la integración total** ([ticket 014](../tasks/014-recorrido-criterio-4.md)): grabar antes es grabar algo que va a cambiar. Este doc es el guion; la grabación es el paso 5 del rol.
 
-> ⚠️ **Dos frases que NO se pueden decir, y las dos se dijeron en la sala del sábado** ([discusión de workflow](../agents/discusion-workflow-2026-07-25.md)):
-> 1. **"El que no está afiliado entra a nutrición."** Falso: el no afiliado que pasa el gate del 40% sale **listo con restricción de cupo**, con sus proyectos y su advertencia. La única causa de nutrición es la cuota sobre el 40%. Decirlo al revés contradice la pantalla del beat 3, donde Carlos aparece con 3 proyectos.
-> 2. **No decir el puntaje "sobre 100".** El techo alcanzable hoy es **75** (el subsidio aporta 0 a todo lead real y la similitud aporta la mitad fija), así que la fracción sobre 100 subvende — y **Diana está justo en ese techo**. **Números vigentes desde el 2026-07-25** (al reemplazar el 0,6% por la cuota real, los puntajes bajaron): **Diana 75 · Carlos 28 · Yuliana 0**. Lo seguro es no decir la cifra y hablar de **el orden de la cola**: quién está más cerca de comprar. Si se dice, se dice contra el techo de 75, nunca sobre 100.
+> ⚠️ **Tres cosas que NO se pueden decir:**
+> 1. **"El que no está afiliado entra a nutrición."** Falso: el no afiliado que pasa el gate del 40% sale **listo con restricción de cupo**, con sus proyectos y su advertencia. La única causa de nutrición es la cuota sobre el 40%. Decirlo al revés contradice la pantalla del beat 3, donde Carlos aparece con proyectos.
+> 2. **No decir el puntaje "sobre 100".** El techo alcanzable hoy es **75** (el subsidio aporta 0 a todo lead real), así que la fracción sobre 100 subvende — y **Diana está justo en ese techo**. **Números vigentes: Diana 73 · Carlos 24 · Yuliana 0**, verificados contra el seed que genera el motor (los 75/28 que este doc citaba antes estaban viejos). Lo seguro es no decir la cifra y hablar de **el orden de la cola**: quién está más cerca de comprar.
+> 3. **🆕 Nada del 27,1% vs. el 10%** (decisión de Mani, 2026-07-25 noche). Esa comparación **sale del pitch**, y con ella se descartó el ticket 019. El beat 0 ya no abre con una cifra: abre con el hueco.
 
 ## Presupuesto de tiempo (120 s duros)
 
 | # | Tramo | En pantalla | Criterio / gancho | Seg |
 |---|---|---|---|---|
-| 0 | **El hueco** | La página orgánica real de Colsubsidio (`colsubsidio.com/vivienda`) — sin formulario, sin proyectos | Problema | 0:00–0:15 |
+| 0 | **El hueco** | La página orgánica real de Colsubsidio (`colsubsidio.com/vivienda`) — sin formulario, sin proyectos. **Sin cifras: la pantalla vacía es el argumento** | Problema | 0:00–0:15 |
 | 1 | **Entra el lead** | Diana entra por pauta (Meta) → chat WhatsApp, da consentimiento + cédula, el bot **ya la conoce** y se lo dice | Criterio 1 (no repreguntar) | 0:15–0:32 |
 | 2 | **Se transforma** | El bot pregunta solo lo que falta; el motor transparente califica y matchea 2-3 proyectos + agenda cita | Ejecución técnica | 0:32–0:52 |
 | 3 | **Clímax: el asesor** | Ficha del lead curado: score factor por factor, el porqué citando el Decreto 583, proyectos y cita. Se abre Carlos (no afiliado) → alerta de cupo 90/10 | Criterios 2 y 4 + impacto | 0:52–1:22 |
@@ -31,7 +32,9 @@ dueño: Rol 4 (Pitch & Video)
 Escrita para ~2,3 palabras/seg en español. Total ≈ 275 palabras. Los `[corchetes]` son señas de lo que pasa en pantalla, no se leen. Lo marcado _(cuttable)_ se sacrifica primero si el reloj aprieta.
 
 **[0:00 — El hueco]**
-> Esta es la página de vivienda de Colsubsidio hoy. No hay formulario. No hay proyectos. El lead que llega por pauta cae en el vacío. Y cuando sí compra: **el 27% de los compradores históricos no son afiliados** — cuando la regla 90/10 solo permite el 10%. Los 16 proyectos con ubicación conocida ya la incumplen. El problema no es de marketing: es que **no existe el embudo**.
+> Esta es la página de vivienda de Colsubsidio hoy. No hay formulario. No hay proyectos. Nada que llenar. El lead que llega por pauta cae en el vacío, y el que sí escribe espera a que alguien lo llame. El problema no es de marketing: es que **no existe el embudo**.
+>
+> ⚠️ **Reescrito el 2026-07-25 (noche):** este beat abría con *"el 27% de los compradores históricos no son afiliados, cuando la regla solo permite el 10%"*. **Esa cifra sale del pitch** por decisión de Mani. El gancho ya no es un dato: es la pantalla vacía, que se ve sola.
 
 **[0:15 — Entra el lead]**
 > Diana llega por un anuncio. En vez de un formulario, un chat estilo WhatsApp. Autoriza el tratamiento de datos, da su cédula… y el sistema **ya sabe** que es afiliada, su ciudad y su rango de ingreso. No se lo vuelve a preguntar, y se lo hace saber. _(cuttable: "Un lead pago que se siente como uno orgánico.")_
@@ -39,7 +42,9 @@ Escrita para ~2,3 palabras/seg en español. Total ≈ 275 palabras. Los `[corche
 > ⚠️ **Ojo con este plano:** el chat **no le recita los datos a Diana** — le dice que no le hará repetir nada y arranca buscando en su ciudad ([spec 02, nodo 3](../specs/02-conversador.md)). Quien enumera afiliación, ciudad e ingreso es **la ficha del asesor**, en el beat 3. La voz en off puede nombrarlos aquí porque le habla al jurado, no a Diana; si el video promete que el bot los recita, no coincide con la pantalla.
 
 **[0:32 — Se transforma]**
-> Solo pregunta lo que falta para calificar. Detrás, un motor de reglas —no una caja negra— la califica, la cruza con proyectos que le caben, y le agenda la visita a sala de ventas. En un mensaje pasó de clic en un anuncio a lead listo para cerrar.
+> Solo pregunta lo que falta para calificar. Le dice para qué le pregunta, y la deja contestar como quiera: escribiendo, tocando, o dictando. Cuando le da su ingreso, **le devuelve el número que entendió** para que lo corrija: de ahí sale el único corte legal del sistema. Detrás, un motor de reglas —no una caja negra— la califica, la cruza con proyectos que le caben, y le agenda la visita a sala de ventas.
+>
+> 🆕 **Plano nuevo disponible (ticket 023), y es de los que más venden:** elegir en el formulario un proyecto que NO le alcanza. El sistema no lo castiga por haber mirado la vivienda equivocada — le muestra lo que sí le cabe **y dice por qué cambió**. La frase: *"el lead no se descarta por haber mirado la casa equivocada"*.
 
 **[0:52 — Clímax: el asesor]**
 > Y esto es lo que recibe el asesor. No un nombre y un teléfono: la ficha completa. El score **factor por factor** —afiliación, la cuota bajo el 40% que exige el Decreto 583, subsidio aplicable— cada uno con su valor. El porqué, en español, citando la norma. Los proyectos y la cita, ya agendada. _(cuttable)_ Y cuando el lead es no afiliado, como Carlos, el asesor ve la **alerta de cupo 90/10** del proyecto antes de mover un dedo.

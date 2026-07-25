@@ -1,6 +1,6 @@
 # Tickets del build
 
-> **Estado al 2026-07-25:** los tickets 001-013 están **cerrados** (su `status:` dice con qué evidencia). Lo que queda abierto es **014-020** más **023-025**, que nacen de la [discusión de workflow del sábado](../agents/discusion-workflow-2026-07-25.md), y quién los toma hoy lo dice [`agents/plan-sabado-25.md`](../agents/plan-sabado-25.md) — la columna "Dueño" de abajo es histórica (los tracks A/B/C/D del jueves, después los 4 roles del viernes; hoy el reparto es P1-P5).
+> **Estado al 2026-07-25 (noche):** cerrados 001-013 y **023, 024 y 025**; el **019 quedó descartado** (el pitch no habla del 27,1% vs. el 10% — ver [URGENTE](../URGENTE-Y-NOTICIAS.md)). **Lo que queda abierto es 014 (recorrido en la URL pública), 015 y 020 (guion y video) y 017 (tabla de subsidios)**, más 008/009, que son verificación continua. El `status:` de cada ticket dice con qué evidencia se cierra. La columna "Dueño" de abajo es histórica (los tracks A/B/C/D del jueves, después los 4 roles del viernes; después el reparto P1-P5 de [`plan-sabado-25.md`](../agents/plan-sabado-25.md)).
 
 Cada ticket es **una unidad de trabajo que cabe en una ventana de contexto limpia** y cita el criterio del [`spec.md`](../spec.md) al que sirve. Salen de [`plan.md`](../plan.md), no del spec directo.
 
@@ -30,13 +30,13 @@ Cada ticket es **una unidad de trabajo que cabe en una ventana de contexto limpi
 | 016 | [Distribuciones por proyecto + buyer_personas.json](016-distribuciones-por-proyecto.md) | Rol 2 | — | Vie |
 | 017 | [Tabla de subsidios fundamentada](017-tabla-subsidios.md) | Rol 2 | — | Vie |
 | 018 | [Similitud-distribución en la explicación](018-similitud-en-explicacion.md) | Rol 3 | 016 | Vie/Sáb |
-| 019 | [Franja de impacto en /asesor](019-franja-impacto.md) | Rol 2 | — | Sáb (timebox) |
+| ~~019~~ | ~~[Franja de impacto en /asesor](019-franja-impacto.md)~~ | — | — | **🔁 DESCARTADO** (el pitch no usa el 27,1% vs 10%) |
 | 020 | [Tramo de implementabilidad en el video](020-tramo-implementabilidad.md) | Rol 4 | — | Sáb |
 | 021 | [🔴 Poner plan-research en privado](021-plan-research-privado.md) | Rol 4 | — | **Ya** |
 | 022 | [🔴 Sanear buyer-personas.md del repo público](022-sanear-buyer-personas-md.md) | Rol 4 | — | **Ya** |
-| 023 | [🔴 El puente: capacidad primero, proyecto después](023-puente-capacidad-antes-del-proyecto.md) | P2 | — | **Sáb, primero** |
-| 024 | [🟠 El ingreso se confirma antes de calificar con él](024-confirmacion-del-ingreso.md) | P3 | — | Sáb |
-| 025 | [🟡 Las dos métricas del mentor que ya se pueden](025-metricas-del-mentor-baratas.md) | P2 | 023, 024 | Sáb, si sobra |
+| 023 | [✅ El puente: capacidad primero, proyecto después](023-puente-capacidad-antes-del-proyecto.md) | P2 | — | **Hecho** (sáb noche) |
+| 024 | [✅ El ingreso se confirma antes de calificar con él](024-confirmacion-del-ingreso.md) | P3 | — | **Hecho** (sáb noche) |
+| 025 | [✅ Las dos métricas del mentor que ya se pueden](025-metricas-del-mentor-baratas.md) | P2 | 023, 024 | **Hecho** (sáb noche) |
 
 El **estado** de cada ticket vive en su propio frontmatter (`status: todo | doing | done`). El estado vivo del proyecto (qué se hizo, qué sigue) vive en [`handoff.md`](../agents/handoff.md) — no se duplica aquí.
 
