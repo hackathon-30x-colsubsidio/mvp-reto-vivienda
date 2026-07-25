@@ -521,6 +521,22 @@ h4 {
   -webkit-backdrop-filter: blur(14px) saturate(1.4);
 }
 
+/* Cabecera fija CON contenido pasando por detrás (los encabezados de
+   grupo de la bandeja, la barra de filtros).
+
+   Es OPACA, y esa es toda su razón de ser: `.vidrio-cromo` translúcido
+   + blur de 14px NO tapa texto de 15px que scrollea debajo — se sigue
+   leyendo, difuminado, encima del título. Se veía en la bandeja al
+   subir la lista.
+
+   La regla que sale de esto: el blur decora superficies con NADA
+   detrás. En cuanto algo scrollea por detrás, la superficie es opaca. */
+.vidrio-solido {
+  background-color: var(--surface-card);
+  background-image: var(--vidrio-hueco);
+  border-color: var(--filo-borde);
+}
+
 /* El fondo que el vidrio refracta. Dos manchas de marca muy diluidas y
    fijas: sin esto, "glass" sobre gris plano se ve solo gris. No se
    mueven ni animan — son fondo, no espectáculo. */
