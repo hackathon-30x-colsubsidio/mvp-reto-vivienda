@@ -34,6 +34,7 @@ import {
   respuestaDeterministaDuda,
   type Desvio,
 } from "@/lib/conversacion/desvio";
+import { mensajeDeRecursos } from "@/lib/recursos/mensajes";
 import { fechaLarga } from "@/lib/formato";
 import { useDictado } from "./useDictado";
 import { MensajeBurbuja, type Mensaje } from "./MensajeBurbuja";
@@ -439,22 +440,42 @@ export function ChatWhatsApp({
       return;
     }
 
-    await invitarAfiliacion(veredicto);
+    await cerrar(veredicto);
     setFase("terminado");
   }
 
   /**
-   * Al que NO es afiliado se le ofrece afiliarse, que hoy es la salida más útil
-   * que tiene (spec 04 D3, propuesta que quedó abierta hasta el 2026-07-25).
+   * El cierre: la puerta que le queda abierta al lead, dicha una sola vez.
    *
    * Va de ÚLTIMO a propósito: primero se le resuelve lo que vino a buscar
    * —sus proyectos, su cita, o la razón honesta de por qué todavía no— y solo
    * después se le abre la puerta. Al revés se leería como que le estamos
    * vendiendo la afiliación en vez de ayudarle.
+   *
+   * DEDUPE (decisión 2026-07-25, la que la capa de recursos dejó abierta): la
+   * invitación a afiliarse de spec 04 D3 y el recurso `afiliacion` le hablan a
+   * la MISMA persona (el no afiliado) sobre lo mismo. Mandar los dos era decirle
+   * dos veces lo mismo con dos textos distintos. Manda el recurso, porque dice
+   * además POR QUÉ se lo mostramos y **cuándo** cumpliría los 6 meses que el
+   * subsidio exige (el "caso con fecha" de spec 05 D2). La invitación suelta
+   * queda como respaldo para cuando no viajan recursos.
    */
-  async function invitarAfiliacion(veredicto: ResultadoCurado) {
-    if (veredicto.afiliado !== false) return;
-    await agregarBotInstantaneo(mensajeAfiliacion(), 700);
+  async function cerrar(veredicto: ResultadoCurado) {
+    const recursos = veredicto.recursos ?? [];
+    const traeAfiliacion = recursos.some((r) => r.recurso_id === "afiliacion");
+
+    if (veredicto.afiliado === false && !traeAfiliacion) {
+      await agregarBotInstantaneo(mensajeAfiliacion(), 700);
+    }
+
+    // Capa ORTOGONAL: un lead `listo` con cita también recibe su recurso. Nunca
+    // es "esto en vez del asesor" — el copy de cada molde lo dice (mensajes.ts).
+    // Sin `salida` no se muestra: el molde de nutrición y el de listo dicen
+    // cosas distintas, y elegir mal el tono es peor que no decir nada.
+    const mensaje = veredicto.salida
+      ? mensajeDeRecursos(evento.nombre, veredicto.salida, recursos)
+      : null;
+    if (mensaje) await agregarBotInstantaneo(mensaje, 700);
   }
 
   /**
@@ -487,7 +508,7 @@ export function ChatWhatsApp({
         "Los horarios de la sala de ventas no me cargaron en este momento 😕 No se pierde nada: un asesor te escribe para cuadrar la visita, y ya tiene todo lo que me contaste.",
         500,
       );
-      await invitarAfiliacion(veredicto);
+      await cerrar(veredicto);
       setFase("terminado");
     }
   }
@@ -514,13 +535,13 @@ export function ChatWhatsApp({
         `¡Listo! 🎉 Te espero el ${cuando} en ${franja.sala_ventas}. Le paso tu cita y tu historia completa al asesor, así que llegas y no tienes que explicar nada otra vez.`,
         600,
       );
-      if (resultado) await invitarAfiliacion(resultado);
+      if (resultado) await cerrar(resultado);
     } catch {
       await agregarBotInstantaneo(
         `Anoté que quieres ir el ${cuando}, pero no pude confirmar la cita en el sistema. Un asesor te la confirma — no la pierdes.`,
         500,
       );
-      if (resultado) await invitarAfiliacion(resultado);
+      if (resultado) await cerrar(resultado);
     }
   }
 

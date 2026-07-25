@@ -184,6 +184,34 @@ describe("invitación a afiliarse (spec 04 D3)", () => {
     expect(enlace).toHaveAttribute("rel", expect.stringContaining("noopener"));
   }, 20_000);
 
+  // Dedupe (2026-07-25): la invitación de spec 04 D3 y el recurso `afiliacion`
+  // le hablan a la misma persona sobre lo mismo. Manda el recurso, que además
+  // dice por qué se lo mostramos y cuándo cumpliría los 6 meses del subsidio.
+  it("cuando el recurso de afiliación viaja, NO se le dice dos veces", async () => {
+    chatQueTermina({
+      afiliado: false,
+      salida: "nutricion",
+      recursos: [
+        {
+          recurso_id: "afiliacion",
+          nombre: "Afiliación a Colsubsidio como independiente",
+          url: "https://www.colsubsidio.com/afiliaciones/modalidades/independiente",
+          tipo: "colsubsidio",
+          factor_disparador: "afiliacion",
+          porque:
+            "No eres afiliado a Colsubsidio, así que hoy compites por el cupo del 10% de no afiliados.",
+        },
+      ],
+    });
+    await responderIngreso("2.000.000");
+
+    expect(
+      await screen.findByText(/compites por el cupo del 10%/i, undefined, { timeout: 15_000 }),
+    ).toBeInTheDocument();
+    // La invitación suelta no aparece: sería el mismo mensaje con otro texto.
+    expect(screen.queryByText(/subsidios de vivienda de la caja/i)).toBeNull();
+  }, 20_000);
+
   it("al AFILIADO no se le ofrece: ya lo es", async () => {
     chatQueTermina({ afiliado: true, salida: "listo" });
     await responderIngreso("8.000.000");
