@@ -1,7 +1,7 @@
 ---
 id: 013
 serves: "criterio de aceptación 3 — nadie se descarta (toda salida existe; nutrición siempre con razón y trigger)"
-status: todo
+status: done (2026-07-24 — el criterio 3 está cubierto por `ChatWhatsApp.test.tsx` (retoma la conversación), `FichaLead.test.tsx` (regla + trigger + botón) y el CHECK `nutricion_tiene_razon_y_trigger` en Postgres)
 ---
 
 # 013 — Test del criterio 3

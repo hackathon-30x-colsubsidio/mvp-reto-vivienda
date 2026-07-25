@@ -2,10 +2,49 @@
 
 import { useState } from "react";
 import type { LeadEvento } from "@/lib/types";
+import { catalogo } from "@/lib/matching/catalogo";
 
 // `.campo` vive en app/chat.css: es el mismo campo del pie del chat, para que
 // escribir aquí y escribir allá se sienta igual.
 const CLASE_CAMPO = "campo";
+
+/**
+ * El proyecto de entrada se ELIGE de una lista, no se escribe.
+ *
+ * El campo era texto libre y eso lo volvía una trampa silenciosa: el motor
+ * califica contra el proyecto por el que entró el lead, y lo busca por nombre
+ * exacto (`resolverProyectoDeReferencia`). Escribir "La Arboleda" con una tilde
+ * de más, o un proyecto que no existe, no fallaba: el sistema caía al proyecto
+ * más económico del catálogo **sin decirlo**, y el jurado veía una ficha
+ * calificada contra otra vivienda. Con la lista, el valor siempre existe.
+ *
+ * De paso enseña el catálogo real —18 proyectos, con su ciudad y su precio
+ * desde— que es data derivada del Excel del reto, no inventada.
+ */
+const pesos = (n: number) => `$${n.toLocaleString("es-CO")}`;
+
+/** "Ricaurte o Bogotá (ubicación contradictoria…)" → "Ricaurte o Bogotá". */
+const ciudadCorta = (ciudad: string) => ciudad.split(" (")[0];
+
+const PROYECTOS_POR_CIUDAD = Object.entries(
+  catalogo.reduce<Record<string, typeof catalogo>>((grupos, proyecto) => {
+    // Un proyecto con la ubicación en duda no se mezcla con los de una ciudad
+    // confirmada: si la fuente lo reporta en dos sitios, eso se dice, no se
+    // promedia. Hoy no hay ninguno (VIBO ONCE y KARAKALI se resolvieron con el
+    // brochure: los dos son de Bogotá), pero la regla queda en pie.
+    const clave = proyecto.ubicacion_incierta
+      ? `${ciudadCorta(proyecto.ciudad)} · por confirmar`
+      : proyecto.ciudad;
+    (grupos[clave] ??= []).push(proyecto);
+    return grupos;
+  }, {}),
+)
+  .sort(([a], [b]) => a.localeCompare(b, "es"))
+  .map(([ciudad, proyectos]) => ({
+    ciudad,
+    // Del más económico al más caro: es el orden en que alguien compara.
+    proyectos: [...proyectos].sort((a, b) => a.precio_desde - b.precio_desde),
+  }));
 
 /**
  * El formato en blanco: mismo mundo que la ficha del asesor, pero
@@ -84,13 +123,27 @@ export function FormularioSoyYo({
         </Campo>
 
         <Campo etiqueta="Proyecto de interés (opcional)" htmlFor="proyecto">
-          <input
+          <select
             id="proyecto"
             value={proyecto}
             onChange={(e) => setProyecto(e.target.value)}
-            placeholder="Si viste uno en el anuncio"
             className={CLASE_CAMPO}
-          />
+          >
+            {/* Es opcional de verdad: sin proyecto, el motor califica contra el
+                más económico del catálogo, que es el caso conservador. */}
+            <option value="">Todavía no tengo uno en mente</option>
+            {PROYECTOS_POR_CIUDAD.map(({ ciudad, proyectos }) => (
+              <optgroup key={ciudad} label={ciudad}>
+                {proyectos.map((p) => (
+                  // El valor es el NOMBRE del catálogo, que es lo que viaja en
+                  // `LeadEvento.proyecto_interes` y lo que el motor busca.
+                  <option key={p.proyecto_id} value={p.nombre}>
+                    {p.nombre} — desde {pesos(p.precio_desde)}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
         </Campo>
 
         <Campo etiqueta="Por dónde llegaste" htmlFor="fuente">

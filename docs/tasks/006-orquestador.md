@@ -1,7 +1,7 @@
 ---
 id: 006
 serves: "spec §4 — el flujo de 5 pasos completo; sostiene los criterios de aceptación 2, 3 y 4"
-status: done (2026-07-24 — /api/curar en pie, probado contra la Supabase real; falta correr db/migracion-001-puntaje.sql)
+status: done (2026-07-24 — /api/curar en pie, probado contra la Supabase real; la migración 001 quedó corrida ese mismo día y re-verificada el 2026-07-25)
 ---
 
 # 006 — Orquestador `/api/curar`
@@ -19,7 +19,7 @@ Que la cadena exista como código de alguien: terminar la conversación dispara 
 ## Done cuando
 - [x] Un `Lead` de cada personaje entra por `/api/curar` y sale un `LeadCurado` persistido y visible en `/asesor`. — Verificado contra la base real: fila en `leads` con 7 factores, 3 proyectos y las respuestas completas, más el hilo en `conversaciones`.
 - [x] El de nutrición no pasa por el matcher y llega con `regla_fallida` y `trigger_nutricion`. — Cubierto en [`lib/curar.test.ts`](../../lib/curar.test.ts).
-- [ ] Corre **en la URL pública de Vercel**, no sólo en localhost (ticket 009). — **Bloqueado hasta correr [`db/migracion-001-puntaje.sql`](../../db/migracion-001-puntaje.sql)**: la base de producción no tiene la columna `puntaje`.
+- [x] Corre **en la URL pública de Vercel**, no sólo en localhost (ticket 009). — Se desbloqueó al correr [`db/migracion-001-puntaje.sql`](../../db/migracion-001-puntaje.sql) (2026-07-24). Verificado el 2026-07-25: `GET /api/leads` responde `origen: supabase` con los puntajes puestos, y un `POST /api/curar` contra la base real guardó con `puntaje` y sin advertencia.
 
 ## Cómo quedó
 

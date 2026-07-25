@@ -1,6 +1,5 @@
 import { METRICAS } from "@/lib/tablero/metricas";
 import type { DatosTablero } from "@/lib/tablero/tipos";
-import { Tarjeta } from "@/components/ui/Tarjeta";
 
 /**
  * La franja de cifras del tablero.
@@ -14,38 +13,46 @@ import { Tarjeta } from "@/components/ui/Tarjeta";
  */
 export function FranjaMetricas({ datos }: { datos: DatosTablero }) {
   return (
+    // ⚠️ SIN `h-full` y SIN `auto-rows-fr`. Las tuvo, y comprimían cada
+    //    tarjeta a 44px cuando su contenido pedía 167: el texto se salía
+    //    y se montaba sobre la tarjeta de abajo. Las filas van a su
+    //    altura natural y quien decide si hay scroll es el contenedor
+    //    de la página, no esta rejilla.
     <section
       aria-label="Métricas de la operación"
-      className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+      className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3"
     >
       {METRICAS.map((metrica) => {
         const { valor, detalle } = metrica.calcular(datos);
 
         return (
-          <Tarjeta key={metrica.id} className="flex flex-col p-4">
-            <div data-testid="metrica" className="flex flex-1 flex-col">
-              <h3 className="rotulo">{metrica.titulo}</h3>
+          <article
+            key={metrica.id}
+            data-testid="metrica"
+            className="vidrio flex flex-col p-2.5"
+          >
+            <h3 className="rotulo leading-snug">{metrica.titulo}</h3>
 
-              <p
-                data-testid="metrica-valor"
-                className="cifra text-texto mt-1.5 text-[30px] leading-none font-bold"
-              >
-                {valor}
-              </p>
+            <p
+              data-testid="metrica-valor"
+              className="cifra text-texto mt-1 text-[30px] leading-none font-bold"
+            >
+              {valor}
+            </p>
 
-              {detalle && (
-                <p className="text-texto mt-1.5 text-[13px] leading-normal">
-                  {detalle}
-                </p>
-              )}
+            {detalle && (
+              <p className="text-texto mt-0.5 text-[12px] leading-snug">{detalle}</p>
+            )}
 
-              {/* La fuente de la cifra, impresa. No es un tooltip: una
-                  métrica que no dice de dónde salió es caja negra. */}
-              <p className="border-borde text-texto-tenue mt-auto border-t pt-2 text-[12px] leading-normal">
-                {metrica.descripcion}
-              </p>
-            </div>
-          </Tarjeta>
+            {/* La fuente de la cifra, impresa COMPLETA. No es un tooltip
+                ni se recorta: una métrica que no dice de dónde salió es
+                caja negra. Se separa por espacio, no por regla — el
+                border-t costaba 10px por tarjeta y no aportaba nada que
+                el aire no diga. */}
+            <p className="text-texto-tenue mt-1.5 text-[12px] leading-snug">
+              {metrica.descripcion}
+            </p>
+          </article>
         );
       })}
     </section>

@@ -87,9 +87,9 @@
   {
     "proyecto_id": "karakali",
     "nombre": "KARAKALI",
-    "ciudad": "Ricaurte o Bogotá (ubicación contradictoria entre hojas, sin confirmar)",
-    "ciudad_inferida": true,
-    "zona": null,
+    "ciudad": "Bogotá",
+    "ciudad_inferida": false,
+    "zona": "Chapinero",
     "precio_desde": 245126700,
     "vis": false,
     "cupo_no_afiliados": {
@@ -98,8 +98,8 @@
     },
     "brochure": "https://heyzine.com/flip-book/5083a3d46c.html",
     "recorrido_360": "https://umbra3d.studio/masterplans/colsubsidio/karakali/",
-    "ubicacion_incierta": true,
-    "ubicacion_nota": "Ubicación contradictoria entre la hoja de brochures y la de 360: brochure=RICAURTE | 360=BOGOTÁ"
+    "ubicacion_incierta": false,
+    "ubicacion_nota": "El Excel dejaba la ubicación contradictoria entre sus dos hojas; resuelta con el brochure oficial (Carrera 15 # 63A-22, Bogotá — Chapinero)."
   },
   {
     "proyecto_id": "la-arboleda",
@@ -274,9 +274,9 @@
   {
     "proyecto_id": "vibo-once",
     "nombre": "VIBO ONCE",
-    "ciudad": "Ricaurte o Bogotá (ubicación contradictoria entre hojas, sin confirmar)",
-    "ciudad_inferida": true,
-    "zona": null,
+    "ciudad": "Bogotá",
+    "ciudad_inferida": false,
+    "zona": "Centro",
     "precio_desde": 281300000,
     "vis": false,
     "cupo_no_afiliados": {
@@ -285,8 +285,8 @@
     },
     "brochure": "https://heyzine.com/flip-book/d3d1f61d6b.html",
     "recorrido_360": "https://umbra3d.studio/recorridos/colsubsidio/vibo/tipo-a/",
-    "ubicacion_incierta": true,
-    "ubicacion_nota": "Ubicación contradictoria entre la hoja de brochures y la de 360: brochure=RICAURTE | 360=BOGOTÁ"
+    "ubicacion_incierta": false,
+    "ubicacion_nota": "El Excel dejaba la ubicación contradictoria entre sus dos hojas; resuelta con el brochure oficial (Carrera 14 # 3-58, Bogotá — Centro)."
   },
   {
     "proyecto_id": "zarzal",

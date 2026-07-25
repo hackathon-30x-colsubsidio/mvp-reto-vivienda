@@ -42,13 +42,17 @@ function hayInterseccion(a: Set<string>, b: Set<string>): boolean {
 
 /** ¿La zona que pidió el lead nombra la CIUDAD del proyecto? */
 export function coincideCiudad(proyecto: FichaProyecto, zonaLead: string | undefined): boolean {
-  if (!zonaLead) return false;
+  // Un proyecto con la ciudad en duda (dos fuentes se contradicen) NUNCA cuenta
+  // como coincidencia: prometerle a alguien que queda en su zona cuando la
+  // fuente dice dos ciudades distintas es inventar. Se puede recomendar igual
+  // por precio, con la advertencia encima (ver razonesDe en index.ts).
+  if (!zonaLead || proyecto.ubicacion_incierta) return false;
   return hayInterseccion(tokensDe(proyecto.ciudad), tokensDe(zonaLead));
 }
 
 /** ¿Nombra el BARRIO/SECTOR del proyecto? (señal más fina que la ciudad) */
 export function coincideBarrio(proyecto: FichaProyecto, zonaLead: string | undefined): boolean {
-  if (!zonaLead || !proyecto.zona) return false;
+  if (!zonaLead || !proyecto.zona || proyecto.ubicacion_incierta) return false;
   return hayInterseccion(tokensDe(proyecto.zona), tokensDe(zonaLead));
 }
 

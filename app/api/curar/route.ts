@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { curar } from "@/lib/curar";
+import { afiliadoEfectivo } from "@/lib/scoring";
 import { guardarConversacion, guardarLeadCurado } from "@/lib/leads-repo";
 import type { Lead, MensajeConversacion } from "@/lib/types";
 
@@ -59,6 +60,10 @@ export async function POST(request: Request) {
     puntaje: curado.score.puntaje,
     proyectos: curado.proyectos.length,
     explicacion: curado.explicacion,
+    // Lo usa el chat para ofrecerle afiliarse al que no lo es (spec 04 D3).
+    // Sale de la MISMA función que usa el motor: si cada lado lo dedujera por
+    // su cuenta, el chat podría invitar a afiliarse a alguien ya afiliado.
+    afiliado: afiliadoEfectivo(curado.lead),
     // Sobre este proyecto el chat ofrece las franjas de sala de ventas: es el
     // #1 del match, el que el ranking dejó arriba (criterio 4, ticket 005).
     ...(curado.proyectos[0]

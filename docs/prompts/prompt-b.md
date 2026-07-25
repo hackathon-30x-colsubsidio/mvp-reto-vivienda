@@ -41,7 +41,7 @@ FASE 1 — LIMPIEZA Y DATA SINTÉTICA (Python en scripts/, corre offline, arranc
    - Normalizar RANGO_EDAD y ETAPA (dos formatos para el mismo valor).
    - Códigos griegos: v1 trátalos como clusters anónimos (honesto y seguro); deja el mapeo
      inferido como mejora opcional documentada, no como hecho.
-   - Resolver la ubicación contradictoria de VIBO ONCE y KARAKALI entre las 2 hojas del
+   - ~~Resolver la ubicación contradictoria de VIBO ONCE y KARAKALI~~ — **hecho el 2026-07-25: los dos son de Bogotá** (Chapinero y Centro), resuelto con el brochure oficial, que trae la dirección. Era la contradicción entre las 2 hojas del
      xlsx de brochures (spec §6: catálogo = 18 proyectos, unión de ambas hojas).
 2. Generar los JSON de data/sintetica/ (estos SÍ se versionan):
    - identidades.json: base sintética de cédulas FICTICIAS con distribuciones derivadas de

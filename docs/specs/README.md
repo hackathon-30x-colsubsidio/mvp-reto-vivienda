@@ -61,7 +61,7 @@ python3 scripts/check_diagramas.py   # avisa si un diagrama se desincronizó
 
 ## Qué hacer después de la reunión
 
-1. Cada `[PROPUESTA]` que el equipo apruebe pasa a `[CERRADA — kickoff 2026-07-2X]`, con una línea de por qué.
+1. Cada `[PROPUESTA]` que el equipo apruebe pasa a `[CERRADA — <fuente y fecha>]`, con una línea de por qué. El kickoff formal nunca ocurrió: las decisiones se cerraron en el grilling del 2026-07-24 y en la sala del sábado 25 ([`plan-sabado-25.md`](../agents/plan-sabado-25.md)).
 2. La que se rechace se borra o se reescribe con lo que el equipo decidió; **no se deja ambigua**.
 3. Lo que cambie una decisión de arquitectura o de datos → ADR nuevo en [`docs/adr/`](../adr/).
 4. Lo que implique trabajo → ticket en [`docs/tasks/`](../tasks/README.md).

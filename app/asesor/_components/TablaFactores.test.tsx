@@ -138,3 +138,41 @@ describe("ticket 012 — tantos factores visibles como evaluó el motor", () => 
     expect(screen.getByText(/no tiene factores registrados/i)).toBeInTheDocument();
   });
 });
+
+describe("factores informativos — no cumplen ni dejan de cumplir", () => {
+  // La ficha pintaba "✓ Cumple" en verde al lado de "No afiliado a Colsubsidio",
+  // porque `cumple` estaba en `true` para significar "no bloquea". En pantalla
+  // eso se lee como una contradicción, justo en la vista que sostiene la
+  // restricción de cero caja negra.
+  const informativo: FactorScore = {
+    nombre: "afiliacion",
+    valor: "No afiliado (asumido: su cédula no está en la base y no se le preguntó)",
+    cumple: true,
+    informativo: true,
+    fuente: "supuesto",
+  };
+
+  it("se muestran como 'Informativo', no como 'Cumple'", () => {
+    render(<TablaFactores factores={[informativo]} />);
+    expect(screen.getByTestId("factor-cumple")).toHaveTextContent("Informativo");
+    expect(screen.getByTestId("factor-cumple")).not.toHaveTextContent("Cumple");
+  });
+
+  it("un supuesto NO se presenta como algo que la persona dijo", () => {
+    // Al lead nunca se le pregunta la afiliación (spec 02 D3 nodo 4): el motor
+    // la asume. Decir "Lo dijo en el chat" le atribuye algo que no dijo.
+    render(<TablaFactores factores={[informativo]} />);
+    expect(screen.getByTestId("factor-fuente")).toHaveTextContent("Lo asumió el motor");
+  });
+
+  it("los factores que SÍ evalúan conservan su cumple / no cumple", () => {
+    const evaluable: FactorScore = {
+      nombre: "cuota_ingreso_40",
+      valor: "Cuota estimada = 42.1% del ingreso. Tope legal: 40%",
+      cumple: false,
+      fuente: "conversacion",
+    };
+    render(<TablaFactores factores={[evaluable]} />);
+    expect(screen.getByTestId("factor-cumple")).toHaveTextContent("No cumple");
+  });
+});

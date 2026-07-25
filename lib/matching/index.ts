@@ -1,4 +1,5 @@
 import type { Lead } from "@/lib/types";
+import { precioMaximoDe } from "@/lib/scoring/capacidad";
 import { similitudCon } from "@/lib/scoring/similitud";
 import { coincideBarrio, coincideZona } from "./geografia";
 import type { EntradaMatch, FichaProyecto, ProyectoElegido } from "./tipos";
@@ -37,6 +38,26 @@ function cupoLibre(proyecto: FichaProyecto): number {
   return proyecto.cupo_no_afiliados.total - proyecto.cupo_no_afiliados.usado;
 }
 
+/**
+ * Cupo que de verdad queda, para ORDENAR. Nunca negativo.
+ *
+ * ⚠️ Esto arregla un sesgo que se comía la recomendación entera. En el catálogo
+ * real **los 18 proyectos tienen el cupo copado**, así que `cupoLibre` es
+ * negativo en todos y ordenar por "el que tenga más cupo libre" degeneraba en
+ * "el que se pasó por menos unidades" — que es solo otra forma de decir **el
+ * proyecto más pequeño**: ZARZAL (1 permitido, 2 vendidos → −1) le ganaba a
+ * LA MACARENA (37 permitidos, 82 vendidos → −45), aunque sea $77M más caro.
+ * Como el cupo se compara ANTES que la similitud/precio, el resto dejaba de
+ * contar y todo no afiliado terminaba viendo los mismos proyectos chicos.
+ *
+ * Con el tope en 0, todos los copados empatan y el desempate cae más abajo.
+ * El cupo sigue desempatando **mientras haya cupo de verdad**, que es lo que
+ * la regla 90/10 quiere decir.
+ */
+function cupoDisponible(proyecto: FichaProyecto): number {
+  return Math.max(0, cupoLibre(proyecto));
+}
+
 function tieneSubsidio(lead: Lead): boolean {
   return (
     (lead.respuestas.subsidios ?? []).length > 0 ||
@@ -48,15 +69,22 @@ function tieneSubsidio(lead: Lead): boolean {
  * Elige 2-3 proyectos del catálogo por reglas explícitas.
  *
  * FILTROS (descartan, en orden):
- * 1. Precio: fuera todo proyecto por encima del `precio_maximo` que calculó el
- *    motor con el tope del 40% (Decreto 583 de 2025). El matcher no recalcula
- *    la norma.
+ * 1. Precio: fuera todo proyecto por encima de su techo. El techo se calcula
+ *    POR PROYECTO, no con un número plano: una VIS permite financiar el 80%
+ *    en vez del 70% (Decreto 583 de 2025), así que a igual precio su cuota
+ *    mensual es más alta y el máximo que el lead aguanta es más bajo. Con un
+ *    solo número, una VIS cara se colaba con una cuota por encima del 40%.
+ *    `precio_maximo` (el que calculó el motor, no-VIS) sigue mandando como
+ *    techo del que llama; `techoDe` nunca lo supera, solo lo puede bajar.
  * 2. Zona: si el lead dijo dónde quiere vivir (o el enriquecimiento trajo su
  *    ciudad), solo se recomienda AHÍ — aunque quede un solo proyecto. El match
  *    es por tokens normalizados (lib/matching/geografia.ts): "Bogotá, por el
- *    norte" sí encuentra Bogotá. Murió el fallback que, si la zona no daba
- *    2+ candidatos, recomendaba de todo el catálogo en silencio: un bogotano
- *    recibía Girardot sin que nadie se lo dijera (corregido 2026-07-25).
+ *    norte" sí encuentra Bogotá. Un proyecto con `ubicacion_incierta` (la
+ *    fuente original se contradice) NUNCA cuenta como coincidencia — se puede
+ *    recomendar por precio, con la advertencia encima, nunca prometido por zona.
+ *    Murió el fallback que, si la zona no daba 2+ candidatos, recomendaba de
+ *    todo el catálogo en silencio: un bogotano recibía Girardot sin que nadie
+ *    se lo dijera (corregido 2026-07-25).
  *    · Si en su zona no hay NADA que le alcance, se devuelven hasta 2
  *      alternativas marcadas `fuera_de_zona: true` con la razón honesta —
  *      la decisión es del lead y del asesor, no del matcher.
@@ -64,10 +92,10 @@ function tieneSubsidio(lead: Lead): boolean {
  *
  * RANKING (ordena, nunca descarta): interés declarado primero; después
  * similitud con los compradores reales del proyecto (ticket 016) + bonos
- * visibles (VIS si declaró subsidio, barrio exacto); cupo libre para el no
- * afiliado; y el precio queda de ÚLTIMO desempate — antes era el criterio
- * dominante y todo el mundo recibía los 3 proyectos más baratos del catálogo,
- * ganara 3 o 15 millones.
+ * visibles (VIS si declaró subsidio, barrio exacto); cupo disponible para el
+ * no afiliado (nunca negativo — ver `cupoDisponible`); y el precio queda de
+ * ÚLTIMO desempate — antes era el criterio dominante y todo el mundo recibía
+ * los 3 proyectos más baratos del catálogo, ganara 3 o 15 millones.
  *
  * El cupo 90/10 NO descarta (spec 04 D3, 2026-07-24): se muestra con su
  * advertencia. En nutrición devuelve vacío: no se recomienda lo que el lead
@@ -87,8 +115,10 @@ export function matchear({
   const conSubsidio = tieneSubsidio(lead);
   const esInteres = (p: FichaProyecto) => p.nombre === lead.evento.proyecto_interes;
 
-  // FILTRO 1 — precio: el único descarte financiero.
-  const candidatos = catalogo.filter((p) => p.precio_desde <= precio_maximo);
+  // FILTRO 1 — precio: el único descarte financiero, techo por proyecto (VIS
+  // financia más, así que su techo es más bajo a igual precio).
+  const techoDe = (p: FichaProyecto) => Math.min(precio_maximo, precioMaximoDe(lead, p.vis));
+  const candidatos = catalogo.filter((p) => p.precio_desde <= techoDe(p));
 
   // FILTRO 2 — zona: si la conocemos, manda.
   const enZona = zona ? candidatos.filter((p) => coincideZona(p, zona)) : candidatos;
@@ -112,7 +142,9 @@ export function matchear({
       (a, b) =>
         Number(esInteres(b)) - Number(esInteres(a)) ||
         (puntosDe.get(b.proyecto_id) ?? 0) - (puntosDe.get(a.proyecto_id) ?? 0) ||
-        (noAfiliado ? cupoLibre(b) - cupoLibre(a) : 0) ||
+        // Solo desempata mientras quede cupo de verdad: si están todos copados
+        // (hoy, los 18), esto da 0 y manda el precio. Ver `cupoDisponible`.
+        (noAfiliado ? cupoDisponible(b) - cupoDisponible(a) : 0) ||
         a.precio_desde - b.precio_desde,
     )
     .slice(0, maximo)
@@ -122,7 +154,7 @@ export function matchear({
       razones: razonesDe(ficha, {
         lead,
         afiliado,
-        precio_maximo,
+        precio_maximo: techoDe(ficha),
         zona,
         noAfiliado,
         conSubsidio,
@@ -172,6 +204,14 @@ function razonesDe(
       coincideBarrio(proyecto, contexto.zona) && proyecto.zona
         ? `queda en ${proyecto.zona} (${proyecto.ciudad}), el sector que nombró`
         : `queda en ${proyecto.ciudad}, la zona que le interesa`,
+    );
+  }
+  if (proyecto.ubicacion_incierta) {
+    // Entra por precio, nunca por zona (ver coincideZona en geografia.ts), y
+    // el asesor tiene que saber por qué no se le promete una ciudad: la fuente
+    // original dice dos.
+    razones.push(
+      `⚠️ la ubicación de este proyecto no está confirmada — el insumo original lo reporta en dos ciudades distintas (${proyecto.ciudad}), así que hay que verificarla antes de ofrecérsela`,
     );
   }
 

@@ -1,7 +1,7 @@
 ---
 id: 012
 serves: "criterio de aceptación 2 — cero caja negra (tantos factores visibles como el motor evaluó)"
-status: doing
+status: done (2026-07-24 — `TablaFactores.test.tsx` compara los nombres del motor contra `ETIQUETA_FACTOR` y falla con instrucciones)
 ---
 
 # 012 — Test del criterio 2

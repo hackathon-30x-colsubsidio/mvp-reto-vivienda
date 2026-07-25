@@ -47,6 +47,12 @@ typography:
     fontSize: "20px"
     fontWeight: 700
     lineHeight: 1.2
+  headline-sm:
+    fontFamily: "Sora, system-ui, sans-serif"
+    fontSize: "24px"
+    fontWeight: 800
+    lineHeight: 1.1
+    letterSpacing: "-0.02em"
   title:
     fontFamily: "Sora, system-ui, sans-serif"
     fontSize: "16px"
@@ -239,6 +245,26 @@ Escala de espaciado de 4px (`4/8/12/16/20/24/32/40/48/64`) — la misma que Tail
 
 `shadow-xs` en tarjetas en reposo, `shadow-sm` en hover si la tarjeta es un destino clickeable, `shadow-md`/`lg` solo en elementos flotantes. Nunca sombras de color — nada de "glow" azul o amarillo. La profundidad se apoya además en tres capas tonales (`surface-page` → `surface-card` → `surface-sunken`) y en bordes de 1px.
 
+### Vidrio suave (adición del 2026-07-25)
+
+La consola del asesor lleva encima una capa de **vidrio**, pedida explícitamente para que el sistema se leyera menos rígido. **Es una desviación consciente del kit**, que dice *"blur no es un motivo de esta marca, se prioriza legibilidad sobre efecto"*. La desviación se acota así:
+
+- **El efecto se construye con capas, no con blur:** gradiente diagonal (`--vidrio`), un **filo claro en el borde superior** (`--filo`, va como `inset` box-shadow) y una sombra difusa y baja (`--sombra-vidrio`). Eso da la lectura de vidrio sin tocar el contraste del texto.
+- **`backdrop-filter` existe en un solo sitio: el cromo.** La clase `.vidrio-cromo` lo lleva y se usa en barras y cabeceras — sitios donde detrás no hay datos que leer. **Nunca detrás de una cifra, de una fila de factores ni de una tarjeta de métrica.**
+- **`.halo` es el fondo de página:** dos manchas radiales muy diluidas, azul y amarilla, fijas. Existen porque el vidrio necesita algo que refractar; sobre gris plano el efecto se ve solo gris. No se animan.
+
+**La Regla del Vidrio Sin Datos Detrás.** Si hay que leer un número a través de una superficie, esa superficie no lleva blur. El vidrio es para el mueble; los datos van sobre superficie sólida.
+
+## Densidad y scroll
+
+**La vista de Métricas cabe en una pantalla y no se desplaza.** El shell es de altura fija en escritorio (`h-screen` + `overflow-hidden`) y cada panel decide si se recorre por dentro. Un tablero que hay que scrollear deja de responder de un vistazo, que es justo lo que un tablero tiene que hacer.
+
+Eso **no** se logra escondiendo datos. Se logra partiendo las métricas en **cortes** —Resumen · Entrada diaria · Reparto— que se eligen con un selector, igual que el "diario / mensual" de una gráfica: son vistas del mismo dato, no secciones distintas. Cada corte llena el alto disponible; donde una lista es más larga que la pantalla, **se desplaza el panel, nunca la página**, y el conteo real siempre está a la vista.
+
+Referencia de diseño: **1440×900** (el caso de demo en vivo y de grabación); en 1920×1080 simplemente respira más.
+
+> La ficha del lead **sí** se desplaza, y es deliberado: sus factores no se recortan por razones visuales. Ahí manda "nada se oculta".
+
 ## Shapes
 
 `6px` en botones, entradas, badges y celdas. `10px` en tarjetas. `16px` en contenedores grandes. `999px` (píldora) en los sellos de estado y las burbujas del chat. Bordes de 1px `border-default`, nunca gruesos ni de color en reposo.
@@ -265,7 +291,12 @@ Píldora violeta con una tilde en mono. Marca los 57 leads sintéticos del table
 Superficie de tarjeta, borde de 1px, radio 6px, `10px 12px`. **Van sin `useState`:** viven dentro de un `<form method="get">` y su valor viaja por la querystring, para que la consola del asesor siga sin cargar JS de cliente.
 
 ### Navegación
-Barra lateral azul con el lockup blanco arriba. El ítem activo lleva `rgba(255,255,255,.14)` y un filo amarillo de 3px a la derecha. Solo lleva a rutas que existen: Bandeja y Tablero. El kit trae también *Proyectos* y *Citas* — no están, porque un ítem que no lleva a ningún lado en un demo que el jurado recorre solo es peor que no tenerlo.
+Barra lateral azul con el lockup blanco arriba y **dos entradas: Métricas y Leads**. Nombran el contenido, no el mueble — antes decían "Tablero" y "Bandeja", y el jurado recorre esto sin narración. El ítem activo se marca con `bg-white/18` y un filo interior claro arriba, no con un borde de color.
+
+Solo lleva a rutas que existen. El kit trae también *Proyectos* y *Citas* — no están, porque un ítem que no lleva a ningún lado en un demo autogestionado es peor que no tenerlo.
+
+### Selector de cortes
+Dentro de Métricas, un control segmentado elige el corte (Resumen · Entrada diaria · Reparto). Va por querystring y con enlaces reales, no con estado de cliente: cada corte es una URL que se puede dejar abierta o compartir, y la consola sigue sin cargar JS. El segmento activo se eleva sobre superficie sólida; los inactivos son solo texto.
 
 ### La lista de factores (componente firma)
 El corazón del "cero caja negra". Una entrada por factor evaluado, sin filtrar y sin cortar. Cada una trae el nombre, el chip de peso en mono, el valor medido en mono, si cumple, y de dónde salió el dato. El "cumple" es **texto** ("Cumple" / "No cumple") acompañado de un icono, nunca solo un color ni solo un icono: el color no puede ser el único portador del significado.
@@ -295,6 +326,7 @@ Puerto del kit `ui_kits/lead-chat/desktop.html` en [`app/chat.css`](app/chat.css
 - **Do** imprimir de dónde sale cada cifra del tablero, como texto y no como tooltip.
 - **Do** marcar los datos simulados o inferidos con `EtiquetaSimulado`.
 - **Do** dejar el escenario del lead con su propia densidad: más aire, más radio, campo azul a pantalla completa.
+- **Do** poner el scroll dentro del panel que lo necesita, no en la página, cuando la vista tiene que caber de un vistazo.
 
 ### Don't:
 - **Don't** usar amarillo como color de texto sobre fondo claro: `#ffd000` sobre blanco es 1,5:1.
@@ -305,3 +337,5 @@ Puerto del kit `ui_kits/lead-chat/desktop.html` en [`app/chat.css`](app/chat.css
 - **Don't** usar emoji ni iconografía unicode hecha a mano: los iconos son Lucide.
 - **Don't** ocultar, filtrar ni truncar factores de un lead por razones visuales.
 - **Don't** meter estado de cliente (`useState`) en la consola del asesor para cosas que un `<form method="get">` resuelve.
+- **Don't** poner `backdrop-filter` detrás de una cifra, un factor o una tarjeta de datos. El blur es solo para el cromo.
+- **Don't** hacer que la vista de Métricas scrollee. Si no cabe, es un corte nuevo en el selector, no una página más larga.

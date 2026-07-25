@@ -1,4 +1,4 @@
-import { Check, X } from "lucide-react";
+import { Check, Info, X } from "lucide-react";
 import type { FactorScore } from "@/lib/types";
 
 // =====================================================================
@@ -46,6 +46,9 @@ export const ETIQUETA_FUENTE: Record<FactorScore["fuente"], string> = {
   conversacion: "Lo dijo en el chat",
   catalogo: "Catálogo de proyectos",
   historico: "Histórico de compradores",
+  // No es un dato: es lo que el motor asumió a falta de uno. Se dice así para
+  // no atribuirle a la persona algo que nunca dijo.
+  supuesto: "Lo asumió el motor",
 };
 
 /**
@@ -108,19 +111,38 @@ export function TablaFactores({ factores }: { factores: FactorScore[] }) {
             {/* El "cumple" es TEXTO, no solo un color ni solo un icono:
                 el color nunca puede ser el único portador del
                 significado. El icono acompaña, no sustituye. */}
-            <span
-              data-testid="factor-cumple"
-              className={`inline-flex items-center gap-1 font-semibold ${
-                factor.cumple ? "text-estado-listo" : "text-rojo"
-              }`}
-            >
-              {factor.cumple ? (
-                <Check className="size-3.5" aria-hidden="true" strokeWidth={3} />
-              ) : (
-                <X className="size-3.5" aria-hidden="true" strokeWidth={3} />
-              )}
-              {factor.cumple ? "Cumple" : "No cumple"}
-            </span>
+            {/* Un factor INFORMATIVO no cumple ni deja de cumplir: informa.
+                La afiliación, el cupo 90/10 y la similitud llevaban un "✓
+                Cumple" verde porque `cumple` estaba en true para decir "no
+                bloquea" — y en pantalla eso se leía como una contradicción:
+                "✓ Cumple" al lado de "No afiliado a Colsubsidio". */}
+            {factor.informativo ? (
+              <span
+                data-testid="factor-cumple"
+                className="text-texto-tenue inline-flex items-center gap-1 font-semibold"
+              >
+                <Info className="size-3.5" aria-hidden="true" strokeWidth={3} />
+                Informativo
+              </span>
+            ) : (
+              <span
+                data-testid="factor-cumple"
+                className={`inline-flex items-center gap-1 font-semibold ${
+                  factor.cumple ? "text-estado-listo" : "text-rojo"
+                }`}
+              >
+                {factor.cumple ? (
+                  <Check
+                    className="size-3.5"
+                    aria-hidden="true"
+                    strokeWidth={3}
+                  />
+                ) : (
+                  <X className="size-3.5" aria-hidden="true" strokeWidth={3} />
+                )}
+                {factor.cumple ? "Cumple" : "No cumple"}
+              </span>
+            )}
             <span className="text-texto-tenue" aria-hidden="true">
               ·
             </span>

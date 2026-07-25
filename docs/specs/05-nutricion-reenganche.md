@@ -28,12 +28,15 @@ El motor solo tiene una regla que bloquea, así que hoy **la única razón posib
 
 | # | Razón | ¿Existe hoy? | Trigger propuesto |
 |---|---|---|---|
-| 1 | La cuota supera el 40% del ingreso | ✅ Sí | Condicional: sube el ingreso, aplica un subsidio, o un proyecto más barato |
+| 1 | La cuota supera el 40% del ingreso **de todo el catálogo** | ⚠️ Ver el aviso de abajo | Condicional: sube el ingreso, aplica un subsidio, o entra un proyecto más barato |
+| 1b | La cuota supera el 40% **del proyecto que miró**, aunque otros le quepan | 🔴 Hoy cae a nutrición, y no debería | Ninguno: no es un caso de nutrición, es un match mal hecho |
 | 2 | Califica pero **no hay cupo 90/10** en ningún proyecto | ❌ No, hoy sale "listo" con 0 proyectos | Condicional: se libera cupo, o se afilia |
 | 3 | No hay proyecto en su zona o rango | ❌ No | Condicional: entra un proyecto que le sirva |
 | 4 | **Abandonó en la autorización de datos** | ❌ No | Ninguno — sin autorización no se le puede escribir |
 | 5 | **Abandonó eligiendo proyecto** | ❌ No | Condicional, si alcanzó a autorizar |
 | 6 | Abandonó a mitad de la indagación | ❌ No | Condicional |
+
+> 🔴 **La razón 1 hay que leerla con cuidado desde el 2026-07-25** ([discusión de workflow](../agents/discusion-workflow-2026-07-25.md) §2.1). El gate se evalúa **contra un solo proyecto**, así que hoy la fila 1b existe de hecho: un lead con ingreso de $4.000.000 que eligió ARAUCARIA cae a `nutricion` con cero proyectos, cuando **13 de los 18 del catálogo le caben**. Eso no es nutrición, es un match mal hecho, y contamina la métrica "En nutrición, con trigger" del tablero. → [ticket 023](../tasks/023-puente-capacidad-antes-del-proyecto.md). Cuando cierre, nutrición vuelve a significar lo único que debería: **no le cabe nada de lo que vendemos**.
 
 Las razones 4 y 5 son [los dos puntos de fuga que el mentor mide](../reto/charla-mentor.md#puntos-de-fuga) y no logra explicar. **Si las registramos, le damos exactamente el dato que dijo no tener.**
 
@@ -44,7 +47,9 @@ Ojo con la 4: quien no autorizó **no entra a nutrición** en el sentido de reco
 - **Trigger temporal:** lleva fecha. Solo cuando la regla que falló es temporal y la fecha se **deriva** de un dato que el lead ya dio (ejemplo: le faltan N meses de afiliación → la fecha exacta se calcula).
 - **Trigger condicional:** no lleva fecha, lleva condición. Todo lo demás.
 
-Nunca se inventa una fecha para que se vea bonito. El personaje de nutrición del demo es, a propósito, el caso **con** fecha.
+Nunca se inventa una fecha para que se vea bonito.
+
+> ⚠️ **Corregido el 2026-07-25.** Esta sección decía *"el personaje de nutrición del demo es, a propósito, el caso con fecha"*. **No lo es:** Yuliana falla por cuota > 40%, que es una regla **condicional**, y `triggerDelGate()` le produce un trigger sin fecha (con el monto exacto que lo destraba: *"le faltan $110.286"*). **Hoy ninguna regla fallida del demo es temporal, así que la rama con fecha no tiene qué mostrar** — está dicho también en la lista de "lo que NO se va a hacer" de [`plan-sabado-25.md`](../agents/plan-sabado-25.md).
 
 ### D3 · Qué se le dice al lead · [PROPUESTA]
 
@@ -170,7 +175,7 @@ stateDiagram-v2
 1. **¿Registramos las fugas como razones de nutrición?** (D1) Son las dos que el mentor mide y no explica. Ojo con la distinción legal de la razón 4.
 2. **¿El no afiliado sin cupo cae en nutrición o se queda en "listo con 0 proyectos"?** Hoy es lo segundo y es raro: sale "listo" y no tiene nada que ofrecerle. ¿Está bien así, o merece su propia razón?
 3. **¿Qué le decimos al lead exactamente?** (D3) Alguien tiene que escribir esas 3 o 4 frases, y son las que deciden si el reto se ve social o se ve como un rechazo con buenos modales.
-4. **¿Quién arregla el `?lead_id=`?** (D4) Sin eso, el criterio de aceptación 3 no se puede demostrar en el video.
+4. ~~**¿Quién arregla el `?lead_id=`?**~~ (D4) **Cerrado el 2026-07-24:** [`app/page.tsx`](../../app/page.tsx) lee `?lead_id=&reenganche=1`, trae el lead y retoma la conversación nombrando la razón original, sin repedir el consentimiento. El criterio 3 tiene test encima ([`ChatWhatsApp.test.tsx`](../../components/chat/ChatWhatsApp.test.tsx)).
 5. **¿Botón o job?** (D6) Confirmar que el botón basta para el demo.
 6. **¿Cuánto dura un lead en nutrición?** Nadie definió si expira. Para el MVP probablemente no importa; para el pitch de implementabilidad puede que sí.
 7. **Vacío del canon:** si el trigger se dispara y el lead **no responde**, ¿qué? Hoy no hay reintento ni límite.

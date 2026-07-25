@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Lead, Score } from "@/lib/types";
 import { matchear } from "./index";
-import { catalogo } from "./fixtures";
+import { catalogo as controlado } from "./fixtures";
+import { catalogo } from "./catalogo";
 
 // Un caso por forma de lead + el que llega sin nada. Lo que se prueba son las
 // invariantes del criterio de aceptación 4: que el lead listo reciba 2-3
@@ -68,7 +69,7 @@ describe("afiliado que pasa el corte", () => {
   const elegidos = matchear({
     lead: leadDe({ proyecto_interes: "Torres de Bellavista", ciudad: "Bogotá", afiliado: true }),
     score: scoreDe("listo"),
-    catalogo,
+    catalogo: controlado,
     precio_maximo: PRECIO_MAXIMO.holgado,
   });
 
@@ -105,7 +106,7 @@ describe("no afiliado que pasa el corte", () => {
   const elegidos = matchear({
     lead,
     score: scoreDe("listo_restriccion_cupo"),
-    catalogo,
+    catalogo: controlado,
     precio_maximo: PRECIO_MAXIMO.ajustado,
   });
 
@@ -130,7 +131,7 @@ describe("no afiliado que pasa el corte", () => {
       lead,
       score: scoreDe("listo_restriccion_cupo"),
       // Solo queda en pie la trampa: el más barato del catálogo, con el cupo copado.
-      catalogo: catalogo.filter((p) => p.nombre === "Ciudadela del Este"),
+      catalogo: controlado.filter((p) => p.nombre === "Ciudadela del Este"),
       precio_maximo: PRECIO_MAXIMO.ajustado,
     });
 
@@ -146,12 +147,128 @@ describe("no afiliado que pasa el corte", () => {
   });
 });
 
+describe("cuando TODOS los proyectos tienen el cupo copado (el catálogo real de hoy)", () => {
+  // Regresión de un sesgo que se comía la recomendación entera: con el cupo
+  // agotado en los 18 proyectos, `total - usado` es negativo en todos, y ordenar
+  // por "más cupo libre" pasaba a significar "el proyecto más pequeño" — un
+  // proyecto con 1 cupo y 2 vendidos (−1) le ganaba a uno con 37 y 82 (−45)
+  // aunque fuera mucho más caro. Como el cupo se compara antes que el precio, el
+  // precio dejaba de contar y TODO no afiliado veía los mismos 3 proyectos.
+  const copado = controlado.map((p) => ({
+    ...p,
+    cupo_no_afiliados: {
+      total: p.precio_desde > 200_000_000 ? 1 : 40,
+      // El caro se pasó por poco; el barato se pasó por mucho. Con el sesgo
+      // viejo, el caro ganaba.
+      usado: p.precio_desde > 200_000_000 ? 2 : 90,
+    },
+  }));
+
+  const elegidos = matchear({
+    lead: leadDe({ afiliado: false }),
+    score: scoreDe("listo_restriccion_cupo"),
+    catalogo: copado,
+    precio_maximo: PRECIO_MAXIMO.holgado,
+  });
+
+  it("manda el precio, no cuál se pasó del cupo por menos unidades", () => {
+    const precios = elegidos.map((e) => e.ficha.precio_desde);
+    expect(precios).toEqual([...precios].sort((a, b) => a - b));
+    expect(elegidos[0].ficha.precio_desde).toBeLessThanOrEqual(200_000_000);
+  });
+
+  it("y aun así a cada uno se le dice que el cupo está copado", () => {
+    for (const { razones } of elegidos) {
+      expect(razones.some((r) => /copado/.test(r))).toBe(true);
+    }
+  });
+});
+
+describe("la zona que el lead ESCRIBE, no la que encaja exacta", () => {
+  // La pregunta del chat es "¿dónde te imaginas viviendo?" con texto libre y el
+  // placeholder dice "Ej: Bogotá, por el norte". Con igualdad exacta, esa
+  // respuesta no coincidía con la ciudad "Bogotá" y el lead perdía el filtro de
+  // zona sin que nada fallara.
+  function zonasDe(zona: string) {
+    const lead = leadDe({ afiliado: true });
+    lead.respuestas.zona_interes = zona;
+    return matchear({
+      lead,
+      score: scoreDe("listo"),
+      catalogo,
+      precio_maximo: PRECIO_MAXIMO.holgado,
+    }).map((e) => e.ficha.ciudad);
+  }
+
+  it.each([
+    ["Bogotá", "la ciudad pelada"],
+    ["bogota", "sin tilde y en minúsculas"],
+    ["Bogotá, por el norte", "como lo escribe una persona"],
+    ["quiero algo en Bogotá", "en una frase"],
+  ])("'%s' (%s) recomienda en Bogotá", (zona) => {
+    expect(zonasDe(zona).every((ciudad) => ciudad === "Bogotá")).toBe(true);
+  });
+
+  it("una respuesta demasiado corta no matchea todo el catálogo", () => {
+    const ciudades = new Set(zonasDe("a"));
+    expect(ciudades.size).toBeGreaterThan(0);
+    // Si "a" contara como zona, coincidiría con cualquier ciudad y la traza
+    // diría "queda en la zona que le interesa" a todo el mundo.
+    const lead = leadDe({ afiliado: true });
+    lead.respuestas.zona_interes = "a";
+    const elegidos = matchear({
+      lead,
+      score: scoreDe("listo"),
+      catalogo,
+      precio_maximo: PRECIO_MAXIMO.holgado,
+    });
+    for (const { razones } of elegidos) {
+      expect(razones.some((r) => r.includes("la zona que le interesa"))).toBe(false);
+    }
+  });
+
+  it("un proyecto con la ubicación sin confirmar NUNCA cuenta como zona", () => {
+    // El catálogo de HOY ya no tiene ninguno: la ambigüedad de VIBO ONCE y
+    // KARAKALI la resolvió el brochure oficial (los dos son de Bogotá). El
+    // proyecto dudoso se construye acá a propósito — la regla tiene que seguir
+    // en pie para el próximo dato que llegue contradictorio, y un test que
+    // dependa de que el catálogo traiga uno se muere con el dato.
+    const dudoso = {
+      ...catalogo[0],
+      proyecto_id: "dudoso",
+      nombre: "PROYECTO SIN UBICACIÓN CONFIRMADA",
+      ciudad: "Ricaurte o Bogotá (contradictorio entre fuentes)",
+      // Barato a propósito: lo que se prueba es la zona, y desde que el techo se
+      // calcula por proyecto contra la capacidad real del lead, un proyecto caro
+      // se cae por precio antes de llegar a la regla que interesa.
+      precio_desde: 100_000_000,
+      ubicacion_incierta: true,
+    };
+
+    const lead = leadDe({ afiliado: true });
+    lead.respuestas.zona_interes = "Ricaurte";
+    const elegidos = matchear({
+      lead,
+      score: scoreDe("listo"),
+      catalogo: [dudoso],
+      // Que quepa por precio: lo que se prueba es la zona, no el filtro.
+      precio_maximo: dudoso.precio_desde,
+    });
+
+    const razones = elegidos[0].razones;
+    expect(razones.some((r) => r.includes("la zona que le interesa"))).toBe(false);
+    expect(razones.some((r) => /ubicación de este proyecto no está confirmada/.test(r))).toBe(
+      true,
+    );
+  });
+});
+
 describe("lead en nutrición", () => {
   it("no recibe ningún proyecto: no se recomienda lo que no puede pagar", () => {
     const elegidos = matchear({
       lead: leadDe({ ciudad: "Bogotá" }),
       score: scoreDe("nutricion"),
-      catalogo,
+      catalogo: controlado,
       precio_maximo: PRECIO_MAXIMO.insuficiente,
     });
     expect(elegidos).toEqual([]);
@@ -164,7 +281,7 @@ describe("lead que llega sin nada (el 'soy yo' sin match de enriquecimiento)", (
   const elegidos = matchear({
     lead: leadDe({}),
     score: scoreDe("listo"),
-    catalogo,
+    catalogo: controlado,
     precio_maximo: PRECIO_MAXIMO.holgado,
   });
 
@@ -181,26 +298,17 @@ describe("lead que llega sin nada (el 'soy yo' sin match de enriquecimiento)", (
   });
 });
 
-describe("zona estricta (2026-07-25): la zona SIEMPRE manda", () => {
-  it("'Bogotá, por el norte' escrito a mano sí encuentra Bogotá", () => {
-    const lead = leadDe({});
-    lead.respuestas.zona_interes = "Bogotá, por el norte";
-    const elegidos = matchear({
-      lead,
-      score: scoreDe("listo"),
-      catalogo,
-      precio_maximo: PRECIO_MAXIMO.holgado,
-    });
-    expect(elegidos.length).toBeGreaterThan(0);
-    expect(elegidos.every((e) => e.ficha.ciudad === "Bogotá")).toBe(true);
-    expect(elegidos.every((e) => e.fuera_de_zona !== true)).toBe(true);
-  });
-
+// Estas dos describes usan `controlado` (lib/matching/fixtures.ts), el mismo
+// catálogo chico y determinista que el resto del archivo — no el `catalogo`
+// real importado arriba, que ya tiene su propia suite de zona fuzzy más abajo
+// ("la zona que el lead ESCRIBE") y su propia regresión de cupo copado
+// ("cuando TODOS los proyectos tienen el cupo copado").
+describe("zona estricta (2026-07-25): nunca cae al catálogo completo en silencio", () => {
   it("un bogotano nunca recibe Medellín sin marca, aunque le alcance", () => {
     const elegidos = matchear({
       lead: leadDe({ ciudad: "Bogotá" }),
       score: scoreDe("listo"),
-      catalogo,
+      catalogo: controlado,
       precio_maximo: PRECIO_MAXIMO.holgado,
     });
     expect(elegidos.every((e) => e.ficha.ciudad === "Bogotá")).toBe(true);
@@ -212,7 +320,7 @@ describe("zona estricta (2026-07-25): la zona SIEMPRE manda", () => {
     const elegidos = matchear({
       lead: leadDe({ ciudad: "Medellín" }),
       score: scoreDe("listo"),
-      catalogo,
+      catalogo: controlado,
       precio_maximo: 160_000_000,
     });
     expect(nombres(elegidos)).toEqual(["Ciudadela del Este"]);
@@ -225,7 +333,7 @@ describe("zona estricta (2026-07-25): la zona SIEMPRE manda", () => {
     const elegidos = matchear({
       lead,
       score: scoreDe("listo"),
-      catalogo,
+      catalogo: controlado,
       precio_maximo: PRECIO_MAXIMO.holgado,
     });
     expect(elegidos.length).toBeGreaterThan(0);
@@ -239,26 +347,29 @@ describe("zona estricta (2026-07-25): la zona SIEMPRE manda", () => {
 });
 
 describe("ranking multi-factor: adiós al 'siempre los 3 más baratos'", () => {
-  // Contra el catálogo REAL: dos bogotanos con ingresos distintos tienen que
-  // recibir recomendaciones distintas. Antes ambos recibían los más baratos.
-  it("dos leads con ingresos distintos reciben proyectos distintos", async () => {
-    const { catalogo: catalogoReal } = await import("./catalogo");
-
+  // Contra el catálogo REAL (`catalogo`, importado arriba de "./catalogo"):
+  // dos bogotanos con ingresos distintos tienen que recibir recomendaciones
+  // distintas. Antes ambos recibían los más baratos.
+  it("dos leads con ingresos distintos reciben proyectos distintos", () => {
+    // Con la cuota real (anualidad, no el 0,6% plano), $2,5M ya no le alcanza
+    // ni al proyecto VIS más barato del catálogo (La Macarena, $149,7M): el
+    // techo mínimo para financiar eso ronda los $3,36M. $4M es el mismo piso
+    // que ya calibró el equipo para Carlos (fixtures/leads.ts).
     const modesto = leadDe({ ciudad: "Bogotá", afiliado: true });
-    modesto.respuestas.ingreso_hogar_mensual = 2_500_000;
+    modesto.respuestas.ingreso_hogar_mensual = 4_000_000;
     const holgado = leadDe({ ciudad: "Bogotá", afiliado: true });
-    holgado.respuestas.ingreso_hogar_mensual = 8_000_000;
+    holgado.respuestas.ingreso_hogar_mensual = 12_000_000;
 
     const deModesto = nombres(
-      matchear({ lead: modesto, score: scoreDe("listo"), catalogo: catalogoReal, precio_maximo: 190_000_000 }),
+      matchear({ lead: modesto, score: scoreDe("listo"), catalogo, precio_maximo: 500_000_000 }),
     );
     const deHolgado = nombres(
-      matchear({ lead: holgado, score: scoreDe("listo"), catalogo: catalogoReal, precio_maximo: 500_000_000 }),
+      matchear({ lead: holgado, score: scoreDe("listo"), catalogo, precio_maximo: 500_000_000 }),
     );
 
-    expect(deModesto).not.toEqual(deHolgado);
     expect(deModesto.length).toBeGreaterThan(0);
     expect(deHolgado.length).toBeGreaterThan(0);
+    expect(deModesto).not.toEqual(deHolgado);
   });
 
   it("con subsidio declarado, la razón del proyecto VIS lo nombra", () => {
@@ -267,7 +378,7 @@ describe("ranking multi-factor: adiós al 'siempre los 3 más baratos'", () => {
     const elegidos = matchear({
       lead,
       score: scoreDe("listo"),
-      catalogo,
+      catalogo: controlado,
       precio_maximo: PRECIO_MAXIMO.holgado,
     });
     const vis = elegidos.find((e) => e.ficha.vis);

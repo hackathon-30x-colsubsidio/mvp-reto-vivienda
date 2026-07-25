@@ -13,14 +13,36 @@ export const CONFIG_SCORING = {
   TOPE_CUOTA_SOBRE_INGRESO: 0.4,
 
   /**
-   * % del precio del proyecto que se estima como primera cuota mensual
-   * equivalente, para poder comparar contra el ingreso mensual declarado.
-   * PROPUESTO: aproxima una cuota de crédito hipotecario a 20 años sobre el
-   * 70% del valor de la vivienda (30% cuota inicial + subsidio ya restado
-   * en otro paso). Ratificar con un asesor financiero en el kickoff — hoy
-   * es una heurística razonable, no una fórmula bancaria certificada.
+   * Los parámetros del crédito con los que se estima la primera cuota.
+   *
+   * ⚠️ REEMPLAZARON AL 0,6% PLANO (2026-07-25). Aquel decía aproximar "una
+   * cuota a 20 años sobre el 70% del valor" y **no daba**: con la fórmula de
+   * anualidad, el 0,6% equivale a una tasa del **8,66% E.A.**, que no existe
+   * hoy en el mercado. Subestimaba la cuota entre 25% y 45%, así que el motor
+   * aprobaba a gente que el banco iba a rechazar — el error más caro posible
+   * para un producto cuya promesa es "capacidad validada".
+   *
+   * Cada número aquí tiene fuente (ver `docs/credito-y-subsidios.md`):
    */
-  PORCENTAJE_PRIMERA_CUOTA_ESTIMADA: 0.006,
+  CREDITO: {
+    /**
+     * Tasa efectiva anual. 13% es el promedio del mercado colombiano en 2026
+     * (la ponderada de no VIS que reporta la Superfinanciera es 15,18%, y el
+     * rango del mercado va de 10,93% a 17,75%). Se toma el promedio, no el
+     * extremo bajo: estimar por debajo es lo que rompió el modelo anterior.
+     */
+    TASA_EA: 0.13,
+    /** El plazo estándar de un crédito hipotecario de vivienda. */
+    PLAZO_ANIOS: 20,
+    /**
+     * Cuánto del valor de la vivienda se puede financiar. Lo fija el mismo
+     * Decreto 583 de 2025 que pone el tope del 40%, así que no es supuesto
+     * nuestro: 70% en general, 80% en VIS. Ojo con la consecuencia — la VIS
+     * permite financiar MÁS, así que su cuota mensual es más alta a igual precio.
+     */
+    LTV_NO_VIS: 0.7,
+    LTV_VIS: 0.8,
+  },
 
   /**
    * Umbral de "similitud alta" con compradores reales del mismo proyecto,
@@ -58,10 +80,19 @@ export const CONFIG_SCORING = {
 
   /**
    * Normalización de la holgura de capacidad: la cuota/ingreso va de 0 puntos
-   * en el tope legal (40%) a 1 punto en RATIO_HOLGURA_PLENA (20%) o menos.
-   * Lineal entre ambos. Aísla "apenas pasa" de "pasa con mucho margen".
+   * en el tope legal (40%) a 1 punto en RATIO_HOLGURA_PLENA o menos. Lineal
+   * entre ambos. Aísla "apenas pasa" de "pasa con mucho margen".
+   *
+   * **30% no es un número escogido a dedo: era el tope legal ANTERIOR.** El
+   * Decreto 145 de 2000 lo fijaba ahí y el Decreto 583 de 2025 lo subió al 40%.
+   * Así que "holgura plena" significa algo defendible ante un jurado: *la cuota
+   * le cabría incluso bajo la norma más estricta que regía hasta el año pasado*.
+   *
+   * (Estuvo en 20% hasta el 2026-07-25, cuando se corrigió la estimación de la
+   * cuota. Con la cuota real, exigir la mitad del tope legal para "holgura
+   * plena" comprimía todos los puntajes hacia abajo.)
    */
-  RATIO_HOLGURA_PLENA: 0.2,
+  RATIO_HOLGURA_PLENA: 0.3,
 
   /**
    * Normalización de la situación crediticia autorreportada → señal 0–1.

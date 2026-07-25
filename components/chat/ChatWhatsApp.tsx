@@ -12,6 +12,7 @@ import {
   NOMBRE_AGENTE,
   completarIngreso,
   construirPreguntas,
+  mensajeAfiliacion,
   mensajeAutorizacion,
   mensajeCierre,
   mensajeConsentimiento,
@@ -26,6 +27,7 @@ import {
   type Respuesta,
 } from "@/lib/conversacion/preguntas";
 import { fechaLarga } from "@/lib/formato";
+import { useDictado } from "./useDictado";
 import { MensajeBurbuja, type Mensaje } from "./MensajeBurbuja";
 import { SelloPerfil } from "./SelloPerfil";
 import { BotonTema } from "@/components/ui/BotonTema";
@@ -121,6 +123,8 @@ export function ChatWhatsApp({
   const [resultado, setResultado] = useState<ResultadoCurado | null>(null);
   /** Las 3 franjas de sala de ventas que se le ofrecen al lead listo (ticket 005). */
   const [franjas, setFranjas] = useState<Franja[]>([]);
+  /** Contestar hablando: el dictado solo escribe en el campo de texto. */
+  const dictado = useDictado({ onTexto: setTextoInput });
   const finRef = useRef<HTMLDivElement>(null);
   const iniciado = useRef(false);
   const historialRef = useRef<{ role: "user" | "assistant"; content: string }[]>(
@@ -338,7 +342,14 @@ export function ChatWhatsApp({
     };
     setRespuestas(nuevasRespuestas);
 
-    if (respuesta.acuse) await agregarBotInstantaneo(respuesta.acuse);
+    // Casi todos los acuses son instantáneos a propósito: humanizan sin costar
+    // latencia. Los marcados `pulir` (hoy, la zona) pasan por el LLM porque la
+    // respuesta es impredecible y un acuse de plantilla se nota de lejos —
+    // `agregarBot` trae su propio blindaje de 3s y cae a este mismo texto.
+    if (respuesta.acuse) {
+      if (respuesta.pulir) await agregarBot(respuesta.acuse);
+      else await agregarBotInstantaneo(respuesta.acuse);
+    }
 
     const siguienteIndice = indicePaso + 1;
     if (siguienteIndice < pasos.length) {
@@ -388,11 +399,26 @@ export function ChatWhatsApp({
     // proyectos. Sin esto la conversación terminaba en "te escribe un asesor",
     // que es justo el silencio que el reto quiere quitar.
     if (veredicto.proyecto_cita) {
-      await ofrecerFranjas(veredicto.proyecto_cita);
+      await ofrecerFranjas(veredicto);
       return;
     }
 
+    await invitarAfiliacion(veredicto);
     setFase("terminado");
+  }
+
+  /**
+   * Al que NO es afiliado se le ofrece afiliarse, que hoy es la salida más útil
+   * que tiene (spec 04 D3, propuesta que quedó abierta hasta el 2026-07-25).
+   *
+   * Va de ÚLTIMO a propósito: primero se le resuelve lo que vino a buscar
+   * —sus proyectos, su cita, o la razón honesta de por qué todavía no— y solo
+   * después se le abre la puerta. Al revés se leería como que le estamos
+   * vendiendo la afiliación en vez de ayudarle.
+   */
+  async function invitarAfiliacion(veredicto: ResultadoCurado) {
+    if (veredicto.afiliado !== false) return;
+    await agregarBotInstantaneo(mensajeAfiliacion(), 700);
   }
 
   /**
@@ -403,7 +429,8 @@ export function ChatWhatsApp({
    * asesor puede cambiarlo en la llamada. Los otros proyectos igual le llegan al
    * asesor en la ficha.
    */
-  async function ofrecerFranjas(proyecto: { proyecto_id: string; nombre: string }) {
+  async function ofrecerFranjas(veredicto: ResultadoCurado) {
+    const proyecto = veredicto.proyecto_cita!;
     try {
       const resp = await fetch(
         `/api/citas?proyecto_id=${encodeURIComponent(proyecto.proyecto_id)}&limite=3`,
@@ -424,6 +451,7 @@ export function ChatWhatsApp({
         "Los horarios de la sala de ventas no me cargaron en este momento 😕 No se pierde nada: un asesor te escribe para cuadrar la visita, y ya tiene todo lo que me contaste.",
         500,
       );
+      await invitarAfiliacion(veredicto);
       setFase("terminado");
     }
   }
@@ -450,11 +478,13 @@ export function ChatWhatsApp({
         `¡Listo! 🎉 Te espero el ${cuando} en ${franja.sala_ventas}. Le paso tu cita y tu historia completa al asesor, así que llegas y no tienes que explicar nada otra vez.`,
         600,
       );
+      if (resultado) await invitarAfiliacion(resultado);
     } catch {
       await agregarBotInstantaneo(
         `Anoté que quieres ir el ${cuando}, pero no pude confirmar la cita en el sistema. Un asesor te la confirma — no la pierdes.`,
         500,
       );
+      if (resultado) await invitarAfiliacion(resultado);
     }
   }
 
@@ -637,9 +667,61 @@ export function ChatWhatsApp({
                     <input
                       value={textoInput}
                       onChange={(e) => setTextoInput(e.target.value)}
-                      placeholder={pasoActual.placeholder}
+                      placeholder={
+                        dictado.estado === "escuchando"
+                          ? "Te escucho…"
+                          : pasoActual.placeholder
+                      }
                       aria-label="Tu respuesta"
                     />
+
+                    {/* Contestar hablando. El mentor lo pidió ("unas personas
+                        prefieren escribir y otras mandar notas de voz") y es
+                        inclusión real: se puede responder desde una obra o
+                        manejando. Solo LLENA este campo — la persona alcanza a
+                        leer y corregir antes de enviar, y el texto entra por el
+                        mismo camino que si lo hubiera escrito. Si el navegador
+                        no soporta la API, este botón no existe. */}
+                    {dictado.estado !== "no-soportado" && (
+                      <button
+                        type="button"
+                        className={`mic${dictado.estado === "escuchando" ? " mic--vivo" : ""}`}
+                        onClick={() =>
+                          dictado.estado === "escuchando"
+                            ? dictado.detener()
+                            : dictado.arrancar(textoInput)
+                        }
+                        disabled={escribiendo || dictado.estado === "sin-permiso"}
+                        aria-pressed={dictado.estado === "escuchando"}
+                        aria-label={
+                          dictado.estado === "escuchando"
+                            ? "Dejar de dictar"
+                            : "Contestar hablando"
+                        }
+                        title={
+                          dictado.estado === "sin-permiso"
+                            ? "Sin permiso del micrófono — puedes contestar escribiendo"
+                            : "Contestar hablando"
+                        }
+                      >
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                          <line x1="12" y1="19" x2="12" y2="22" />
+                        </svg>
+                      </button>
+                    )}
+
                     <button
                       type="submit"
                       className="send"

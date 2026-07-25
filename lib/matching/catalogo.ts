@@ -25,6 +25,7 @@ interface ProyectoCrudo {
   cupo_no_afiliados: { usado: number; total: number };
   brochure: string | null;
   recorrido_360: string | null;
+  ubicacion_incierta?: boolean;
 }
 
 export const catalogo: FichaProyecto[] = (crudo as ProyectoCrudo[]).map((p) => ({
@@ -37,4 +38,9 @@ export const catalogo: FichaProyecto[] = (crudo as ProyectoCrudo[]).map((p) => (
   cupo_no_afiliados: p.cupo_no_afiliados,
   brochure: p.brochure ?? undefined,
   recorrido_360: p.recorrido_360 ?? undefined,
+  // Marca de "la fuente se contradice sobre dónde queda". Hoy no la trae
+  // ninguno —VIBO ONCE y KARAKALI se resolvieron con el brochure oficial, los
+  // dos son de Bogotá— pero el matcher la sigue leyendo para no prometerle al
+  // lead una ciudad sin confirmar el día que vuelva a aparecer una.
+  ...(p.ubicacion_incierta ? { ubicacion_incierta: true } : {}),
 }));

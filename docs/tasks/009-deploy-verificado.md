@@ -12,7 +12,7 @@ status: todo
 Que lo entregable sea el link, y que el link funcione con las llaves puestas en Vercel.
 
 ## Alcance
-- Dentro: repo conectado a Vercel con auto-deploy de `main`; `ANTHROPIC_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL` y `SUPABASE_KEY` cargadas **en Vercel** (no sólo en `.env` local).
+- Dentro: repo conectado a Vercel con auto-deploy de `main`; las credenciales de Gemini/Vertex (`GOOGLE_CLOUD_PROJECT` + `GOOGLE_APPLICATION_CREDENTIALS_JSON`, o `GEMINI_API_KEY`), `NEXT_PUBLIC_SUPABASE_URL` y `SUPABASE_KEY` cargadas **en Vercel** (no sólo en `.env` local).
 - Dentro: checklist de cierre de día — abrir la URL pública y recorrer lo que haya construido hasta ahí.
 - Fuera: dominio propio, analytics, preview environments por rama.
 

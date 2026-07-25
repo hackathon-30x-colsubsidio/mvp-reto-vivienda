@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PerfilConocido } from "@/lib/types";
 import {
   construirPreguntas,
+  mensajeAfiliacion,
   mensajeYaSabemos,
   parsearIngresoMensual,
   type PasoPregunta,
@@ -31,8 +32,8 @@ describe("parsearIngresoMensual", () => {
     ["2 millones y medio", 2_500_000],
     ["4.5 millones", 4_500_000],
     ["entre 2 y 3 millones", 2_500_000],
-    ["3 salarios mínimos", 3 * 1_423_500],
-    ["3-5 SMMLV", 4 * 1_423_500],
+    ["3 salarios mínimos", 3 * 1_750_905],
+    ["3-5 SMMLV", 4 * 1_750_905],
     ["800 mil", 800_000],
     ["gano 3", 3_000_000], // forma corta de "3 millones" al preguntar cuánto entra al mes
   ])("entiende %s", (texto, esperado) => {
@@ -148,5 +149,68 @@ describe("interpretación del texto libre", () => {
     expect(subsidios.interpretarTexto("no sé si aplico").patch.subsidios).toEqual([
       "Por confirmar",
     ]);
+  });
+});
+
+describe("la zona: el agente contesta lo que la persona dijo", () => {
+  // El acuse era uno fijo —"esa zona la tengo bien mapeada"— y quedaba absurdo
+  // cuando nadie había nombrado una zona: a "espero que tenga excelentes zonas
+  // comunes" le contestaba que la tenía bien mapeada. Además guardaba la frase
+  // entera en `zona_interes`, y el matcher filtra por eso.
+  const zona = () => paso(SIN_DATOS, "zona_interes");
+
+  it("si nombra una ciudad del catálogo, la guarda LIMPIA y dice cuántos proyectos hay", () => {
+    const r = zona().interpretarTexto("Bogotá, por el norte");
+    // Lo que se guarda es la ciudad, no la frase: es lo que el matcher entiende.
+    expect(r.patch.zona_interes).toBe("Bogotá");
+    expect(r.acuse).toMatch(/Bogotá/);
+    expect(r.acuse).toMatch(/\d+ proyectos/);
+  });
+
+  it("reconoce la ciudad sin tildes y en minúsculas", () => {
+    expect(zona().interpretarTexto("me gustaria en chia").patch.zona_interes).toBe("Chía");
+  });
+
+  it("si pide una ciudad donde NO hay proyectos, lo dice de frente", () => {
+    const r = zona().interpretarTexto("quiero algo en Medellín");
+    expect(r.acuse).toMatch(/no tenemos proyectos/i);
+    // Y no la deja en el aire: le dice dónde sí hay.
+    expect(r.acuse).toMatch(/Bogotá/);
+  });
+
+  it("si describe un deseo en vez de un lugar, acusa el deseo y no finge una zona", () => {
+    const r = zona().interpretarTexto("espero que tenga excelentes zonas comunes");
+    expect(r.acuse).not.toMatch(/bien mapeada/i);
+    expect(r.acuse).toMatch(/no me diste una ciudad/i);
+    // El texto crudo sí se conserva: al asesor le sirve saber qué le importa.
+    expect(r.patch.zona_interes).toBe("espero que tenga excelentes zonas comunes");
+  });
+
+  it("el acuse de la zona se pule con el LLM; los demás no", () => {
+    // Es la respuesta más impredecible del set, así que ahí sí vale la latencia.
+    expect(zona().interpretarTexto("Bogotá").pulir).toBe(true);
+    expect(paso(SIN_DATOS, "situacion_crediticia").interpretarTexto("al día").pulir).toBeUndefined();
+  });
+});
+
+describe("la invitación a afiliarse habla de beneficio, no de reglas internas", () => {
+  // La primera versión explicaba el cupo del 10% de la regla 90/10. Es cierto y
+  // le importa al negocio, pero no a quien está buscando casa: el 90/10 es
+  // vocabulario interno. Al lead se le dice qué gana, no cómo funciona nuestro
+  // inventario — esa explicación vive en la ficha del asesor.
+  const mensaje = mensajeAfiliacion();
+
+  it("no menciona el cupo ni la regla 90/10", () => {
+    expect(mensaje).not.toMatch(/90\/10|10\s?%|cupo|fila/i);
+  });
+
+  it("dice lo único que le importa: los subsidios de la caja", () => {
+    expect(mensaje).toMatch(/subsidios/i);
+    expect(mensaje).toMatch(/colsubsidio/i);
+  });
+
+  it("es corto y lleva el enlace oficial", () => {
+    expect(mensaje.length).toBeLessThan(200);
+    expect(mensaje).toContain("https://www.colsubsidio.com/afiliaciones");
   });
 });

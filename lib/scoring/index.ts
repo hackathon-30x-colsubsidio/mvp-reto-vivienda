@@ -8,6 +8,7 @@
 //            así el puntaje es 100% trazable: puntaje = Σ aportes.
 
 import { CONFIG_SCORING } from "./config";
+import { cuotaEstimada } from "./capacidad";
 import { similitudCon } from "./similitud";
 import type { FactorScore, Lead, ProyectoCatalogo, Score } from "../types";
 
@@ -39,11 +40,30 @@ export function afiliadoEfectivo(lead: Lead): boolean {
 
 function factorAfiliacion(lead: Lead): FactorScore {
   const afiliado = afiliadoEfectivo(lead);
+  // De dónde salió la afiliación, en serio. Antes decía "conversacion" siempre
+  // que no hubiera match, y la ficha lo mostraba como "Lo dijo en el chat" —
+  // pero al lead NUNCA se le pregunta (spec 02 D3 nodo 4, decisión abierta del
+  // TEAM): el motor lo ASUME. Atribuirle a alguien algo que no dijo es peor que
+  // no saberlo.
+  const laDijoEnElChat = lead.respuestas.afiliado_autoreportado !== undefined;
+  const fuente = lead.perfil.match
+    ? "enriquecimiento"
+    : laDijoEnElChat
+      ? "conversacion"
+      : "supuesto";
+
   return {
     nombre: "afiliacion",
-    valor: afiliado ? "Afiliado a Colsubsidio" : "No afiliado a Colsubsidio",
-    cumple: true, // informativo: no bloquea, determina la salida (listo vs. restricción de cupo)
-    fuente: lead.perfil.match ? "enriquecimiento" : "conversacion",
+    valor: afiliado
+      ? "Afiliado a Colsubsidio"
+      : fuente === "supuesto"
+        ? "No afiliado (asumido: su cédula no está en la base y no se le preguntó)"
+        : "No afiliado a Colsubsidio",
+    // No bloquea y no tiene sentido de cumple/no cumple: determina CUÁL de las
+    // dos salidas de "listo" aplica, nada más.
+    cumple: true,
+    informativo: true,
+    fuente,
     // sin peso: el aporte de la afiliación al puntaje vive en el factor cupo_90_10.
   };
 }
@@ -68,7 +88,9 @@ function factorCuotaIngreso40(lead: Lead, proyecto: ProyectoCatalogo): FactorSco
     };
   }
 
-  const primeraCuotaEstimada = precio * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
+  // La cuota se calcula con la anualidad real, no con un porcentaje plano, y
+  // el LTV depende de si el proyecto es VIS (Decreto 583 de 2025).
+  const primeraCuotaEstimada = cuotaEstimada(precio, proyecto.vis ?? false);
   const subsidio = lead.respuestas.subsidio_monto_mensual ?? 0;
   const cuotaNeta = Math.max(0, primeraCuotaEstimada - subsidio);
   const ratio = cuotaNeta / ingreso;
@@ -98,7 +120,7 @@ function factorSubsidio(lead: Lead, proyecto: ProyectoCatalogo): FactorScore {
 
   // Señal: qué fracción de la primera cuota estimada cubre el subsidio.
   const precio = proyecto.precio_desde ?? 0;
-  const cuotaBruta = precio * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
+  const cuotaBruta = cuotaEstimada(precio, proyecto.vis ?? false);
   const cobertura = cuotaBruta > 0 ? clamp01(monto / cuotaBruta) : aplica ? 0.5 : 0;
   const peso = CONFIG_SCORING.PESOS.subsidio;
 
@@ -171,6 +193,7 @@ function factorSimilitudCompradores(
         ? `Fit ${(valorNorm * 100).toFixed(0)}% con los compradores históricos de ${proyecto.nombre}: ${evidencias.join("; ")}`
         : `Sin distribución confiable de compradores para ${proyecto.nombre}: señal neutra 0,5 (no se inventa un fit que no existe)`,
     cumple: true, // nunca bloquea (spec §4)
+    informativo: true, // evidencia de respaldo: no es un cumple/no cumple
     fuente: "historico",
     peso,
     valor_norm: valorNorm,
@@ -198,6 +221,7 @@ function factorCupo90_10(proyecto: ProyectoCatalogo, afiliado: boolean): FactorS
       nombre: "cupo_90_10",
       valor: "No aplica: el lead es afiliado",
       cumple: true,
+      informativo: true, // el cupo marca, no aprueba ni reprueba (spec 03 D9)
       fuente: "catalogo",
       peso,
       valor_norm: 1,
@@ -216,6 +240,7 @@ function factorCupo90_10(proyecto: ProyectoCatalogo, afiliado: boolean): FactorS
         ? `Quedan ${quedan} de ${total} cupos para no afiliados en ${proyecto.nombre} (regla: máx. 10%)`
         : `Cupo de no afiliados superado en ${proyecto.nombre}: ${usado} de ${total} permitidos (regla: máx. 10%)`,
     cumple: true, // se marca, no bloquea (el reto ya opera con 27,1% no afiliados por encima del 10% regulatorio)
+    informativo: true, // un cupo copado no "reprueba" al lead: es del proyecto
     fuente: "catalogo",
     peso,
     valor_norm: valorNorm,
@@ -243,7 +268,7 @@ function triggerDelGate(lead: Lead, proyecto: ProyectoCatalogo): string {
 
   const cuotaNeta = Math.max(
     0,
-    precio * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA -
+    cuotaEstimada(precio, proyecto.vis ?? false) -
       (lead.respuestas.subsidio_monto_mensual ?? 0),
   );
   const ingresoNecesario = Math.ceil(cuotaNeta / CONFIG_SCORING.TOPE_CUOTA_SOBRE_INGRESO);

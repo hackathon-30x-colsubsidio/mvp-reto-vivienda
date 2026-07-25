@@ -2,7 +2,7 @@
 
 > Output del grill de scope (2026-07-23, Mani + Claude). Es el **layout general, sin tecnicismos**, que sirve de base para crear el repo del MVP y bajar a specs, tasks y diagramas definitivos. Lo cerrado aquí no se re-litiga sin razón nueva; lo abierto está marcado y se resuelve con el equipo o los mentores.
 
-## 1. La apuesta (borrador — cerrar en kickoff)
+## 1. La apuesta
 
 Un **workflow de curado de leads** que hace que los leads pagos se parezcan a los orgánicos: el lead entra por pauta, conversa con un perfilador estilo WhatsApp que pregunta solo lo que falta, un motor transparente lo califica y matchea con 2-3 proyectos, y al asesor le llega un **lead curado con cita agendada y el porqué** — listo solo para cerrar. Los que hoy no pueden comprar no se botan: quedan calificados en nutrición con la condición que los volvería listos.
 
@@ -26,7 +26,7 @@ Borrador de frase de apuesta: *"Un interesado en vivienda que llega por pauta lo
 > 🔁 **SUPERSEDED (2026-07-24) → [`docs/specs/00-mvp-unificado.md`](specs/00-mvp-unificado.md).**
 > El strawman de abajo cumplió su función: arrancar la discusión. El diagrama vigente, con los nodos y las ramas curadas contra el código real y la [charla con el mentor](reto/charla-mentor.md), vive ahora en el [paquete de specs por componente](specs/README.md). Este se queda como registro histórico — no lo uses para construir.
 
-> ⚠️ **Strawman, no definitivo.** Este diagrama existe para que la discusión del equipo arranque de algo concreto; sentarse a curarlo es tarea del kickoff.
+> ⚠️ **Strawman, ya superado.** Este diagrama existía para que la discusión arrancara de algo concreto. El workflow real, curado y por componente, vive en [`specs/00-mvp-unificado.md`](specs/00-mvp-unificado.md); esto se conserva como registro.
 
 ```mermaid
 flowchart TD
@@ -109,7 +109,7 @@ Hallazgos del análisis del Excel real (`docs/recursos-reto/hackathon_VIVIENDAv2
 - **Munición de impacto ya validada:** 27,1% de los compradores históricos NO son afiliados (vs. el 10% permitido) y los 16 proyectos con ubicación conocida incumplen el límite 90/10. El problema que ataca el workflow es real y medible — usar en pitch y en la vista del asesor.
 - **No hay columna "afiliado" explícita**: se infiere de `PERIODO_AFILIADO` vacío/lleno.
 - **`VLR_VIVIENDA` trae 4 ceros de más**: ÷10.000 para el precio real.
-- **`SEGMENTO_POBLACIONAL`/`CATEGORIA`/`PIRAMIDE_NUEVA` vienen anonimizados con letras griegas** (no Básico/Medio/Alto/Joven): decidir si se infiere el mapeo cruzando contra los % del PPT o se tratan como clusters anónimos (item del roadmap).
+- **`SEGMENTO_POBLACIONAL`/`CATEGORIA`/`PIRAMIDE_NUEVA` vienen anonimizados con letras griegas** (no Básico/Medio/Alto/Joven). ✅ **Cerrado en el grilling 2026-07-24: se tratan como clusters anónimos ante el jurado**; el mapeo descifrado viaja solo como etiqueta `[inferido]`, nunca presentado como oficial.
 - **Base sintética de identidades**: la data real es anónima (sin cédulas); el "ya te conocemos" del demo se simula con una base generada a partir de las distribuciones reales del Excel/buyer personas.
 
 ## 9. Siguiente paso

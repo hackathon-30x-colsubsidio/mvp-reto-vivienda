@@ -742,9 +742,72 @@
   align-items: center;
   justify-content: center;
 }
+/* Los enlaces dentro de una burbuja: subrayados y en negrita, porque el color
+   solo no puede ser el portador del significado (misma regla que el "cumple"
+   de la ficha). Se ven sobre el fondo de la burbuja, no sobre el de marca. */
+.bubble a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.bubble a:hover {
+  text-decoration-thickness: 2px;
+}
+
 .send:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+/* El micrófono es un ATAJO, no la vía principal: por eso va en el tono de los
+   chips y no en el azul del botón de enviar, que es la acción que cierra el
+   turno. Mismo tamaño que `.send` para que el pie no se descuadre. */
+.mic {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--chat-quick-bg);
+  color: var(--chat-quick-ink);
+  border: 1px solid var(--chat-quick-border);
+  transition:
+    border-color 0.15s,
+    opacity 0.15s;
+}
+.mic:hover:not(:disabled) {
+  border-color: var(--chat-quick-ink);
+}
+.mic:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+/* Escuchando: el pulso dice "te estoy oyendo" sin ocupar una línea de texto. */
+.mic--vivo {
+  background: var(--chat-primary);
+  color: var(--chat-primary-ink);
+  border-color: var(--chat-primary);
+  animation: mic-pulso 1.4s ease-in-out infinite;
+}
+@keyframes mic-pulso {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.62;
+  }
+}
+/* Quien tenga el sistema en "menos movimiento" no ve el pulso: el color y el
+   placeholder "Te escucho…" ya dicen lo mismo. */
+@media (prefers-reduced-motion: reduce) {
+  .mic--vivo {
+    animation: none;
+  }
 }
 .footer__hint {
   font-size: 11px;

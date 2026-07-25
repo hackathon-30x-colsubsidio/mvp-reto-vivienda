@@ -19,15 +19,18 @@ export function AvisoSintetico({ datos }: { datos: DatosTablero }) {
   const reales = datos.leads.length - sinteticos;
 
   return (
-    <p className="border-borde bg-surface-sunken text-texto-suave mb-6 rounded-sm border border-dashed px-4 py-3 text-[13px] leading-normal">
+    <p className="border-filo-borde text-texto-suave rounded-[10px] border border-dashed px-3.5 py-2 text-[12px] leading-normal">
+      {/* Redactado corto a propósito: vive en el pie de una vista que
+          tiene que caber en una pantalla. Se dice lo mismo —cuántos son
+          reales, de dónde salen los otros, y que sus veredictos los
+          calculó el motor— sin cuatro renglones. */}
       <strong className="text-texto">Histórico sintético.</strong>{" "}
-      <span className="cifra">{reales}</span> de estos leads son reales (los del
-      demo, {datos.origen === "supabase" ? "leídos de Supabase" : "desde fixtures locales"});
-      los otros <span className="cifra">{sinteticos}</span> se generaron a partir de
-      las identidades anonimizadas de <code>data/sintetica/</code> para que las
-      métricas por día tengan serie. Sus veredictos los calculó el motor real, no
-      están escritos a mano. En las listas van marcados con{" "}
-      <EtiquetaSimulado texto="histórico" />.
+      <span className="cifra">{reales}</span> reales (del demo,{" "}
+      {datos.origen === "supabase" ? "desde Supabase" : "desde fixtures"}) y{" "}
+      <span className="cifra">{sinteticos}</span> generados desde{" "}
+      <code>data/sintetica/</code> para que las métricas por día tengan serie;
+      sus veredictos los calculó el motor real, no están escritos a mano. En las
+      listas van marcados <EtiquetaSimulado texto="histórico" />.
     </p>
   );
 }

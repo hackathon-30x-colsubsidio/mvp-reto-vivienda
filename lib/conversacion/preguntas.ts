@@ -1,4 +1,5 @@
 import type { Lead, LeadEvento, PerfilConocido } from "@/lib/types";
+import { catalogo } from "@/lib/matching/catalogo";
 
 // Set de preguntas del spec §6: los 4 que el brief lista como capacidad de
 // compra + la zona de interés para el matcher. NUNCA se pregunta lo que el
@@ -27,12 +28,15 @@ import type { Lead, LeadEvento, PerfilConocido } from "@/lib/types";
 export const NOMBRE_AGENTE = "Sara";
 
 /**
- * ⚠️ SUPUESTO POR VALIDAR: salario mínimo de 2025 ($1.423.500). Se duplica a
- * propósito el valor de `lib/fixtures/cola-historica.ts` — este módulo lo
- * carga el cliente y no debe arrastrar las fixtures al bundle. Si cambia el
- * año, cambian los dos.
+ * Salario mínimo mensual legal vigente. **$1.750.905 en 2026**, fijado por los
+ * Decretos 1469 y 1470 del 29 de diciembre de 2025 (+23% sobre 2025). Ya NO es
+ * un supuesto: tiene fuente — ver docs/credito-y-subsidios.md.
+ *
+ * Se duplica a propósito el valor de `lib/fixtures/cola-historica.ts`: este
+ * módulo lo carga el cliente y no debe arrastrar las fixtures al bundle. Si
+ * cambia el año, cambian los dos (y `scripts/generar_sintetica.py`).
  */
-const SMMLV_SUPUESTO = 1_423_500;
+const SMMLV = 1_750_905;
 
 export type CampoPregunta = Exclude<keyof Lead["respuestas"], "consentimiento">;
 
@@ -41,6 +45,15 @@ export interface Respuesta {
   patch: Partial<Lead["respuestas"]>;
   /** Lo que el agente contesta antes de seguir. Es lo que separa conversar de encuestar. */
   acuse?: string;
+  /**
+   * El acuse pasa por el LLM para que suene único en vez de plantilla.
+   *
+   * Se usa donde la respuesta es impredecible —la zona— y un acuse fijo se nota
+   * de lejos. Cuesta latencia, así que NO se activa en todos: el resto de acuses
+   * son instantáneos a propósito. El blindaje de 3s de `agregarBot` aplica igual,
+   * y si el LLM no contesta se pinta este mismo texto.
+   */
+  pulir?: boolean;
 }
 
 /** Un chip del footer. Lleva su valor, así el texto puede ser humano y el dato exacto. */
@@ -102,7 +115,7 @@ export function parsearIngresoMensual(texto: string): number | undefined {
 
   if (/mill|\bmm\b/.test(limpio)) return Math.round(conMedio * 1_000_000);
   if (/m[íi]nimo|salario|smmlv|smlv/.test(limpio)) {
-    return Math.round(conMedio * SMMLV_SUPUESTO);
+    return Math.round(conMedio * SMMLV);
   }
   if (/\bmil\b/.test(limpio)) return Math.round(conMedio * 1_000);
 
@@ -222,10 +235,107 @@ function interpretarEdad(texto: string): Respuesta {
   return OPCION_EDAD_46_MAS;
 }
 
+// ── La zona: la respuesta más impredecible de todas ──────
+//
+// A "¿dónde te imaginas viviendo?" la gente contesta cualquier cosa: una ciudad,
+// un barrio, un deseo ("que tenga buenas zonas comunes"), o dónde queda el
+// colegio de los niños. El acuse era uno fijo —"esa zona la tengo bien
+// mapeada"— y quedaba absurdo cuando nadie había nombrado una zona.
+//
+// Se responde a lo que DIJO, con datos que ya tenemos:
+//   · nombró una ciudad del catálogo  → se le dice cuántos proyectos hay ahí
+//   · nombró una ciudad donde no hay  → se le dice de frente, y dónde sí hay
+//   · dijo un deseo, no un lugar      → se le acusa el deseo y se dice qué se hará
+// Y el `patch` guarda la CIUDAD limpia cuando se reconoce, no la frase entera:
+// el matcher filtra por zona y "espero que tenga excelentes zonas comunes" no
+// es una zona.
+
+/** Ciudades del catálogo real, con cuántos proyectos tiene cada una. */
+const CIUDADES_CON_PROYECTOS: { ciudad: string; cuantos: number }[] = Object.entries(
+  catalogo.reduce<Record<string, number>>((cuenta, p) => {
+    cuenta[p.ciudad] = (cuenta[p.ciudad] ?? 0) + 1;
+    return cuenta;
+  }, {}),
+).map(([ciudad, cuantos]) => ({ ciudad, cuantos }));
+
+/** Barrios y sectores que el catálogo conoce (los trae el brochure). */
+const ZONAS_CONOCIDAS = catalogo
+  .map((p) => p.zona)
+  .filter((z): z is string => Boolean(z));
+
+/**
+ * Ciudades grandes de Colombia donde HOY no hay proyectos. No es data del reto:
+ * es reconocer un nombre para poder decir la verdad en vez de un "anotado" que
+ * suena a que sí tenemos algo allá.
+ */
+const CIUDADES_SIN_PROYECTOS = [
+  "Medellín", "Cali", "Barranquilla", "Cartagena", "Bucaramanga", "Pereira",
+  "Santa Marta", "Cúcuta", "Ibagué", "Manizales", "Villavicencio", "Neiva",
+  "Armenia", "Popayán", "Pasto", "Montería", "Valledupar", "Tunja",
+];
+
+/** Lo que la gente nombra cuando habla de cómo quiere vivir, no de dónde. */
+const DESEOS = /zonas? comunes?|amenidad|piscina|gimnasio|parque|colegio|trabajo|mam[áa]|familia|tranquil|segur|verde|centro comercial|transporte|metro|cerca de todo/i;
+
+const sinTildes = (t: string) =>
+  t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+function buscarEn(lista: string[], texto: string): string | undefined {
+  const plano = sinTildes(texto);
+  return lista.find((candidato) => plano.includes(sinTildes(candidato)));
+}
+
 function interpretarZona(texto: string): Respuesta {
+  const conProyectos = CIUDADES_CON_PROYECTOS.find(({ ciudad }) =>
+    sinTildes(texto).includes(sinTildes(ciudad)),
+  );
+
+  if (conProyectos) {
+    const { ciudad, cuantos } = conProyectos;
+    return {
+      // Se guarda la ciudad, no la frase: es lo que el matcher sabe filtrar.
+      patch: { zona_interes: ciudad },
+      acuse:
+        cuantos > 1
+          ? `¡${ciudad}! 📍 Ahí tengo ${cuantos} proyectos, así que puedo ser concreta contigo.`
+          : `¡${ciudad}! 📍 Ahí tengo un proyecto, y te lo miro con lupa.`,
+      pulir: true,
+    };
+  }
+
+  const barrio = buscarEn(ZONAS_CONOCIDAS, texto);
+  if (barrio) {
+    return {
+      patch: { zona_interes: barrio },
+      acuse: `${barrio} 📍 Justo por ahí tenemos algo, déjame mirarlo con calma.`,
+      pulir: true,
+    };
+  }
+
+  const lejos = buscarEn(CIUDADES_SIN_PROYECTOS, texto);
+  if (lejos) {
+    const donde = CIUDADES_CON_PROYECTOS.map((c) => c.ciudad).join(", ");
+    return {
+      patch: { zona_interes: texto },
+      // Preferible a un "anotado" que insinúa que sí tenemos algo allá.
+      acuse: `Te soy honesta: en ${lejos} hoy no tenemos proyectos. Donde sí tenemos es en ${donde}. Te dejo anotado que te interesa ${lejos}, por si abrimos.`,
+      pulir: true,
+    };
+  }
+
+  if (DESEOS.test(texto)) {
+    return {
+      patch: { zona_interes: texto },
+      acuse:
+        "Eso me sirve muchísimo y lo dejo anotado para el asesor 🙌 Como no me diste una ciudad, te busco en todas las que tenemos y él afina contigo.",
+      pulir: true,
+    };
+  }
+
   return {
     patch: { zona_interes: texto },
-    acuse: "Anotado 📍 Esa zona la tengo bien mapeada, así que puedo ser concreta contigo.",
+    acuse: "Anotado 📍 Lo tengo en cuenta para escoger qué mostrarte.",
+    pulir: true,
   };
 }
 
@@ -583,6 +693,46 @@ export function preguntasDeReenganche(): PasoPregunta[] {
       interpretarTexto: interpretarIngreso,
     },
   ];
+}
+
+// ── Afiliarse: la salida más útil para el no afiliado ────
+//
+// Cierra la propuesta que el spec 04 D3 dejó abierta ("ofrecerle la afiliación
+// como camino… nadie ha escrito ese mensaje todavía"), y ahora tiene fundamento:
+//
+//   · **Mi Casa Ya no tiene presupuesto en 2026**, así que el subsidio de
+//     vivienda vigente es el de las CAJAS DE COMPENSACIÓN — y ese es solo para
+//     afiliados. Para un no afiliado, afiliarse dejó de ser un trámite: hoy es
+//     la palanca financiera más grande que tiene.
+//   · Afiliarse además lo saca de la fila del **10%** que la regla 90/10 le
+//     reserva a los no afiliados, que en los 18 proyectos ya está copada.
+//   · Y puede hacerlo **él mismo**: Colsubsidio tiene modalidad para trabajador
+//     independiente, no solo la de empresa.
+//
+// Fuentes y el detalle: docs/credito-y-subsidios.md
+//
+// ⚠️ SIN CIFRAS A PROPÓSITO. Las fuentes se contradicen en el monto del
+// subsidio de la caja (30 SMMLV ≈ $52,5M en una, "hasta $30 millones" en otra) y
+// depende de la convocatoria y del ingreso. Prometerle un número a alguien que
+// está decidiendo la compra de su vida, con fuentes que no coinciden, es
+// exactamente lo que este proyecto no hace. Quien verifique el monto oficial
+// puede agregarlo aquí, citando de dónde salió.
+const URL_AFILIACION = "https://www.colsubsidio.com/afiliaciones";
+
+/**
+ * La invitación a afiliarse. Solo se le muestra a quien NO es afiliado.
+ *
+ * **Corta a propósito.** La primera versión explicaba el cupo del 10% de la
+ * regla 90/10 y por qué afiliarse lo sacaba de esa fila: es cierto, es
+ * relevante para el negocio… y no le importa a quien está buscando casa. El
+ * 90/10 es vocabulario interno — al lead se le dice qué gana, no cómo funciona
+ * nuestro inventario. Esa explicación sigue viva donde sí sirve: en la ficha
+ * del asesor y en la advertencia de cada proyecto recomendado.
+ *
+ * Una sola frase, un solo beneficio, un enlace.
+ */
+export function mensajeAfiliacion(): string {
+  return `Una cosa más que te puede servir 💡 Si te afilias a Colsubsidio puedes acceder a los subsidios de vivienda de la caja. Aquí te dice cómo: ${URL_AFILIACION}`;
 }
 
 export function mensajeCierre(nombre: string): string {

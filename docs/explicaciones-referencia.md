@@ -57,8 +57,8 @@ Regla que cruza a las dos: **cero jerga bancaria**. El lead promedio de este flu
 **PAYANDÉ** (`payande`)
 > Es el que te interesaba y te sirve: desde $175.500.000, dentro del máximo de $190.000.000 que te permite el tope del 40% de tus ingresos, y queda en Ricaurte, tu zona. Ojo con una cosa, y te la digo de frente: el cupo de no afiliados de este proyecto ya está copado (27 de 14 permitidos por la regla 90/10), así que el asesor tiene que validar cupo antes de separar.
 
-**MONGUI** (`mongui`)
-> Precio parecido ($179.361.000) y la cuota te queda igual de alcanzable. Te lo propongo porque hoy tiene más margen de cupo para compradores no afiliados que PAYANDÉ.
+**LA MACARENA** (`la-macarena`)
+> Te la muestro porque es más económica ($149.702.400), así que la cuota te queda con más aire que en PAYANDÉ. Está en Bogotá, no en tu zona — si te sirve moverte, vale la pena compararla.
 
 ---
 

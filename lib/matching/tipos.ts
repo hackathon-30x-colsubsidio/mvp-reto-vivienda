@@ -25,6 +25,22 @@ export interface FichaProyecto {
   cupo_no_afiliados: { usado: number; total: number };
   brochure?: string;
   recorrido_360?: string;
+  /**
+   * La ciudad de este proyecto NO está confirmada: las dos hojas del insumo
+   * original se contradicen.
+   *
+   * ⚠️ **Hoy no lo trae ningún proyecto.** Lo traían VIBO ONCE y KARAKALI, y el
+   * 2026-07-25 se resolvió con el material comercial oficial: los dos son de
+   * Bogotá (Chapinero y Centro, con dirección). El campo se conserva porque la
+   * regla vale para el próximo dato contradictorio, no porque haya uno.
+   *
+   * El matcher lo necesita para no afirmar lo que no sabe: un proyecto con la
+   * ubicación en duda **no cuenta como coincidencia de zona**, porque decirle a
+   * alguien "queda en la ciudad que te interesa" cuando la fuente dice dos
+   * ciudades distintas es inventar. Se puede recomendar igual por precio, con
+   * la advertencia encima.
+   */
+  ubicacion_incierta?: boolean;
 }
 
 /**

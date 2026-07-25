@@ -35,10 +35,16 @@ const GUION: Record<string, GuionDemo> = {
     evento: eventos.noAfiliadoListo,
     perfil: perfiles.noAfiliadoListo,
     consentimientoTs: "2026-07-23T15:05:41-05:00",
+    // ⚠️ Su ingreso subió de $2.850.000 a $4.000.000 el 2026-07-25, y no es
+    // maquillaje: al reemplazar el 0,6% plano por la cuota real, PAYANDÉ (que
+    // es VIS y por eso financia el 80%) le da una cuota de $1.573.834, y con
+    // $2.850.000 se iba al 45% — fuera del tope legal. Con $4.000.000 queda en
+    // **39,3%: apenas pasa**, que es exactamente su historia y lo que explica
+    // que su puntaje de prioridad sea bajo.
     respuestasTecleadas: [
       "No, sería la primera",
       "Con mi esposa y nuestros dos hijos",
-      "2.850.000 entre mi esposa y yo",
+      "4.000.000 entre mi esposa y yo",
       "Ninguno todavía",
       "38",
       "Al día, nunca me he atrasado",

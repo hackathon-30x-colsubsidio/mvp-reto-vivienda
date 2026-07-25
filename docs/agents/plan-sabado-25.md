@@ -46,6 +46,52 @@ Son **10 decisiones abiertas**. Ninguna necesita debate largo: cada una viene co
 
 ---
 
+## Addendum 12:00 · lo que salió de la discusión de workflow
+
+> Delta de este plan, no reemplazo. Desglose completo con la evidencia de cada punto en [`discusion-workflow-2026-07-25.md`](discusion-workflow-2026-07-25.md).
+
+**Tres tickets nuevos, en este orden:**
+
+| # | Qué | Quién | Cuánto | Por qué entra hoy |
+|---|---|---|---|---|
+| [023](../tasks/023-puente-capacidad-antes-del-proyecto.md) | 🔴 Capacidad primero, proyecto después | P2 | ~1 h | Es el **único defecto abierto que el jurado reproduce solo**: elegir un proyecto caro lo manda a nutrición con 0 proyectos aunque le quepan 13 de los 18. Los 3 personajes **no se mueven** |
+| [024](../tasks/024-confirmacion-del-ingreso.md) | 🟠 Confirmar el ingreso | P3 | ~40 min | `2+2` se entiende como $2.000.000 y el acuse dice "ya puedo calcular con números reales". Es el insumo del único gate legal |
+| [025](../tasks/025-metricas-del-mentor-baratas.md) | 🟡 Dos métricas del mentor | P2 | ~30 min | Solo si 023 y 024 están verdes. El tablero tiene 0 de las 5 que él pidió; dos ya tienen su dato guardado |
+
+**Tres cosas que se dijeron en la sala y el código desmiente.** Importan porque se pueden decir en cámara:
+
+1. **Nutrición no es por afiliación.** La única causa es el gate del 40%; el no afiliado sale `listo_restriccion_cupo` con proyectos y advertencia de cupo. Va al ensayo de preguntas del jurado de P5.
+2. **El agente sí tiene system prompt** (28 líneas en `app/api/chat/route.ts`). El defecto del ingreso es TypeScript, no IA.
+3. **Los dos "motores" ya existen** (`calcularScore` y `matchear`), y el "40% factorizado arriba" también (`precioMaximoDe`). Lo que falta es el puente, que es el 023.
+
+**Se suma a "lo que NO se va a hacer":** banco de preguntas nuevo, agente viendo el score, y **botón de trigger masivo** (el contraargumento de la propia sala es el bueno: siete mensajes seguidos se ven peor que no tener el botón; el tope de frecuencia se dice en el pitch).
+
+### Branches y fronteras · quién toca qué (acordado 12:30)
+
+Los 5 trabajan en paralelo desde `main` al día. **La frontera de archivos no es burocracia: es lo que evita que dos personas reescriban el mismo archivo a 20 horas del cierre**, que es justo lo que pasó el viernes con `ChatWhatsApp.tsx` (un merge "limpio" de git que dejó el pie del chat roto, y lo delató `tsc`, no el marcador de conflicto).
+
+| Rol | Branch | Sus tickets, en orden | **Puede tocar** | **No toca** |
+|---|---|---|---|---|
+| **P1 · Integrador** | ninguna: vive en `main` | [014](../tasks/014-recorrido-criterio-4.md) recorrido + cadenero del merge | Cualquier archivo, **pero solo para arreglar defectos que salieron del recorrido** | Features nuevas. Su trabajo es que lo que existe no se caiga |
+| **P2 · Datos & Motor** | `feat/023-puente-capacidad` | [023](../tasks/023-puente-capacidad-antes-del-proyecto.md) → [019](../tasks/019-franja-impacto.md) → [017](../tasks/017-tabla-subsidios.md) *solo si hay fuente* → [025](../tasks/025-metricas-del-mentor-baratas.md) *si sobra* | `lib/curar.ts` · `lib/scoring/` · `lib/matching/` · `lib/fixtures/` · `lib/tablero/` · `app/asesor/page.tsx` (**solo** la franja de 019) · `scripts/generar-*.ts` y sus generados (`db/seed.sql`, `data/sintetica/slots.json`) | `lib/conversacion/` · `components/chat/` · `docs/pitch/` |
+| **P3 · Calidad IA & Demo** | `feat/024-confirmacion-ingreso` | [024](../tasks/024-confirmacion-del-ingreso.md) → QA adversarial del "soy yo" → revisión visual claro/oscuro/móvil | `lib/conversacion/preguntas.ts` y su test · `components/chat/` | `lib/scoring/` · `lib/curar.ts` · `lib/fixtures/` (ver la regla 3) |
+| **P4 · Pitch & Video** | `docs/guion-y-video` | [015](../tasks/015-guion-y-video.md) guion + grabación → [020](../tasks/020-tramo-implementabilidad.md) implementabilidad | `docs/pitch/` y nada más | Todo el código. ⚠️ **No graba hasta que 023 esté en `main`** |
+| **P5 · Producto (Mani)** | ninguna: docs directo en `main` | Las decisiones abiertas · mentores · README · ensayo de preguntas del jurado · **declarar el freeze a las 17:00** | `README.md` · `docs/URGENTE-Y-NOTICIAS.md` · los checkboxes de `spec.md §7` | Código |
+
+**Por qué este corte y no otro:** 023 y 024 son los dos tickets urgentes y **no comparten ni un archivo** (023 vive en el motor y el orquestador, 024 en la conversación), así que P2 y P3 pueden empezar al mismo tiempo sin coordinarse. Los dos únicos roces posibles están nombrados abajo con su dueño, para que nadie tenga que preguntar.
+
+### Las reglas de merge (cinco, y la 1 es la que ordena el día)
+
+1. **El 023 entra a `main` primero.** Cambia salidas del motor: leads que hoy caen a nutrición pasan a `listo` con proyectos. Hasta que esté mergeado, **P4 no graba** (el flujo del "soy yo" que se ve en cámara cambia) y **P1 no cierra el recorrido de aceptación**. Después entra 024, después 019.
+2. **Nadie mergea sin los tres verdes:** `npm test`, `npx tsc --noEmit`, `npm run lint`. Y el OK de P1, que es el cadenero de `main`.
+3. **`lib/fixtures/` es de P2 en exclusiva.** Si el 024 cambia un acuse que un guion de fixture espera, P3 **avisa y P2 lo regenera** — no lo toca por su cuenta. La razón es histórica y cara: el seed se rompió dos veces por editarse a mano.
+4. **Quien toque una fixture regenera:** `npx tsx scripts/generar-seed.ts`. El test `seed-espejo` caza el olvido, pero mejor no llegar rojo al merge.
+5. **Si el seed cambió, P1 lo vuelve a correr en Supabase** al mergear (023 y 017 lo cambian; 024 no). Sin eso, la URL pública sigue mostrando los números viejos.
+
+**El único roce de archivos previsto:** `app/asesor/page.tsx`, donde P2 mete la franja de 019 y P1 podría entrar por un defecto del recorrido. **P1 avisa en el grupo antes de tocar esa página.**
+
+---
+
 ## El reparto (5 personas, sábado completo)
 
 ### P1 · Integrador — *dueño de que el demo esté vivo*
@@ -122,10 +168,45 @@ Son **10 decisiones abiertas**. Ninguna necesita debate largo: cada una viene co
 
 ## Reglas del día (las cuatro que ya nos costaron tiempo)
 
-1. **No probar con `lead-001/002/003` en producción.** Una conversación pisa la fila sembrada. Usar cédulas y `lead_id` nuevos, y **re-sembrar antes de grabar**.
+1. **Los 3 personajes SÍ se prueban** —son el demo, hay que recorrerlos— pero **terminar** su conversación pisa la fila sembrada (upsert por `lead_id`), así que la ficha pasa a mostrar lo que contestó quien probaba. Dos consecuencias prácticas: para probar **repetido** se usa "soy yo", y **se re-siembra antes de grabar y antes del checkpoint de las 12:30**. Recetario completo abajo.
 2. **Nunca `npm run build` con `npm run dev` encendido.** Deja el puerto 3000 colgado y parece que la app se rompió. Si pasa: `curl` al puerto → `000` significa server caído, no bug.
 3. **Tres archivos son generados, no se editan a mano:** `db/seed.sql`, `data/sintetica/slots.json` y las fixtures derivadas. Si tocas una fixture, **regenera** (`npx tsx scripts/generar-seed.ts`).
 4. **Cero inventos.** Si un dato no tiene fuente, se declara como supuesto o no entra. Aplica a los montos de subsidio, a los precios y a cualquier cifra del pitch.
+
+---
+
+## Cómo probar sin romper el demo (recetario)
+
+**Lo que pisa la fila sembrada** es *terminar* una conversación como Diana, Carlos o Yuliana: el guardado ocurre al final, en `/api/curar`, con un upsert por `lead_id`. Abandonar a mitad no persiste nada. Y arreglarlo cuesta 5 segundos (volver a correr el seed). Así que la regla no es "no los toques", es **"deja la base sembrada antes de que alguien mire"**.
+
+### La forma sana de probar mil veces: "soy yo"
+
+El formulario genera un `lead_id` único (`lead-<timestamp>`), así que **nunca toca a los 3 canónicos**. Y con la cédula se elige qué caso reproducir, porque el enriquecimiento ya resuelve las 303 identidades:
+
+| Qué quieres ver | Cédula | Qué pasa |
+|---|---|---|
+| **El caso Diana** — no le repreguntan nada (criterio 1) | `2000000050` | Afiliado · Bogotá · más de 4 SMLV → no le preguntan ni ingreso ni ciudad. Sale `listo` con puntaje alto |
+| **Apenas pasa** — el corte del 40% justo | `2000000001` | Afiliado · Bogotá · menos de 2 SMLV ($2.847.000) → la cuota del proyecto más barato le da 31,5%. Pasa, pero con poco margen |
+| **El caso Carlos** — no afiliado, cupo 90/10 | `2000000003` | En la base pero NO afiliado → **sí le preguntan el ingreso** (de un no afiliado no se conocen ingresos), y sale `listo_restriccion_cupo` con la advertencia de cupo en cada proyecto |
+| **El caso Yuliana** — sin match, se pregunta todo | `9999999999` (inventada) | Sin match → le preguntan hasta la zona. Para forzar **nutrición**, responder un ingreso de `1.500.000`: la cuota del proyecto más barato le da 60% |
+
+Un detalle del formulario: el **proyecto de interés es opcional** (si se deja en "Todavía no tengo uno en mente", se califica contra el más económico del catálogo, que es el caso conservador). Desde el 2026-07-25 **se elige de una lista** con los 18 proyectos reales, agrupados por ciudad y con su precio desde — antes era texto libre, y un nombre mal escrito hacía que el sistema calificara contra otro proyecto **sin decirlo**.
+
+### Limpiar la basura de pruebas (1 línea de SQL)
+
+Las filas de "soy yo" se acumulan en la bandeja del asesor. Para barrerlas sin re-sembrar —las FK son `on delete cascade`, así que se llevan sus conversaciones y sus citas:
+
+```sql
+delete from leads where lead_id not in ('lead-001', 'lead-002', 'lead-003');
+```
+
+Y si además los canónicos quedaron pisados, entonces sí: [`db/seed.sql`](../../db/seed.sql) completo.
+
+### Probar sin tocar la base para nada
+
+Comentar `NEXT_PUBLIC_SUPABASE_URL` y `SUPABASE_KEY` en `.env.local` y levantar `npm run dev`: todo cae a fixtures, `/asesor` muestra los 3 personajes desde el código y **no se escribe nada**. Sirve para QA de conversación, tono, contraste y modo oscuro.
+
+⚠️ **Lo que NO sirve en ese modo:** la cadena completa. Sin DB, `/api/curar` responde 503, el chat lo dice en voz alta ("no se pudo guardar") y **no llega a ofrecer la cita** — así que el criterio 4 hay que probarlo contra Supabase, con "soy yo".
 
 ---
 
@@ -135,5 +216,6 @@ Para que nadie lo empiece a las 4 p.m.:
 
 - WhatsApp real, Salesforce, DataCrédito, calendario real → **fuera de alcance por el brief**, y el tramo de implementabilidad ya explica cómo se enchufarían.
 - Métricas de abandono por etapa → exigen guardar el lead desde que autoriza. **Es un cambio de contrato**, no una cifra más.
-- Notas de voz, multi-canal construido, aprendizaje en línea → nombrarlos en el pitch, no construirlos.
+- ~~Notas de voz~~, multi-canal construido, aprendizaje en línea → nombrarlos en el pitch, no construirlos.
+  - ⚠️ **Corregido el 2026-07-25 12:15: el dictado por voz SÍ se construyó** (`c382f4b`, [`useDictado.ts`](../../components/chat/useDictado.ts)) y funciona. Que este plan siguiera diciendo lo contrario es peligroso: alguien podía revertirlo creyéndolo fuera de alcance. Lo que sigue fuera es **subir y transcribir audio en el servidor**; lo construido es dictado del navegador, sin persistir audio.
 - La rama con fecha del trigger de nutrición → hoy ninguna regla fallida es temporal, así que no hay qué mostrar.

@@ -21,17 +21,18 @@ Las tres superficies que ve el asesor: la **bandeja** (a quién llamo ahora), el
 
 ## El CÓMO
 
-### D1 · Cómo se agrupa la bandeja · [PROPUESTA — la decisión de vocabulario]
+### D1 · Cómo se agrupa la bandeja · [CERRADA — sala del sábado 25, decisión 10]
 
-El mentor pidió dos categorías: [propenso a comprar o no propenso](../reto/charla-mentor.md#lo-que-ve-el-asesor). Nosotros tenemos tres salidas. Tres opciones:
+El mentor pidió dos categorías: [propenso a comprar o no propenso](../reto/charla-mentor.md#lo-que-ve-el-asesor). Nosotros tenemos tres salidas.
 
-| | Qué se ve | A favor | En contra |
-|---|---|---|---|
-| **A** (hoy) | Tres secciones: listos · listos con restricción de cupo · en nutrición | Ya está construido y probado | No es el idioma del asesor |
-| **B** | Dos grupos macro (propenso / no propenso) con las tres salidas como sub-secciones | Habla como el mentor y conserva el detalle | Un poco más de UI |
-| **C** | Solo dos grupos | Máxima simplicidad | Pierde la distinción del cupo 90/10, que es el gancho del reto |
+**Quedó en dos grupos, con rótulos que no suenan a descarte:**
 
-**Propuesta: B.** Pero "no propenso" suena a descarte y nuestro discurso entero es que nadie se descarta — puede que la etiqueta correcta sea otra ("todavía no"). **Es una decisión de palabras y la toma el equipo.**
+| Grupo | Quién cae ahí |
+|---|---|
+| **Pueden comprar hoy** | `listo` y `listo_restriccion_cupo` juntos; adentro manda el **puntaje**, y la distinción del cupo 90/10 viaja en el badge de cada fila |
+| **Todavía no pueden comprar** | `nutricion`, con su razón y su trigger |
+
+Se adopta la agrupación del mentor y se rechaza su vocabulario: "no propenso" suena a descarte y el discurso entero del reto es que nadie se descarta. Fundir los dos grupos de "listos" no es cosmético — apilarlos como secciones separadas volvía a poner al no afiliado debajo del afiliado sin importar el puntaje, que es justo lo que D7 corrigió.
 
 La **similitud con compradores** es columna de evidencia dentro de la fila, **nunca criterio de agrupación** (spec [03](03-scoring.md) D3).
 
@@ -56,6 +57,8 @@ Esto es lo que pidió y no tiene ([detalle](../reto/charla-mentor.md#metricas)).
 | 4 | **Proyecto con más interacción** | Conteo de `proyecto_interes` + proyecto de entrada | ✅ Se puede ya |
 | 5 | **Atribución de canal** | El campo de atribución de la ingesta (spec [01](01-ingesta-enriquecimiento.md) D4) | ❌ No existe el campo |
 
+> ⚠️ **Marcador del 2026-07-25** ([discusión de workflow](../agents/discusion-workflow-2026-07-25.md) §2.4). De estas 5, el tablero hoy calcula **cero**, y en la sala se dio por hecho que ya estaban. Dos son baratas y siguen sin hacerse: la **#4** (`proyecto_interes` ya se persiste en cada lead) y la **#5 en grueso** (`fuente` también, con `meta/google/web`). El registry de [`metricas.ts`](../../lib/tablero/metricas.ts) está hecho para esto: se agrega un objeto al array y la pantalla no se toca. → [ticket 025](../tasks/025-metricas-del-mentor-baratas.md). Ojo con no inflar la #5: lo que se puede mostrar es el **canal**, no la campaña ni el QR.
+
 **La #1 es la madre de todas y hoy es imposible**, porque solo persistimos leads que llegan al final. Habilitarla implica guardar el lead **desde que autoriza**, no desde que termina. Es un cambio de contrato, no una métrica más.
 
 **Fuera de alcance, declarado sin rodeos:**
@@ -66,7 +69,9 @@ Esto es lo que pidió y no tiene ([detalle](../reto/charla-mentor.md#metricas)).
 
 Hoy el tablero muestra: leads de hoy · leads de 7 días · % que pasan el corte · % de no afiliados · puntaje promedio · en nutrición con trigger.
 
-Propuesta: **las 6 se quedan**, con una salvedad. "Puntaje promedio" depende de cuál escala sea la canónica ([spec 03](03-scoring.md) D6) — hoy promedia la escala binaria de la UI, no la del motor. Mientras eso no se decida, **es un promedio de un número que no es el oficial**.
+Propuesta: **las 6 se quedan.** ~~"Puntaje promedio" promedia la escala binaria de la UI, no la del motor.~~ **Ya no: desde el 2026-07-24 hay una sola escala** y `PUNTAJE_PROMEDIO` lee `score.puntaje` del motor ([spec 03](03-scoring.md) D6).
+
+⚠️ **Lo que sí sigue abierto de esa cifra:** promedia leads reales (techo alcanzable **75**) con los 57 sintéticos, que traen monto de subsidio y pueden pasar de 75 ([spec 03](03-scoring.md) D5). Son dos techos en un mismo promedio y la pantalla no lo dice.
 
 La métrica **% de no afiliados contra el 10%** es la más valiosa del tablero: es la munición del reto hecha operación.
 
@@ -74,13 +79,15 @@ La métrica **% de no afiliados contra el 10%** es la más valiosa del tablero: 
 
 Un número sin poder ver de quién habla también es caja negra. Propuesta: cada cifra es clickeable y filtra la bandeja. Cuesta poco y es lo que convierte el tablero en una herramienta en vez de un adorno.
 
-### D6 · El tablero hoy vive de datos sembrados · [HOY — hay que decirlo]
+### D6 · El telón del tablero es sintético, pero la cadena sí corre · [HOY — hay que decirlo]
 
-La cadena no está conectada: el chat termina en `console.log` y el orquestador ([ticket 006](../tasks/006-orquestador.md)) no existe. Lo que se ve viene de los 3 personajes sembrados más **57 leads sintéticos** ([`cola-historica.ts`](../../lib/fixtures/cola-historica.ts)), generados con semilla fija y **pasados por el motor y el matcher reales**. Van marcados `sintetico: true` y **la pantalla lo avisa**.
+> ⚠️ **Corregido el 2026-07-25.** Este bloque decía *"la cadena no está conectada: el chat termina en `console.log` y el orquestador no existe"*. **Falso desde el 2026-07-24 18:10:** existe [`/api/curar`](../../app/api/curar/route.ts) sobre [`lib/curar.ts`](../../lib/curar.ts), el chat lo llama al terminar y el lead queda en Supabase con su hilo. El ticket [006](../tasks/006-orquestador.md) está cerrado.
 
-Existen porque "leads por día" con 3 leads del mismo día no es una serie. Es una decisión honesta y bien ejecutada, pero **el equipo debe saber que ninguna métrica de conversación sale de conversaciones reales todavía.**
+Lo que sí sigue siendo cierto: **el volumen que llena el tablero es sembrado.** Son los 3 personajes canónicos más **57 leads sintéticos** ([`cola-historica.ts`](../../lib/fixtures/cola-historica.ts)), con semilla fija y **pasados por el motor y el matcher reales**. Van marcados `sintetico: true` y la pantalla lo avisa.
 
-### D7 · El puntaje ordena, no decide · [CERRADA — `puntaje.ts` + DESIGN.md]
+Existen porque "leads por día" con 3 leads del mismo día no es una serie. **Y ninguna métrica de conversación sale de conversaciones reales todavía**, porque nadie lee la tabla `conversaciones` (D2 y D3).
+
+### D7 · El puntaje ordena, no decide · [CERRADA — `lib/scoring/` + DESIGN.md]
 
 Quién decide el grupo es `Score.salida`. El puntaje solo ordena **dentro** de un grupo. Y nunca aparece sin la aritmética que lo sostiene.
 
@@ -88,15 +95,33 @@ Quién decide el grupo es `Score.salida`. El puntaje solo ordena **dentro** de u
 
 > ⚠️ La vista `cola_asesor` de Supabase todavía trae `orden_prioridad` con tres niveles (1/2/3). No es contradicción sino orden inicial de la consulta: **quien decide el orden que se ve es `ordenarCola` en TypeScript**, que re-ordena lo que llega. Si algún día se pagina en la DB, hay que alinear la vista.
 
+### D8 · El tablero cabe en una pantalla, en cortes · [CERRADA — Alejandro, 2026-07-25]
+
+La consola tiene **dos vistas**, elegibles desde la barra lateral: **Métricas** (`/asesor/tablero`) y **Leads** (`/asesor`). Los rótulos nombran el contenido, no el mueble.
+
+**Métricas no se desplaza.** El shell es de altura fija y las cifras se parten en tres **cortes** que se eligen con un selector, como el "diario / mensual" de una gráfica — son vistas del mismo dato, no secciones distintas:
+
+| Corte | Qué muestra |
+|---|---|
+| **Resumen** | Las 6 cifras, cada una con la fuente de la que sale |
+| **Entrada diaria** | La serie de 14 días, ahora en columnas en vez de renglones apilados |
+| **Reparto** | Los grupos del agrupador activo, lado a lado |
+
+**Esto no recorta datos, los descomprime.** Al mover el scroll dentro del panel, el tope de 12 leads por grupo dejó de ser necesario: **se listan todos** (62 hoy, contra 24 antes). El corte que no cabe se recorre por dentro; la página no se mueve.
+
+La serie diaria conserva su `<table>` completa, ahora en `sr-only`: la gráfica es `aria-hidden` y quien usa lector de pantalla recibe los tres números de cada día en mejor orden que antes.
+
+> La **ficha** sí se desplaza, y es deliberado: sus factores no se recortan por razones visuales.
+
 ## Estado hoy vs contrato
 
 | Qué | Hoy | Brecha |
 |---|---|---|
 | Bandeja | 🟢 **DOS secciones desde el 2026-07-24: "Pueden comprar hoy" y "Todavía no pueden comprar".** La página seguía re-partiendo por estado y deshacía en pantalla la decisión de D7 (un no afiliado con 71 aparecía debajo de un afiliado con 42). Ahora `listo` y `listo_restriccion_cupo` comparten sección, adentro manda el puntaje, y la distinción del cupo viaja en el badge de cada fila | Vocabulario propenso/no propenso (D1) |
 | Ficha con todos los factores | Sí, `.map()` sin filtrar, con test que lo protege | La conversación no se muestra (D2) |
-| Tablero | 6 métricas + serie de 14 días + grupos por afiliación | Las métricas del mentor (D3) |
+| Métricas | 🟢 **Desde el 2026-07-25 cabe sin scroll**, en 3 cortes (Resumen · Entrada diaria · Reparto) elegibles con selector. El reparto lista los 62 leads, no los 24 que dejaba ver el tope viejo | Las métricas del mentor (D3) |
 | Métricas de conversación | Ninguna | Nadie las instrumenta |
-| Origen de los datos | Supabase con fallback a fixtures; el tablero lo avisa | Producción sigue en fixtures (env vars de Vercel) |
+| Origen de los datos | 🟢 **Producción lee Supabase** desde el 2026-07-24 (medido: `GET /api/leads` en la URL pública responde `origen: supabase`). El fallback a fixtures sigue existiendo para correr sin `.env`, y la pantalla avisa cuál está sirviendo | — |
 
 ## Diagrama — de dónde sale cada número
 
@@ -134,21 +159,23 @@ flowchart LR
 
 **Punteado = no existe todavía.** El bloque de la derecha son justamente las métricas que el mentor pidió: sin guardar la etapa que alcanzó cada lead y sin el campo de atribución, no hay de dónde sacarlas. El detalle métrica por métrica está en la tabla de D3.
 
+> ⚠️ **Dos etiquetas del diagrama quedaron viejas y se corrigen al reexportar el PNG** (pendiente de P3; se cambian en este archivo **y** en su [narrado](diagramas/06-dashboard-asesor.md), que `check_diagramas.py` compara): el nodo de la bandeja dice *"propenso / no propenso"* — el vocabulario que D1 descartó — y la lista de las 6 cifras incluye *"proyecto más consultado"*, que **no es una de las 6**. Las seis son: leads hoy · leads 7 días · % que pasan el corte · % de no afiliados vs. el 10% · puntaje promedio · en nutrición con trigger.
+
 ## Preguntas al TEAM
 
-1. **¿Adoptamos "propenso / no propenso"?** (D1) Y si sí, ¿"no propenso" o algo que no suene a descarte?
-2. **¿Mostramos la conversación completa en la ficha?** (D2) Es paridad con lo que el asesor ya tiene hoy.
-3. **¿Instrumentamos la etapa de abandono?** (D3) Es la métrica #1 del mentor y hoy es imposible. Implica **guardar el lead desde que autoriza**, no desde que termina — cambio de contrato, no cifra nueva.
-4. **¿Cuáles de las métricas del mentor entran al MVP y cuáles solo al pitch?** No van a caber todas antes del domingo. Hay que elegir explícitamente.
+1. ~~**¿Adoptamos "propenso / no propenso"?**~~ (D1) **Resuelto (sala del sábado 25, decisión 10): no.** Dos grupos, rótulos que no suenan a descarte.
+2. **🔴 ABIERTA — ¿mostramos la conversación completa en la ficha?** (D2) Es paridad con lo que el asesor ya tiene hoy, y la brecha más barata de cerrar: el hilo **ya se guarda** en la tabla `conversaciones` y **nadie lo lee**.
+3. **¿Instrumentamos la etapa de abandono?** (D3) Es la métrica #1 del mentor y hoy es imposible. Implica **guardar el lead desde que autoriza**, no desde que termina — cambio de contrato, no cifra nueva. `plan-sabado-25.md` ya lo puso fuera de alcance para el domingo.
+4. **¿Cuáles de las métricas del mentor entran al MVP y cuáles solo al pitch?** Hoy van 0 de 5. Hay que elegir explícitamente cuál (si alguna) cabe antes del freeze.
 5. **¿Las cifras son clickeables?** (D5)
-6. **¿Qué hacemos con "puntaje promedio"** mientras no se decida la escala canónica? (D4)
+6. ~~**¿Qué hacemos con "puntaje promedio"?**~~ (D4) **La escala ya es una sola.** Lo que queda es la mezcla de techos entre leads reales y sintéticos, anotada arriba.
 7. **¿Cómo se ve el aviso de datos sintéticos en el video?** (D6) Hoy la pantalla lo dice, que es lo honesto. Confirmar que nadie lo quiere quitar para que se vea "más lleno".
-8. **Vacío del canon:** ¿el tablero es parte del demo de 2 minutos o es material de respaldo? [`mvp-layout.md §5`](../mvp-layout.md) mapea el clímax a la **ficha del lead**, no al tablero, y `spec.md §2` dice explícitamente que **no hay dashboard analítico**. El tablero existe y es bueno; falta decidir si aparece en el video.
+8. ~~**¿El tablero es parte del demo o material de respaldo?**~~ **Resuelto (sala del sábado 25, decisión 4): SÍ entra al MVP y al pitch.** `spec.md §2` quedó enmendado — lo que sigue fuera de alcance es la analítica de pauta (funnel, CPL, cohortes), no la vista de métricas operativas. ⚠️ Esto afecta el guion del video: es un plano que antes no existía.
 
 ## Fuentes
 
 - [`spec.md §4` paso 5, `§5` criterios 2, 3 y 4](../spec.md) — lo que ve el asesor.
-- `spec.md §2` — no hay dashboard analítico; la franja de impacto es lo único.
+- `spec.md §2` — enmendado el 2026-07-25: la vista de Métricas **sí** es parte del MVP; lo que queda fuera es la analítica de pauta (funnel, CPL, cohortes).
 - [Charla con el mentor](../reto/charla-mentor.md#metricas) — las 5 métricas; [lo que ve hoy](../reto/charla-mentor.md#lo-que-ve-el-asesor); [su objetivo](../reto/charla-mentor.md#objetivo).
 - [`DESIGN.md`](../../DESIGN.md) — nada de un score grande sin su desglose.
 - Código: [`lib/tablero/`](../../lib/tablero/), [`app/asesor/`](../../app/asesor/), [`lib/fixtures/cola-historica.ts`](../../lib/fixtures/cola-historica.ts).

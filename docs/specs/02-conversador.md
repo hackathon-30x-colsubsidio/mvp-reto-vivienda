@@ -29,7 +29,9 @@ Todo lo demás de este documento es el **CÓMO**, y es discutible.
 
 ## El CÓMO — straw proposal
 
-### D1 · Quién conduce la conversación · [PROPUESTA — la decisión de arquitectura]
+### D1 · Quién conduce la conversación · [CERRADA — sala del sábado 25, decisión 1: se queda A]
+
+> **Decidido el 2026-07-25: conduce el código, no el LLM.** A ~30 horas del cierre, con el flujo determinista probado y el tono ya reescrito (los acuses, el "para qué sirve" antes de cada pregunta, el híbrido chips+texto), saltar a B es riesgo puro sin ganancia visible en un video de 2 minutos. La propuesta B se conserva abajo porque es la respuesta correcta si esto sigue después del domingo.
 
 Hay dos formas de construir esto y hoy tenemos una construida:
 
@@ -98,6 +100,8 @@ Su regla, textual: hay que tener **las dos** opciones porque unas personas prefi
 
 Aplicado a nuestros nodos: **abierto en ingreso (5) y zona (9)**; **quick reply en autorización (2), afiliación (4), vivienda (6) y crediticia (8)**; **híbrido en subsidios (7)**.
 
+**[HOY — 2026-07-25] El acuse de la zona responde a lo que la persona dijo, no una plantilla.** Era uno fijo (*"esa zona la tengo bien mapeada"*) y quedaba absurdo cuando nadie había nombrado una zona: a *"espero que tenga excelentes zonas comunes"* le contestaba que la tenía bien mapeada. Ahora se distinguen cuatro casos, con datos que ya tenemos: **ciudad del catálogo** → se le dice cuántos proyectos hay ahí y se guarda la ciudad **limpia** (no la frase entera, que es lo que el matcher filtra); **barrio conocido** → se nombra; **ciudad donde no hay proyectos** → se dice de frente y se listan las que sí; **un deseo en vez de un lugar** → se le acusa el deseo y se explica que se buscará en todas. Además es el único acuse que **pasa por el LLM** (`Respuesta.pulir`), porque es la respuesta más impredecible del set y ahí sí vale la latencia — con el mismo blindaje de 3s, que cae a este texto.
+
 **[HOY — así está construido, desde 2026-07-24]** Se implementó más literal que la línea de arriba: salvo la autorización (que es un acto jurídico y va solo por botón), **todos los pasos aceptan texto libre siempre** y los chips quedan como atajo visible al lado del input. Escribir *"ya tengo apartamento"* vale exactamente lo mismo que tocar el chip: los dos caminos entran por el mismo `Respuesta { patch, acuse }`, así que nadie queda atrapado porque su caso no estaba en la lista. Ingreso y zona siguen sin chips a propósito. Cubierto por [`preguntas.test.ts`](../../lib/conversacion/preguntas.test.ts).
 
 ### D5 · Qué significa que el agente "aprende" · [PROPUESTA — resuelve una tensión real]
@@ -128,7 +132,7 @@ Si el equipo aprueba D1-B, este flujo **deja de ser el primario y pasa a ser la 
 
 ## Estado hoy vs contrato
 
-De las tres brechas de datos que rompían el motor, **dos se cerraron el 2026-07-24** al reescribir la conversación (rama `feat/conversacion-humana`); la tercera sigue abierta:
+De las tres brechas de datos que rompían el motor, **dos se cerraron el 2026-07-24** al reescribir la conversación (rama `feat/conversacion-humana`); la tercera sigue abierta, y el 2026-07-25 apareció una cuarta:
 
 | # | Qué dice el contrato | Qué pasa hoy | Consecuencia |
 |---|---|---|---|
@@ -136,9 +140,11 @@ De las tres brechas de datos que rompían el motor, **dos se cerraron el 2026-07
 | 2 | El motor resta `subsidio_monto_mensual` de la cuota | 🔴 **Abierta.** Se pregunta qué subsidios tiene, pero nunca el monto (es la pregunta 7 al TEAM) | El subsidio **nunca** baja la cuota. El factor existe y no puede cambiar el resultado |
 | 3 | `situacion_crediticia` es un enum (`buena`/`regular`/`mala`/`sin_info`) | 🟢 **Cerrada.** Cuatro chips que llevan el enum en el valor, y el texto libre se normaliza contra los mismos cuatro casos | El motor recibe la categoría que espera, venga de chip o de texto |
 
+| 4 | El ingreso que entra al gate tiene que ser el que la persona **quiso decir** | 🔴 **Abierta (hallada el 2026-07-25).** No se valida ni se confirma: `2+2` → **$2.000.000**, `-3` → $3.000.000, `999999999999` pasa entero, y `no sé` / `depende del mes` **no se repregunta**. Encima el acuse contesta *"con eso ya puedo calcular con números reales"*. ⚠️ **No lo arregla el system prompt** (existe, son 28 líneas y es estricto): el parseo es TS puro y el LLM no está en ese camino | Es el insumo del **único gate legal** del sistema: un número mal entendido cambia el veredicto y nadie se entera → [ticket 024](../tasks/024-confirmacion-del-ingreso.md) |
+
 | Otras brechas | Hoy | Dónde |
 |---|---|---|
-| `afiliado_autoreportado` | El contrato de tipos dice que se pregunta si no hay match; **la pregunta no existe** y el motor asume no afiliado | D3 nodo 4 — sigue siendo decisión del TEAM |
+| `afiliado_autoreportado` | 🟢 **Resuelto por decisión, no por código (2026-07-25): la afiliación NUNCA se pregunta.** Sale de la cédula, que es lo que hace Colsubsidio en la vida real; sin match se asume no afiliado, que es el caso conservador. El campo queda en el tipo sin que nadie lo escriba | D3 nodo 4 |
 | Cierre de la conversación | 🟢 **Cerrado el 2026-07-24.** Llama a [`/api/curar`](../../app/api/curar/route.ts): califica con el motor, matchea y persiste el lead **con su hilo completo** en Supabase | [Ticket 006](../tasks/006-orquestador.md) |
 | Oferta de franjas | 🟢 **Cerrado el 2026-07-24.** Al cerrar, el chat ofrece 3 franjas de la sala de ventas del proyecto recomendado y persiste la elegida (`POST /api/citas`). Si fallan, lo dice y pasa a asesor humano — no finge una cita | [Ticket 005](../tasks/005-agendador.md) |
 | Re-enganche | 🟢 **Cerrado el 2026-07-24.** El chat lee `?lead_id=`, retoma nombrando la razón original y pregunta solo lo que pudo cambiar | [Ticket 007](../tasks/007-reenganche-nutricion.md) |
@@ -219,20 +225,20 @@ stateDiagram-v2
 
 **Sobre la arquitectura**
 
-1. **¿LLM conduce (B) o determinista conduce (A)?** (D1) Es la decisión grande, y tiene calendario encima. Si es B, ¿quién la construye y hasta cuándo se puede volver atrás?
+1. ~~**¿LLM conduce (B) o determinista conduce (A)?**~~ (D1) **Resuelto (sala del sábado 25, decisión 1): se queda A.** No gastar reunión aquí.
 2. **¿Qué entra al contexto del agente?** (D2) Especialmente: ¿le damos el catálogo completo o solo el proyecto de entrada?
 
 **Sobre los nodos**
 
-3. **¿El orden 5→9 se mantiene, o el ingreso se pregunta más tarde?** Es la pregunta más invasiva y va de primera. ¿Enamora primero y pregunta después?
-4. **¿Se pregunta la afiliación explícitamente?** (D3 nodo 4) Hoy no se pregunta y el motor asume "no afiliado", lo que manda al lead al cupo del 10% sin que él lo haya dicho.
+3. **¿El orden 5→9 se mantiene, o el ingreso se pregunta más tarde?** El orden vigente ya pone primero lo que ilusiona (¿primera vivienda?) y después lo incómodo (ingreso, crédito). Confirmar que así se queda.
+4. ~~**¿Se pregunta la afiliación explícitamente?**~~ (D3 nodo 4) **Resuelto (sala del sábado 25, decisión 6): NO se pregunta nunca.** La cédula es la fuente — es lo que hace Colsubsidio en la vida real, y el mentor lo describió así: si eres afiliado *no te piden nada más* porque ya tienen la data. Sin match se asume no afiliado (caso conservador) y el asesor lo ve en la ficha.
 5. **¿Cuántos turnos puede durar la conversación?** Nadie fijó un techo. El mentor mide la duración promedio como métrica.
 
-**Sobre las tres brechas de datos (lo más urgente)**
+**Sobre las brechas de datos**
 
-6. **¿Cómo obtenemos el ingreso como número?** (brecha 1) Hoy **cualquier lead nuevo cae a nutrición** por esto. Opciones: preguntar un monto en vez de un rango, o convertir el rango a su punto medio. Hay que elegir una hoy.
-7. **¿Preguntamos el monto del subsidio?** (brecha 2) Sin eso el subsidio nunca baja la cuota y el factor es decorativo.
-8. **¿Quick reply o normalización para la situación crediticia?** (brecha 3)
+6. ~~**¿Cómo obtenemos el ingreso como número?**~~ (brecha 1) **Cerrada el 2026-07-24:** `parsearIngresoMensual()` entiende montos, millones y salarios mínimos; a quien ya trajo rango del enriquecimiento se le toma el punto medio.
+7. **🔴 ABIERTA — ¿preguntamos el monto del subsidio?** (brecha 2) Es la única de las tres que sigue viva: sin monto, el subsidio nunca baja la cuota y el factor aporta 0 a todo lead real (15 puntos que nadie puede ganar). Es el ticket [017](../tasks/017-tabla-subsidios.md).
+8. ~~**¿Quick reply o normalización para la situación crediticia?**~~ (brecha 3) **Cerrada el 2026-07-24:** chips con el enum + normalización del texto libre.
 
 **Sobre el agente**
 
@@ -242,7 +248,10 @@ stateDiagram-v2
 
 **Vacíos que nadie ha respondido**
 
-12. **¿Notas de voz?** El mentor las mencionó como algo que la gente usa. No las tenemos ni en el alcance ni descartadas.
+12. ~~**¿Notas de voz?**~~ **[CERRADA — 2026-07-25: se contesta hablando.]** El mentor las había puesto sobre la mesa (*"unas personas prefieren escoger y otras escribir o mandar notas de voz"*, D4). Hay un botón de micrófono al lado del campo: el navegador transcribe en vivo (Web Speech API, `es-CO`) y el texto cae en el input, donde la persona lo puede corregir antes de enviar. Entra por el **mismo** `interpretarTexto` que una respuesta escrita — el motor no se entera de que fue dictada.
+    - **Cómo se dice sin sobrevender:** es **dictado transcrito en el navegador**, no una nota de voz almacenada. Ningún audio se sube ni se guarda. En producción, WhatsApp entrega el audio y se transcribe igual, así que el punto de entrada al flujo es el mismo — eso es lo honesto que se puede afirmar en el pitch.
+    - **Degrada sin ruido:** si el navegador no soporta la API (Firefox) el botón no se pinta, y si la persona niega el micrófono no se insiste. El campo de texto siempre está — es la regla del repo, y aquí también manda.
+    - **Por qué vale más que un adorno:** el brief es de propósito social. Alguien en una obra, manejando, o con poca práctica escribiendo, puede contestar hablando. Cubierto por [`dictado.test.tsx`](../../components/chat/dictado.test.tsx).
 13. **¿Qué pasa si el lead pregunta algo que no sabemos** (una fecha de entrega, un acabado)? No hay política de "no sé" definida, y el prompt del experto prohíbe inventar.
 
 ## Fuentes

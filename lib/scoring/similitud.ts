@@ -27,12 +27,12 @@ const DISTRIBUCIONES = (crudo as { distribuciones: Record<string, DistribucionPr
   .distribuciones;
 
 /**
- * ⚠️ SUPUESTO POR VALIDAR: salario mínimo 2025 ($1.423.500). Tercera copia
- * consciente (las otras: lib/conversacion/preguntas.ts y
- * lib/fixtures/cola-historica.ts, que no pueden importarse entre sí porque
- * preguntas.ts va al bundle del cliente). Si cambia el año, cambian las tres.
+ * SMMLV 2026 ($1.750.905, calibrado 2026-07-25). Cuarta copia consciente (las
+ * otras: lib/conversacion/preguntas.ts y lib/fixtures/cola-historica.ts, que
+ * no pueden importarse entre sí porque preguntas.ts va al bundle del cliente).
+ * Si cambia el año, cambian las tres o cuatro juntas.
  */
-const SMMLV_SUPUESTO = 1_423_500;
+const SMMLV_SUPUESTO = 1_750_905;
 
 export interface Similitud {
   /** 0–1: promedio del % de compradores del proyecto que caen en los mismos buckets que el lead. */

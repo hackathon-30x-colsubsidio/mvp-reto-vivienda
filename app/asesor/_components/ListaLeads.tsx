@@ -109,11 +109,12 @@ export function ListaLeads({
 
   return (
     <div
-      className={`border-borde bg-surface-card flex min-h-0 w-full shrink-0 flex-col lg:w-[380px] lg:border-r ${className}`}
+      className={`border-filo-borde flex min-h-0 w-full shrink-0 flex-col lg:w-[380px] lg:border-r ${className}`}
+      style={{ backgroundImage: "var(--vidrio-hueco)" }}
     >
       <form
         method="get"
-        className="border-borde bg-surface-card sticky top-0 z-10 flex shrink-0 flex-col gap-2 border-b p-4"
+        className="vidrio-cromo sticky top-0 z-10 flex shrink-0 flex-col gap-2 border-b p-4"
       >
         <div className="flex gap-2">
           <CampoBusqueda
@@ -142,7 +143,7 @@ export function ListaLeads({
               única forma honesta de aplicar el filtro. */}
           <button
             type="submit"
-            className="bg-brand-azul text-sobre-campo hover:bg-campo-hover shrink-0 cursor-pointer rounded-sm px-4 text-[13px] font-semibold transition-colors duration-[120ms]"
+            className="bg-brand-azul text-sobre-campo hover:bg-campo-hover shrink-0 cursor-pointer rounded-[10px] px-4 text-[13px] font-semibold transition-colors duration-200"
           >
             Filtrar
           </button>
@@ -161,7 +162,7 @@ export function ListaLeads({
       <div className="min-h-0 flex-1 lg:overflow-y-auto">
         {grupos.map(({ clave, titulo, vacio, items }) => (
           <section key={clave}>
-            <h2 className="border-borde bg-surface-sunken text-texto-suave sticky top-0 border-b px-4 py-2 text-[13px] font-bold">
+            <h2 className="vidrio-cromo text-texto-suave sticky top-0 border-b px-4 py-2 text-[13px] font-bold">
               {titulo}{" "}
               <span className="cifra text-texto-tenue font-normal">
                 ({items.length})

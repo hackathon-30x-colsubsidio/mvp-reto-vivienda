@@ -11,6 +11,10 @@ dueño: Rol 4 (Pitch & Video)
 >
 > Se graba **el sábado p.m., después de la integración total** ([ticket 014](../tasks/014-recorrido-criterio-4.md)): grabar antes es grabar algo que va a cambiar. Este doc es el guion; la grabación es el paso 5 del rol.
 
+> ⚠️ **Dos frases que NO se pueden decir, y las dos se dijeron en la sala del sábado** ([discusión de workflow](../agents/discusion-workflow-2026-07-25.md)):
+> 1. **"El que no está afiliado entra a nutrición."** Falso: el no afiliado que pasa el gate del 40% sale **listo con restricción de cupo**, con sus proyectos y su advertencia. La única causa de nutrición es la cuota sobre el 40%. Decirlo al revés contradice la pantalla del beat 3, donde Carlos aparece con 3 proyectos.
+> 2. **No decir el puntaje "sobre 100".** El techo alcanzable hoy es **75** (el subsidio aporta 0 a todo lead real y la similitud aporta la mitad fija), así que la fracción sobre 100 subvende — y **Diana está justo en ese techo**. **Números vigentes desde el 2026-07-25** (al reemplazar el 0,6% por la cuota real, los puntajes bajaron): **Diana 75 · Carlos 28 · Yuliana 0**. Lo seguro es no decir la cifra y hablar de **el orden de la cola**: quién está más cerca de comprar. Si se dice, se dice contra el techo de 75, nunca sobre 100.
+
 ## Presupuesto de tiempo (120 s duros)
 
 | # | Tramo | En pantalla | Criterio / gancho | Seg |
@@ -52,6 +56,9 @@ Escrita para ~2,3 palabras/seg en español. Total ≈ 275 palabras. Los `[corche
 - **El fallback es red de seguridad, no el plan.** Si aun caliente la IA falla, el texto determinístico mantiene el flujo — pero el video se ve mejor con el stream real. Preferir la toma con IA viva.
 - **Los 3 caminos, sí o sí.** Diana (afiliada lista), Carlos (no afiliado, cupo) y Yuliana (nutrición) tienen que verse. Son los 3 personajes sembrados en la landing; un clic arranca cada uno.
 - **✍️ Al menos una respuesta hay que ESCRIBIRLA, no tocarla.** Desde el 2026-07-24 el chat acepta texto libre en todos los pasos y reacciona a lo que la persona contesta ([spec 02 D4](../specs/02-conversador.md)). Si en la toma solo se ven dedos tocando botones, el video cuenta justo lo que el mentor rechazó ("ese prototipo de chatbot donde la gente se enreda"). Escribir el ingreso en la toma —"4.500.000", con sus puntos— es el plano que demuestra que no es un formulario. La voz en off puede apoyarlo en el beat 2: *"le explica para qué le pregunta, y la deja contestar como quiera"*.
+- **🎙️ Y una respuesta se puede DICTAR** (nuevo, 2026-07-25). Hay micrófono al lado del campo: se toca, se habla y el texto aparece transcrito. Es un plano de ~6 segundos que responde algo que el mentor puso sobre la mesa —*"otras prefieren mandar notas de voz"*— y que además se lee como inclusión: contestar desde una obra o manejando.
+  - **Cuidado con la palabra.** En la voz en off es *"o se lo dicta"*, **no** "manda una nota de voz": lo que hay es transcripción en el navegador, no audio guardado. La frase segura para el pitch, si el jurado pregunta: *"en producción WhatsApp entrega el audio y se transcribe igual; entra por el mismo punto del flujo"*.
+  - **Antes de grabar:** conceder el permiso del micrófono en el navegador **fuera de cámara**, o la toma se come el diálogo de permisos de Chrome. Y grabar en Chrome, Edge o Safari — Firefox no soporta la API y el botón, honestamente, no aparece.
 - **Sin narración humana en pantalla.** El demo es autogestionado (restricción no-negociable). La voz en off cuenta la historia; la pantalla se recorre sola.
 - **No nombrar proyectos específicos en la voz en off:** los nombres del catálogo pueden cambiar con el [ticket 001](../tasks/001-personajes-canonicos.md). La narración habla de "proyectos que le caben", la pantalla muestra los reales.
 

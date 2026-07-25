@@ -1,6 +1,89 @@
 # 🚨 Urgente y Noticias
 
 > El documento más concreto y resumido del repo. Si solo vas a leer un archivo hoy, es este. Se actualiza cada vez que algo cambia el rumbo del equipo.
+>
+> El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
+
+## ✅ 2026-07-25 14:00 — El 0,6% ya no existe: la cuota se calcula de verdad
+
+**Hecho** (219 tests verdes). El motor ya no estima la cuota con un porcentaje plano: usa la **fórmula de anualidad** con parámetros que tienen fuente — **13% E.A.** (promedio del mercado 2026), **20 años**, y el **LTV del propio Decreto 583** (70%, u **80% si es VIS**). Detalle en [`credito-y-subsidios.md`](credito-y-subsidios.md) y en [spec 03 D2](specs/03-scoring.md), ahora `[CERRADA]`.
+
+**Tres cosas que hay que saber antes de grabar:**
+
+1. **Los puntajes de hoy son Diana 75 · Carlos 28 · Yuliana 0** (antes 74/32/0, con otra aritmética debajo). Diana queda **justo en el techo alcanzable**, que sigue siendo 75 y no 100. Lo seguro en cámara es no decir la cifra y hablar del **orden de la cola**; si se dice, se dice contra 75.
+2. **A Carlos hubo que subirle el ingreso** de $2.850.000 a **$4.000.000**. PAYANDÉ es VIS, o sea que financia el 80% y su cuota es más alta: con el ingreso viejo se iba al 45% y **caía en nutrición**, perdiendo el personaje del 90/10. Con $4.000.000 queda en **39,3% — apenas pasa**, que es exactamente su historia y explica su puntaje bajo.
+3. **Hay que volver a correr `db/seed.sql`.** Los factores y los puntajes sembrados cambiaron.
+
+**Una consecuencia contraintuitiva que conviene tener lista para el jurado:** una VIS permite financiar **más** (80% vs 70%), así que **a igual precio su cuota mensual es más alta**. Por eso el matcher ahora calcula el techo **por proyecto** y no con un número plano — con uno solo, una VIS cara se colaba con la cuota por encima del 40%.
+
+**Y dos calibraciones que decidió Mani, ya aplicadas:**
+
+- **`RATIO_HOLGURA_PLENA` pasó de 20% a 30%.** Con la cuota real, exigir que fuera la mitad del tope legal para dar "holgura plena" comprimía todos los puntajes. El 30% no es a dedo: **era el tope legal anterior** (Decreto 145 de 2000, hasta que el 583 lo subió al 40%), así que ahora "holgura plena" significa *le cabría incluso bajo la norma más estricta de antes*. Efecto secundario, dicho: la banda quedó estrecha (30–40%), así que **todo el que esté por debajo del 30% satura en 45 puntos**.
+- **El SMMLV pasó a $1.750.905** (2026, Decretos 1469/1470 de 2025). A quien contesta "gano 3 salarios mínimos" ya no se le calcula 23% menos, y el rango "3-5 SMMLV" de Diana ahora vale $7.003.620. ⚠️ **Esto mueve el umbral VIS del generador de ~$213M a ~$263M**: al regenerar `proyectos.json`, seis proyectos pasarían de no-VIS a VIS (ZARZAL, PAMPLONA, BOSQUE DE TURPIAL, RESERVA DE AGUAYACÁN, KARAKALI, SAMÁN) y su cuota subiría, porque la VIS financia el 80%. **No se pudo regenerar aquí** —los CSV del Excel real no viven en el repo—, así que el JSON conserva las banderas viejas. Está anotado en el script.
+
+> ⚠️ **Para P2 (ticket 023):** esto tocó `config.ts`, `capacidad.ts`, `scoring/index.ts`, `matching/index.ts`, las fixtures y el seed. Si tu rama ya empezó, **rebasa antes de seguir**.
+
+## 💳 2026-07-25 13:00 — El 0,6% de la cuota está mal, el SMMLV va un año atrasado, y Mi Casa Ya está apagado
+
+Investigación con fuentes citables → [`credito-y-subsidios.md`](credito-y-subsidios.md). Cuatro cosas, y una cambia el pitch a favor.
+
+1. ✅ **El 40% del Decreto 583 está bien** y aplica **sin distinguir VIS de no VIS**, como dice el motor. El mismo decreto además fija lo que faltaba: se financia **hasta el 70% del valor** (80% en VIS).
+2. 🔴 **El 0,6% subestima la cuota entre 25% y 45%.** Con la fórmula de anualidad y las tasas de 2026 (13% E.A. promedio; **15,18% ponderada no VIS**, Superfinanciera, corte 19 jun 2026), la cuota real va de **0,70% a 1,00%** del valor a 20 años. El 0,6% equivale a **8,66% E.A.**, tasa que no existe en el mercado — ni a 30 años se llega. Y la cuota del banco **incluye los seguros** de vida e incendio/terremoto, que van en el mismo recibo. **Consecuencia: hoy aprobamos a quien el banco va a rechazar.** Con la cuota real, Carlos pasa de 36,9% a **48,3% → nutrición**.
+3. 🔴 **El SMMLV del repo es el de 2025** ($1.423.500). El vigente es **$1.750.905** (+23%, Decretos 1469/1470 de 2025). A quien conteste *"gano 3 salarios mínimos"* se le calcula 23% menos de lo que gana. ⚠️ También mueve el umbral VIS del generador (150 SMMLV: de ~$213M a ~$262M), así que **varios proyectos cambiarían de categoría**.
+4. 🟡 **Mi Casa Ya no tiene presupuesto en 2026.** El subsidio vigente es el de **las cajas de compensación** — el de Colsubsidio — hasta **30 SMMLV ≈ $52,5M**, y **solo para afiliados**. Esto es munición, no problema: con el programa nacional apagado, **afiliarse deja de ser un trámite y se vuelve la palanca financiera más grande del negocio**, lo que le da sentido nuevo a la regla 90/10 y al perfilamiento. (El monto exacto por tramo de la convocatoria de Colsubsidio **no está verificado**: hay que abrir su cronograma antes de poner una cifra en cámara.)
+
+**Ojo con el orden de trabajo:** arreglar el 0,6% toca motor, fixtures y seed — **los mismos archivos del [ticket 023](tasks/023-puente-capacidad-antes-del-proyecto.md)**, que va en la rama de P2 y entra primero. No se toca desde otra rama. Y si se corrige, **hay que subirle el ingreso a Carlos** a ~$3.500.000 (2 SMMLV de 2026): ahí queda en ~39%, *apenas pasa*, que es exactamente su historia.
+
+## 🔴 2026-07-25 12:00 — La discusión de workflow destapó UN defecto que el jurado puede reproducir
+
+**Lo que hay que saber en una línea:** los dos motores ya existen, pero **el lead que elige un proyecto que no le cabe pierde el catálogo entero y cae a nutrición**, aunque le quepan 13 de los 18 proyectos. Desglose completo en [`agents/discusion-workflow-2026-07-25.md`](agents/discusion-workflow-2026-07-25.md).
+
+**Medido, no supuesto** (mismo lead: ingreso $4.000.000, sin vivienda, crédito al día):
+
+| Entrada | Salida | Puntaje | Proyectos |
+|---|---|---|---|
+| sin proyecto de interés | `listo_restriccion_cupo` | 65 | LA MACARENA, MONGUI, LA ARBOLEDA |
+| eligió ARAUCARIA ($619.800.000) | **`nutricion`** | **0** | **ninguno** |
+
+Su techo es $266.666.666. Cae por la vivienda que miró, no por su capacidad, y desde que el "soy yo" elige el proyecto **de una lista con los 18 y sus precios**, el jurado lo reproduce en el primer intento. Choca de frente con *"nadie se descarta"* y con el brief (*"recomienda proyectos acordes al perfil"*). → **[Ticket 023](tasks/023-puente-capacidad-antes-del-proyecto.md), ~1 hora, y los 3 personajes no se mueven** (Yuliana sigue en nutrición legítima: su techo es $100M y el proyecto más barato cuesta $149,7M).
+
+**Lo segundo: el ingreso no se valida.** `2+2` se entiende como **$2.000.000**, `-3` como $3.000.000, y `no sé` no se repregunta. Es el insumo del único gate legal del sistema. ⚠️ **No es el system prompt** (existe y es estricto): el parseo es TypeScript y el LLM no está en ese camino. → [Ticket 024](tasks/024-confirmacion-del-ingreso.md), ~40 min.
+
+**Tres cosas que la sala dio por ciertas y el código desmiente** (importan porque se pueden decir en cámara):
+
+1. **Nutrición NO es por afiliación.** La única causa es el gate del 40%. El no afiliado sale `listo_restriccion_cupo`, con sus proyectos y su advertencia de cupo.
+2. **El agente sí tiene system prompt** ([`app/api/chat/route.ts`](../app/api/chat/route.ts), 28 líneas).
+3. **El tablero no tiene ninguna de las 5 métricas del mentor.** Dos de ellas (proyecto con más interacción, canal de ingreso en grueso) cuestan media hora porque el dato ya se guarda → [ticket 025](tasks/025-metricas-del-mentor-baratas.md), opcional.
+
+**🌿 Cada uno trabaja en su rama y toca solo lo suyo.** El reparto con la **frontera de archivos de cada rol** y las **5 reglas de merge** está en el addendum de [`plan-sabado-25.md`](agents/plan-sabado-25.md). En una línea: **P2** → `feat/023-puente-capacidad` (motor, matcher, fixtures, seed); **P3** → `feat/024-confirmacion-ingreso` (conversación y chat); **P4** → `docs/guion-y-video` (solo `docs/pitch/`); **P1 y P5** trabajan sobre `main`. **El 023 entra primero: hasta que esté mergeado, P4 no graba** porque el flujo que sale en cámara cambia.
+
+**Y lo que se decidió NO hacer, para que nadie lo empiece a las 4 p.m.:** banco de preguntas nuevo, LLM conduciendo, agente viendo el score, botón de trigger masivo (siete mensajes seguidos se ven peor que no tener el botón: el tope de frecuencia **se dice**, no se construye), transcripción de audio en el servidor, y cambiar el enum de `fuente`.
+
+> ⚠️ **La voz ya no es un pendiente: se puede contestar hablando** ([`useDictado.ts`](../components/chat/useDictado.ts), commit `c382f4b`). Es **dictado** del navegador (Web Speech API, es-CO): el texto cae en el campo, la persona lo corrige y entra por el mismo camino que una respuesta escrita. **No es una nota de voz guardada** —ningún audio se sube ni se persiste— y así hay que decirlo en el pitch. En la sala se habló de esto como algo por hacer; ya está hecho.
+
+## 📋 2026-07-25 — Decisiones de Mani + los docs quedaron al día (audit completo)
+
+**Lo que hay que saber en una línea:** el tablero **entra al MVP y al pitch**, la afiliación **nunca se le pregunta al lead** (sale de la cédula), **nadie se descarta ni por aritmética** (un solo proyecto viable ya no bota el lead), y los **pesos del motor quedan abiertos a propósito**.
+
+**Las decisiones (van a los specs, no se re-litigan):**
+
+| # | Decisión | Veredicto |
+|---|---|---|
+| 1 | ¿El LLM conduce la conversación? | **NO.** Conduce el código; el LLM pule el tono |
+| 4 | ¿El tablero entra al video/MVP? | **SÍ** (cambia el default anterior). ⚠️ **Es un plano nuevo para el guion del video** |
+| 5 | ¿La ficha llama al experto LLM? | **NO: la explicación es determinista, y se dice como ventaja** — no depende de que un modelo esté vivo |
+| 6 | ¿Se le pregunta la afiliación al lead? | **NUNCA.** Sale de la cédula, como en la operación real; sin match se asume no afiliado (caso conservador) |
+| 9 | ¿CHECK de proyectos en `≤ 3`? | **SÍ.** Los leads nunca se descartan: rechazar exactamente 1 proyecto perdía el lead entero. Y se muestran **varios proyectos potenciales**, no solo el de entrada |
+| 10 | ¿"Propenso / no propenso"? | **NO.** Se adopta la agrupación del mentor, no su vocabulario |
+| 3 · 7 · 8 | Franja de impacto · el 0,6% · los pesos | **ABIERTAS.** El 0,6% es supuesto nuestro (financia el 70% del valor, cuota ≈0,6% de eso ≈ 20 años); los pesos quedan calibrables a propósito |
+
+**Y el audit de docs, que era el otro pedido.** Un agente fresco leía `plan.md` (del jueves), `prompts/` y `roles-recta-final` como si fueran vigentes, y arrancaba creyendo que la IA estaba caída y que el chat terminaba en `console.log`. Ahora: **`AGENTS.md` abre con "empieza aquí"** (plan-sabado-25 → handoff → URGENTE), **todo doc superado lleva banner `🔁 HISTÓRICO`** con su vigente, y ningún doc vivo afirma algo que el código desmienta.
+
+**Tres cosas que el audit encontró y conviene saber antes del pitch:**
+
+1. **El techo real del puntaje es 75, no 100 ni 90.** El subsidio aporta 0 a todo lead real (nadie pregunta el monto) y la similitud aporta la mitad fija. **Diana con 74 está a UN punto del máximo alcanzable**, no a 26. Si alguien dice "74 sobre 100" en el video, se está subvendiendo. ⚠️ Los 57 leads sintéticos del tablero **sí** traen subsidio, así que el promedio mezcla dos techos.
+2. **`/api/match` y `/api/explicacion` no las llama ninguna pantalla.** No es deuda (decisión 5), pero que nadie invierta tiempo ahí creyendo que están en el camino del demo.
+3. **El hilo de la conversación se guarda y nunca se lee.** Es la brecha más barata de cerrar y la que da paridad con lo que el asesor ya tiene hoy en su plataforma.
 
 ## 🟠 2026-07-25 15:00 — El matcher cambió (zona estricta + similitud real) y eso mueve TRES cosas que el equipo tiene que saber
 
@@ -71,13 +154,15 @@ El respaldo es del mentor, textual: *"la prioridad siempre son los afiliados, **
 
 ## 🔌 2026-07-24 18:10 — La cadena quedó conectada, y apareció por qué NUNCA se guardó nada
 
-**Acción obligatoria de quien tenga acceso a Supabase: pegar [`db/migracion-001-puntaje.sql`](../db/migracion-001-puntaje.sql) en el SQL Editor y ejecutarlo.** Son 30 segundos, es idempotente y no borra datos.
+> ✅ **La migración YA ESTÁ APLICADA** (Mani, ese mismo 2026-07-24; re-verificada contra producción el 2026-07-25). **No hay que volver a correrla** — lo único que sí se re-corre es `db/seed.sql`. El resto de esta entrada queda como registro de qué pasó.
+
+~~**Acción obligatoria de quien tenga acceso a Supabase: pegar [`db/migracion-001-puntaje.sql`](../db/migracion-001-puntaje.sql) en el SQL Editor y ejecutarlo.**~~ Hecha.
 
 **El hallazgo:** la tabla `leads` de producción **no tiene la columna `puntaje`**. Está en `db/schema.sql` desde que el tablero introdujo el puntaje 0–100, pero la base se creó antes y nunca se migró. Toda escritura rebotaba con `Could not find the 'puntaje' column of 'leads' in the schema cache`. Por eso ninguna conversación aparecía en Supabase: **no era el chat ni el motor, era una columna que no existe.** Diagnosticado corriendo `/api/curar` contra la base real, no leyendo código.
 
 **Lo que se conectó (ticket [006](tasks/006-orquestador.md), la costura S4 — era el riesgo #1 del proyecto):** la conversación ya no muere en un `console.log`. Al cerrar, el `Lead` va a **`/api/curar`**, que califica con el motor, matchea proyectos, redacta el porqué y **persiste el lead con su hilo completo** de mensajes. Verificado contra la Supabase real: fila con 7 factores, 3 proyectos y las respuestas completas, más las filas de `conversaciones` (incluidas las de `sistema` para ingesta y consentimiento).
 
-- **Mientras nadie corra la migración, el demo NO se cae:** se guarda igual, sin puntaje, y **lo dice en voz alta** — en el chat y en los logs. Un demo que finge haber guardado es peor que uno que falla a la vista.
+- **Mientras la migración no estuvo corrida, el demo NO se cayó:** se guardaba igual, sin puntaje, y **lo decía en voz alta** — en el chat y en los logs. Un demo que finge haber guardado es peor que uno que falla a la vista. Ese camino de compatibilidad sigue en `lib/leads-repo.ts` como seguro para una base nueva.
 - **Sin autorización de datos no se persiste nada** (403). Habeas data, no cortesía.
 - **Los 3 personajes, calificados con el catálogo real:** Diana `listo` 75/100 con 3 proyectos · Carlos `listo_restriccion_cupo` 57/100 con **0 proyectos** (los 18 tienen el cupo 90/10 agotado — la munición del pitch aparece sola) · Yuliana `nutricion` con su trigger.
 - **⚠️ Correr una conversación PISA la fila sembrada de ese personaje** (upsert por `lead_id`). Es lo que pide el ticket 006, pero conviene saberlo antes del video.
@@ -164,7 +249,7 @@ Registrado en `docs/adr/0002-stack-mvp.md`. Lo que cada quien necesita saber **a
 - **Un solo monolito Next.js (TypeScript, App Router)** deployado en Vercel — frontend y API routes juntos, auto-deploy al pushear a `main`. `main` siempre desplegable: es el link del demo.
 - **Los datos estáticos NO van a base de datos**: son JSON en `data/sintetica/`, generados por un script Python que corre **solo offline** en `scripts/`. Python nunca en producción.
 - **Supabase** solo para lo que muta: leads, conversaciones, citas (2-3 tablas).
-- **La IA solo vive en 2 endpoints** (`/api/chat` y `/api/explicacion`), con `claude-opus-4-8` y **streaming obligatorio**. El scoring es TypeScript puro sin LLM — es la regla "cero caja negra".
+- **La IA solo vive en 2 endpoints** (`/api/chat` y `/api/explicacion`), con `claude-opus-4-8` y **streaming obligatorio**. *(Superado: el proveedor pasó a Gemini esa misma noche, y desde el 2026-07-25 la explicación de la ficha es determinista — el LLM queda solo en el conversador.)* El scoring es TypeScript puro sin LLM — es la regla "cero caja negra".
 - **El repo es público**: API keys solo en `.env` local (gitignored) y env vars de Vercel. Jamás en un commit.
 - **Contratos entre tracks** (`Lead`, `Score`, `LeadCurado`) en `lib/types.ts` — cada quien construye contra fixtures, nadie espera al de al lado.
 Feedback loops (`npm test` / `tsc --noEmit` / `npm run dev`) ya definidos en `AGENTS.md`. Siguiente paso: scaffold de Next.js + conectar Vercel y Supabase.
@@ -172,7 +257,7 @@ Feedback loops (`npm test` / `tsc --noEmit` / `npm run dev`) ya definidos en `AG
 ## ✅ 2026-07-24 — La DB existe y `/asesor` está en el link público
 Track D mergeado a `main` (`db137f7`). El demo ya se recorre entero en **https://mvp-reto-vivienda.vercel.app** — landing y chat de A, `/asesor` de D. Esquema en [`docs/adr/0003-esquema-db-leads.md`](adr/0003-esquema-db-leads.md), SQL en `db/`.
 
-- **🔴 Falta un paso para que producción persista:** las env vars de Supabase están en el `.env` de una sola máquina. Hay que cargarlas en **Vercel → Settings → Environment Variables** y **redesplegar**. Mientras tanto el demo funciona con fixtures y lo avisa en pantalla (no miente, pero no guarda nada).
+- ~~**🔴 Falta un paso para que producción persista:**~~ *(Resuelto el 2026-07-24: la URL pública responde `origen: supabase`, medido con `curl`.)* Las env vars de Supabase están en el `.env` de una sola máquina. Hay que cargarlas en **Vercel → Settings → Environment Variables** y **redesplegar**. Mientras tanto el demo funciona con fixtures y lo avisa en pantalla (no miente, pero no guarda nada).
 - **Nadie escribe a Supabase directo.** A y C llaman a `POST /api/leads` (recibe un `LeadCurado`) y `POST /api/citas` (persiste la franja elegida). Un solo lugar valida y mapea.
 - **Los criterios de aceptación los enforcea Postgres**, no la revisión de código: un lead de nutrición sin trigger, o uno calificado sin factores, **falla el insert**. Verificado contra la DB real. Si tu track recibe un 422, es el dato, no el servidor.
 - **A tiene pendiente cerrar el criterio 3** ([ticket 007](tasks/007-reenganche-nutricion.md)): el botón "simular trigger" ya lleva al chat con `/?lead_id=X&reenganche=1`, pero `app/page.tsx` no lee la URL todavía, así que el clic aterriza en el landing.
