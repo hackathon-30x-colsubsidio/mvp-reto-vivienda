@@ -4,6 +4,17 @@
 >
 > El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
 
+## 💳 2026-07-25 13:00 — El 0,6% de la cuota está mal, el SMMLV va un año atrasado, y Mi Casa Ya está apagado
+
+Investigación con fuentes citables → [`credito-y-subsidios.md`](credito-y-subsidios.md). Cuatro cosas, y una cambia el pitch a favor.
+
+1. ✅ **El 40% del Decreto 583 está bien** y aplica **sin distinguir VIS de no VIS**, como dice el motor. El mismo decreto además fija lo que faltaba: se financia **hasta el 70% del valor** (80% en VIS).
+2. 🔴 **El 0,6% subestima la cuota entre 25% y 45%.** Con la fórmula de anualidad y las tasas de 2026 (13% E.A. promedio; **15,18% ponderada no VIS**, Superfinanciera, corte 19 jun 2026), la cuota real va de **0,70% a 1,00%** del valor a 20 años. El 0,6% equivale a **8,66% E.A.**, tasa que no existe en el mercado — ni a 30 años se llega. Y la cuota del banco **incluye los seguros** de vida e incendio/terremoto, que van en el mismo recibo. **Consecuencia: hoy aprobamos a quien el banco va a rechazar.** Con la cuota real, Carlos pasa de 36,9% a **48,3% → nutrición**.
+3. 🔴 **El SMMLV del repo es el de 2025** ($1.423.500). El vigente es **$1.750.905** (+23%, Decretos 1469/1470 de 2025). A quien conteste *"gano 3 salarios mínimos"* se le calcula 23% menos de lo que gana. ⚠️ También mueve el umbral VIS del generador (150 SMMLV: de ~$213M a ~$262M), así que **varios proyectos cambiarían de categoría**.
+4. 🟡 **Mi Casa Ya no tiene presupuesto en 2026.** El subsidio vigente es el de **las cajas de compensación** — el de Colsubsidio — hasta **30 SMMLV ≈ $52,5M**, y **solo para afiliados**. Esto es munición, no problema: con el programa nacional apagado, **afiliarse deja de ser un trámite y se vuelve la palanca financiera más grande del negocio**, lo que le da sentido nuevo a la regla 90/10 y al perfilamiento. (El monto exacto por tramo de la convocatoria de Colsubsidio **no está verificado**: hay que abrir su cronograma antes de poner una cifra en cámara.)
+
+**Ojo con el orden de trabajo:** arreglar el 0,6% toca motor, fixtures y seed — **los mismos archivos del [ticket 023](tasks/023-puente-capacidad-antes-del-proyecto.md)**, que va en la rama de P2 y entra primero. No se toca desde otra rama. Y si se corrige, **hay que subirle el ingreso a Carlos** a ~$3.500.000 (2 SMMLV de 2026): ahí queda en ~39%, *apenas pasa*, que es exactamente su historia.
+
 ## 🔴 2026-07-25 12:00 — La discusión de workflow destapó UN defecto que el jurado puede reproducir
 
 **Lo que hay que saber en una línea:** los dos motores ya existen, pero **el lead que elige un proyecto que no le cabe pierde el catálogo entero y cae a nutrición**, aunque le quepan 13 de los 18 proyectos. Desglose completo en [`agents/discusion-workflow-2026-07-25.md`](agents/discusion-workflow-2026-07-25.md).
