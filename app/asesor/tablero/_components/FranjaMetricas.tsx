@@ -29,7 +29,11 @@ export function FranjaMetricas({ datos }: { datos: DatosTablero }) {
           <article
             key={metrica.id}
             data-testid="metrica"
-            className="vidrio flex flex-col p-2.5"
+            // Padding vertical menor que el horizontal: los 8px que
+            // ahorran las dos filas son justo lo que hacía que el corte
+            // no cupiera en una ventana de 1440×900 (alto útil real
+            // ~530px, no 900 — medido en el navegador, no estimado).
+            className="vidrio flex flex-col px-2.5 py-2"
           >
             <h3 className="rotulo leading-snug">{metrica.titulo}</h3>
 
