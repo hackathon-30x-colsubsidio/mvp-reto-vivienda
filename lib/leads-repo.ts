@@ -8,6 +8,7 @@ import type {
 import type { EstadoLead, LeadEnCola } from "@/lib/types-asesor";
 import { ordenarCola } from "@/lib/types-asesor";
 import * as fixtures from "@/lib/fixtures/leads-curados";
+import { conversaciones as conversacionesDemo } from "@/lib/fixtures/leads";
 import { getSupabase } from "@/lib/supabase";
 
 /**
@@ -245,6 +246,48 @@ export async function obtenerLead(leadId: string): Promise<{
     (l) => l.curado.lead.evento.lead_id === leadId,
   );
   return { lead: desdeFixtures ?? null, origen: "fixtures" };
+}
+
+/** El hilo sembrado de un personaje canónico. El mismo que escribe `db/seed.sql`. */
+function hiloDesdeFixtures(leadId: string): MensajeConversacion[] {
+  const demo = Object.values(conversacionesDemo).find(
+    (c) => c.lead.evento.lead_id === leadId,
+  );
+  return demo?.hilo ?? [];
+}
+
+/**
+ * El hilo completo de una conversación, en orden.
+ *
+ * La tabla `conversaciones` se escribía desde el 2026-07-24 y **nadie la leía**:
+ * el asesor veía el veredicto sin poder ir a mirar dónde lo dijo el lead. Es
+ * paridad con lo que su plataforma real ya le da (spec 06 D2).
+ *
+ * Cae a fixtures con el mismo criterio que `listarCola`: sin DB, o con la DB
+ * respondiendo vacío, se sirve el hilo sembrado del personaje. Para un lead que
+ * no es canónico eso da una lista vacía, y el componente simplemente no se pinta
+ * — mejor que inventarle una conversación que no tuvo.
+ */
+export async function obtenerConversacion(leadId: string): Promise<{
+  mensajes: MensajeConversacion[];
+  origen: OrigenDatos;
+}> {
+  const supabase = getSupabase();
+
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("conversaciones")
+      .select("rol, mensaje")
+      .eq("lead_id", leadId)
+      .order("orden", { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      return { mensajes: data as MensajeConversacion[], origen: "supabase" };
+    }
+    if (error) console.error("[leads-repo] conversación:", error.message);
+  }
+
+  return { mensajes: hiloDesdeFixtures(leadId), origen: "fixtures" };
 }
 
 // ── Escritura ────────────────────────────────────────────────────────

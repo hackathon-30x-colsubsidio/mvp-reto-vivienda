@@ -1,4 +1,4 @@
-import type { LeadCurado, Score } from "@/lib/types";
+import type { FactorScore, LeadCurado, Score } from "@/lib/types";
 
 // =====================================================================
 // Tipos propios del Track D (vista asesor + DB).
@@ -53,6 +53,26 @@ export const PRIORIDAD: Record<EstadoLead, number> = {
   listo_restriccion_cupo: 1,
   nutricion: 2,
 };
+
+/**
+ * Cuántos factores cumplen, contando solo los que pueden no cumplir.
+ *
+ * La afiliación, el cupo 90/10 y la similitud son informativos: no tienen
+ * sentido de cumple/no-cumple y meterlos inflaba el conteo con filas que nunca
+ * podían fallar. Vive aquí porque lo usan las DOS pantallas —la ficha y el
+ * renglón de la bandeja— y con dos copias se desincronizaron: el mismo lead
+ * decía "4 de 4" en la ficha y "7/7" en la lista.
+ */
+export function conteoFactores(factores: FactorScore[]): {
+  cumplen: number;
+  total: number;
+} {
+  const evaluables = factores.filter((f) => !f.informativo);
+  return {
+    cumplen: evaluables.filter((f) => f.cumple).length,
+    total: evaluables.length,
+  };
+}
 
 /** Etiquetas legibles de cada salida, para la UI. */
 export const ETIQUETA_ESTADO: Record<EstadoLead, string> = {

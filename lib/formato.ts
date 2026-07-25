@@ -51,6 +51,26 @@ export function diaBogota(fecha: Date | string): string {
   return DIA_BOGOTA.format(typeof fecha === "string" ? new Date(fecha) : fecha);
 }
 
+/**
+ * Un monto en pesos colombianos, sin decimales: `4500000` -> `"$4.500.000"`.
+ *
+ * Locale fijo por la misma razón que las fechas: el demo se graba y no puede
+ * verse distinto según la máquina. Lo usan la ficha del asesor (el ingreso que
+ * decide el corte del 40%) y el conversador cuando responde por un precio del
+ * catálogo, así que una sola función evita dos formatos para la misma cifra.
+ */
+const PESOS = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  maximumFractionDigits: 0,
+});
+
+export function pesos(monto: number): string {
+  // El formateador de es-CO produce "$ 4.500.000" (con espacio duro); se quita
+  // para que se lea como se escribe en Colombia.
+  return PESOS.format(monto).replace(/\s/g, "");
+}
+
 /** "meta" -> "Meta Ads". Para que el asesor vea de dónde vino el lead. */
 export const NOMBRE_FUENTE: Record<string, string> = {
   meta: "Meta Ads",

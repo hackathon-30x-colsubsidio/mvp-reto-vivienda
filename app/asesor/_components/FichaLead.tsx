@@ -1,4 +1,5 @@
 import type { LeadEnCola } from "@/lib/types-asesor";
+import { conteoFactores } from "@/lib/types-asesor";
 import { Pildora, PildoraReEnganchado } from "@/components/ui/Pildora";
 import { EtiquetaSimulado } from "@/components/ui/EtiquetaSimulado";
 import { Tarjeta, TarjetaConTitulo } from "@/components/ui/Tarjeta";
@@ -7,7 +8,13 @@ import { BloqueProyectos } from "./BloqueProyectos";
 import { BloqueCita } from "./BloqueCita";
 import { BloqueNutricion } from "./BloqueNutricion";
 import { TablaPuntaje } from "./TablaPuntaje";
-import { etiquetaCrediticia, fechaCorta, fechaLarga, NOMBRE_FUENTE } from "@/lib/formato";
+import {
+  etiquetaCrediticia,
+  fechaCorta,
+  fechaLarga,
+  NOMBRE_FUENTE,
+  pesos,
+} from "@/lib/formato";
 
 /**
  * La ficha del lead: el clímax del demo.
@@ -32,10 +39,9 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
   const puntaje = curado.score.puntaje;
   // Se cuentan solo los factores que de verdad cumplen o no: la afiliación, el
   // cupo 90/10 y la similitud son informativos, y meterlos en el conteo inflaba
-  // el "cumplen" con filas que nunca podían no cumplir.
-  const evaluables = curado.score.factores.filter((f) => !f.informativo);
-  const cumplen = evaluables.filter((f) => f.cumple).length;
-  const total = evaluables.length;
+  // el "cumplen" con filas que nunca podían no cumplir. El criterio vive en
+  // `conteoFactores` porque el renglón de la bandeja tiene que decir lo mismo.
+  const { cumplen, total } = conteoFactores(curado.score.factores);
 
   return (
     <article className="mx-auto max-w-3xl space-y-4">
@@ -198,6 +204,21 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
             <Dato
               termino="Ingreso del hogar"
               valor={perfil.rango_ingreso ?? respuestas.rango_ingreso_hogar!}
+            />
+          )}
+          {/* El monto exacto, no solo el rango: es el número que entra al gate
+              del 40%, y hasta hoy solo se veía incrustado en el texto de un
+              factor. Si salió del punto medio de un rango conocido (criterio 1,
+              no se repregunta) se dice, porque no es lo mismo que un dato que
+              la persona tecleó. */}
+          {respuestas.ingreso_hogar_mensual !== undefined && (
+            <Dato
+              termino="Ingreso mensual (insumo del corte del 40%)"
+              valor={
+                !respuestas.rango_ingreso_hogar && perfil.rango_ingreso
+                  ? `${pesos(respuestas.ingreso_hogar_mensual)} (punto medio del rango conocido)`
+                  : pesos(respuestas.ingreso_hogar_mensual)
+              }
             />
           )}
           {respuestas.zona_interes && (

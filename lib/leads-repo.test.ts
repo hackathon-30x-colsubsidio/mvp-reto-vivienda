@@ -2,8 +2,10 @@ import { describe, it, expect } from "vitest";
 import {
   filaDesdeLeadCurado,
   leadCuradoDesdeFila,
+  obtenerConversacion,
   type FilaLead,
 } from "@/lib/leads-repo";
+import { conversaciones } from "@/lib/fixtures/leads";
 import { ordenarCola, PRIORIDAD, type LeadEnCola } from "@/lib/types-asesor";
 import { leadsCurados } from "@/lib/fixtures";
 import type { LeadCurado } from "@/lib/types";
@@ -158,5 +160,34 @@ describe("orden de la cola del asesor", () => {
     ]);
 
     expect(ordenada[ordenada.length - 1].curado.score.salida).toBe("nutricion");
+  });
+});
+
+// =====================================================================
+// El hilo de la conversación (spec 06 D2). Sin red: los tests corren sin
+// `.env`, así que `obtenerConversacion` cae al hilo sembrado de fixtures
+// — que es exactamente el mismo que escribe `db/seed.sql`.
+// =====================================================================
+
+describe("el hilo de la conversación se puede leer", () => {
+  it("devuelve el hilo completo de un personaje canónico", async () => {
+    const esperado = conversaciones.afiliadoListo.hilo;
+    const { mensajes, origen } = await obtenerConversacion(
+      conversaciones.afiliadoListo.lead.evento.lead_id,
+    );
+
+    expect(origen).toBe("fixtures");
+    expect(mensajes).toEqual(esperado);
+  });
+
+  it("el hilo trae los eventos de sistema, no solo los mensajes", async () => {
+    const { mensajes } = await obtenerConversacion("lead-001");
+    expect(mensajes.some((m) => m.rol === "sistema")).toBe(true);
+    expect(mensajes.some((m) => m.rol === "lead")).toBe(true);
+  });
+
+  it("un lead sin hilo devuelve lista vacía, no revienta", async () => {
+    const { mensajes } = await obtenerConversacion("lead-que-no-existe");
+    expect(mensajes).toEqual([]);
   });
 });

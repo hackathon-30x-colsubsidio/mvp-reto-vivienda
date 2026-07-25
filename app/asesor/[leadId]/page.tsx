@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { obtenerLead, listarCola } from "@/lib/leads-repo";
+import { obtenerLead, listarCola, obtenerConversacion } from "@/lib/leads-repo";
 import { FichaLead } from "../_components/FichaLead";
+import { HiloConversacion } from "../_components/HiloConversacion";
 import { AvisoOrigen } from "../_components/AvisoOrigen";
 import { ListaLeads } from "../_components/ListaLeads";
 
@@ -34,9 +35,10 @@ export default async function FichaLeadPage({ params, searchParams }: Props) {
   // notFound() exacto de antes (un lead puede existir sin estar en la
   // cola ordenada) y `listarCola` alimenta la lista de al lado. A escala
   // de demo no vale la pena fusionarlas.
-  const [{ lead, origen }, { leads }] = await Promise.all([
+  const [{ lead, origen }, { leads }, { mensajes }] = await Promise.all([
     obtenerLead(leadId),
     listarCola(),
+    obtenerConversacion(leadId),
   ]);
 
   if (!lead) notFound();
@@ -63,6 +65,7 @@ export default async function FichaLeadPage({ params, searchParams }: Props) {
         </Link>
         <AvisoOrigen origen={origen} />
         <FichaLead item={lead} />
+        <HiloConversacion mensajes={mensajes} />
       </main>
     </div>
   );

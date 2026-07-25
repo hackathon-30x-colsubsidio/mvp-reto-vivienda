@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { LeadEnCola } from "@/lib/types-asesor";
+import { conteoFactores } from "@/lib/types-asesor";
 import { Pildora, PildoraReEnganchado } from "@/components/ui/Pildora";
 import { EtiquetaSimulado } from "@/components/ui/EtiquetaSimulado";
 import { fechaCorta, NOMBRE_FUENTE } from "@/lib/formato";
@@ -25,8 +26,10 @@ export function FilaLead({
   const { evento } = curado.lead;
   const esNutricion = curado.score.salida === "nutricion";
 
-  const cumplen = curado.score.factores.filter((f) => f.cumple).length;
-  const total = curado.score.factores.length;
+  // Mismo criterio que la ficha: los informativos no cuentan. Contarlos aquí y
+  // no allá hacía que el mismo lead dijera "7/7" en la lista y "4 de 4" al
+  // abrirlo, que se lee como que uno de los dos números miente.
+  const { cumplen, total } = conteoFactores(curado.score.factores);
 
   return (
     <Link

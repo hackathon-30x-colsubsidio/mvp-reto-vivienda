@@ -4,6 +4,8 @@ import { FichaLead } from "./FichaLead";
 import type { LeadEnCola } from "@/lib/types-asesor";
 import { leadsCurados } from "@/lib/fixtures";
 import type { LeadCurado } from "@/lib/types";
+import { catalogo } from "@/lib/matching/catalogo";
+import { pesos } from "@/lib/formato";
 
 // =====================================================================
 // La ficha del asesor contra los 3 personajes CANÓNICOS de
@@ -111,6 +113,41 @@ describe("criterio 4 — el lead listo llega cerrable", () => {
     render(<FichaLead item={enCola(nutricion)} />);
     expect(screen.queryAllByTestId("proyecto")).toHaveLength(0);
     expect(screen.queryByTestId("cita")).not.toBeInTheDocument();
+  });
+});
+
+describe("el insumo del corte y el material del proyecto", () => {
+  it("muestra el ingreso mensual exacto, que es lo que entra al gate del 40%", () => {
+    // Carlos lo TECLEÓ en la conversación; hasta ahora el monto solo se veía
+    // incrustado en el texto de un factor y la ficha mostraba el rango.
+    const monto = noAfiliadoListo.lead.respuestas.ingreso_hogar_mensual!;
+    render(<FichaLead item={enCola(noAfiliadoListo)} />);
+
+    expect(screen.getByText(pesos(monto))).toBeInTheDocument();
+  });
+
+  it("cuando el ingreso se derivó del rango conocido, lo dice en vez de fingir un dato tecleado", () => {
+    // A Diana no se le preguntó el ingreso (criterio 1): sale del punto medio
+    // del rango que trajo el enriquecimiento, y eso no es lo mismo.
+    render(<FichaLead item={enCola(afiliadoListo)} />);
+    expect(screen.getByText(/punto medio del rango conocido/i)).toBeInTheDocument();
+  });
+
+  it("cada proyecto recomendado enlaza su material oficial", () => {
+    render(<FichaLead item={enCola(afiliadoListo)} />);
+
+    const conMaterial = afiliadoListo.proyectos
+      .map((p) => catalogo.find((c) => c.proyecto_id === p.proyecto_id))
+      .filter((f) => f?.brochure);
+    expect(conMaterial.length, "ningún recomendado trae brochure").toBeGreaterThan(0);
+
+    for (const ficha of conMaterial) {
+      const enlace = screen
+        .getAllByRole("link", { name: /brochure/i })
+        .find((a) => a.getAttribute("href") === ficha!.brochure);
+      expect(enlace, `falta el brochure de ${ficha!.nombre}`).toBeDefined();
+      expect(enlace).toHaveAttribute("rel", expect.stringContaining("noopener"));
+    }
   });
 });
 
