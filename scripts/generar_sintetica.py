@@ -69,14 +69,41 @@ CIUDAD_POR_UBICACION = {
 }
 
 
-def resolver_ciudad_zona(ubicacion, incierta: bool) -> tuple[str, str | None, bool]:
-    """-> (ciudad, zona, ciudad_inferida). Nunca inventa: si no hay match, dice que falta."""
+# Las dos hojas del Excel se contradecían en la ubicación de estos proyectos
+# (brochure decía RICAURTE, 360 decía BOGOTÁ). Lo resolvió una TERCERA fuente,
+# mejor que las dos: el material comercial oficial, que trae la dirección exacta
+# —ver docs/proyectos/proyectos-colsubsidio.md, secciones "Karakalí" y
+# "Vibo Once"—. No es una inferencia del equipo; es un dato con dirección y
+# barrio, y por eso `ciudad_inferida` queda en False.
+UBICACION_RESUELTA_POR_BROCHURE = {
+    "KARAKALI": ("Bogotá", "Chapinero", "Carrera 15 # 63A-22"),
+    "VIBO ONCE": ("Bogotá", "Centro", "Carrera 14 # 3-58"),
+}
+
+
+def resolver_ciudad_zona(nombre, ubicacion, incierta: bool) -> tuple[str, str | None, bool, str | None]:
+    """-> (ciudad, zona, ciudad_inferida, nota). Nunca inventa: si no hay match, dice que falta."""
+    resuelta = UBICACION_RESUELTA_POR_BROCHURE.get(str(nombre).strip().upper())
+    if resuelta:
+        ciudad, zona, direccion = resuelta
+        return (
+            ciudad,
+            zona,
+            False,
+            f"El Excel dejaba la ubicación contradictoria entre sus dos hojas; "
+            f"resuelta con el brochure oficial ({direccion}, {ciudad} — {zona}).",
+        )
     if incierta or pd.isna(ubicacion):
-        return "Ricaurte o Bogotá (ubicación contradictoria entre hojas, sin confirmar)", None, True
+        return (
+            "Ricaurte o Bogotá (ubicación contradictoria entre hojas, sin confirmar)",
+            None,
+            True,
+            None,
+        )
     if ubicacion in CIUDAD_POR_UBICACION:
         ciudad, zona = CIUDAD_POR_UBICACION[ubicacion]
-        return ciudad, zona, ciudad in ("Bogotá",) and ubicacion.startswith("CIUDADELA")
-    return f"Sin confirmar (Excel dice: {ubicacion})", None, True
+        return ciudad, zona, ciudad in ("Bogotá",) and ubicacion.startswith("CIUDADELA"), None
+    return f"Sin confirmar (Excel dice: {ubicacion})", None, True, None
 
 
 # VIS = Vivienda de Interés Social. El Excel real NO trae esta bandera; se
@@ -106,7 +133,12 @@ def generar_proyectos() -> list[dict]:
 
     proyectos = []
     for _, row in catalogo.iterrows():
-        ciudad, zona, ciudad_inferida = resolver_ciudad_zona(row["ubicacion"], bool(row["ubicacion_incierta"]))
+        ciudad, zona, ciudad_inferida, nota_ubicacion = resolver_ciudad_zona(
+            row["nombre"], row["ubicacion"], bool(row["ubicacion_incierta"])
+        )
+        # Una ubicación que ya se resolvió deja de ser incierta para el matcher:
+        # lo que le importa es si puede prometerle una zona al lead o no.
+        ubicacion_incierta = bool(row["ubicacion_incierta"]) and nota_ubicacion is None
         precio_desde = None if pd.isna(row["precio_tipico"]) else round(row["precio_tipico"])
         n_historico = 0 if pd.isna(row["n_compradores_historico"]) else int(row["n_compradores_historico"])
         n_no_afiliados = 0 if pd.isna(row["n_no_afiliados_historico"]) else int(row["n_no_afiliados_historico"])
@@ -127,12 +159,16 @@ def generar_proyectos() -> list[dict]:
                 "cupo_no_afiliados": {"usado": n_no_afiliados, "total": cupo_total},
                 "brochure": None if pd.isna(row["link_brochure"]) else row["link_brochure"],
                 "recorrido_360": None if pd.isna(row["link_360"]) else row["link_360"],
-                "ubicacion_incierta": bool(row["ubicacion_incierta"]),
+                "ubicacion_incierta": ubicacion_incierta,
                 "ubicacion_nota": (
-                    "Ubicación contradictoria entre la hoja de brochures y la de 360: "
-                    + str(row["ubicacion_candidatas"])
-                    if row["ubicacion_incierta"] and pd.notna(row["ubicacion_candidatas"])
-                    else None
+                    nota_ubicacion
+                    if nota_ubicacion
+                    else (
+                        "Ubicación contradictoria entre la hoja de brochures y la de 360: "
+                        + str(row["ubicacion_candidatas"])
+                        if row["ubicacion_incierta"] and pd.notna(row["ubicacion_candidatas"])
+                        else None
+                    )
                 ),
             }
         )

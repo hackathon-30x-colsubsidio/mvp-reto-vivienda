@@ -116,7 +116,7 @@ Los 4 que el brief lista como capacidad de compra ([brief:20](reto/perfilamiento
 
 ### Catálogo de proyectos
 
-**18 proyectos oficiales** del reto, unión de las dos hojas de `Links brochures .xlsx` (16 con brochure, 17 con recorrido 360). Al repo entra una ficha derivada por proyecto en `data/sintetica/`, nunca el insumo original. Limpieza previa obligatoria: `VLR_VIVIENDA` ÷10.000 y la ubicación de `VIBO ONCE` / `KARAKALI`, que discrepa entre las dos hojas (Ricaurte vs Bogotá).
+**18 proyectos oficiales** del reto, unión de las dos hojas de `Links brochures .xlsx` (16 con brochure, 17 con recorrido 360). Al repo entra una ficha derivada por proyecto en `data/sintetica/`, nunca el insumo original. Limpieza previa obligatoria: `VLR_VIVIENDA` ÷10.000 y la ubicación de `VIBO ONCE` / `KARAKALI`, que discrepa entre las dos hojas (Ricaurte vs Bogotá) — **resuelta el 2026-07-25: los dos son de Bogotá**, con el material comercial oficial como fuente (Karakalí en Chapinero, Cra 15 # 63A-22; Vibo Once en el Centro, Cra 14 # 3-58 — ver [`docs/proyectos/`](proyectos/proyectos-colsubsidio.md)). No fue un criterio del equipo: fue una tercera fuente, mejor que las dos que se contradecían, porque trae la dirección.
 
 ### Consentimiento y marco regulatorio
 

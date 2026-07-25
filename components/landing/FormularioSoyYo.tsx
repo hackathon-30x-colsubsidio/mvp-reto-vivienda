@@ -28,9 +28,10 @@ const ciudadCorta = (ciudad: string) => ciudad.split(" (")[0];
 
 const PROYECTOS_POR_CIUDAD = Object.entries(
   catalogo.reduce<Record<string, typeof catalogo>>((grupos, proyecto) => {
-    // Los dos proyectos con la ubicación en duda no se mezclan con los de una
-    // ciudad confirmada: el insumo los reporta en dos sitios distintos y eso se
-    // dice, no se promedia (ver `ubicacion_incierta` en lib/matching/tipos.ts).
+    // Un proyecto con la ubicación en duda no se mezcla con los de una ciudad
+    // confirmada: si la fuente lo reporta en dos sitios, eso se dice, no se
+    // promedia. Hoy no hay ninguno (VIBO ONCE y KARAKALI se resolvieron con el
+    // brochure: los dos son de Bogotá), pero la regla queda en pie.
     const clave = proyecto.ubicacion_incierta
       ? `${ciudadCorta(proyecto.ciudad)} · por confirmar`
       : proyecto.ciudad;

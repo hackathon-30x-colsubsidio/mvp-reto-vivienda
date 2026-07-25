@@ -38,8 +38,9 @@ export const catalogo: FichaProyecto[] = (crudo as ProyectoCrudo[]).map((p) => (
   cupo_no_afiliados: p.cupo_no_afiliados,
   brochure: p.brochure ?? undefined,
   recorrido_360: p.recorrido_360 ?? undefined,
-  // VIBO ONCE y KARAKALI aparecen en dos ciudades distintas según la hoja del
-  // insumo. El matcher lo necesita para no prometer una zona que no está
-  // confirmada; sin este campo, la ciudad se leería como un hecho.
+  // Marca de "la fuente se contradice sobre dónde queda". Hoy no la trae
+  // ninguno —VIBO ONCE y KARAKALI se resolvieron con el brochure oficial, los
+  // dos son de Bogotá— pero el matcher la sigue leyendo para no prometerle al
+  // lead una ciudad sin confirmar el día que vuelva a aparecer una.
   ...(p.ubicacion_incierta ? { ubicacion_incierta: true } : {}),
 }));

@@ -228,10 +228,18 @@ describe("la zona que el lead ESCRIBE, no la que encaja exacta", () => {
   });
 
   it("un proyecto con la ubicación sin confirmar NUNCA cuenta como zona", () => {
-    // VIBO ONCE y KARAKALI aparecen en dos ciudades distintas en el insumo.
-    // Prometer "queda donde quieres vivir" sería inventar.
-    const dudoso = catalogo.find((p) => p.ubicacion_incierta)!;
-    expect(dudoso, "el catálogo real debería traer al menos uno").toBeDefined();
+    // El catálogo de HOY ya no tiene ninguno: la ambigüedad de VIBO ONCE y
+    // KARAKALI la resolvió el brochure oficial (los dos son de Bogotá). El
+    // proyecto dudoso se construye acá a propósito — la regla tiene que seguir
+    // en pie para el próximo dato que llegue contradictorio, y un test que
+    // dependa de que el catálogo traiga uno se muere con el dato.
+    const dudoso = {
+      ...catalogo[0],
+      proyecto_id: "dudoso",
+      nombre: "PROYECTO SIN UBICACIÓN CONFIRMADA",
+      ciudad: "Ricaurte o Bogotá (contradictorio entre fuentes)",
+      ubicacion_incierta: true,
+    };
 
     const lead = leadDe({ afiliado: true });
     lead.respuestas.zona_interes = "Ricaurte";

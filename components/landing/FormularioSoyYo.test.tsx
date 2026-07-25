@@ -85,17 +85,28 @@ describe("formulario 'soy yo' — proyecto de interés", () => {
     expect(onEnviar.mock.calls[0][0].proyecto_interes).toBeUndefined();
   });
 
-  it("los proyectos con la ubicación en duda no se cuelgan de una ciudad confirmada", () => {
-    // El insumo los reporta en dos ciudades distintas; meterlos bajo una sola
-    // sería afirmar lo que no sabemos.
+  it("agrupa por ciudad, sin arrastrar las notas de la fuente a la etiqueta", () => {
+    // La ciudad de un proyecto con la ubicación en duda es una frase entera
+    // ("Ricaurte o Bogotá (ubicación contradictoria entre hojas…)"), y eso como
+    // etiqueta de grupo es ilegible. Hoy el catálogo no tiene ninguno —la
+    // ambigüedad de VIBO ONCE y KARAKALI la resolvió el brochure— pero la regla
+    // sigue: el rótulo se corta antes del paréntesis y se marca "por confirmar".
     abrirFormulario();
     const grupos = [
       ...screen.getByLabelText(/proyecto de interés/i).querySelectorAll("optgroup"),
     ].map((g) => (g as HTMLOptGroupElement).label);
 
-    const inciertos = catalogo.filter((p) => p.ubicacion_incierta);
-    expect(inciertos.length).toBeGreaterThan(0);
-    expect(grupos.some((g) => /por confirmar/i.test(g))).toBe(true);
-    expect(grupos).not.toContain(inciertos[0].ciudad);
+    expect(grupos.length).toBeGreaterThan(0);
+    for (const grupo of grupos) {
+      expect(grupo, "una etiqueta de grupo no debe traer la nota de la fuente").not.toMatch(
+        /\(ubicación|contradictoria|sin confirmar\)/i,
+      );
+    }
+
+    // Y cada proyecto aparece en exactamente un grupo.
+    const opciones = [
+      ...screen.getByLabelText(/proyecto de interés/i).querySelectorAll("option"),
+    ].filter((o) => (o as HTMLOptionElement).value);
+    expect(opciones).toHaveLength(catalogo.length);
   });
 });
