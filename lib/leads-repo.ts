@@ -263,13 +263,16 @@ export async function guardarLeadCurado(
   const { error } = await supabase.from("leads").upsert(fila, { onConflict: "lead_id" });
   if (!error) return {};
 
-  // Compatibilidad con la base creada ANTES del puntaje 0–100.
+  // Compatibilidad con una base creada ANTES del puntaje 0–100.
   //
-  // La columna `puntaje` está en db/schema.sql pero nunca se aplicó a la base
-  // de producción, y por eso NINGUNA conversación se guardaba: el upsert
-  // entero rebotaba. Guardar sin prioridad es infinitamente mejor que perder
-  // el lead, pero NO se hace en silencio — quien llame se entera por la
-  // advertencia y el arreglo real es db/migracion-001-puntaje.sql.
+  // ✅ La base de producción YA está migrada (db/migracion-001-puntaje.sql,
+  // 2026-07-24), así que este camino no se toma hoy: queda como seguro para una
+  // base levantada desde cero con un schema viejo.
+  //
+  // Lo que pasaba cuando faltaba la columna: el upsert entero rebotaba y
+  // NINGUNA conversación se guardaba. Guardar sin prioridad es infinitamente
+  // mejor que perder el lead, pero NO se hace en silencio — quien llame se
+  // entera por la advertencia, y el arreglo real es correr la migración.
   if (/puntaje/i.test(error.message)) {
     const sinPuntaje: Record<string, unknown> = { ...fila };
     delete sinPuntaje.puntaje;

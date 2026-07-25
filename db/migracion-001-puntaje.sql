@@ -1,7 +1,20 @@
 -- =====================================================================
 -- Migración 001 — la columna `puntaje` (y el lead con un solo proyecto)
 --
--- POR QUÉ EXISTE: la DB de producción se creó con una versión de
+-- ✅ YA APLICADA EN LA BASE DE PRODUCCIÓN (Mani, 2026-07-24).
+--    Re-verificada el 2026-07-25 por dos vías independientes:
+--      · GET /api/leads en la URL pública devuelve las filas CON su puntaje
+--        (74 / 32 / 0), o sea que la columna existe y la vista `cola_asesor`
+--        la expone — que es el punto 3 de esta migración;
+--      · POST /api/curar contra la base real guardó con `puntaje: 71` y SIN
+--        `advertencia`, y esa advertencia es justo la que emite el camino de
+--        compatibilidad de `lib/leads-repo.ts` cuando la columna falta.
+--
+--    NO hay que volver a correrla. El archivo se conserva porque es
+--    idempotente y porque una base creada desde cero con un `schema.sql`
+--    viejo la volvería a necesitar.
+--
+-- POR QUÉ EXISTIÓ: la DB de producción se creó con una versión de
 -- `schema.sql` ANTERIOR al puntaje 0–100 (el tablero lo agregó después).
 -- La columna quedó en el archivo pero nunca en la base, así que TODA
 -- escritura desde la app rebotaba con:

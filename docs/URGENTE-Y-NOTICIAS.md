@@ -87,13 +87,15 @@ El respaldo es del mentor, textual: *"la prioridad siempre son los afiliados, **
 
 ## 🔌 2026-07-24 18:10 — La cadena quedó conectada, y apareció por qué NUNCA se guardó nada
 
-**Acción obligatoria de quien tenga acceso a Supabase: pegar [`db/migracion-001-puntaje.sql`](../db/migracion-001-puntaje.sql) en el SQL Editor y ejecutarlo.** Son 30 segundos, es idempotente y no borra datos.
+> ✅ **La migración YA ESTÁ APLICADA** (Mani, ese mismo 2026-07-24; re-verificada contra producción el 2026-07-25). **No hay que volver a correrla** — lo único que sí se re-corre es `db/seed.sql`. El resto de esta entrada queda como registro de qué pasó.
+
+~~**Acción obligatoria de quien tenga acceso a Supabase: pegar [`db/migracion-001-puntaje.sql`](../db/migracion-001-puntaje.sql) en el SQL Editor y ejecutarlo.**~~ Hecha.
 
 **El hallazgo:** la tabla `leads` de producción **no tiene la columna `puntaje`**. Está en `db/schema.sql` desde que el tablero introdujo el puntaje 0–100, pero la base se creó antes y nunca se migró. Toda escritura rebotaba con `Could not find the 'puntaje' column of 'leads' in the schema cache`. Por eso ninguna conversación aparecía en Supabase: **no era el chat ni el motor, era una columna que no existe.** Diagnosticado corriendo `/api/curar` contra la base real, no leyendo código.
 
 **Lo que se conectó (ticket [006](tasks/006-orquestador.md), la costura S4 — era el riesgo #1 del proyecto):** la conversación ya no muere en un `console.log`. Al cerrar, el `Lead` va a **`/api/curar`**, que califica con el motor, matchea proyectos, redacta el porqué y **persiste el lead con su hilo completo** de mensajes. Verificado contra la Supabase real: fila con 7 factores, 3 proyectos y las respuestas completas, más las filas de `conversaciones` (incluidas las de `sistema` para ingesta y consentimiento).
 
-- **Mientras nadie corra la migración, el demo NO se cae:** se guarda igual, sin puntaje, y **lo dice en voz alta** — en el chat y en los logs. Un demo que finge haber guardado es peor que uno que falla a la vista.
+- **Mientras la migración no estuvo corrida, el demo NO se cayó:** se guardaba igual, sin puntaje, y **lo decía en voz alta** — en el chat y en los logs. Un demo que finge haber guardado es peor que uno que falla a la vista. Ese camino de compatibilidad sigue en `lib/leads-repo.ts` como seguro para una base nueva.
 - **Sin autorización de datos no se persiste nada** (403). Habeas data, no cortesía.
 - **Los 3 personajes, calificados con el catálogo real:** Diana `listo` 75/100 con 3 proyectos · Carlos `listo_restriccion_cupo` 57/100 con **0 proyectos** (los 18 tienen el cupo 90/10 agotado — la munición del pitch aparece sola) · Yuliana `nutricion` con su trigger.
 - **⚠️ Correr una conversación PISA la fila sembrada de ese personaje** (upsert por `lead_id`). Es lo que pide el ticket 006, pero conviene saberlo antes del video.
