@@ -33,6 +33,10 @@ export interface Lead {
     subsidio_monto_mensual?: number; // cuánto baja la cuota mensual estimada, si aplica
     situacion_crediticia?: "buena" | "regular" | "mala" | "sin_info";
     zona_interes?: string;
+    /** Rango de edad del titular — alimenta la similitud con compradores reales (ticket 016). */
+    rango_edad?: "20_35" | "36_45" | "46_mas";
+    /** Conformación del hogar (categorías del PPT de buyer personas) — alimenta la similitud. */
+    composicion_familiar?: "solo" | "pareja" | "familia_con_hijos" | "monoparental";
     afiliado_autoreportado?: boolean; // solo se pregunta si perfil.match = false (spec §4 paso 2-3)
   };
 }

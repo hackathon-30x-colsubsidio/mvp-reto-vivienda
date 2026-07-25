@@ -297,3 +297,92 @@ describe("lead que llega sin nada (el 'soy yo' sin match de enriquecimiento)", (
     expect(nombres(elegidos)[0]).toBe("Ciudadela del Este");
   });
 });
+
+// Estas dos describes usan `controlado` (lib/matching/fixtures.ts), el mismo
+// catálogo chico y determinista que el resto del archivo — no el `catalogo`
+// real importado arriba, que ya tiene su propia suite de zona fuzzy más abajo
+// ("la zona que el lead ESCRIBE") y su propia regresión de cupo copado
+// ("cuando TODOS los proyectos tienen el cupo copado").
+describe("zona estricta (2026-07-25): nunca cae al catálogo completo en silencio", () => {
+  it("un bogotano nunca recibe Medellín sin marca, aunque le alcance", () => {
+    const elegidos = matchear({
+      lead: leadDe({ ciudad: "Bogotá" }),
+      score: scoreDe("listo"),
+      catalogo: controlado,
+      precio_maximo: PRECIO_MAXIMO.holgado,
+    });
+    expect(elegidos.every((e) => e.ficha.ciudad === "Bogotá")).toBe(true);
+  });
+
+  it("si en su zona queda UN solo proyecto, se recomienda ese único (no se rellena con otras ciudades)", () => {
+    // En Medellín con 160M solo cabe Ciudadela del Este (158M). Antes el
+    // fallback (`enZona.length >= 2`) rellenaba con lo que fuera de otra parte.
+    const elegidos = matchear({
+      lead: leadDe({ ciudad: "Medellín" }),
+      score: scoreDe("listo"),
+      catalogo: controlado,
+      precio_maximo: 160_000_000,
+    });
+    expect(nombres(elegidos)).toEqual(["Ciudadela del Este"]);
+    expect(elegidos[0].fuera_de_zona).not.toBe(true);
+  });
+
+  it("zona sin candidatos → máx. 2 alternativas marcadas fuera_de_zona, con la razón honesta PRIMERO", () => {
+    const lead = leadDe({});
+    lead.respuestas.zona_interes = "Cali";
+    const elegidos = matchear({
+      lead,
+      score: scoreDe("listo"),
+      catalogo: controlado,
+      precio_maximo: PRECIO_MAXIMO.holgado,
+    });
+    expect(elegidos.length).toBeGreaterThan(0);
+    expect(elegidos.length).toBeLessThanOrEqual(2);
+    for (const { fuera_de_zona, razones } of elegidos) {
+      expect(fuera_de_zona).toBe(true);
+      expect(razones[0]).toMatch(/fuera de tu zona/);
+      expect(razones[0]).toContain("Cali");
+    }
+  });
+});
+
+describe("ranking multi-factor: adiós al 'siempre los 3 más baratos'", () => {
+  // Contra el catálogo REAL (`catalogo`, importado arriba de "./catalogo"):
+  // dos bogotanos con ingresos distintos tienen que recibir recomendaciones
+  // distintas. Antes ambos recibían los más baratos.
+  it("dos leads con ingresos distintos reciben proyectos distintos", () => {
+    // Con la cuota real (anualidad, no el 0,6% plano), $2,5M ya no le alcanza
+    // ni al proyecto VIS más barato del catálogo (La Macarena, $149,7M): el
+    // techo mínimo para financiar eso ronda los $3,36M. $4M es el mismo piso
+    // que ya calibró el equipo para Carlos (fixtures/leads.ts).
+    const modesto = leadDe({ ciudad: "Bogotá", afiliado: true });
+    modesto.respuestas.ingreso_hogar_mensual = 4_000_000;
+    const holgado = leadDe({ ciudad: "Bogotá", afiliado: true });
+    holgado.respuestas.ingreso_hogar_mensual = 12_000_000;
+
+    const deModesto = nombres(
+      matchear({ lead: modesto, score: scoreDe("listo"), catalogo, precio_maximo: 500_000_000 }),
+    );
+    const deHolgado = nombres(
+      matchear({ lead: holgado, score: scoreDe("listo"), catalogo, precio_maximo: 500_000_000 }),
+    );
+
+    expect(deModesto.length).toBeGreaterThan(0);
+    expect(deHolgado.length).toBeGreaterThan(0);
+    expect(deModesto).not.toEqual(deHolgado);
+  });
+
+  it("con subsidio declarado, la razón del proyecto VIS lo nombra", () => {
+    const lead = leadDe({ ciudad: "Bogotá", afiliado: true });
+    lead.respuestas.subsidios = ["Mi Casa Ya"];
+    const elegidos = matchear({
+      lead,
+      score: scoreDe("listo"),
+      catalogo: controlado,
+      precio_maximo: PRECIO_MAXIMO.holgado,
+    });
+    const vis = elegidos.find((e) => e.ficha.vis);
+    expect(vis).toBeDefined();
+    expect(vis!.razones.join(" ")).toContain("Mi Casa Ya");
+  });
+});

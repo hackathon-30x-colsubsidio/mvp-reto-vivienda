@@ -72,12 +72,13 @@ describe("curar", () => {
     }
   });
 
-  // El CHECK `listo_tiene_2_o_3_proyectos` del ADR 0003 acepta 0 o 2-3, pero
-  // NO 1: un lead con exactamente un proyecto rebota de la DB y se pierde.
+  // El CHECK vigente es `listo_tiene_hasta_3_proyectos` (db/migracion-001,
+  // punto 2): acepta 0–3, incluido el 1 — con la zona estricta (2026-07-25) un
+  // lead cuya zona solo tiene un proyecto que le alcance recibe exactamente ese.
   it("no produce leads que la DB vaya a rechazar por cantidad de proyectos", () => {
     for (const lead of CANONICOS) {
       const { proyectos } = curar(lead);
-      expect([0, 2, 3]).toContain(proyectos.length);
+      expect(proyectos.length).toBeLessThanOrEqual(3);
     }
   });
 

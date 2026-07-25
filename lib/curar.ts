@@ -67,6 +67,8 @@ export function explicacionDeterminista(
   lead: Lead,
   score: Score,
   proyectos: ProyectoRecomendado[],
+  /** `true` cuando TODO lo recomendado es alternativa fuera de la zona pedida. */
+  fueraDeZona = false,
 ): string {
   const primerNombre = lead.evento.nombre.split(" ")[0];
   const valorDe = (nombre: string) =>
@@ -96,7 +98,16 @@ export function explicacionDeterminista(
     partes.push(`${valorDe("cupo_90_10")} — el límite es de cupo, no del lead.`);
   }
 
-  if (proyectos.length > 0) {
+  if (proyectos.length > 0 && fueraDeZona) {
+    // Zona estricta (2026-07-25): en su zona no hubo nada dentro del
+    // presupuesto. No se le disfraza otra ciudad de match — se le dice.
+    const nombres = proyectos.map((p) => p.nombre).join(", ");
+    partes.push(
+      `En la zona que pidió (${lead.respuestas.zona_interes ?? lead.perfil.ciudad}) ningún proyecto del catálogo cae dentro de su presupuesto. ` +
+        `Se le muestran ${proyectos.length === 1 ? "una alternativa" : `${proyectos.length} alternativas`} en otra zona, marcada${proyectos.length === 1 ? "" : "s"} como tal: ${nombres}. ` +
+        `Un asesor te contactará para más información.`,
+    );
+  } else if (proyectos.length > 0) {
     const nombres = proyectos.map((p) => p.nombre).join(", ");
     partes.push(
       `Le caben ${proyectos.length} proyecto${proyectos.length === 1 ? "" : "s"} del catálogo: ${nombres}.`,
@@ -146,7 +157,12 @@ export function curar(lead: Lead, fichas: FichaProyecto[] = catalogoReal): LeadC
     lead,
     score,
     proyectos,
-    explicacion: explicacionDeterminista(lead, score, proyectos),
+    explicacion: explicacionDeterminista(
+      lead,
+      score,
+      proyectos,
+      elegidos.length > 0 && elegidos.every((e) => e.fuera_de_zona === true),
+    ),
   };
 }
 
