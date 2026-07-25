@@ -81,6 +81,11 @@ const PASAN_EL_CORTE: Metrica = {
 const NO_AFILIADOS: Metrica = {
   id: "no-afiliados",
   titulo: "Leads no afiliados",
+  // La única marcada como principal, y no es capricho de diseño: el
+  // spec 06 la llama "la más valiosa del tablero — la munición del reto
+  // hecha operación". Es la que enfrenta la realidad medida contra el
+  // límite que fija la norma.
+  principal: true,
   descripcion: `Contra el ${distribuciones.pct_no_afiliado_global}% de los ${distribuciones.n_compradores_historico_total.toLocaleString("es-CO")} compradores históricos reales, y contra el 10% que permite la regla 90/10.`,
   calcular({ leads }) {
     const noAfiliados = leads.filter((l) => !afiliadoEfectivo(l.curado.lead)).length;

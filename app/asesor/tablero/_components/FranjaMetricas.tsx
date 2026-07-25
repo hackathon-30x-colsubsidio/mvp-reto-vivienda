@@ -10,6 +10,12 @@ import type { DatosTablero } from "@/lib/tablero/tipos";
  * Cada cifra es una tarjeta del design system. El rótulo va en
  * versalitas porque es exactamente eso — el rótulo de un campo de datos,
  * que es el único uso que el sistema le da a las versalitas.
+ *
+ * NO son seis tarjetas idénticas. La que el registry marca `principal`
+ * lleva superficie teñida, cifra mayor y el filo de marca, porque un
+ * tablero donde todo pesa lo mismo obliga a leerlo entero para saber qué
+ * importa — y aquí sí hay una cifra que decide: el reparto de afiliación
+ * contra el 10% que permite la regla 90/10.
  */
 export function FranjaMetricas({ datos }: { datos: DatosTablero }) {
   return (
@@ -24,6 +30,7 @@ export function FranjaMetricas({ datos }: { datos: DatosTablero }) {
     >
       {METRICAS.map((metrica) => {
         const { valor, detalle } = metrica.calcular(datos);
+        const esPrincipal = metrica.principal === true;
 
         return (
           <article
@@ -33,19 +40,35 @@ export function FranjaMetricas({ datos }: { datos: DatosTablero }) {
             // ahorran las dos filas son justo lo que hacía que el corte
             // no cupiera en una ventana de 1440×900 (alto útil real
             // ~530px, no 900 — medido en el navegador, no estimado).
-            className="vidrio flex flex-col px-2.5 py-2"
+            className={`vidrio flex flex-col px-2.5 py-2 ${
+              esPrincipal ? "vidrio-principal" : ""
+            }`}
           >
-            <h3 className="rotulo leading-snug">{metrica.titulo}</h3>
+            <h3
+              className={`rotulo leading-snug text-balance ${
+                esPrincipal ? "text-brand-azul" : ""
+              }`}
+            >
+              {metrica.titulo}
+            </h3>
 
             <p
               data-testid="metrica-valor"
-              className="cifra text-texto mt-1 text-[30px] leading-none font-bold"
+              className={`cifra text-texto mt-1 leading-none font-bold ${
+                esPrincipal ? "text-[38px]" : "text-[30px]"
+              }`}
             >
               {valor}
             </p>
 
             {detalle && (
-              <p className="text-texto mt-0.5 text-[12px] leading-snug">{detalle}</p>
+              <p
+                className={`mt-0.5 text-[12px] leading-snug text-balance ${
+                  esPrincipal ? "text-texto font-semibold" : "text-texto"
+                }`}
+              >
+                {detalle}
+              </p>
             )}
 
             {/* La fuente de la cifra, impresa COMPLETA. No es un tooltip

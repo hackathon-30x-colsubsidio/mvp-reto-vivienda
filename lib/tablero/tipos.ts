@@ -32,6 +32,15 @@ export interface Metrica {
   titulo: string;
   /** De dónde sale el número. Se imprime bajo la cifra, no es un tooltip. */
   descripcion: string;
+  /**
+   * La cifra que decide la pantalla, si la hay.
+   *
+   * Existe para que la franja NO sea seis tarjetas idénticas: un tablero
+   * donde todo pesa lo mismo obliga a leerlo entero para saber qué
+   * importa. Como máximo UNA métrica lleva esta marca — dos destacadas
+   * es ninguna destacada.
+   */
+  principal?: boolean;
   calcular(datos: DatosTablero): {
     /** Ya formateado: la definición sabe si es "12", "34%" o "3,2 h". */
     valor: string;
