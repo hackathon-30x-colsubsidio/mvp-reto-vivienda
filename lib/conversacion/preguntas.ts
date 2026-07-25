@@ -617,16 +617,19 @@ export function preguntasDeReenganche(): PasoPregunta[] {
 const URL_AFILIACION = "https://www.colsubsidio.com/afiliaciones";
 
 /**
- * La invitación a afiliarse. Solo se le muestra a quien NO es afiliado, y
- * cambia según si pudo comprar o no: para quien pasó el corte el argumento es
- * el cupo; para quien no pasó, es que el subsidio le bajaría la cuota — que es
- * justamente su trigger de nutrición.
+ * La invitación a afiliarse. Solo se le muestra a quien NO es afiliado.
+ *
+ * **Corta a propósito.** La primera versión explicaba el cupo del 10% de la
+ * regla 90/10 y por qué afiliarse lo sacaba de esa fila: es cierto, es
+ * relevante para el negocio… y no le importa a quien está buscando casa. El
+ * 90/10 es vocabulario interno — al lead se le dice qué gana, no cómo funciona
+ * nuestro inventario. Esa explicación sigue viva donde sí sirve: en la ficha
+ * del asesor y en la advertencia de cada proyecto recomendado.
+ *
+ * Una sola frase, un solo beneficio, un enlace.
  */
-export function mensajeAfiliacion(paso: boolean): string {
-  if (paso) {
-    return `Ah, y algo que te puede servir de verdad 💡 Como todavía no estás afiliado a Colsubsidio, en estos proyectos entras por el cupo del 10% que la regla les reserva a los no afiliados. Afiliarte te saca de esa fila y te abre el subsidio de vivienda de la caja, que es solo para afiliados — y puedes hacerlo tú mismo, incluso si trabajas por tu cuenta: ${URL_AFILIACION}`;
-  }
-  return `Y te dejo el camino más corto que veo para ti 💡 El subsidio de vivienda de Colsubsidio baja la cuota mensual, que es justo lo que hoy no te cuadra, pero es solo para afiliados. Puedes afiliarte tú mismo, incluso si trabajas por tu cuenta: ${URL_AFILIACION}`;
+export function mensajeAfiliacion(): string {
+  return `Una cosa más que te puede servir 💡 Si te afilias a Colsubsidio puedes acceder a los subsidios de vivienda de la caja. Aquí te dice cómo: ${URL_AFILIACION}`;
 }
 
 export function mensajeCierre(nombre: string): string {

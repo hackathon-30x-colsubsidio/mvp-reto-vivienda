@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PerfilConocido } from "@/lib/types";
 import {
   construirPreguntas,
+  mensajeAfiliacion,
   mensajeYaSabemos,
   parsearIngresoMensual,
   type PasoPregunta,
@@ -189,5 +190,27 @@ describe("la zona: el agente contesta lo que la persona dijo", () => {
     // Es la respuesta más impredecible del set, así que ahí sí vale la latencia.
     expect(zona().interpretarTexto("Bogotá").pulir).toBe(true);
     expect(paso(SIN_DATOS, "situacion_crediticia").interpretarTexto("al día").pulir).toBeUndefined();
+  });
+});
+
+describe("la invitación a afiliarse habla de beneficio, no de reglas internas", () => {
+  // La primera versión explicaba el cupo del 10% de la regla 90/10. Es cierto y
+  // le importa al negocio, pero no a quien está buscando casa: el 90/10 es
+  // vocabulario interno. Al lead se le dice qué gana, no cómo funciona nuestro
+  // inventario — esa explicación vive en la ficha del asesor.
+  const mensaje = mensajeAfiliacion();
+
+  it("no menciona el cupo ni la regla 90/10", () => {
+    expect(mensaje).not.toMatch(/90\/10|10\s?%|cupo|fila/i);
+  });
+
+  it("dice lo único que le importa: los subsidios de la caja", () => {
+    expect(mensaje).toMatch(/subsidios/i);
+    expect(mensaje).toMatch(/colsubsidio/i);
+  });
+
+  it("es corto y lleva el enlace oficial", () => {
+    expect(mensaje.length).toBeLessThan(200);
+    expect(mensaje).toContain("https://www.colsubsidio.com/afiliaciones");
   });
 });

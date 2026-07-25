@@ -68,9 +68,11 @@ Lo que lo convirtió de cortesía en la salida más útil que tiene ese lead ([i
 - Afiliarse además lo saca de la fila del **10%** que la regla 90/10 reserva a los no afiliados, que en los 18 proyectos ya está copada.
 - Y **puede hacerlo él mismo**: Colsubsidio tiene modalidad para trabajador independiente, no solo la de empresa.
 
-Dos decisiones de redacción, y las dos importan: **va de último**, después de resolverle lo que vino a buscar —si no, se lee como que le vendemos la afiliación en vez de ayudarle—, y **no lleva cifras**. Las fuentes se contradicen en el monto del subsidio de la caja (30 SMMLV ≈ $52,5M en una, "hasta $30 millones" en otra) y depende de la convocatoria; prometerle un número a alguien que está decidiendo la compra de su vida, con fuentes que no coinciden, es lo que este proyecto no hace. Quien verifique el monto oficial puede agregarlo citando de dónde salió.
+Tres decisiones de redacción, y las tres importan:
 
-El texto cambia según el caso: al que **pasó el corte** se le habla del cupo; al que **no pasó**, de que el subsidio le bajaría la cuota — que es literalmente su trigger de nutrición.
+1. **Va de último**, después de resolverle lo que vino a buscar. Si no, se lee como que le vendemos la afiliación en vez de ayudarle.
+2. **No lleva cifras.** Las fuentes se contradicen en el monto del subsidio de la caja (30 SMMLV ≈ $52,5M en una, "hasta $30 millones" en otra) y depende de la convocatoria; prometerle un número a alguien que está decidiendo la compra de su vida, con fuentes que no coinciden, es lo que este proyecto no hace. Quien verifique el monto oficial puede agregarlo citando de dónde salió.
+3. **Es una sola frase, y no explica el cupo.** La primera versión contaba que afiliarse lo sacaba de la fila del 10% de la regla 90/10. Es cierto y le importa al negocio, pero **el 90/10 es vocabulario interno**: al lead se le dice qué gana, no cómo funciona nuestro inventario. Esa explicación sigue viva donde sí sirve — en la ficha del asesor y en la advertencia de cada proyecto recomendado. Lo protegen tests que fallan si el cupo vuelve al mensaje.
 
 ### D4 · Un solo espacio de IDs: los slugs del catálogo real · [CERRADA — 2026-07-24, `slots.json` se genera]
 

@@ -418,10 +418,7 @@ export function ChatWhatsApp({
    */
   async function invitarAfiliacion(veredicto: ResultadoCurado) {
     if (veredicto.afiliado !== false) return;
-    await agregarBotInstantaneo(
-      mensajeAfiliacion(veredicto.salida !== "nutricion"),
-      700,
-    );
+    await agregarBotInstantaneo(mensajeAfiliacion(), 700);
   }
 
   /**

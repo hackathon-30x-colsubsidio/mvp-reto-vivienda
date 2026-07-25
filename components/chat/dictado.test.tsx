@@ -170,11 +170,11 @@ describe("invitación a afiliarse (spec 04 D3)", () => {
     fireEvent.submit(campo.closest("form")!);
   }
 
-  it("al NO afiliado que no pasó el corte se le ofrece, con el enlace real", async () => {
+  it("al NO afiliado se le ofrece, corto y con el enlace real", async () => {
     chatQueTermina({ afiliado: false, salida: "nutricion" });
     await responderIngreso("2.000.000");
 
-    const invitacion = await screen.findByText(/subsidio de vivienda de Colsubsidio/i, undefined, {
+    const invitacion = await screen.findByText(/subsidios de vivienda de la caja/i, undefined, {
       timeout: 15_000,
     });
     expect(invitacion).toBeInTheDocument();
