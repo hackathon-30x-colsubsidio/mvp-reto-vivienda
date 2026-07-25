@@ -12,10 +12,11 @@ Un workflow que hace que los leads pagos se parezcan a los orgánicos: el lead e
 
 El flujo corre de punta a punta y los 4 criterios de aceptación están construidos. **Antes de tocar nada, en este orden:**
 
-1. **[`docs/agents/plan-sabado-25.md`](docs/agents/plan-sabado-25.md)** — qué se hace HOY: el reparto por 5 personas, las 10 decisiones, los 3 checkpoints, las reglas del día y el **recetario para probar sin pisar a los 3 personajes** del demo. Su **addendum de las 12:00** trae los 3 tickets que salieron de la discusión de workflow.
-2. **[`docs/agents/discusion-workflow-2026-07-25.md`](docs/agents/discusion-workflow-2026-07-25.md)** — el delta del plan: los dos motores, el layout contra el reto, y el **único defecto abierto que el jurado puede reproducir solo** (ticket 023). Trae también los seis supuestos que la sala dio por ciertos y el código desmiente, con su medición.
-3. **[`docs/agents/handoff.md`](docs/agents/handoff.md)** — la memoria del build (lo nuevo arriba) y el roadmap de lo que queda.
-4. **[`docs/URGENTE-Y-NOTICIAS.md`](docs/URGENTE-Y-NOTICIAS.md)** — lo que cambia el rumbo del equipo.
+1. **[`docs/agents/plan-arquitectura-conversador.md`](docs/agents/plan-arquitectura-conversador.md)** — **el plan de trabajo vigente y el canal de sincronización de los 5 computadores.** 8 ramas con **propiedad de archivos asignada** (tocar un archivo que no es tuyo hace que se rechace el merge), la bitácora de hallazgos, y los 15 puntos marcados `🔴 CONSULTAR` que nadie escribe sin aprobación — todos son personalidad o comportamiento del agente. **Su regla de oro: no asumas, consulta.**
+2. **[`docs/agents/plan-sabado-25.md`](docs/agents/plan-sabado-25.md)** — qué se hace HOY: el reparto por 5 personas, las 10 decisiones, los 3 checkpoints, las reglas del día y el **recetario para probar sin pisar a los 3 personajes** del demo. Su **addendum de las 12:00** trae los 3 tickets que salieron de la discusión de workflow.
+3. **[`docs/agents/discusion-workflow-2026-07-25.md`](docs/agents/discusion-workflow-2026-07-25.md)** — el delta del plan: los dos motores, el layout contra el reto, y el **único defecto abierto que el jurado puede reproducir solo** (ticket 023). Trae también los seis supuestos que la sala dio por ciertos y el código desmiente, con su medición.
+4. **[`docs/agents/handoff.md`](docs/agents/handoff.md)** — la memoria del build (lo nuevo arriba) y el roadmap de lo que queda.
+5. **[`docs/URGENTE-Y-NOTICIAS.md`](docs/URGENTE-Y-NOTICIAS.md)** — lo que cambia el rumbo del equipo.
 
 > **Cómo leer los docs de este repo:** todo documento superado lleva un banner `🔁 HISTÓRICO` en su primera línea que dice cuál es el vigente. Si un doc no lo tiene, está vivo y su contenido cuenta. Si encuentras un doc vivo que el código desmiente, **arréglalo o pon el banner** — no lo dejes derivar.
 

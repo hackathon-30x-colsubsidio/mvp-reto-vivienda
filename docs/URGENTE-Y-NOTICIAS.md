@@ -4,6 +4,24 @@
 >
 > El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
 
+## 🔵 2026-07-25 (noche) — Arranca el plan de arquitectura del conversador: 8 ramas, 5 personas, propiedad de archivos asignada
+
+**Lee [`agents/plan-arquitectura-conversador.md`](agents/plan-arquitectura-conversador.md) antes de tocar código.** Es el canal de sincronización de los 5 computadores y trae el reparto, el mapa de propiedad y la bitácora de hallazgos.
+
+**Las dos reglas que hay que interiorizar ya:**
+
+1. **Un archivo tiene una sola dueña.** `preguntas.ts` y `desvio.ts` son de P2; `ChatWhatsApp.tsx` y `guion-demo.ts` de P1; `lib/types.ts` y `/asesor` de P3; `lib/gemini.ts` y `/api/chat` de P4; `similitud.ts` y `lib/matching/` de P5. **Si tocas un archivo que no es tuyo, se rechaza el merge.**
+2. **No asumas, consulta.** Un hallazgo que el plan no previó va a la bitácora del documento con el dueño etiquetado, no se resuelve por cuenta propia. Y **todo lo que el lead vaya a leer se consulta antes de escribirlo** — hay 15 puntos marcados `🔴 CONSULTAR`, y los copys del banco de preguntas están **todos sin escribir**.
+
+**Qué cambia, en corto.** Se le pone al conversador la mitad de arriba del sándwich que hoy no tiene: un post-guard que valida lo que Gemini devuelve antes de pintarlo (hoy el stream va directo al cliente y las prohibiciones viven solo en el prompt), un contrato de turno explícito validado con zod, un intérprete de respaldo con IA para lo que el regex no entiende, un banco de preguntas por componente de vivienda, y el cableado de los brochures al matcher.
+
+**⚠️ Dos cosas que chocan con lo que ya está escrito en este documento:**
+
+- **Se levanta la prohibición de que Sara recomiende** (la entrada de las 15:30 dice lo contrario). Pero con una forma precisa: **el matcher decide y Sara solo verbaliza** lo que el motor eligió, con el `porque` ya calculado. La decisión sigue siendo determinista y auditable. La reescritura del prompt está marcada `🔴 CONSULTAR` y hay un test que la fija (`prompt-maestro.test.ts:43`).
+- **El seed se va a regenerar en 5 de las 8 ramas.** Súmalo al pendiente rojo de abajo: **correr `db/seed.sql` en Supabase queda para el final**, después del último merge, no antes. Correrlo ahora es trabajo perdido.
+
+**Lo que NO cambia:** la decisión 1 (el código conduce las 7 preguntas base) · el layout, ni un píxel · los 91 tests actuales, que quedan intactos como red · el demo funcionando sin IA.
+
 ## 🟢 2026-07-25 (noche) — Cerrados 023, 024 y 025; los recursos ya llegan al chat. Y dos cosas que cambian lo que se dice en cámara
 
 **357 tests verdes, typecheck y lint limpios, todo en `main`.** Recorrido en el navegador con el LLM vivo.
