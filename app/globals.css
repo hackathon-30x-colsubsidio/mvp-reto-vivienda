@@ -190,6 +190,11 @@
   --sombra-vidrio: 0 1px 1px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.18);
   --sombra-vidrio-alta: 0 1px 1px rgb(15 23 42 / 0.05), 0 16px 40px -16px rgb(15 23 42 / 0.24);
 
+  /* Sombra de cabecera fija. Más marcada que `--sombra-vidrio` a
+     propósito: su trabajo no es elevar una tarjeta sino cortar el
+     renglón que pasa por debajo al scrollear. */
+  --sombra-fija: 0 6px 10px -8px hsl(var(--shadow-color) / 0.45);
+
   /* --- Escala tipográfica del zip (tokens/typography.css) ---
      Vive como variables CSS y NO entra a `@theme`: meterla ahí
      redefiniría `text-sm`/`text-lg` para toda la app —chat y landing
@@ -248,6 +253,13 @@
 
   --rojo: #f2555f;
 
+  /* En claro este color (luminosidad 20%) es más oscuro que el papel y
+     sirve de sombra. En oscuro la superficie baja al 9%, así que el
+     MISMO color queda más CLARO que el fondo: las sombras se volvían un
+     halo. Se baja casi a negro — arregla de paso `--sombra-xs/sm/md/lg`,
+     que en oscuro eran invisibles o al revés. */
+  --shadow-color: 220 20% 2%;
+
   /* En oscuro el vidrio ACLARA sobre el fondo en vez de blanquear: un
      gradiente blanco translúcido encima de #14171a se lee como niebla
      sucia, no como vidrio. El filo también se invierte —claro arriba,
@@ -270,6 +282,9 @@
 
   --sombra-vidrio: 0 1px 1px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.55);
   --sombra-vidrio-alta: 0 1px 1px rgb(0 0 0 / 0.35), 0 16px 40px -16px rgb(0 0 0 / 0.6);
+  /* En oscuro la sombra tiene que ser bastante más densa para leerse
+     sobre una superficie ya oscura. */
+  --sombra-fija: 0 6px 12px -8px hsl(var(--shadow-color) / 0.95);
 }
 
 /* ---------------------------------------------------------------------
@@ -538,12 +553,11 @@ h4 {
   /* Sombra hacia abajo: sin ella el renglón que queda cortado contra el
      borde inferior se lee como texto roto, no como contenido pasando
      por debajo. Opacidad sola no bastaba — el corte necesitaba que la
-     cabecera se leyera como una capa ENCIMA. */
-  box-shadow: 0 6px 10px -8px rgb(15 23 42 / 0.45);
-}
+     cabecera se leyera como una capa ENCIMA.
 
-[data-theme="dark"] .vidrio-solido {
-  box-shadow: 0 6px 12px -8px rgb(0 0 0 / 0.8);
+     El valor sale del token, no de un literal aquí: la capa 1 es la
+     única que define color (ver el encabezado de este archivo). */
+  box-shadow: var(--sombra-fija);
 }
 
 /* El fondo que el vidrio refracta. Dos manchas de marca muy diluidas y
