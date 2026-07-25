@@ -59,6 +59,9 @@ export async function POST(request: Request) {
     puntaje: curado.score.puntaje,
     proyectos: curado.proyectos.length,
     explicacion: curado.explicacion,
+    // Recursos recomendados (capa ortogonal): viajan en la respuesta para que el
+    // chat le muestre al lead su(s) siguiente(s) paso(s). Ausente si ninguno aplica.
+    ...(curado.recursos?.length ? { recursos: curado.recursos } : {}),
     // Sobre este proyecto el chat ofrece las franjas de sala de ventas: es el
     // #1 del match, el que el ranking dejó arriba (criterio 4, ticket 005).
     ...(curado.proyectos[0]

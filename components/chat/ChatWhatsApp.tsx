@@ -25,6 +25,7 @@ import {
   type PasoPregunta,
   type Respuesta,
 } from "@/lib/conversacion/preguntas";
+import { mensajeDeRecursos } from "@/lib/recursos/mensajes";
 import { fechaLarga } from "@/lib/formato";
 import { MensajeBurbuja, type Mensaje } from "./MensajeBurbuja";
 import { SelloPerfil } from "./SelloPerfil";
@@ -382,6 +383,20 @@ export function ChatWhatsApp({
 
     if (veredicto.advertencia) {
       await agregarBotInstantaneo(`⚠️ Nota del demo: ${veredicto.advertencia}`, 400);
+    }
+
+    // Capa de recursos (ortogonal a la salida): si un factor salió débil, se le
+    // muestra el siguiente paso. NUNCA reemplaza al asesor — para un listo el
+    // molde dice explícito que un asesor lo va a contactar. Va antes de la cita
+    // porque es un "además", y también cubre al lead de nutrición (que no tiene
+    // cita y cae directo a "terminado").
+    const mensajeRecursos = mensajeDeRecursos(
+      evento.nombre,
+      veredicto.salida ?? "nutricion",
+      veredicto.recursos,
+    );
+    if (mensajeRecursos) {
+      await agregarBotInstantaneo(mensajeRecursos, 600);
     }
 
     // Criterio de aceptación 4: el lead listo sale con una CITA, no solo con
