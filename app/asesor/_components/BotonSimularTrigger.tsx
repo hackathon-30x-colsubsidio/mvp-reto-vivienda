@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { clasesBoton } from "@/components/ui/Boton";
 
 // =====================================================================
 // CRITERIO DE ACEPTACIÓN 3 — nadie se descarta.  ·  Ticket 007 (S5)
@@ -67,21 +68,21 @@ export function BotonSimularTrigger({ leadId, reEnganchadoEn }: Props) {
         disabled={enCurso}
         // El botón de acción amarillo: DESIGN.md lo reserva para la
         // única acción que interrumpe un estado, y hoy es esta.
-        className="rounded-sm bg-amarillo px-5 py-3 text-base font-bold text-sobre-amarillo transition-colors hover:bg-amarillo-80 disabled:cursor-not-allowed disabled:opacity-60"
+        className={clasesBoton("amarillo", "md")}
       >
         {enCurso ? "Llevando al chat…" : "Simular trigger"}
       </button>
 
       {reEnganchadoEn && (
-        <p data-testid="re-enganche-hecho" className="text-base text-tinta-suave">
+        <p data-testid="re-enganche-hecho" className="text-texto-suave text-[13px]">
           Ya se le disparó el trigger.{" "}
-          <a href={urlChat} className="font-bold text-azul underline">
+          <a href={urlChat} className="text-enlace font-semibold underline">
             Volver a abrir la conversación
           </a>
         </p>
       )}
 
-      {error && <p className="text-base font-semibold text-rojo">{error}</p>}
+      {error && <p className="text-rojo text-[13px] font-semibold">{error}</p>}
     </div>
   );
 }

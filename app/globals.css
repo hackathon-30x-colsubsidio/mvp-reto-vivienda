@@ -9,106 +9,311 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* =====================================================================
-   CONTRATO DE DIRECCIÓN — "El formato sellado"
+   CONTRATO DE DIRECCIÓN — el design system de Colsubsidio
 
-   THESIS: la ficha de un lead es un formato oficial de Colsubsidio:
-   reglado, foliado y sellado, que muestra TODO lo que pesó y cita la
-   norma. Rechaza el dashboard SaaS de tarjetas con sombra suave y un
-   score escondido en un número.
-   OWN-WORLD: azul #0067b1 como CAMPO a escala de página (rieles,
-   cabeceras, bandas de veredicto), amarillo #ffd000 solo como trazo de
-   resaltador y fondo de sello, reglas de grafito a 2px, esquinas casi
-   rectas (3/6px), Geist Sans de trabajo + Geist Mono en toda cifra
-   medida, cero sombra: la profundidad es reglado y capa tonal.
-   STORY: el jurado entiende en un vistazo que nada se decidió a
-   escondidas, y que quien no pasa no se bota.
-   FIRST VIEWPORT: riel azul arriba con el folio; titular a la
-   izquierda; el sello de salida arriba a la derecha; debajo, la banda
-   de veredicto en campo azul y la tabla reglada de factores.
-   FORM: mundo fijado por el brief (guía de identidad cromática de
-   Colsubsidio); el roll (seed 17f38467, índice 6) queda anulado por la
-   regla de brief-pin. Sello = el estampado del formato.
+   Puerto del design system de Claude Design (`Colsubsidio Design
+   System`), construido sobre la cartilla de identidad cromática oficial.
+   Reemplaza al mundo propio "El formato sellado" que vivía aquí: ver el
+   ADR 0003. La superficie del lead ya estaba portada (`app/chat.css`,
+   kit `ui_kits/lead-chat/`); esto porta la del asesor (kit
+   `ui_kits/advisor-panel/`).
+
+   CÓMO SE LEE ESTE ARCHIVO — son tres capas, y solo se edita la primera:
+
+   1. TOKENS DEL SISTEMA. Los nombres son los del zip, verbatim
+      (`--brand-azul`, `--surface-card`, `--text-primary`). Así el CSS
+      que se porte de un ui_kit funciona pegado tal cual, que es como
+      entró `chat.css`. Esta es la fuente de verdad.
+   2. ALIAS DEL REPO. `--papel`, `--tinta`, `--campo`… ya no traen valor
+      propio: apuntan a la capa 1. Existen porque ~20 componentes los
+      usan como clases (`bg-papel`, `text-tinta`) y migrarlos de golpe a
+      dos días del cierre no compraba nada.
+   3. `@theme inline`. Publica las capas de arriba como utilidades de
+      Tailwind. No inventa valores.
+
+   Si hay que cambiar un color, se cambia en la capa 1. Nunca en un
+   componente.
    ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   CAPA 1 — TOKENS DEL SISTEMA (zip: tokens/colors.css)
+   --------------------------------------------------------------------- */
 
 :root {
   color-scheme: light;
 
-  /* --- Paleta corporativa (guía de identidad cromática) --- */
-  --amarillo: #ffd000;
-  --amarillo-80: #ffd933;
-  --amarillo-60: #ffe366;
-  --amarillo-40: #ffec99;
+  /* --- Marca (cartilla de identidad cromática) --- */
+  --brand-amarillo: #ffd000;
+  --brand-amarillo-80: #ffda33;
+  --brand-amarillo-60: #ffe366;
+  --brand-amarillo-40: #ffed99;
+  --brand-amarillo-20: #fff6cc;
 
-  --azul: #0067b1;
-  --azul-80: #3385c1;
-  --azul-60: #66a4d0;
-  --azul-40: #99c2e0;
-  --azul-profundo: #00457a;
+  --brand-azul: #0067b1;
+  --brand-azul-80: #3385c1;
+  --brand-azul-60: #66a3d1;
+  --brand-azul-40: #99c2e0;
+  --brand-azul-20: #cce0f0;
 
-  --grafito: #575756;
-  --grafito-60: #9a9a9a;
-  --grafito-40: #bcbcbb;
-  --grafito-20: #dddddd;
+  --brand-grafito: #575756;
+  --brand-grafito-80: #78787a;
+  --brand-grafito-60: #a0a0a1;
+  --brand-grafito-40: #c7c7c8;
+  --brand-grafito-20: #e4e4e4;
 
-  /* Rojo bandera. El tercer color de la bandera colombiana, y el único
-     que no está en la guía: existe para UNA cosa (ver la Regla del
-     Rojo Escaso en DESIGN.md). */
+  --neutral-0: #ffffff;
+  --neutral-50: #f8f9fa;
+  --neutral-100: #f1f3f5;
+  --neutral-200: #e9ecef;
+  --neutral-300: #dee2e6;
+  --neutral-400: #ced4da;
+  --neutral-500: #adb5bd;
+  --neutral-600: #868e96;
+  --neutral-700: #575756;
+  --neutral-800: #3a3a3a;
+  --neutral-900: #212529;
+  --neutral-950: #16181a;
+
+  /* --- Estados del score ---
+     Paleta DELIBERADAMENTE separada de la de marca: si el cupo 90/10 se
+     pintara con el amarillo corporativo, un acento decorativo y un
+     estado se leerían igual. En este producto un chip amarillo NUNCA
+     es un estado. */
+  --state-green: #16a30c;
+  --state-green-bg: #21c714;
+  --state-green-on: #08340a; /* 6,2:1 */
+  --state-amber: #d98600;
+  --state-amber-bg: #ffab1a;
+  --state-amber-on: #3d2600; /* 7,5:1 */
+  --state-nutricion: #1f7fc4;
+  --state-nutricion-bg: #2f95e0;
+  /* El zip trae blanco aquí, y sobre #2f95e0 da 3,26:1 — por debajo de
+     AA para el tamaño en que se usa la píldora. Se cambia por tinta
+     azul oscura, que es además el patrón que ya siguen los otros dos
+     estados (relleno vivo, tinta muy oscura). 4,6:1. */
+  --state-nutricion-on: #07293f;
+
+  /* Violeta desaturado, fuera de marca Y fuera de la paleta de estados:
+     "dato simulado" es metadato de confianza, no un cuarto estado. */
+  --data-simulado: #8a5cb8;
+  --data-simulado-bg: #f3ecfa;
+
+  /* Rojo bandera. No está en la cartilla ni en el zip: existe para UNA
+     cosa, la Regla del Rojo Escaso (ver DESIGN.md). */
   --rojo: #ce1126;
 
-  /* --- Roles semánticos --- */
-  --fondo: #f8f9fa;          /* el escritorio donde reposa el formato */
-  --papel: #ffffff;          /* la hoja */
-  --papel-hueco: #f1f3f5;    /* cabecera de tabla, zonas huecas */
-  --tinta: #212529;
-  --tinta-suave: #575756;    /* 7,2:1 sobre papel */
-  --borde: #dee2e6;          /* reglado fino */
-  --regla: #575756;          /* reglado grueso, 2px */
+  --shadow-color: 220 15% 20%;
 
-  /* Campo azul: región completa teñida, no acento.
-     `--campo-hover` es su propio token y NO `--azul-profundo`: ese se
-     aclara en oscuro para poder servir de texto, y usarlo de relleno
-     con blanco encima daba 1,88:1. El hover del campo se oscurece
-     siempre. */
-  --campo: var(--azul);
-  --campo-hover: var(--azul-profundo);
-  --sobre-campo: #ffffff;
-  --sobre-campo-suave: #dcecf8; /* 4,87:1 sobre el campo azul */
+  /* --- Roles de superficie y texto --- */
+  --surface-page: var(--neutral-50);
+  --surface-card: var(--neutral-0);
+  --surface-sunken: var(--neutral-100);
+  --surface-raised: var(--neutral-0);
+  --surface-inverse: var(--brand-azul);
+  --border-default: var(--neutral-300);
+  --border-strong: var(--brand-grafito-40);
+  --text-primary: var(--neutral-900);
+  --text-secondary: var(--brand-grafito);
+  --text-tertiary: var(--neutral-600);
+  --text-on-brand: var(--neutral-0);
+  --text-on-amarillo: var(--neutral-900);
+  --text-link: var(--brand-azul);
+  --text-link-hover: #004d85;
 
-  /* Sello sobre amarillo: la tinta nunca cambia, el amarillo tampoco */
-  --sobre-amarillo: #212529;
+  /* --- Radios y sombras (zip: tokens/spacing.css) ---
+     Cada uno se declara dos veces a propósito: `--r-*` / `--sombra-*` es
+     el valor, y el nombre del zip lo referencia. Si el valor viviera
+     directo en `--radius-sm`, el `@theme inline` de abajo tendría que
+     escribir `--radius-sm: var(--radius-sm)` y quedaría auto-referente.
+     El alias existe para que el CSS que se porte de un ui_kit siga
+     resolviendo `var(--radius-md)` sin tocarlo. */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-pill: var(--r-pill);
 
-  --r-sm: 3px;
-  --r-md: 6px;
+  /* El zip SÍ usa sombra, a diferencia del mundo anterior: xs/sm en
+     reposo, md/lg solo en elementos flotantes. Nunca de color. */
+  --sombra-xs: 0 1px 2px hsl(var(--shadow-color) / 0.06);
+  --sombra-sm: 0 2px 6px hsl(var(--shadow-color) / 0.08);
+  --sombra-md: 0 6px 20px hsl(var(--shadow-color) / 0.1);
+  --sombra-lg: 0 12px 32px hsl(var(--shadow-color) / 0.14);
+  --shadow-xs: var(--sombra-xs);
+  --shadow-sm: var(--sombra-sm);
+  --shadow-md: var(--sombra-md);
+  --shadow-lg: var(--sombra-lg);
 
-  --salida-suave: #eaf2f9;   /* tinte azul apenas perceptible */
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+
+  /* --- Escala tipográfica del zip (tokens/typography.css) ---
+     Vive como variables CSS y NO entra a `@theme`: meterla ahí
+     redefiniría `text-sm`/`text-lg` para toda la app —chat y landing
+     incluidos— por un cambio que solo se pidió para el asesor. Donde el
+     kit fija un tamaño exacto, el componente lo pide con `text-[15px]`.
+     La escala de espaciado del zip (4/8/12/16…) no aparece porque ya es,
+     exactamente, la escala numérica por defecto de Tailwind. */
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-base: 15px;
+  --fs-md: 17px;
+  --fs-lg: 20px;
+  --fs-xl: 24px;
+  --fs-2xl: 30px;
+  --fs-3xl: 38px;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --fondo: #101418;
-  --papel: #191e24;
-  --papel-hueco: #212831;
-  --tinta: #e8eaed;
-  --tinta-suave: #a3abb5;
-  --borde: #2c333b;
-  --regla: #6b7480;
+  /* El oscuro no es una inversión mecánica: el azul de marca se aclara
+     para sobrevivir sobre fondo oscuro, y el amarillo se usa aún más
+     escaso. */
+  --brand-azul: #3385c1;
 
-  /* El azul base pierde legibilidad como texto sobre tinta: como
-     TEXTO sube al tinte 60%, como CAMPO se queda en el azul de marca. */
-  --azul: #66a4d0;
-  --azul-profundo: #99c2e0;
-  --campo: #0067b1;
-  --campo-hover: #005694; /* 7,61:1 con blanco encima */
-  --sobre-campo: #ffffff;
-  --sobre-campo-suave: #dcecf8; /* 4,87:1 sobre el campo azul */
+  --surface-page: #14171a;
+  --surface-card: #1d2124;
+  --surface-sunken: #16181b;
+  --surface-raised: #23282c;
+  --surface-inverse: #0a3a5e;
+  --border-default: #33383c;
+  --border-strong: #454b50;
+  --text-primary: #f2f3f4;
+  --text-secondary: #b7bcc0;
+  --text-tertiary: #8a9096;
+  --text-on-brand: var(--neutral-0);
+  --text-on-amarillo: #1a1a1a;
+  --text-link: #6fb3e8;
+  --text-link-hover: #96c8ef;
+
+  /* Los rellenos del zip para oscuro dejaban el blanco encima en 3,49:1
+     (verde) y 3,25:1 (ámbar). Se oscurecen manteniendo el matiz, hasta
+     que el blanco pasa AA. El azul de nutrición ya pasaba y no cambia. */
+  --state-green: #4fe53f;
+  --state-green-bg: #157a0d; /* 5,5:1 con blanco */
+  --state-green-on: #ffffff;
+  --state-amber: #ffb43d;
+  --state-amber-bg: #9a6200; /* 5,2:1 con blanco */
+  --state-amber-on: #ffffff;
+  --state-nutricion: #5aabe0;
+  --state-nutricion-bg: #2f7db0; /* 4,5:1 con blanco */
+  --state-nutricion-on: #ffffff;
+
+  --data-simulado: #c19ee6;
+  --data-simulado-bg: #2a2032;
 
   --rojo: #f2555f;
+}
 
+/* ---------------------------------------------------------------------
+   CAPA 2 — ALIAS DEL REPO
+   Sin valores propios. Cada uno apunta a la capa 1.
+   --------------------------------------------------------------------- */
+
+:root,
+[data-theme="dark"] {
+  --amarillo: var(--brand-amarillo);
+  --amarillo-80: var(--brand-amarillo-80);
+  --amarillo-60: var(--brand-amarillo-60);
+  --amarillo-40: var(--brand-amarillo-40);
+
+  --azul: var(--brand-azul);
+  --azul-80: var(--brand-azul-80);
+  --azul-60: var(--brand-azul-60);
+  --azul-40: var(--brand-azul-40);
+  --azul-profundo: #00457a;
+
+  --grafito: var(--brand-grafito);
+  --grafito-60: var(--brand-grafito-60);
+  --grafito-40: var(--brand-grafito-40);
+  --grafito-20: var(--brand-grafito-20);
+
+  --fondo: var(--surface-page);
+  --papel: var(--surface-card);
+  --papel-hueco: var(--surface-sunken);
+  --tinta: var(--text-primary);
+  --tinta-suave: var(--text-secondary);
+  --borde: var(--border-default);
+  --regla: var(--border-strong);
+
+  /* Campo azul: región completa teñida, no acento. `--campo-hover` es su
+     propio token y NO `--azul-profundo`: en oscuro ese se aclara para
+     poder servir de texto, y usarlo de relleno con blanco encima daba
+     1,88:1. El hover del campo se oscurece siempre. */
+  --campo: var(--surface-inverse);
+  --sobre-campo: var(--text-on-brand);
+  --sobre-campo-suave: #dcecf8; /* 4,87:1 sobre el campo azul */
+  --sobre-amarillo: var(--text-on-amarillo);
+
+  /* `--r-sm` y `--r-md` NO se re-declaran aquí. Ya traen su valor de la
+     capa 1, y apuntarlos a `var(--radius-*)` —que a su vez apunta de
+     vuelta a ellos— crea un ciclo: el navegador descarta la propiedad
+     entera y TODAS las esquinas de la app se van a cero. Pasó, y no se
+     ve en el typecheck ni en los tests. */
+}
+
+:root {
+  --campo-hover: #00457a;
+  --salida-suave: #eaf2f9; /* tinte azul apenas perceptible */
+}
+
+[data-theme="dark"] {
+  --campo-hover: #005694; /* 7,61:1 con blanco encima */
   --salida-suave: #16202b;
 }
 
+/* ---------------------------------------------------------------------
+   CAPA 3 — PUBLICACIÓN A TAILWIND
+   --------------------------------------------------------------------- */
+
 @theme inline {
+  /* --- Vocabulario del sistema (nombres del zip) --- */
+  --color-brand-azul: var(--brand-azul);
+  --color-brand-amarillo: var(--brand-amarillo);
+  --color-brand-grafito: var(--brand-grafito);
+
+  --color-surface-page: var(--surface-page);
+  --color-surface-card: var(--surface-card);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-inverse: var(--surface-inverse);
+
+  --color-texto: var(--text-primary);
+  --color-texto-suave: var(--text-secondary);
+  --color-texto-tenue: var(--text-tertiary);
+  --color-enlace: var(--text-link);
+  --color-enlace-hover: var(--text-link-hover);
+
+  /* Estados del score. Los nombres son los de `EstadoLead` en
+     lib/types-asesor.ts, no los del zip (`ready`/`restricted`), para que
+     el dominio y la clase se llamen igual. */
+  --color-estado-listo: var(--state-green);
+  --color-estado-listo-bg: var(--state-green-bg);
+  --color-estado-listo-on: var(--state-green-on);
+  --color-estado-cupo: var(--state-amber);
+  --color-estado-cupo-bg: var(--state-amber-bg);
+  --color-estado-cupo-on: var(--state-amber-on);
+  --color-estado-nutricion: var(--state-nutricion);
+  --color-estado-nutricion-bg: var(--state-nutricion-bg);
+  --color-estado-nutricion-on: var(--state-nutricion-on);
+
+  --color-simulado: var(--data-simulado);
+  --color-simulado-bg: var(--data-simulado-bg);
+
+  --radius-lg: var(--radius-lg);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-xs: var(--sombra-xs);
+  --shadow-sm: var(--sombra-sm);
+  --shadow-md: var(--sombra-md);
+  --shadow-lg: var(--sombra-lg);
+
+  /* --- Alias del repo (capa 2) --- */
   --color-amarillo: var(--amarillo);
   --color-amarillo-80: var(--amarillo-80);
   --color-amarillo-60: var(--amarillo-60);
@@ -144,23 +349,49 @@
 
   --radius-sm: var(--r-sm);
   --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-pill: var(--r-pill);
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Sora titula, Work Sans trabaja, JetBrains Mono es para datos. Las
+     tres las carga `next/font` en app/layout.tsx, que las auto-hospeda:
+     el `@import` a fonts.googleapis.com que trae el zip sería un CDN
+     externo colgando del demo. */
+  --font-display: var(--font-sora);
+  --font-sans: var(--font-work-sans);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 body {
-  background: var(--fondo);
-  color: var(--tinta);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-work-sans), system-ui, sans-serif;
 }
 
-/* Toda cifra medida va en Geist Mono con numerales tabulares: en este
-   mundo el número es un dato leído de un formato, no decoración. */
+/* Los títulos hablan en Sora: es la que hace eco al peso del isotipo. */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-sora), system-ui, sans-serif;
+}
+
+/* Toda cifra medida va en mono con numerales tabulares. El zip lo pide
+   explícito: mono separa el DATO de la EXPLICACIÓN, y las dos nunca
+   comparten tratamiento tipográfico. */
 .cifra {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
+}
+
+/* Rótulo de campo de datos: versalitas espaciadas. Se repetía ~15 veces
+   como `text-xs font-bold tracking-[0.08em] uppercase` en el JSX. */
+.rotulo {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
 }
 
 /* --- El trazo de resaltador ---------------------------------------

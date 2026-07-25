@@ -1,3 +1,4 @@
+import { Check, X } from "lucide-react";
 import type { FactorScore } from "@/lib/types";
 
 // =====================================================================
@@ -61,7 +62,7 @@ function legible(nombre: string): string {
 export function TablaFactores({ factores }: { factores: FactorScore[] }) {
   if (factores.length === 0) {
     return (
-      <p className="rounded-md border-2 border-rojo px-4 py-4 text-base font-semibold text-rojo">
+      <p className="border-rojo text-rojo rounded-md border px-4 py-4 text-[15px] font-semibold">
         Este lead no tiene factores registrados. Es un error: ningún lead
         calificado debería llegar aquí sin ellos.
       </p>
@@ -69,62 +70,66 @@ export function TablaFactores({ factores }: { factores: FactorScore[] }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-md border-2 border-borde bg-papel">
-      <table className="w-full border-collapse text-left">
-        <thead>
-          <tr className="border-b-2 border-borde bg-papel-hueco">
-            <th className="px-4 py-3 text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase">
-              Factor
-            </th>
-            <th className="px-4 py-3 text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase">
-              Qué se evaluó
-            </th>
-            <th className="px-4 py-3 text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase">
-              Cumple
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {/* El .map() completo: tantas filas como factores evaluó el motor. */}
-          {factores.map((factor) => (
-            <tr
-              key={factor.nombre}
-              data-testid="factor"
-              className="border-t border-borde align-top"
-            >
-              <td className="px-4 py-4">
-                <span
-                  data-testid="factor-nombre"
-                  className="text-base font-bold text-tinta"
-                >
-                  {legible(factor.nombre)}
-                </span>
-                <span
-                  data-testid="factor-fuente"
-                  className="mt-1 block text-sm text-tinta-suave"
-                >
-                  {ETIQUETA_FUENTE[factor.fuente]}
-                </span>
-              </td>
-              <td
-                data-testid="factor-valor"
-                className="px-4 py-4 text-base text-tinta"
+    // Tratamiento `ScoreFactor` del design system: el DATO duro (valor,
+    // peso) va en mono y la EXPLICACIÓN en Work Sans suave. Nunca
+    // comparten tratamiento tipográfico — es lo que hace que el asesor
+    // distinga de un vistazo lo medido de lo interpretado.
+    <ul className="divide-borde divide-y">
+      {/* El .map() completo: tantas filas como factores evaluó el motor. */}
+      {factores.map((factor) => (
+        <li
+          key={factor.nombre}
+          data-testid="factor"
+          className="py-3 first:pt-0 last:pb-0"
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <span className="flex flex-wrap items-center gap-2">
+              <span
+                data-testid="factor-nombre"
+                className="text-texto text-[15px] font-semibold"
               >
-                {factor.valor}
-              </td>
-              {/* El "cumple" es TEXTO, no solo un color: el color nunca
-                  puede ser el único portador del significado. */}
-              <td data-testid="factor-cumple" className="px-4 py-4 whitespace-nowrap">
-                {factor.cumple ? (
-                  <span className="font-bold text-azul">✓ Sí</span>
-                ) : (
-                  <span className="font-bold text-rojo">✗ No</span>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                {legible(factor.nombre)}
+              </span>
+              {factor.peso !== undefined && (
+                <span className="cifra bg-surface-sunken text-texto-tenue rounded-sm px-1.5 py-0.5 text-[12px]">
+                  peso {Math.round(factor.peso * 100)}%
+                </span>
+              )}
+            </span>
+            <span
+              data-testid="factor-valor"
+              className="cifra text-texto text-[16px] font-semibold"
+            >
+              {factor.valor}
+            </span>
+          </div>
+
+          <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+            {/* El "cumple" es TEXTO, no solo un color ni solo un icono:
+                el color nunca puede ser el único portador del
+                significado. El icono acompaña, no sustituye. */}
+            <span
+              data-testid="factor-cumple"
+              className={`inline-flex items-center gap-1 font-semibold ${
+                factor.cumple ? "text-estado-listo" : "text-rojo"
+              }`}
+            >
+              {factor.cumple ? (
+                <Check className="size-3.5" aria-hidden="true" strokeWidth={3} />
+              ) : (
+                <X className="size-3.5" aria-hidden="true" strokeWidth={3} />
+              )}
+              {factor.cumple ? "Cumple" : "No cumple"}
+            </span>
+            <span className="text-texto-tenue" aria-hidden="true">
+              ·
+            </span>
+            <span data-testid="factor-fuente" className="text-texto-suave">
+              {ETIQUETA_FUENTE[factor.fuente]}
+            </span>
+          </p>
+        </li>
+      ))}
+    </ul>
   );
 }

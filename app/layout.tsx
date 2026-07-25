@@ -1,14 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Sora, Work_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Las tres fuentes del design system. `next/font` las auto-hospeda desde
+// el propio dominio: el `@import` a fonts.googleapis.com que trae
+// `tokens/typography.css` sería una petición a un CDN externo en el
+// primer pintado del demo.
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const workSans = Work_Sans({
+  variable: "--font-work-sans",
+  subsets: ["latin"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -31,7 +40,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${sora.variable} ${workSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
       // El script de arriba escribe `data-theme` antes de que React hidrate,
       // así que el <html> del cliente nunca va a coincidir con el del
       // servidor. Es el único atributo que difiere y es deliberado.

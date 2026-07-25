@@ -60,7 +60,19 @@ describe("ticket 012 — tantos factores visibles como evaluó el motor", () => 
 
     render(<TablaFactores factores={noAfiliadoListo.score.factores} />);
 
-    expect(screen.getAllByText("✗ No")).toHaveLength(noCumplen.length);
+    // Antes esto buscaba el literal "✗ No". El glifo se fue cuando la
+    // tabla se portó al design system, que prohíbe la iconografía
+    // unicode hecha a mano (readme del kit → ICONOGRAPHY) y la
+    // reemplaza por Lucide + la palabra. Lo que el test protege no es la
+    // tipografía del marcador sino que los factores que NO cumplen se
+    // vean: eso se afirma contando los marcadores renderizados, que es
+    // el contrato real y sobrevive al próximo cambio de piel.
+    const marcadores = screen.getAllByTestId("factor-cumple");
+    const visiblesNoCumplen = marcadores.filter((n) =>
+      n.textContent?.includes("No cumple"),
+    );
+    expect(visiblesNoCumplen).toHaveLength(noCumplen.length);
+
     for (const factor of noCumplen) {
       expect(screen.getByText(factor.valor)).toBeInTheDocument();
     }

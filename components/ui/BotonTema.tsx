@@ -33,7 +33,13 @@ function leerServidor(): Tema {
   return "claro";
 }
 
-export function BotonTema() {
+/**
+ * `className` por defecto es `.themeToggle`, que vive en chat.css y está
+ * posicionada en absoluto sobre el escenario del lead. La consola del
+ * asesor lo monta dentro de una topbar en flujo normal, así que pasa sus
+ * propias clases: sin la salida, el botón se le iría a una esquina.
+ */
+export function BotonTema({ className = "themeToggle" }: { className?: string }) {
   const tema = useSyncExternalStore(suscribir, leerCliente, leerServidor);
 
   function alternar() {
@@ -50,7 +56,7 @@ export function BotonTema() {
 
   return (
     <button
-      className="themeToggle"
+      className={className}
       onClick={alternar}
       aria-label={tema === "claro" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
     >

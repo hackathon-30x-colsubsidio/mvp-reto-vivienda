@@ -1,100 +1,144 @@
 ---
 name: Colsubsidio Vivienda — Curado de leads
-description: Un formato oficial reglado y sellado, en el azul y el amarillo de Colsubsidio, donde toda decisión se muestra con lo que la sostiene.
+description: El design system de Colsubsidio aplicado a las dos caras del perfilador — el chat cálido del lead y el panel denso del asesor — donde toda decisión se muestra con lo que la sostiene.
 colors:
   amarillo: "#ffd000"
-  amarillo-80: "#ffd933"
+  amarillo-80: "#ffda33"
   amarillo-60: "#ffe366"
-  amarillo-40: "#ffec99"
+  amarillo-40: "#ffed99"
+  amarillo-20: "#fff6cc"
   azul: "#0067b1"
   azul-80: "#3385c1"
-  azul-60: "#66a4d0"
+  azul-60: "#66a3d1"
   azul-40: "#99c2e0"
-  azul-profundo: "#00457a"
+  azul-20: "#cce0f0"
   grafito: "#575756"
-  grafito-60: "#9a9a9a"
-  grafito-40: "#bcbcbb"
-  grafito-20: "#dddddd"
+  grafito-80: "#78787a"
+  grafito-60: "#a0a0a1"
+  grafito-40: "#c7c7c8"
+  grafito-20: "#e4e4e4"
   rojo-bandera: "#ce1126"
-  fondo: "#f8f9fa"
-  papel: "#ffffff"
-  papel-hueco: "#f1f3f5"
-  tinta: "#212529"
-  borde: "#dee2e6"
-  verde-whatsapp: "#075e54"
+  surface-page: "#f8f9fa"
+  surface-card: "#ffffff"
+  surface-sunken: "#f1f3f5"
+  text-primary: "#212529"
+  text-secondary: "#575756"
+  text-tertiary: "#868e96"
+  border-default: "#dee2e6"
+  estado-listo: "#21c714"
+  estado-cupo: "#ffab1a"
+  estado-nutricion: "#2f95e0"
+  dato-simulado: "#8a5cb8"
 typography:
   display:
-    fontFamily: "Geist Sans, system-ui, sans-serif"
-    fontSize: "clamp(2rem, 5vw, 3rem)"
-    fontWeight: 700
-    lineHeight: 1.05
-    letterSpacing: "-0.03em"
+    fontFamily: "Sora, system-ui, sans-serif"
+    fontSize: "38px"
+    fontWeight: 800
+    lineHeight: 1.2
+    letterSpacing: "-0.02em"
+  headline-lg:
+    fontFamily: "Sora, system-ui, sans-serif"
+    fontSize: "30px"
+    fontWeight: 800
+    lineHeight: 1.2
+    letterSpacing: "-0.02em"
   headline:
-    fontFamily: "Geist Sans, system-ui, sans-serif"
-    fontSize: "1.25rem"
+    fontFamily: "Sora, system-ui, sans-serif"
+    fontSize: "20px"
     fontWeight: 700
-    lineHeight: 1.25
-    letterSpacing: "-0.01em"
-  body:
-    fontFamily: "Geist Sans, system-ui, sans-serif"
-    fontSize: "1rem"
+    lineHeight: 1.2
+  title:
+    fontFamily: "Sora, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 700
+    lineHeight: 1.2
+  body-lg:
+    fontFamily: "Work Sans, system-ui, sans-serif"
+    fontSize: "17px"
     fontWeight: 400
-    lineHeight: 1.6
+    lineHeight: 1.45
+  body:
+    fontFamily: "Work Sans, system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 400
+    lineHeight: 1.45
+  body-sm:
+    fontFamily: "Work Sans, system-ui, sans-serif"
+    fontSize: "13px"
+    fontWeight: 400
+    lineHeight: 1.45
   label:
-    fontFamily: "Geist Sans, system-ui, sans-serif"
-    fontSize: "0.75rem"
-    fontWeight: 700
+    fontFamily: "Work Sans, system-ui, sans-serif"
+    fontSize: "12px"
+    fontWeight: 600
     letterSpacing: "0.08em"
   cifra:
-    fontFamily: "Geist Mono, ui-monospace, monospace"
-    fontSize: "1rem"
+    fontFamily: "JetBrains Mono, ui-monospace, monospace"
+    fontSize: "16px"
     fontWeight: 500
     fontFeature: "tabular-nums"
 rounded:
-  sm: "3px"
-  md: "6px"
+  sm: "6px"
+  md: "10px"
+  lg: "16px"
+  pill: "999px"
 spacing:
   xs: "4px"
   sm: "8px"
   md: "16px"
   lg: "24px"
   xl: "40px"
+shadows:
+  xs: "0 1px 2px hsl(220 15% 20% / 0.06)"
+  sm: "0 2px 6px hsl(220 15% 20% / 0.08)"
+  md: "0 6px 20px hsl(220 15% 20% / 0.10)"
+  lg: "0 12px 32px hsl(220 15% 20% / 0.14)"
 components:
   boton-primario:
     backgroundColor: "{colors.azul}"
     textColor: "#ffffff"
     rounded: "{rounded.sm}"
-    padding: "12px 20px"
-  boton-primario-hover:
-    backgroundColor: "{colors.azul-profundo}"
+    padding: "10px 18px"
   boton-secundario:
-    backgroundColor: "{colors.papel}"
+    backgroundColor: "transparent"
     textColor: "{colors.azul}"
+    borderColor: "{colors.azul}"
     rounded: "{rounded.sm}"
-    padding: "12px 20px"
+    padding: "10px 18px"
   boton-accion:
     backgroundColor: "{colors.amarillo}"
-    textColor: "{colors.tinta}"
+    textColor: "{colors.text-primary}"
     rounded: "{rounded.sm}"
-    padding: "12px 20px"
+    padding: "10px 18px"
   sello-listo:
-    backgroundColor: "{colors.azul}"
-    textColor: "#ffffff"
-    rounded: "{rounded.sm}"
-    padding: "4px 10px"
+    backgroundColor: "{colors.estado-listo}"
+    textColor: "#08340a"
+    rounded: "{rounded.pill}"
+    padding: "2px 10px"
   sello-cupo:
-    backgroundColor: "{colors.amarillo}"
-    textColor: "{colors.tinta}"
-    rounded: "{rounded.sm}"
-    padding: "4px 10px"
+    backgroundColor: "{colors.estado-cupo}"
+    textColor: "#3d2600"
+    rounded: "{rounded.pill}"
+    padding: "2px 10px"
   sello-nutricion:
-    backgroundColor: "{colors.azul-40}"
-    textColor: "#00457a"
-    rounded: "{rounded.sm}"
-    padding: "4px 10px"
+    backgroundColor: "{colors.estado-nutricion}"
+    textColor: "#07293f"
+    rounded: "{rounded.pill}"
+    padding: "2px 10px"
+  etiqueta-simulado:
+    backgroundColor: "#f3ecfa"
+    textColor: "{colors.dato-simulado}"
+    rounded: "{rounded.pill}"
+    padding: "2px 8px"
+  tarjeta:
+    backgroundColor: "{colors.surface-card}"
+    borderColor: "{colors.border-default}"
+    rounded: "{rounded.md}"
+    shadow: "{shadows.xs}"
   campo-entrada:
-    backgroundColor: "{colors.papel}"
-    textColor: "{colors.tinta}"
+    backgroundColor: "{colors.surface-card}"
+    textColor: "{colors.text-primary}"
+    borderColor: "{colors.border-default}"
     rounded: "{rounded.sm}"
     padding: "10px 12px"
 ---
@@ -103,152 +147,161 @@ components:
 
 ## Overview
 
-**Creative North Star: "El formato sellado"**
+**Este documento describe el design system de Colsubsidio,** entregado como kit por Claude Design y portado a este repo. Reemplazó al mundo propio que vivía aquí, *"El formato sellado"* — ver el [ADR 0004](docs/adr/0004-design-system-colsubsidio.md) para el porqué y para lo que se sacrificó en el cambio.
 
-Este producto decide cosas serias sobre la vida de alguien: si puede comprar vivienda, con cuál subsidio, bajo cuál norma. Su restricción fundacional es *cero caja negra*. El mundo visual que sostiene eso no es un dashboard: es un **formato oficial** — el papel reglado de una caja de compensación, con su folio, sus campos, su renglón de dictamen y su sello. Un formato no esconde nada; enseña todos los renglones, incluidos los que no cumplen, y cita la norma al pie.
+El producto tiene dos caras, y se comportan distinto a propósito:
 
-Del formato viene todo lo demás. Las reglas son reglas de verdad (2px de grafito), no hairlines decorativas. Las esquinas son casi rectas (3px), porque el papel timbrado no tiene esquinas redondeadas. Las cifras van en monoespaciada con numerales tabulares, porque son valores leídos de un campo, no adornos. El azul Colsubsidio no salpica como acento: **tiñe regiones enteras** — el riel superior, la banda de veredicto, el sello del lead listo. El amarillo hace exactamente dos cosas: es el fondo del sello que pide atención, y es el **trazo de resaltador** sobre el único hecho que decide la pantalla.
+1. **El escenario del lead** — la portada y el chat. Cálido, generoso en aire, píldoras y radios blandos. Es la pantalla más vista del demo. Puerto del kit `ui_kits/lead-chat/`, vive en [`app/chat.css`](app/chat.css).
+2. **La consola del asesor** — bandeja, ficha y tablero. Densa, escaneable, hecha para trabajar. Puerto del kit `ui_kits/advisor-panel/`, vive en `app/asesor/` y en los primitivos de [`components/ui/`](components/ui/).
 
-El sistema rechaza tres cosas explícitamente: el score reducido a un número grande con una barra de progreso; la tarjeta con sombra suave repetida como estructura de página; y cualquier tratamiento que haga que "nutrición" se lea como un rechazo. Nutrición es un tinte del mismo azul, no un gris muerto ni un rojo.
+Las dos comparten identidad —la misma paleta, las mismas fuentes, la misma marca— y difieren en densidad y en ritmo, no en vocabulario.
+
+Lo que **no** cambió con el sistema nuevo es la restricción que gobierna todo: *cero caja negra*. Este producto decide cosas serias sobre la vida de alguien —si puede comprar vivienda, con cuál subsidio, bajo cuál norma— así que toda decisión se muestra con lo que la sostiene. El score nunca es un número solo: se descompone factor por factor, con su peso, su valor medido y su frase en lenguaje natural. Si el motor evaluó ocho factores, se ven ocho, incluidos los que no cumplen — que son justo los que el asesor necesita ver.
 
 **Key Characteristics:**
-- Reglado antes que sombreado: la profundidad es capa tonal y línea, nunca `box-shadow`.
-- El color tiñe regiones, no bordes.
-- Toda cifra es monoespaciada y tabular.
-- Un solo trazo de resaltador por pantalla, y es el único movimiento.
-- Nada se oculta: si el motor evaluó ocho factores, se ven ocho.
+- El score nunca aparece sin la aritmética que lo sostiene.
+- El dato duro y su explicación nunca comparten tratamiento tipográfico: mono para lo medido, Work Sans para lo interpretado.
+- Los estados usan una paleta separada de la de marca. Un chip amarillo nunca es un estado.
+- Máximo dos colores de marca visibles por vista.
+- Un solo trazo de resaltador por pantalla, y es la única animación decorativa de la app.
+- Nada se oculta: ni un factor, ni una fila, ni el origen de una cifra.
 
 ## Colors
 
-Tres colores corporativos que ya venían con jerarquía asignada, más un rojo que solo aparece cuando algo falla.
+Tres colores corporativos con jerarquía ya asignada, una paleta de estados aparte, y un violeta que no pertenece a ninguna de las dos.
 
 ### Primary
-- **Azul Colsubsidio** (`#0067b1`): el color de campo. Riel superior, banda de veredicto, sello del lead listo, botón primario, enlaces. Sobre él el texto es blanco (5,9:1). Sus tintes 80/60/40 son superficies y estados, nunca texto sobre claro.
-- **Azul Profundo** (`#00457a`): titulares dentro de un campo azul claro, hover del botón primario, tinta del sello de nutrición.
+- **Azul Colsubsidio** (`#0067b1`): el color estructural. Barra lateral, banda de veredicto, botón primario, enlaces, barras de la serie diaria. Sobre él el texto es blanco (5,9:1). Sus tintes 80/60/40/20 son superficies, nunca texto sobre claro.
 
 ### Secondary
-- **Amarillo Colsubsidio** (`#ffd000`): fondo del sello "restricción de cupo", trazo del resaltador, y anillo de foco. Nunca es texto y nunca toca un fondo claro sin llevar tinta `#212529` encima (12:1).
+- **Amarillo Colsubsidio** (`#ffd000`): acento escaso. Botón de acción, trazo del resaltador, filo del ítem activo en la navegación y anillo de foco. Nunca es texto y nunca toca fondo claro sin llevar tinta `#212529` encima (12:1).
+
+### Estados del score
+Deliberadamente **fuera** de la paleta de marca, para que un estado nunca se confunda con un acento decorativo:
+- **Listo** — verde `#21c714` con tinta `#08340a`.
+- **Cupo 90/10** — ámbar `#ffab1a` con tinta `#3d2600`.
+- **Nutrición** — azul `#2f95e0` con tinta `#07293f`. Azul, no rojo ni gris muerto: no es un rechazo.
+
+> Los rellenos que trae el kit se corrigieron donde no pasaban AA con la tinta que el propio kit especifica: nutrición en claro daba 3,26:1 con blanco, y en oscuro verde y ámbar daban 3,49:1 y 3,25:1. Se conservó el matiz y se ajustó la luminosidad.
+
+### Metadato
+- **Violeta desaturado** (`#8a5cb8` sobre `#f3ecfa`): marca un dato simulado o inferido. Fuera de marca **y** fuera de la paleta de estados, porque "simulado" no es un cuarto estado del lead: es información sobre la confianza del dato.
 
 ### Tertiary
-- **Rojo Bandera** (`#ce1126`): el tercer color de la bandera, y el único que no viene de la guía. Solo para factores que NO cumplen y errores de red.
+- **Rojo Bandera** (`#ce1126`): el tercer color de la bandera, y el único que no viene ni de la cartilla ni del kit. Solo para factores que NO cumplen y errores de red.
 
 ### Neutral
-- **Grafito** (`#575756`): texto secundario (7,2:1 sobre papel) y el reglado grueso de 2px. Sus tintes 60/40/20 son separadores y bordes finos.
-- **Fondo** (`#f8f9fa`) / **Papel** (`#ffffff`) / **Papel hueco** (`#f1f3f5`): escritorio, hoja y cabecera de tabla.
-- **Tinta** (`#212529`): todo el texto de lectura.
-- **Borde** (`#dee2e6`): reglado fino entre renglones.
+Escala `neutral-0` a `neutral-950`, expuesta por rol: `surface-page` (el fondo de trabajo) → `surface-card` (la tarjeta) → `surface-sunken` (cabeceras y zonas de apoyo); `text-primary` / `text-secondary` / `text-tertiary`; `border-default` y `border-strong`.
 
 ### Modo oscuro
-El mismo formato bajo luz de oficina de noche: fondo `#101418`, papel `#191e24`, tinta `#e8eaed`. El azul **como texto** sube al tinte 60% (`#66a4d0`, 6,2:1); el azul **como campo** se queda en `#0067b1` para no perder la marca. El amarillo y su tinta no se mueven en ningún tema.
-
-**La Regla del Rol Único.** Un color que cambia de valor entre temas sirve a **un solo rol**. `azul-profundo` se aclara en oscuro para poder ser texto, así que ahí deja de servir como relleno: el hover del campo tiene su propio `campo-hover` y el sello de nutrición lleva tinta fija `#00457a`. Reusar el token del otro rol da 1,6:1 — el modo claro no lo delata.
+No es una inversión mecánica. El azul de marca **sube** a `#3385c1` para sobrevivir sobre fondo oscuro; las superficies van de `#14171a` a `#23282c`; el amarillo se usa aún más escaso. El tema lo manda `data-theme` en `<html>`, que un script pre-paint fija antes del primer pintado — sin él la página arranca en claro y salta al oscuro al hidratar, que es un flash de tema justo en el arranque del demo.
 
 ### Named Rules
-**La Regla del Único Trazo.** Hay exactamente un `.resaltado` por pantalla, y va sobre la frase que decide esa pantalla. Dos trazos significan que no se decidió cuál era el hecho.
+
+**La Regla del Rol Único.** Un color que cambia de valor entre temas sirve a **un solo rol**. `azul-profundo` se aclara en oscuro para poder ser texto, así que ahí deja de servir como relleno: el hover del campo tiene su propio `campo-hover`. Reusar el token del otro rol da 1,6:1 — y el modo claro no lo delata.
+
+**La Regla del Único Trazo.** Hay exactamente un `.resaltado` por pantalla, y va sobre la frase que decide esa pantalla. Dos trazos significan que no se decidió cuál era el hecho. Hoy: uno en la bandeja, uno en el tablero, uno en la ficha.
 
 **La Regla del Rojo Escaso.** El rojo bandera aparece únicamente donde algo no cumplió o algo falló. Nunca decora, nunca titula, nunca marca "nutrición".
 
-**La Regla del Campo.** El azul se aplica a regiones completas (riel, banda, sello, botón). Un `border-left` azul de 4px sobre una tarjeta blanca es esta regla mal entendida.
+**La Regla de los Dos Colores.** Máximo dos colores de marca visibles en una misma vista. Si el azul ya estructura la pantalla y el amarillo ya marcó el hecho que decide, no entra un tercero.
 
 ## Typography
 
-**Display / Body Font:** Geist Sans (con `system-ui`, `sans-serif`)
-**Cifra Font:** Geist Mono (con `ui-monospace`, `monospace`)
+**Display:** Sora (700–800) — títulos, nombres de lead, cifras grandes. Geométrica y redondeada, hace eco al peso del isotipo.
+**Body / UI:** Work Sans (400–600) — todo lo que se lee de corrido y toda la interfaz. Muy legible en tablas densas.
+**Datos:** JetBrains Mono (400–500, `tabular-nums`) — cifras, IDs de lead, montos, pesos.
 
-**Character:** una grotesca de trabajo, sin opinión decorativa, emparejada con su monoespaciada hermana. Es deliberado: en una superficie de *operar*, la personalidad no vive en la letra sino en el reglado, el campo de color y el sello. La monoespaciada no es disfraz de "técnico" — solo toca dígitos medidos.
+Las tres las carga `next/font` en [`app/layout.tsx`](app/layout.tsx), que las auto-hospeda. El `@import` a `fonts.googleapis.com` que trae `tokens/typography.css` del kit **no se usa**: sería una petición a un CDN externo en el primer pintado del demo.
 
 ### Hierarchy
-- **Display** (700, `clamp(2rem, 5vw, 3rem)`, 1.05, `-0.03em`): el nombre del lead en su ficha y el titular de la cola. Una vez por pantalla.
-- **Headline** (700, 1.25rem, 1.25): títulos de sección dentro del formato.
-- **Title** (700, 1.125rem, 1.3): nombre del lead en una fila de la cola, nombre de proyecto.
-- **Body** (400, 1rem, 1.6): todo lo que se lee de corrido. Medida máxima 68ch.
-- **Label** (700, 0.75rem, `0.08em`, mayúsculas): rótulo de campo de formulario (`dt`, cabecera de tabla). Es gramática nativa del mundo: un formato rotula sus campos.
-- **Cifra** (500, mono, `tabular-nums`): cualquier número que el sistema midió.
+- **Display** (Sora 800, 38px, `-0.02em`): titular de pantalla y el puntaje del resumen. Una vez por pantalla.
+- **Headline** (Sora 800, 30px): nombre del lead en su ficha.
+- **Title** (Sora 700, 16–20px): títulos de sección y cabecera de tarjeta.
+- **Body** (Work Sans 400, 15px, 1.45): lectura de corrido. Medida máxima 68ch. `17px` para el párrafo de entrada de una pantalla.
+- **Body-sm** (Work Sans 400, 13px): explicaciones, metadatos de fila, fuente de una cifra.
+- **Label** (Work Sans 600, 12px, `0.08em`, mayúsculas): la clase `.rotulo`. Rótulo de campo de datos.
+- **Cifra** (JetBrains Mono 500, `tabular-nums`): la clase `.cifra`. Cualquier número que el sistema midió.
 
 ### Named Rules
-**La Regla del Rótulo.** Las versalitas espaciadas rotulan campos de datos y nada más. No son un antetítulo decorativo sobre cada sección.
+
+**La Regla del Rótulo.** Las versalitas espaciadas (`.rotulo`) rotulan campos de datos y nada más. No son un antetítulo decorativo sobre cada sección.
+
+**La Regla del Dato y su Explicación.** El valor medido va en mono y color primario; la frase que lo explica va en Work Sans y color secundario. Nunca comparten tratamiento. Es lo que deja al asesor distinguir de un vistazo lo que el motor midió de lo que el motor interpretó.
 
 ## Layout
 
-Contenedor de 56rem (`max-w-4xl`) centrado sobre el fondo, con la hoja en papel. Rejilla vertical de 8px: `4 / 8 / 16 / 24 / 40`. Más aire encima de un título que debajo (`mt-10 mb-3` como par típico). La tabla de factores desborda horizontalmente en su propio contenedor con scroll; el `body` nunca hace scroll lateral. En móvil, las columnas de la ficha (`dl`) colapsan a una y la banda de veredicto conserva su relleno completo — es lo primero que se lee en un proyector.
+**La consola del asesor es una consola lista/detalle.** Barra lateral azul de 220px con el lockup y la navegación → lista de leads de 380px → panel de detalle. En escritorio el shell no hace scroll: cada panel se desplaza por dentro, así la bandeja y la ficha se mueven independientes. En móvil la lateral colapsa a barra superior, la lista se oculta en la ruta de detalle y el documento vuelve a hacer scroll normal.
+
+Escala de espaciado de 4px (`4/8/12/16/20/24/32/40/48/64`) — la misma que Tailwind trae por defecto. La consola usa los pasos pequeños; el escenario del lead usa 16–24 entre burbujas. El `body` nunca hace scroll lateral: lo que desborda (tablas) scrollea en su propio contenedor.
 
 ## Elevation & Depth
 
-**Este sistema no usa sombras.** La profundidad se construye con tres capas tonales (`fondo` → `papel` → `papel-hueco`) y con reglado: 1px de `borde` entre renglones, 2px de `regla` alrededor de un bloque que es una unidad. Un bloque no "flota", está impreso.
-
-Única excepción, y es de otro mundo: el escenario del lead (ver "El escenario"), donde la ventana proyecta sombra sobre el fondo y las burbujas llevan la suya, de 1px.
-
-### Named Rules
-**La Regla del Papel Impreso.** Si un elemento necesita `box-shadow` para separarse de su fondo, le falta reglado o le falta capa tonal. Se arregla ahí, no con sombra.
+`shadow-xs` en tarjetas en reposo, `shadow-sm` en hover si la tarjeta es un destino clickeable, `shadow-md`/`lg` solo en elementos flotantes. Nunca sombras de color — nada de "glow" azul o amarillo. La profundidad se apoya además en tres capas tonales (`surface-page` → `surface-card` → `surface-sunken`) y en bordes de 1px.
 
 ## Shapes
 
-Esquinas casi rectas: 3px (`--r-sm`) en sellos, botones, entradas y celdas; 6px (`--r-md`) en bloques grandes. Cero píldoras y cero círculos en la consola del asesor — la píldora pertenece al escenario del lead, donde es la gramática del kit. Los bloques que son una unidad de decisión llevan borde de 2px; los renglones de una lista llevan 1px.
+`6px` en botones, entradas, badges y celdas. `10px` en tarjetas. `16px` en contenedores grandes. `999px` (píldora) en los sellos de estado y las burbujas del chat. Bordes de 1px `border-default`, nunca gruesos ni de color en reposo.
+
+## Motion
+
+Mínima y utilitaria: 120–200ms, `cubic-bezier(.2,.7,.3,1)`. Los mensajes del chat entran con fade + slide-up de 8px. Nada rebota, nada gira. La única animación decorativa de toda la app es el trazo del resaltador (620ms), y respeta `prefers-reduced-motion`.
 
 ## Components
 
-### Botones
-- **Shape:** esquina de 3px (`--r-sm`), nunca píldora fuera del chat.
-- **Primario:** campo azul con texto blanco, `12px 20px`, peso 700.
-- **Hover / Focus:** el fondo baja a azul profundo (`#00457a`); el foco es anillo amarillo de 3px con 2px de separación, igual en todo el sistema.
-- **Secundario:** papel con texto azul y borde de 2px en azul; hover tiñe el fondo a `azul-40` al 30%.
-- **Acción (raro):** fondo amarillo con tinta. Reservado para la única acción que interrumpe un estado — hoy, "Simular trigger".
-- **Disabled:** opacidad 60% y `cursor: not-allowed`; nunca se le quita el color, para que no parezca otro componente.
+### Botones ([`components/ui/Boton.tsx`](components/ui/Boton.tsx))
+Esquina de 6px, peso 600. **Primario:** azul de marca con texto blanco. **Secundario:** transparente con borde y texto azul. **Fantasma:** sin fondo ni borde. **Amarillo:** reservado para la única acción que interrumpe un estado — hoy, "Simular trigger". Disabled a 50% con `cursor: not-allowed`. Se exporta también `clasesBoton()` porque la mitad de los "botones" de esta app son enlaces, y forzarlos a un `<button>` los volvería cliente sin necesidad.
 
-### Sellos (chips de estado)
-- **Style:** rectángulo de 3px, `4px 10px`, peso 700, tamaño 0.875rem. Sin anillo: el fondo teñido ya lo separa.
-- **Listo:** campo azul, texto blanco. **Restricción de cupo:** amarillo, tinta. **Nutrición:** `azul-40`, azul profundo.
-- **Re-enganchado:** sin relleno, borde de 2px en grafito y texto grafito — se lee como un sello añadido después.
+### Sellos de estado ([`components/ui/Pildora.tsx`](components/ui/Pildora.tsx))
+Píldora de `2px 10px`, 12px, peso 600, en la paleta de estados. El texto sale de `ETIQUETA_ESTADO` en `lib/types-asesor.ts`, **no** del kit: el kit dice "Listo · cupo restringido" y aquí decimos "Listo · cupo 90/10", que es la regla concreta que el asesor tiene que validar. **Re-enganchado** va sin relleno, solo contorno: se lee como un sello añadido después.
 
-### Cards / Containers
-- **Corner Style:** 6px (`--r-md`).
-- **Background:** papel; `papel-hueco` cuando el bloque es una zona de apoyo (datos del perfil).
-- **Shadow Strategy:** ninguna (ver Elevation & Depth).
-- **Border:** 2px de `borde` para bloques-unidad; el bloque de veredicto va en campo azul sin borde.
-- **Internal Padding:** 20px (`p-5`).
+### Etiqueta de dato simulado ([`components/ui/EtiquetaSimulado.tsx`](components/ui/EtiquetaSimulado.tsx))
+Píldora violeta con una tilde en mono. Marca los 57 leads sintéticos del tablero y los campos inferidos de la ficha.
 
-### Inputs / Fields
-- **Style:** papel, borde de 2px en `borde`, esquina de 3px, `10px 12px`. Rótulo en versalitas encima, nunca solo placeholder.
-- **Focus:** el borde pasa a azul y entra el anillo amarillo.
-- **Error:** borde y mensaje en rojo bandera; el mensaje nombra el problema y la salida.
+### Tarjetas ([`components/ui/Tarjeta.tsx`](components/ui/Tarjeta.tsx))
+`surface-card`, borde de 1px, radio 10px, `shadow-xs`. `TarjetaConTitulo` agrega cabecera con título en Sora y descripción opcional.
 
-### Navigation
-No hay barra de navegación: el riel azul superior es el encabezado del formato y lleva el folio y el enlace de vuelta. El enlace de vuelta va en blanco sobre el campo azul, subrayado en hover.
+### Inputs ([`CampoBusqueda`](components/ui/CampoBusqueda.tsx), [`SelectorEstado`](components/ui/SelectorEstado.tsx))
+Superficie de tarjeta, borde de 1px, radio 6px, `10px 12px`. **Van sin `useState`:** viven dentro de un `<form method="get">` y su valor viaja por la querystring, para que la consola del asesor siga sin cargar JS de cliente.
 
-### La tabla reglada de factores (componente firma)
-El corazón del "cero caja negra". Cabecera en `papel-hueco` con rótulos en versalitas; una fila por factor evaluado, sin filtrar y sin cortar; cada fila trae nombre, de dónde salió el dato, qué se midió y si cumple. El "cumple" es texto (`✓ Sí` en azul profundo / `✗ No` en rojo bandera), nunca solo un ícono de color — el color no puede ser el único portador del significado.
+### Navegación
+Barra lateral azul con el lockup blanco arriba. El ítem activo lleva `rgba(255,255,255,.14)` y un filo amarillo de 3px a la derecha. Solo lleva a rutas que existen: Bandeja y Tablero. El kit trae también *Proyectos* y *Citas* — no están, porque un ítem que no lleva a ningún lado en un demo que el jurado recorre solo es peor que no tenerlo.
+
+### La lista de factores (componente firma)
+El corazón del "cero caja negra". Una entrada por factor evaluado, sin filtrar y sin cortar. Cada una trae el nombre, el chip de peso en mono, el valor medido en mono, si cumple, y de dónde salió el dato. El "cumple" es **texto** ("Cumple" / "No cumple") acompañado de un icono, nunca solo un color ni solo un icono: el color no puede ser el único portador del significado.
+
+### Iconos
+**Lucide** (`lucide-react`), trazo 2px. Renderiza SVG plano y funciona en Server Components, así que no obliga a `"use client"` ni al `<script>` de CDN que usa el ui_kit. **No se usa emoji en la consola ni en el chat,** y no hay iconografía unicode hecha a mano (`→ ✓ ✗`) — es lo que reemplazó Lucide.
 
 ### El escenario (la superficie del lead)
-La superficie del lead —portada y chat— ya **no** toma prestado el mundo de WhatsApp. El verde `#075e54`, el fondo `#e5ddd5` y las burbujas `#dcf8c6` se retiraron: el reconocimiento del canal no compensaba entregarle la pantalla más vista del demo a la marca de otro. En su lugar corre el kit `ui_kits/lead-chat/desktop.html` del design system, portado a [`app/chat.css`](app/chat.css).
+Puerto del kit `ui_kits/lead-chat/desktop.html` en [`app/chat.css`](app/chat.css). Escenario azul a pantalla completa con degradado radial y el isotipo de marca de agua al 6%; una ventana de 1120×720 montada encima, con riel izquierdo que dice de qué va la conversación antes de que empiece. Píldoras y radios blandos: es lo contrario de la densidad de la consola, y está bien — son dos caras del mismo producto. Cada token `--chat-*` apunta a la paleta corporativa; cambiar un color se hace ahí, nunca en el componente.
 
-Su gramática, distinta a propósito de la del asesor:
+## Voz y contenido
 
-- **Escenario azul** a escala de pantalla (`.stage`): degradado radial del azul de marca, motivo de puntos desvanecido y el isotipo como marca de agua al 6%.
-- **Una ventana** (`.win`, 1120×720) montada sobre el escenario, con riel izquierdo (`.rail`) que dice de qué va la conversación antes de que empiece: titular, promesa y los tres pasos.
-- **Píldoras y radios blandos:** botones de 24px, burbujas de 16px con la esquina recta del lado de quien habla. Es lo contrario de las esquinas de 3px de la consola, y está bien: son dos mundos.
-- **Colores por rol,** no por hex: cada token `--chat-*` de `app/chat.css` apunta a la paleta corporativa. Cambiar un color se hace ahí, nunca en el componente.
-- **La marca aparece en cinco puntos y ningún otro:** el lockup del escenario, el del riel, el de la pantalla de arranque, el isotipo del avatar y la marca de agua.
-- **El amarillo sigue siendo solo fondo:** la banda del disclaimer, el badge del sello y la barra de carga.
-
-Fuera del escenario nada cambia: `/asesor` y `/asesor/tablero` siguen en "El formato sellado" tal cual.
-
-**Excepción de sombra registrada.** La ventana proyecta sombra (`0 40px 90px -20px`), y es la única de toda la app junto a la sombra mínima de las burbujas. No contradice la Regla del Papel Impreso: ahí la sombra no separa un bloque de su fondo dentro de un documento, separa un dispositivo de su escenario.
+- **Idioma:** español colombiano, institucional pero cercano — una caja de compensación con misión social, no un banco.
+- **Tratamiento:** "tú" en el chat del lead; tercera persona en la consola del asesor, que es una herramienta de trabajo.
+- **Cifras en pesos:** `$ 450.000.000`. Punto como separador de miles, nunca decimales en COP.
+- **Ningún estado es un rechazo.** "En nutrición" jamás se redacta como negativo: no es "no calificas todavía" sino "esto es lo que falta".
+- **Sin emoji,** en ninguna de las dos superficies.
+- **El chat siempre declara que es un asistente,** nunca se hace pasar por un asesor humano.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** teñir regiones enteras con el azul (`--campo`) y poner el texto en blanco encima.
-- **Do** poner toda cifra medida en `.cifra` (Geist Mono, tabular).
-- **Do** usar el amarillo como fondo con tinta `#212529` encima, siempre.
-- **Do** separar bloques con reglado de 2px y capa tonal.
+- **Do** mostrar el score siempre con su desglose al lado.
+- **Do** poner toda cifra medida en `.cifra` (JetBrains Mono, tabular).
+- **Do** usar el amarillo como fondo con tinta oscura encima, siempre.
 - **Do** acompañar todo color de estado con su palabra: el sello dice "Nutrición", no solo se pinta.
-- **Do** dejar el escenario del lead (portada y chat) con su propia gramática: píldoras, radios blandos y campo azul a pantalla completa.
+- **Do** imprimir de dónde sale cada cifra del tablero, como texto y no como tooltip.
+- **Do** marcar los datos simulados o inferidos con `EtiquetaSimulado`.
+- **Do** dejar el escenario del lead con su propia densidad: más aire, más radio, campo azul a pantalla completa.
 
 ### Don't:
 - **Don't** usar amarillo como color de texto sobre fondo claro: `#ffd000` sobre blanco es 1,5:1.
-- **Don't** agregar `box-shadow` a nada fuera del escenario del lead.
-- **Don't** pintar "nutrición" de rojo, gris muerto o ámbar de advertencia; es un tinte del azul.
+- **Don't** usar un color de marca para un estado del score, ni un color de estado para decorar.
+- **Don't** pintar "nutrición" de rojo, gris muerto o ámbar de advertencia.
 - **Don't** poner más de un `.resaltado` por pantalla.
-- **Don't** usar `border-left` de color como recurso de bloque destacado.
-- **Don't** meter píldoras (`rounded-full`) en la consola del asesor. En el escenario del lead sí son la gramática.
-- **Don't** ocultar, filtrar ni truncar filas de la tabla de factores por razones visuales.
+- **Don't** mostrar más de dos colores de marca en una misma vista.
+- **Don't** usar emoji ni iconografía unicode hecha a mano: los iconos son Lucide.
+- **Don't** ocultar, filtrar ni truncar factores de un lead por razones visuales.
+- **Don't** meter estado de cliente (`useState`) en la consola del asesor para cosas que un `<form method="get">` resuelve.

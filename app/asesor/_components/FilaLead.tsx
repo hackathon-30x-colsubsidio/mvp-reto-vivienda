@@ -1,17 +1,26 @@
 import Link from "next/link";
 import type { LeadEnCola } from "@/lib/types-asesor";
-import { BadgeEstado, BadgeReEnganchado } from "./BadgeEstado";
+import { Pildora, PildoraReEnganchado } from "@/components/ui/Pildora";
+import { EtiquetaSimulado } from "@/components/ui/EtiquetaSimulado";
 import { fechaCorta, NOMBRE_FUENTE } from "@/lib/formato";
 
 /**
- * Una fila de la cola. Lo que el asesor necesita para decidir a quién
- * llama primero, sin abrir la ficha: quién es, en qué salida cayó, y
- * el titular de por qué.
+ * Un renglón de la bandeja. Lo mínimo para decidir a quién se llama
+ * primero sin abrir la ficha: quién es, en qué salida cayó, y el
+ * titular de por qué.
  *
- * Es un renglón del formato, no una tarjeta: se separa de sus vecinos
- * por regla y por capa tonal, nunca por sombra.
+ * Es denso a propósito: en la consola lista/detalle este renglón compite
+ * por 380px de ancho contra la ficha completa, así que lo que antes eran
+ * cuatro líneas holgadas aquí son tres apretadas. El detalle largo vive
+ * al lado, a un clic.
  */
-export function FilaLead({ item }: { item: LeadEnCola }) {
+export function FilaLead({
+  item,
+  activo = false,
+}: {
+  item: LeadEnCola;
+  activo?: boolean;
+}) {
   const { curado } = item;
   const { evento } = curado.lead;
   const esNutricion = curado.score.salida === "nutricion";
@@ -22,50 +31,44 @@ export function FilaLead({ item }: { item: LeadEnCola }) {
   return (
     <Link
       href={`/asesor/${evento.lead_id}`}
-      className="block bg-papel px-5 py-5 transition-colors hover:bg-salida-suave"
+      aria-current={activo ? "page" : undefined}
+      className={`block px-4 py-3 transition-colors duration-[120ms] ${
+        activo
+          ? "bg-salida-suave border-brand-azul border-l-[3px] pl-[13px]"
+          : "hover:bg-surface-sunken"
+      }`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-xl font-bold tracking-tight text-tinta">
-            {evento.nombre}
-          </h3>
-          <p className="mt-1 text-base text-tinta-suave">
-            {NOMBRE_FUENTE[evento.fuente] ?? evento.fuente}
-            {evento.proyecto_interes && <> · preguntó por {evento.proyecto_interes}</>}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {item.re_enganchado_en && <BadgeReEnganchado />}
-          <BadgeEstado estado={curado.score.salida} />
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-texto truncate text-[15px] font-bold">
+          {evento.nombre}
+        </h3>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {item.re_enganchado_en && <PildoraReEnganchado />}
+          <Pildora estado={curado.score.salida} />
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-base">
-        <span className="font-semibold text-tinta">
+      <p className="text-texto-tenue mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+        <span>{NOMBRE_FUENTE[evento.fuente] ?? evento.fuente}</span>
+        <span aria-hidden="true">·</span>
+        <span>
           <span className="cifra">
-            {cumplen} de {total}
+            {cumplen}/{total}
           </span>{" "}
-          factores cumplen
+          factores
         </span>
-
         {curado.cita && (
-          <span className="text-tinta-suave">
-            Cita:{" "}
-            <strong className="cifra text-tinta">{fechaCorta(curado.cita.fecha)}</strong>
-          </span>
+          <>
+            <span aria-hidden="true">·</span>
+            <span className="cifra">{fechaCorta(curado.cita.fecha)}</span>
+          </>
         )}
+        {item.sintetico && <EtiquetaSimulado texto="simulado" />}
+      </p>
 
-        {curado.proyectos.length > 0 && (
-          <span className="text-tinta-suave">
-            <span className="cifra">{curado.proyectos.length}</span> proyectos
-            recomendados
-          </span>
-        )}
-      </div>
-
-      {/* El titular del porqué. En nutrición, la regla que falló;
-          en los listos, la primera línea de la explicación. */}
-      <p className="mt-3 line-clamp-2 max-w-[68ch] text-base text-tinta-suave">
+      {/* El titular del porqué. En nutrición, la regla que falló; en los
+          listos, la primera línea de la explicación. */}
+      <p className="text-texto-suave mt-1.5 line-clamp-2 text-[13px] leading-normal">
         {esNutricion ? curado.score.regla_fallida : curado.explicacion}
       </p>
     </Link>

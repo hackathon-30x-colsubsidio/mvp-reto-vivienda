@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { cargarTablero } from "@/lib/tablero/datos";
 import { AGRUPADOR_ACTIVO } from "@/lib/tablero/agrupadores";
 import { AvisoOrigen } from "../_components/AvisoOrigen";
@@ -43,30 +42,16 @@ export default async function TableroPage() {
       : Math.round(((noAfiliados?.leads.length ?? 0) / datos.leads.length) * 100);
 
   return (
-    <div className="min-h-screen bg-fondo">
-      {/* El riel del formato, igual que en la cola: es el encabezado
-          impreso de la hoja, no una barra de navegación. */}
-      <div className="bg-campo">
-        <div className="mx-auto flex max-w-4xl flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-6 py-4">
-          <span className="text-sm font-bold tracking-[0.08em] text-sobre-campo uppercase">
-            Colsubsidio · Vivienda
-          </span>
-          <Link
-            href="/asesor"
-            className="text-sm font-bold text-sobre-campo hover:underline"
-          >
-            Ir a la cola de leads →
-          </Link>
-        </div>
-      </div>
-
-      <main className="mx-auto max-w-4xl px-6 py-10">
-        <header className="mb-8">
-          <h1 className="text-[clamp(2rem,5vw,3rem)] leading-[1.05] font-bold tracking-[-0.03em] text-tinta">
+    // El riel azul y la marca los pone ahora el shell de la consola
+    // (app/asesor/layout.tsx). Esta página solo aporta su contenido.
+    <main className="min-h-0 flex-1 px-5 py-6 lg:overflow-y-auto lg:px-8 lg:py-8">
+      <div className="mx-auto max-w-5xl">
+        <header className="mb-6">
+          <h1 className="text-texto text-[38px] leading-tight font-extrabold tracking-[-0.02em]">
             Tablero del especialista
           </h1>
-          <p className="mt-4 max-w-[68ch] text-lg leading-relaxed text-tinta-suave">
-            <span className="cifra text-tinta">{datos.leads.length}</span> leads
+          <p className="text-texto-suave mt-3 max-w-[68ch] text-[17px] leading-normal">
+            <span className="cifra text-texto">{datos.leads.length}</span> leads
             perfilados en los últimos 14 días.{" "}
             {/* El ÚNICO trazo de resaltador de esta pantalla, sobre el
                 hecho que la decide: el reparto de afiliación contra el
@@ -81,19 +66,19 @@ export default async function TableroPage() {
         <AvisoOrigen origen={datos.origen} />
         <AvisoSintetico datos={datos} />
 
-        <div className="space-y-12">
+        <div className="space-y-8">
           <section>
-            <h2 className="mb-4 text-xl font-bold tracking-tight text-tinta">
+            <h2 className="text-texto mb-3 text-[20px] font-bold">
               La operación en cifras
             </h2>
             <FranjaMetricas datos={datos} />
           </section>
 
           <section>
-            <h2 className="text-xl font-bold tracking-tight text-tinta">
+            <h2 className="text-texto text-[20px] font-bold">
               Leads que entran por día
             </h2>
-            <p className="mt-1 mb-4 max-w-[68ch] text-base text-tinta-suave">
+            <p className="text-texto-suave mt-1 mb-3 max-w-[68ch] text-[15px] leading-normal">
               Últimos 14 días, hora de Bogotá. Los días en cero se muestran: un
               hueco en la serie también es información.
             </p>
@@ -103,10 +88,10 @@ export default async function TableroPage() {
           <section>
             {/* El título sale del agrupador tal cual: bajarlo a
                 minúsculas rompía "Colsubsidio". */}
-            <h2 className="text-xl font-bold tracking-tight text-tinta">
+            <h2 className="text-texto text-[20px] font-bold">
               Leads por {AGRUPADOR_ACTIVO.titulo}
             </h2>
-            <p className="mt-1 mb-6 max-w-[68ch] text-base text-tinta-suave">
+            <p className="text-texto-suave mt-1 mb-3 max-w-[68ch] text-[15px] leading-normal">
               Dentro de cada grupo, ordenados por puntaje: el más cerca de comprar,
               arriba. Abre uno para ver el desglose completo del puntaje y todos
               los factores que evaluó el motor.
@@ -114,7 +99,7 @@ export default async function TableroPage() {
             <GruposDeLeads agrupador={AGRUPADOR_ACTIVO} datos={datos} />
           </section>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

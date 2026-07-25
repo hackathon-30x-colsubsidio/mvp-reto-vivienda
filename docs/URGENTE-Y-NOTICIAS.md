@@ -2,6 +2,44 @@
 
 > El documento más concreto y resumido del repo. Si solo vas a leer un archivo hoy, es este. Se actualiza cada vez que algo cambia el rumbo del equipo.
 
+## 🎨 2026-07-24 18:50 — El design system de Colsubsidio reemplazó a "El formato sellado", y la consola del asesor cambió de forma
+
+Rama `feat/consola-asesor`. **Si vas a tocar UI, esto te aplica: `DESIGN.md` cambió entero.**
+
+**Por qué:** el repo tenía **dos** sistemas de diseño para el mismo producto. El del zip de Claude Design (`Colsubsidio Design System`) ya se estaba portando —`app/chat.css` es literalmente el puerto de su kit `lead-chat/`, y `public/marca/` son sus logos— pero la consola del asesor seguía en el mundo propio anterior. El producto tenía **una cara en cada sistema**. Decisión: gana el zip ([ADR 0004](adr/0004-design-system-colsubsidio.md)).
+
+**Lo que cambió, y no es sutil:**
+
+- **Fuentes, en toda la app:** Geist → **Sora** (títulos) + **Work Sans** (cuerpo) + **JetBrains Mono** (cifras). Esto toca también el chat y la landing, no solo el asesor: las fuentes viven en `layout.tsx`.
+- **`/asesor` ahora es una consola lista/detalle:** barra lateral azul con el logo, lista de leads a la izquierda, ficha a la derecha. El asesor ya no pierde la cola al abrir un lead. En móvil la lateral colapsa y la lista se oculta en la ficha.
+- **Se invirtieron reglas que eran duras:** ahora **sí hay sombras** (`shadow-xs` en tarjetas), **sí hay píldoras** (los sellos de estado) y los radios pasaron de 3/6px a 6/10/16px.
+- **Los estados del score usan paleta propia** (verde / ámbar / azul), separada a propósito de la de marca. **Un chip amarillo ya nunca es un estado.**
+- **Los datos simulados se marcan en violeta** (`EtiquetaSimulado`): los 57 leads sintéticos del tablero ya se distinguen de un vistazo.
+- **Entró `lucide-react`.** Se acabaron los `→ ✓ ✗` a mano y el emoji en la consola.
+
+**Lo que NO cambió:** `lib/` completo (scoring, matching, tablero, tipos), las rutas, el contrato de datos y el copy en español. **Los 173 tests pasan**, y los de `FichaLead` / `TablaFactores` —los que blindan "cero caja negra"— pasaron **sin editarse**, salvo una aserción que fijaba el glifo `"✗ No"` y ahora cuenta marcadores.
+
+**Para quien escriba UI de aquí en adelante:** `globals.css` está en **tres capas y solo se edita la primera** (los tokens del kit, con sus nombres verbatim). Las otras dos son alias de compatibilidad y publicación a Tailwind. Si cambias un color, cambias un token — nunca un componente.
+
+**⚠️ Pendiente de verificación humana:** el recorrido a ojo no se hizo (la automatización de navegador no estuvo disponible). Se verificó sirviendo el HTML y el CSS compilado del dev server: las 3 rutas en 200, la ficha con sus 7 factores completos, un solo `.resaltado` por pantalla y las utilidades resolviendo los tokens nuevos. **Falta mirarlo en pantalla, en claro y en oscuro, y en móvil.**
+
+**Al mezclar con `main` se alineó la bandeja con la decisión de las 18:40** (la entrada de abajo): la lista dejó de apilar "Listos" y "Listos · cupo 90/10" como dos secciones, porque eso volvía a poner al no afiliado debajo del afiliado sin importar el puntaje — justo lo que ese cambio corrigió. Ahora es **un solo grupo "Puede comprar ahora"** ordenado por puntaje, con la píldora de cupo distinguiendo a cada quien dentro. El filtro del selector sigue permitiendo aislar las tres salidas.
+
+## ⚖️ 2026-07-24 18:40 — La afiliación ya no decide la cola: desempata
+
+`afiliacion_cupo` pesaba **0,20** en el puntaje, el segundo factor más alto. Un afiliado arrancaba **18 puntos** arriba de un no afiliado idéntico, así que la regla 90/10 reordenaba la cola sola. **Bajó a 0,05** y los 0,15 liberados se fueron a la capacidad de pago (0,30 → **0,45**).
+
+El respaldo es del mentor, textual: *"la prioridad siempre son los afiliados, **pero siempre va a ser la prioridad de los ingresos**"*. A Colsubsidio le interesa cerrar la venta; la afiliación solo debe decidir entre dos perfiles parecidos.
+
+**Medido:** dos perfiles idénticos que solo difieren en afiliación quedan a **4,5 puntos** (75 vs 71); un no afiliado con $12M **le gana** a un afiliado con $2,6M (71 vs 42). Carlos pasó de 57 a **71**.
+
+**Y las dos consecuencias también se soltaron (ratificado por Mani a las 19:00):**
+
+- **El matcher ya no descarta por cupo.** El precio es el único descarte; los proyectos con el cupo copado se muestran **de últimos y con la advertencia encima** (*"hay que validar cupo antes de separar"*). **Carlos pasó de 0 a 3 proyectos.**
+- **La cola ya no pone la afiliación por encima del puntaje.** `listo` y `listo_restriccion_cupo` son un solo grupo ordenado por puntaje; nutrición sigue de última porque todavía no puede comprar, no por afiliación.
+
+**Esto supersede la decisión de las 13:50** (regla dura para no esconder el vacío). El hallazgo del 90/10 **no se pierde: cambia de lugar** — se dice en cada recomendación y se sigue midiendo en el tablero, en vez de aparecer como un lead vacío. ⚠️ **Los PNG de los diagramas 03, 04 y 06 quedaron por reexportar.**
+
 ## 🔌 2026-07-24 18:10 — La cadena quedó conectada, y apareció por qué NUNCA se guardó nada
 
 **Acción obligatoria de quien tenga acceso a Supabase: pegar [`db/migracion-001-puntaje.sql`](../db/migracion-001-puntaje.sql) en el SQL Editor y ejecutarlo.** Son 30 segundos, es idempotente y no borra datos.

@@ -1,5 +1,6 @@
 import { serieDiaria } from "@/lib/tablero/serie-diaria";
 import type { DatosTablero } from "@/lib/tablero/tipos";
+import { Tarjeta } from "@/components/ui/Tarjeta";
 
 const DIA_LEGIBLE = new Intl.DateTimeFormat("es-CO", {
   weekday: "short",
@@ -33,82 +34,70 @@ export function SerieDiaria({ datos, dias = 14 }: { datos: DatosTablero; dias?: 
   const total = serie.reduce((s, d) => s + d.total, 0);
 
   return (
-    <div className="overflow-x-auto rounded-md border-2 border-borde bg-papel">
+    <Tarjeta className="overflow-x-auto p-4">
       <table className="w-full border-collapse text-left">
         <caption className="sr-only">
           Leads que entraron cada día en los últimos {dias} días, partidos por afiliación.
         </caption>
         <thead>
-          <tr className="border-b-2 border-borde bg-papel-hueco">
-            <th
-              scope="col"
-              className="px-4 py-3 text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase"
-            >
+          <tr className="border-borde border-b">
+            <th scope="col" className="rotulo pb-2">
               Día
             </th>
-            <th
-              scope="col"
-              className="px-4 py-3 text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase"
-            >
+            <th scope="col" className="rotulo px-3 pb-2">
               Leads que entraron
             </th>
-            <th
-              scope="col"
-              className="px-4 py-3 text-right text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase"
-            >
+            <th scope="col" className="rotulo pb-2 text-right">
               Total
             </th>
-            <th
-              scope="col"
-              className="px-4 py-3 text-right text-xs font-bold tracking-[0.08em] text-tinta-suave uppercase"
-            >
+            <th scope="col" className="rotulo pl-3 pb-2 text-right">
               Afil. / No afil.
             </th>
           </tr>
         </thead>
         <tbody>
           {serie.map((dia) => (
-            <tr key={dia.dia} data-testid="dia-serie" className="border-t border-borde">
+            <tr key={dia.dia} data-testid="dia-serie" className="border-borde border-b">
               <th
                 scope="row"
-                className="cifra px-4 py-2 text-sm font-normal whitespace-nowrap text-tinta-suave"
+                className="cifra text-texto-suave py-1.5 text-[13px] font-normal whitespace-nowrap"
               >
                 {etiquetaDia(dia.dia)}
               </th>
 
-              <td className="w-full px-4 py-2">
+              <td className="w-full px-3 py-1.5">
                 {/* La barra: región teñida, altura de renglón. El ancho
                     mínimo deja ver el día en cero sin fingir volumen. */}
                 <span
                   aria-hidden="true"
-                  className="block h-4 rounded-sm bg-campo"
+                  className="bg-brand-azul block h-3 rounded-sm"
                   style={{ width: `${dia.total === 0 ? 0 : Math.max(4, (dia.total / techo) * 100)}%` }}
                 />
               </td>
 
-              <td className="cifra px-4 py-2 text-right text-base font-bold text-tinta">
+              <td className="cifra text-texto py-1.5 text-right text-[15px] font-bold">
                 {dia.total}
               </td>
 
-              <td className="cifra px-4 py-2 text-right text-sm whitespace-nowrap text-tinta-suave">
+              <td className="cifra text-texto-tenue py-1.5 pl-3 text-right text-[13px] whitespace-nowrap">
                 {dia.afiliados} / {dia.noAfiliados}
               </td>
             </tr>
           ))}
         </tbody>
         <tfoot>
-          <tr className="border-t-2 border-borde bg-papel-hueco">
-            <th scope="row" className="px-4 py-3 text-base font-bold text-tinta">
+          <tr className="border-regla border-t-2">
+            <th scope="row" className="text-texto pt-2.5 text-[15px] font-bold">
               Total de la ventana
             </th>
             <td />
-            <td className="cifra px-4 py-3 text-right text-base font-bold text-tinta">
+            <td className="cifra text-texto pt-2.5 text-right text-[16px] font-bold">
               {total}
             </td>
             <td />
           </tr>
         </tfoot>
       </table>
-    </div>
+    </Tarjeta>
   );
 }
