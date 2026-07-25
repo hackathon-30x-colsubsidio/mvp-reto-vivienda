@@ -1,13 +1,14 @@
 import type { ReactNode } from "react";
 
 // =====================================================================
-// Puerto de `components/core/Card` del design system.
+// Puerto de `components/core/Card` del design system, con la capa de
+// vidrio suave encima (2026-07-25).
 //
-// El bloque de contenido del panel del asesor: superficie de tarjeta,
-// borde de 1px y sombra de reposo. La sombra es lo que separa a este
-// sistema del anterior — antes la profundidad se hacía solo con reglado
-// y capa tonal. `shadow-xs` en reposo; `shadow-sm` solo si la tarjeta
-// es un destino clickeable.
+// El bloque de contenido del panel del asesor. La clase `.vidrio` de
+// globals.css hace el trabajo: gradiente, filo claro arriba y sombra
+// difusa. No lleva `backdrop-filter` a propósito — detrás de una
+// tarjeta hay cifras y factores, y ahí el contraste decide si el jurado
+// puede leer.
 // =====================================================================
 
 export function Tarjeta({
@@ -21,9 +22,9 @@ export function Tarjeta({
 }) {
   return (
     <div
-      className={`bg-surface-card border-borde rounded-md border shadow-xs ${
+      className={`vidrio ${
         interactiva
-          ? "hover:border-brand-azul/40 transition-shadow duration-200 hover:shadow-sm"
+          ? "hover:border-brand-azul/35 transition-all duration-200 hover:shadow-[inset_0_1px_0_0_var(--filo),var(--sombra-vidrio-alta)]"
           : ""
       } ${className}`}
     >
@@ -49,7 +50,7 @@ export function TarjetaConTitulo({
 }) {
   return (
     <Tarjeta className={className}>
-      <div className="border-borde border-b px-5 py-4">
+      <div className="border-filo-borde border-b px-5 py-4">
         <h3 className="text-texto font-display text-[16px] font-bold">
           {titulo}
         </h3>

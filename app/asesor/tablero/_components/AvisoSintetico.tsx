@@ -19,7 +19,7 @@ export function AvisoSintetico({ datos }: { datos: DatosTablero }) {
   const reales = datos.leads.length - sinteticos;
 
   return (
-    <p className="border-borde bg-surface-sunken text-texto-suave mb-6 rounded-sm border border-dashed px-4 py-3 text-[13px] leading-normal">
+    <p className="border-filo-borde text-texto-suave rounded-[10px] border border-dashed px-3.5 py-2 text-[12px] leading-normal">
       <strong className="text-texto">Histórico sintético.</strong>{" "}
       <span className="cifra">{reales}</span> de estos leads son reales (los del
       demo, {datos.origen === "supabase" ? "leídos de Supabase" : "desde fixtures locales"});

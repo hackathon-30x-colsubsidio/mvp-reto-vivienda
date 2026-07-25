@@ -88,13 +88,31 @@ Quién decide el grupo es `Score.salida`. El puntaje solo ordena **dentro** de u
 
 > ⚠️ La vista `cola_asesor` de Supabase todavía trae `orden_prioridad` con tres niveles (1/2/3). No es contradicción sino orden inicial de la consulta: **quien decide el orden que se ve es `ordenarCola` en TypeScript**, que re-ordena lo que llega. Si algún día se pagina en la DB, hay que alinear la vista.
 
+### D8 · El tablero cabe en una pantalla, en cortes · [CERRADA — Alejandro, 2026-07-25]
+
+La consola tiene **dos vistas**, elegibles desde la barra lateral: **Métricas** (`/asesor/tablero`) y **Leads** (`/asesor`). Los rótulos nombran el contenido, no el mueble.
+
+**Métricas no se desplaza.** El shell es de altura fija y las cifras se parten en tres **cortes** que se eligen con un selector, como el "diario / mensual" de una gráfica — son vistas del mismo dato, no secciones distintas:
+
+| Corte | Qué muestra |
+|---|---|
+| **Resumen** | Las 6 cifras, cada una con la fuente de la que sale |
+| **Entrada diaria** | La serie de 14 días, ahora en columnas en vez de renglones apilados |
+| **Reparto** | Los grupos del agrupador activo, lado a lado |
+
+**Esto no recorta datos, los descomprime.** Al mover el scroll dentro del panel, el tope de 12 leads por grupo dejó de ser necesario: **se listan todos** (62 hoy, contra 24 antes). El corte que no cabe se recorre por dentro; la página no se mueve.
+
+La serie diaria conserva su `<table>` completa, ahora en `sr-only`: la gráfica es `aria-hidden` y quien usa lector de pantalla recibe los tres números de cada día en mejor orden que antes.
+
+> La **ficha** sí se desplaza, y es deliberado: sus factores no se recortan por razones visuales.
+
 ## Estado hoy vs contrato
 
 | Qué | Hoy | Brecha |
 |---|---|---|
 | Bandeja | 🟢 **DOS secciones desde el 2026-07-24: "Pueden comprar hoy" y "Todavía no pueden comprar".** La página seguía re-partiendo por estado y deshacía en pantalla la decisión de D7 (un no afiliado con 71 aparecía debajo de un afiliado con 42). Ahora `listo` y `listo_restriccion_cupo` comparten sección, adentro manda el puntaje, y la distinción del cupo viaja en el badge de cada fila | Vocabulario propenso/no propenso (D1) |
 | Ficha con todos los factores | Sí, `.map()` sin filtrar, con test que lo protege | La conversación no se muestra (D2) |
-| Tablero | 6 métricas + serie de 14 días + grupos por afiliación | Las métricas del mentor (D3) |
+| Métricas | 🟢 **Desde el 2026-07-25 cabe sin scroll**, en 3 cortes (Resumen · Entrada diaria · Reparto) elegibles con selector. El reparto lista los 62 leads, no los 24 que dejaba ver el tope viejo | Las métricas del mentor (D3) |
 | Métricas de conversación | Ninguna | Nadie las instrumenta |
 | Origen de los datos | Supabase con fallback a fixtures; el tablero lo avisa | Producción sigue en fixtures (env vars de Vercel) |
 

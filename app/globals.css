@@ -151,6 +151,39 @@
   --duration-fast: 120ms;
   --duration-base: 200ms;
 
+  /* --- VIDRIO SUAVE (adición del 2026-07-25) -----------------------
+     El design system del kit desaconseja el blur ("se prioriza
+     legibilidad sobre efecto"). Esta capa lo respeta a medias y a
+     propósito: da la lectura de vidrio con GRADIENTE, BORDE CLARO y
+     SOMBRA DIFUSA, y deja el `backdrop-filter` solo para superficies
+     de cromo (barra lateral, cabeceras) — nunca detrás de una cifra ni
+     de una fila de factores, que es donde el contraste decide si el
+     jurado puede leer.
+
+     `--vidrio-*` es superficie; `--filo-*` es el borde que la define.
+     El filo superior más claro que el inferior es lo que hace que la
+     tarjeta se lea como un panel de vidrio y no como una caja gris. */
+  --vidrio: linear-gradient(
+    160deg,
+    rgb(255 255 255 / 0.9) 0%,
+    rgb(255 255 255 / 0.62) 100%
+  );
+  --vidrio-hueco: linear-gradient(
+    160deg,
+    rgb(255 255 255 / 0.55) 0%,
+    rgb(248 249 250 / 0.35) 100%
+  );
+  --filo: rgb(255 255 255 / 0.85);
+  --filo-borde: rgb(148 163 184 / 0.28);
+
+  /* Halo de color bajo el contenido: es lo que le da al vidrio algo que
+     refractar. Sin esto, "glass" sobre blanco plano se ve solo gris. */
+  --halo-a: rgb(0 103 177 / 0.1);
+  --halo-b: rgb(255 208 0 / 0.07);
+
+  --sombra-vidrio: 0 1px 1px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.18);
+  --sombra-vidrio-alta: 0 1px 1px rgb(15 23 42 / 0.05), 0 16px 40px -16px rgb(15 23 42 / 0.24);
+
   /* --- Escala tipográfica del zip (tokens/typography.css) ---
      Vive como variables CSS y NO entra a `@theme`: meterla ahí
      redefiniría `text-sm`/`text-lg` para toda la app —chat y landing
@@ -208,6 +241,29 @@
   --data-simulado-bg: #2a2032;
 
   --rojo: #f2555f;
+
+  /* En oscuro el vidrio ACLARA sobre el fondo en vez de blanquear: un
+     gradiente blanco translúcido encima de #14171a se lee como niebla
+     sucia, no como vidrio. El filo también se invierte —claro arriba,
+     casi nulo abajo— para conservar la sensación de canto iluminado. */
+  --vidrio: linear-gradient(
+    160deg,
+    rgb(255 255 255 / 0.07) 0%,
+    rgb(255 255 255 / 0.03) 100%
+  );
+  --vidrio-hueco: linear-gradient(
+    160deg,
+    rgb(255 255 255 / 0.04) 0%,
+    rgb(255 255 255 / 0.015) 100%
+  );
+  --filo: rgb(255 255 255 / 0.1);
+  --filo-borde: rgb(255 255 255 / 0.1);
+
+  --halo-a: rgb(51 133 193 / 0.16);
+  --halo-b: rgb(255 208 0 / 0.06);
+
+  --sombra-vidrio: 0 1px 1px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.55);
+  --sombra-vidrio-alta: 0 1px 1px rgb(0 0 0 / 0.35), 0 16px 40px -16px rgb(0 0 0 / 0.6);
 }
 
 /* ---------------------------------------------------------------------
@@ -305,6 +361,10 @@
   --color-simulado: var(--data-simulado);
   --color-simulado-bg: var(--data-simulado-bg);
 
+  /* El borde del vidrio, como color de Tailwind: lo piden las barras y
+     los botones de cromo que no llevan la clase `.vidrio` entera. */
+  --color-filo-borde: var(--filo-borde);
+
   --radius-lg: var(--radius-lg);
   --radius-pill: var(--radius-pill);
 
@@ -392,6 +452,48 @@ h4 {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-tertiary);
+}
+
+/* --- VIDRIO SUAVE -------------------------------------------------
+   Tres clases y ninguna más. El efecto se construye con capas
+   —gradiente, filo claro arriba, sombra difusa— y NO con blur sobre el
+   contenido: las cifras y los factores tienen que leerse nítidos.
+
+   `.vidrio` es la superficie de un panel de datos.
+   `.vidrio-cromo` es para barras y cabeceras: esa sí lleva blur, porque
+   detrás no hay datos que leer.
+   `.halo` es el fondo de la página, lo único que el vidrio refracta. */
+
+.vidrio {
+  background-image: var(--vidrio);
+  background-color: var(--surface-card);
+  border: 1px solid var(--filo-borde);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sombra-vidrio);
+  /* El canto iluminado de arriba. Es lo que separa "vidrio" de
+     "rectángulo con gradiente". */
+  box-shadow:
+    inset 0 1px 0 0 var(--filo),
+    var(--sombra-vidrio);
+}
+
+.vidrio-cromo {
+  background-image: var(--vidrio-hueco);
+  border-color: var(--filo-borde);
+  /* Aquí sí: detrás de una barra de navegación no hay nada que leer. */
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+
+/* El fondo que el vidrio refracta. Dos manchas de marca muy diluidas y
+   fijas: sin esto, "glass" sobre gris plano se ve solo gris. No se
+   mueven ni animan — son fondo, no espectáculo. */
+.halo {
+  background-color: var(--surface-page);
+  background-image:
+    radial-gradient(80rem 40rem at 12% -10%, var(--halo-a), transparent 60%),
+    radial-gradient(60rem 30rem at 105% 0%, var(--halo-b), transparent 55%);
+  background-attachment: fixed;
 }
 
 /* --- El trazo de resaltador ---------------------------------------

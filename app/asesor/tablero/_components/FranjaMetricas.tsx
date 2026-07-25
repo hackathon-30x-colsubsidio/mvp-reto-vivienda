@@ -1,6 +1,5 @@
 import { METRICAS } from "@/lib/tablero/metricas";
 import type { DatosTablero } from "@/lib/tablero/tipos";
-import { Tarjeta } from "@/components/ui/Tarjeta";
 
 /**
  * La franja de cifras del tablero.
@@ -14,38 +13,43 @@ import { Tarjeta } from "@/components/ui/Tarjeta";
  */
 export function FranjaMetricas({ datos }: { datos: DatosTablero }) {
   return (
+    // Rejilla de alto completo: las 6 celdas se reparten el espacio que
+    // deja la cabecera, así el corte llena la pantalla sin desbordarla.
+    // `auto-rows-fr` es lo que iguala las dos filas.
     <section
       aria-label="Métricas de la operación"
-      className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+      className="grid h-full auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3"
     >
       {METRICAS.map((metrica) => {
         const { valor, detalle } = metrica.calcular(datos);
 
         return (
-          <Tarjeta key={metrica.id} className="flex flex-col p-4">
-            <div data-testid="metrica" className="flex flex-1 flex-col">
-              <h3 className="rotulo">{metrica.titulo}</h3>
+          <article
+            key={metrica.id}
+            data-testid="metrica"
+            className="vidrio flex min-h-0 flex-col p-4"
+          >
+            <h3 className="rotulo">{metrica.titulo}</h3>
 
-              <p
-                data-testid="metrica-valor"
-                className="cifra text-texto mt-1.5 text-[30px] leading-none font-bold"
-              >
-                {valor}
+            <p
+              data-testid="metrica-valor"
+              className="cifra text-texto mt-2 text-[38px] leading-none font-bold"
+            >
+              {valor}
+            </p>
+
+            {detalle && (
+              <p className="text-texto mt-1.5 text-[13px] leading-normal">
+                {detalle}
               </p>
+            )}
 
-              {detalle && (
-                <p className="text-texto mt-1.5 text-[13px] leading-normal">
-                  {detalle}
-                </p>
-              )}
-
-              {/* La fuente de la cifra, impresa. No es un tooltip: una
-                  métrica que no dice de dónde salió es caja negra. */}
-              <p className="border-borde text-texto-tenue mt-auto border-t pt-2 text-[12px] leading-normal">
-                {metrica.descripcion}
-              </p>
-            </div>
-          </Tarjeta>
+            {/* La fuente de la cifra, impresa. No es un tooltip: una
+                métrica que no dice de dónde salió es caja negra. */}
+            <p className="border-filo-borde text-texto-tenue mt-auto border-t pt-2 text-[12px] leading-snug">
+              {metrica.descripcion}
+            </p>
+          </article>
         );
       })}
     </section>
