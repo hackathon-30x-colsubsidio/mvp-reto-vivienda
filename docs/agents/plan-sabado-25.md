@@ -122,10 +122,45 @@ Son **10 decisiones abiertas**. Ninguna necesita debate largo: cada una viene co
 
 ## Reglas del día (las cuatro que ya nos costaron tiempo)
 
-1. **No probar con `lead-001/002/003` en producción.** Una conversación pisa la fila sembrada. Usar cédulas y `lead_id` nuevos, y **re-sembrar antes de grabar**.
+1. **Los 3 personajes SÍ se prueban** —son el demo, hay que recorrerlos— pero **terminar** su conversación pisa la fila sembrada (upsert por `lead_id`), así que la ficha pasa a mostrar lo que contestó quien probaba. Dos consecuencias prácticas: para probar **repetido** se usa "soy yo", y **se re-siembra antes de grabar y antes del checkpoint de las 12:30**. Recetario completo abajo.
 2. **Nunca `npm run build` con `npm run dev` encendido.** Deja el puerto 3000 colgado y parece que la app se rompió. Si pasa: `curl` al puerto → `000` significa server caído, no bug.
 3. **Tres archivos son generados, no se editan a mano:** `db/seed.sql`, `data/sintetica/slots.json` y las fixtures derivadas. Si tocas una fixture, **regenera** (`npx tsx scripts/generar-seed.ts`).
 4. **Cero inventos.** Si un dato no tiene fuente, se declara como supuesto o no entra. Aplica a los montos de subsidio, a los precios y a cualquier cifra del pitch.
+
+---
+
+## Cómo probar sin romper el demo (recetario)
+
+**Lo que pisa la fila sembrada** es *terminar* una conversación como Diana, Carlos o Yuliana: el guardado ocurre al final, en `/api/curar`, con un upsert por `lead_id`. Abandonar a mitad no persiste nada. Y arreglarlo cuesta 5 segundos (volver a correr el seed). Así que la regla no es "no los toques", es **"deja la base sembrada antes de que alguien mire"**.
+
+### La forma sana de probar mil veces: "soy yo"
+
+El formulario genera un `lead_id` único (`lead-<timestamp>`), así que **nunca toca a los 3 canónicos**. Y con la cédula se elige qué caso reproducir, porque el enriquecimiento ya resuelve las 303 identidades:
+
+| Qué quieres ver | Cédula | Qué pasa |
+|---|---|---|
+| **El caso Diana** — no le repreguntan nada (criterio 1) | `2000000050` | Afiliado · Bogotá · más de 4 SMLV → no le preguntan ni ingreso ni ciudad. Sale `listo` con puntaje alto |
+| **Apenas pasa** — el corte del 40% justo | `2000000001` | Afiliado · Bogotá · menos de 2 SMLV ($2.847.000) → la cuota del proyecto más barato le da 31,5%. Pasa, pero con poco margen |
+| **El caso Carlos** — no afiliado, cupo 90/10 | `2000000003` | En la base pero NO afiliado → **sí le preguntan el ingreso** (de un no afiliado no se conocen ingresos), y sale `listo_restriccion_cupo` con la advertencia de cupo en cada proyecto |
+| **El caso Yuliana** — sin match, se pregunta todo | `9999999999` (inventada) | Sin match → le preguntan hasta la zona. Para forzar **nutrición**, responder un ingreso de `1.500.000`: la cuota del proyecto más barato le da 60% |
+
+Dos detalles del formulario: el **proyecto de interés es opcional** (si se deja vacío se califica contra el más económico del catálogo), y si quieres probar uno específico hay que escribir su nombre **exacto** del catálogo — `LA ARBOLEDA`, `PAYANDÉ`, `MONGUI`…
+
+### Limpiar la basura de pruebas (1 línea de SQL)
+
+Las filas de "soy yo" se acumulan en la bandeja del asesor. Para barrerlas sin re-sembrar —las FK son `on delete cascade`, así que se llevan sus conversaciones y sus citas:
+
+```sql
+delete from leads where lead_id not in ('lead-001', 'lead-002', 'lead-003');
+```
+
+Y si además los canónicos quedaron pisados, entonces sí: [`db/seed.sql`](../../db/seed.sql) completo.
+
+### Probar sin tocar la base para nada
+
+Comentar `NEXT_PUBLIC_SUPABASE_URL` y `SUPABASE_KEY` en `.env.local` y levantar `npm run dev`: todo cae a fixtures, `/asesor` muestra los 3 personajes desde el código y **no se escribe nada**. Sirve para QA de conversación, tono, contraste y modo oscuro.
+
+⚠️ **Lo que NO sirve en ese modo:** la cadena completa. Sin DB, `/api/curar` responde 503, el chat lo dice en voz alta ("no se pudo guardar") y **no llega a ofrecer la cita** — así que el criterio 4 hay que probarlo contra Supabase, con "soy yo".
 
 ---
 
