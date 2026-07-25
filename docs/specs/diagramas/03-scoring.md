@@ -8,7 +8,7 @@ Contrato completo en [`03-scoring.md`](../03-scoring.md) · imagen en [`03-scori
 flowchart TD
     LEAD["Lead con conversación terminada<br/>(ingreso, subsidio, vivienda, crediticia)"] --> CUOTA
 
-    CUOTA["Estimar la cuota<br/>precio x 0,6% − subsidio mensual"] --> GATE
+    CUOTA["Estimar la cuota<br/>anualidad: precio × LTV × i/(1−(1+i)^−n)<br/>13% E.A. · 20 años · 70% (80% si VIS)<br/>menos el subsidio mensual"] --> GATE
 
     GATE{"¿cuota ≤ 40%<br/>del ingreso?<br/>Decreto 583/2025"}
 

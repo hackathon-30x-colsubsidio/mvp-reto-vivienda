@@ -238,6 +238,10 @@ describe("la zona que el lead ESCRIBE, no la que encaja exacta", () => {
       proyecto_id: "dudoso",
       nombre: "PROYECTO SIN UBICACIÓN CONFIRMADA",
       ciudad: "Ricaurte o Bogotá (contradictorio entre fuentes)",
+      // Barato a propósito: lo que se prueba es la zona, y desde que el techo se
+      // calcula por proyecto contra la capacidad real del lead, un proyecto caro
+      // se cae por precio antes de llegar a la regla que interesa.
+      precio_desde: 100_000_000,
       ubicacion_incierta: true,
     };
 

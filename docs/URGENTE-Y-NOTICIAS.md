@@ -4,6 +4,22 @@
 >
 > El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
 
+## ✅ 2026-07-25 14:00 — El 0,6% ya no existe: la cuota se calcula de verdad
+
+**Hecho** (219 tests verdes). El motor ya no estima la cuota con un porcentaje plano: usa la **fórmula de anualidad** con parámetros que tienen fuente — **13% E.A.** (promedio del mercado 2026), **20 años**, y el **LTV del propio Decreto 583** (70%, u **80% si es VIS**). Detalle en [`credito-y-subsidios.md`](credito-y-subsidios.md) y en [spec 03 D2](specs/03-scoring.md), ahora `[CERRADA]`.
+
+**Tres cosas que hay que saber antes de grabar:**
+
+1. **Los puntajes bajaron, y no es un bug: es la cuota real.** Diana pasa de 74 a **51**, Carlos de 32 a **27**, Yuliana sigue en 0. Con el 0,6% la cuota de Diana era el 20,4% de su ingreso; con la anualidad es el **30,6%**, y la holgura —que pesa 0,45— cae con ella. ⚠️ **El guion decía "Diana con 74 está a un punto del techo de 75": eso ya no es cierto.** Lo seguro en cámara es no decir la cifra y hablar del **orden de la cola**.
+2. **A Carlos hubo que subirle el ingreso** de $2.850.000 a **$4.000.000**. PAYANDÉ es VIS, o sea que financia el 80% y su cuota es más alta: con el ingreso viejo se iba al 45% y **caía en nutrición**, perdiendo el personaje del 90/10. Con $4.000.000 queda en **39,3% — apenas pasa**, que es exactamente su historia y explica su puntaje bajo.
+3. **Hay que volver a correr `db/seed.sql`.** Los factores y los puntajes sembrados cambiaron.
+
+**Una consecuencia contraintuitiva que conviene tener lista para el jurado:** una VIS permite financiar **más** (80% vs 70%), así que **a igual precio su cuota mensual es más alta**. Por eso el matcher ahora calcula el techo **por proyecto** y no con un número plano — con uno solo, una VIS cara se colaba con la cuota por encima del 40%.
+
+**Queda abierto, y es de calibración:** `RATIO_HOLGURA_PLENA` sigue en 20%, o sea que "holgura plena" exige que la cuota sea la mitad del tope legal. Con cuotas reales eso es mucho más difícil, así que los puntajes se comprimen. Moverlo es legítimo —los pesos están abiertos a propósito— pero mirando la cola completa, no para que un personaje se vea mejor.
+
+> ⚠️ **Para P2 (ticket 023):** esto tocó `config.ts`, `capacidad.ts`, `scoring/index.ts`, `matching/index.ts`, las fixtures y el seed. Si tu rama ya empezó, **rebasa antes de seguir**.
+
 ## 💳 2026-07-25 13:00 — El 0,6% de la cuota está mal, el SMMLV va un año atrasado, y Mi Casa Ya está apagado
 
 Investigación con fuentes citables → [`credito-y-subsidios.md`](credito-y-subsidios.md). Cuatro cosas, y una cambia el pitch a favor.

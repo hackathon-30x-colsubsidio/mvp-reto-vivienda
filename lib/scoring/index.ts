@@ -8,6 +8,7 @@
 //            así el puntaje es 100% trazable: puntaje = Σ aportes.
 
 import { CONFIG_SCORING } from "./config";
+import { cuotaEstimada } from "./capacidad";
 import type { FactorScore, Lead, ProyectoCatalogo, Score } from "../types";
 
 /** Aporte en puntos (0–100) de un factor al puntaje total. */
@@ -86,7 +87,9 @@ function factorCuotaIngreso40(lead: Lead, proyecto: ProyectoCatalogo): FactorSco
     };
   }
 
-  const primeraCuotaEstimada = precio * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
+  // La cuota se calcula con la anualidad real, no con un porcentaje plano, y
+  // el LTV depende de si el proyecto es VIS (Decreto 583 de 2025).
+  const primeraCuotaEstimada = cuotaEstimada(precio, proyecto.vis ?? false);
   const subsidio = lead.respuestas.subsidio_monto_mensual ?? 0;
   const cuotaNeta = Math.max(0, primeraCuotaEstimada - subsidio);
   const ratio = cuotaNeta / ingreso;
@@ -116,7 +119,7 @@ function factorSubsidio(lead: Lead, proyecto: ProyectoCatalogo): FactorScore {
 
   // Señal: qué fracción de la primera cuota estimada cubre el subsidio.
   const precio = proyecto.precio_desde ?? 0;
-  const cuotaBruta = precio * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
+  const cuotaBruta = cuotaEstimada(precio, proyecto.vis ?? false);
   const cobertura = cuotaBruta > 0 ? clamp01(monto / cuotaBruta) : aplica ? 0.5 : 0;
   const peso = CONFIG_SCORING.PESOS.subsidio;
 
@@ -264,7 +267,7 @@ function triggerDelGate(lead: Lead, proyecto: ProyectoCatalogo): string {
 
   const cuotaNeta = Math.max(
     0,
-    precio * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA -
+    cuotaEstimada(precio, proyecto.vis ?? false) -
       (lead.respuestas.subsidio_monto_mensual ?? 0),
   );
   const ingresoNecesario = Math.ceil(cuotaNeta / CONFIG_SCORING.TOPE_CUOTA_SOBRE_INGRESO);

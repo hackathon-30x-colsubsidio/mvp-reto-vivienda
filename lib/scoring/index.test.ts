@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { calcularScore } from "./index";
-import { CONFIG_SCORING } from "./config";
+import { cuotaEstimada } from "./capacidad";
 import { afiliadoListo, noAfiliadoListo, nutricion } from "../fixtures/leads";
 import { proyectoBosqueDeTurpial, proyectoInari } from "../fixtures/proyectos";
 import type { Lead } from "../types";
@@ -61,14 +61,14 @@ describe("calcularScore — criterio de aceptación 2: cero caja negra", () => {
 });
 
 describe("calcularScore — borde exacto del tope del 40% (Decreto 583 de 2025)", () => {
-  const cuotaEstimada = proyectoInari.precio_desde! * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
+  const cuota = cuotaEstimada(proyectoInari.precio_desde!, proyectoInari.vis ?? false);
 
   function leadConRatio(ratio: number): Lead {
     return {
       ...afiliadoListo,
       respuestas: {
         ...afiliadoListo.respuestas,
-        ingreso_hogar_mensual: cuotaEstimada / ratio,
+        ingreso_hogar_mensual: cuota / ratio,
       },
     };
   }
@@ -88,14 +88,17 @@ describe("calcularScore — borde exacto del tope del 40% (Decreto 583 de 2025)"
 
 describe("calcularScore — el subsidio puede meter la cuota bajo el 40%", () => {
   it("un lead que fallaría sin subsidio, pasa con el subsidio aplicado", () => {
-    const cuotaEstimada = proyectoBosqueDeTurpial.precio_desde! * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
+    const cuota = cuotaEstimada(
+      proyectoBosqueDeTurpial.precio_desde!,
+      proyectoBosqueDeTurpial.vis ?? false,
+    );
     const ingreso = 1_800_000;
 
     const sinSubsidio = calcularScore(nutricion, proyectoBosqueDeTurpial);
     expect(sinSubsidio.salida).toBe("nutricion");
 
     // Un subsidio que cubra lo suficiente para bajar la cuota neta al 30% del ingreso.
-    const subsidioNecesario = cuotaEstimada - ingreso * 0.3;
+    const subsidioNecesario = cuota - ingreso * 0.3;
     const leadConSubsidio: Lead = {
       ...nutricion,
       respuestas: {
@@ -138,7 +141,7 @@ describe("calcularScore — puntaje ponderado (capa 2)", () => {
   });
 
   it("es monótono en la holgura: más margen bajo el 40% -> más puntaje", () => {
-    const cuota = proyectoInari.precio_desde! * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA;
+    const cuota = cuotaEstimada(proyectoInari.precio_desde!, proyectoInari.vis ?? false);
     const conRatio = (ratio: number): Lead => ({
       ...afiliadoListo,
       respuestas: { ...afiliadoListo.respuestas, ingreso_hogar_mensual: cuota / ratio },

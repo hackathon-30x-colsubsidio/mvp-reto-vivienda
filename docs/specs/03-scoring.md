@@ -20,16 +20,34 @@ Lo que pasa entre "la conversación terminó" y "el lead tiene una etiqueta y un
 Ejemplo completo, para que se vea que no hay caja negra (lead con ingreso $4.000.000, proyecto de $149.000.000, sin subsidio):
 
 ```
-cuota estimada = 149.000.000 × 0,6%  = 894.000
-cuota / ingreso = 894.000 / 4.000.000 = 22,4%   ≤ 40%  → pasa el gate
-holgura = (40% − 22,4%) / (40% − 20%) = 0,88     → aporta 0,45 × 0,88 × 100 = 39,6 puntos
+capital        = 149.000.000 × 80%            = 119.200.000   (VIS financia el 80%)
+tasa mensual   = (1 + 13% E.A.)^(1/12) − 1    = 1,0237%
+cuota estimada = capital × i / (1 − (1+i)^−240) = 1.336.291
+cuota / ingreso = 1.336.291 / 4.000.000        = 33,4%   ≤ 40%  → pasa el gate
+holgura = (40% − 33,4%) / (40% − 20%) = 0,33    → aporta 0,45 × 0,33 × 100 = 14,9 puntos
 ```
 
-### D2 · Cómo se estima la cuota · [HOY — así está construido, ratificar]
+### D2 · Cómo se estima la cuota · [CERRADA — 2026-07-25, con fuentes]
 
-`cuota estimada = precio × 0,6% − subsidio mensual`. El 0,6% aproxima una cuota de crédito hipotecario a 20 años sobre el 70% del valor. Está declarado en el código como heurística, no como fórmula bancaria certificada ([`lib/scoring/config.ts`](../../lib/scoring/config.ts)).
+**Se calcula la cuota de verdad, con la fórmula de anualidad:**
 
-**Esto necesita un sí o un no del equipo**, idealmente contra alguien que sepa de crédito hipotecario. Es el número del que cuelga el gate entero.
+```
+cuota = precio × LTV × i / (1 − (1+i)^−n)      menos el subsidio mensual
+```
+
+Cada parámetro tiene fuente ([investigación completa](../credito-y-subsidios.md)), y vive en [`config.ts`](../../lib/scoring/config.ts) → `CREDITO`:
+
+| Parámetro | Valor | De dónde sale |
+|---|---|---|
+| Tasa | **13% E.A.** | Promedio del mercado colombiano 2026. La ponderada de no VIS que reporta la Superfinanciera es 15,18%; el rango va de 10,93% a 17,75%. Se toma el promedio, no el extremo bajo |
+| Plazo | **20 años** | El estándar de un crédito hipotecario |
+| LTV | **70% / 80% VIS** | **El mismo Decreto 583 de 2025** que fija el tope del 40%. No es supuesto nuestro |
+
+> 🔴 **Antes esto era `precio × 0,6%` y estaba mal.** Aquel número decía aproximar "20 años sobre el 70% del valor" y no daba: con la anualidad, el 0,6% equivale a una tasa del **8,66% E.A.**, que no existe hoy en el mercado —ni estirando el plazo a 30 años se llega—. Subestimaba la cuota entre 25% y 45%, así que **el motor aprobaba a quien el banco iba a rechazar**: el error más caro que puede tener un producto cuya promesa es "capacidad validada contra reglas explícitas".
+
+**Ojo con la consecuencia contraintuitiva del LTV:** una VIS financia **más** (80%), así que a igual precio **su cuota mensual es más alta** y el techo del lead es más bajo. Por eso el filtro del matcher calcula el máximo **por proyecto** y no con un número plano (spec 04, obligación 3).
+
+**Lo que sigue siendo aproximación, y se dice:** la cuota **no incluye los seguros** de vida deudor e incendio/terremoto, que el banco cobra en el mismo recibo. La cuota real es algo mayor que la estimada.
 
 ### D3 · Siete factores visibles, seis con peso · [CERRADA — `spec.md §4`]
 
@@ -81,7 +99,9 @@ Sumando, el máximo alcanzable hoy:
 | No afiliado, cupo libre | igual, con 2,5 de cupo | **72,5** |
 | No afiliado, cupo copado | igual, con 0,5 de cupo | **70,5** |
 
-Contra el seed: Diana **74** (a un punto del techo), Carlos **32**. La separación afiliado / no afiliado idénticos queda en **2,5 a 4,5 puntos** — el desempate que pidió el mentor, no una condena (antes eran 10 a 18).
+Contra el seed: Diana **51**, Carlos **27**, Yuliana **0**. La separación afiliado / no afiliado idénticos queda en **2,5 a 4,5 puntos** — el desempate que pidió el mentor, no una condena (antes eran 10 a 18).
+
+> ⚠️ **Los puntajes bajaron el 2026-07-25 y no es un bug: es la cuota real.** Con el 0,6% plano Diana daba 74; con la anualidad de verdad su cuota es el 30,6% del ingreso en vez del 20,4%, y la holgura —que pesa 0,45— cae con ella. **Queda una pregunta de calibración para el TEAM:** `RATIO_HOLGURA_PLENA` sigue en 20%, o sea que "holgura plena" exige que la cuota sea la mitad del tope legal. Con cuotas reales eso es mucho más difícil de alcanzar, así que los puntajes se comprimen hacia abajo. Mover ese ancla es legítimo (los pesos están abiertos a propósito), pero **hay que hacerlo mirando la cola completa, no para que un personaje se vea mejor**.
 
 ⚠️ **Ojo con el tablero:** los 57 leads sintéticos de [`cola-historica.ts`](../../lib/fixtures/cola-historica.ts) **sí traen `subsidio_monto_mensual`**, así que pueden pasar de 75. El "puntaje promedio" y el ranking mezclan dos techos, y el aviso de datos simulados no lo dice.
 
@@ -145,7 +165,7 @@ El motor es TypeScript puro, determinista, sin red. La IA solo **redacta** expli
 flowchart TD
     LEAD["Lead con conversación terminada<br/>(ingreso, subsidio, vivienda, crediticia)"] --> CUOTA
 
-    CUOTA["Estimar la cuota<br/>precio x 0,6% − subsidio mensual"] --> GATE
+    CUOTA["Estimar la cuota<br/>anualidad: precio × LTV × i/(1−(1+i)^−n)<br/>13% E.A. · 20 años · 70% (80% si VIS)<br/>menos el subsidio mensual"] --> GATE
 
     GATE{"¿cuota ≤ 40%<br/>del ingreso?<br/>Decreto 583/2025"}
 

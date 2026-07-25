@@ -13,14 +13,36 @@ export const CONFIG_SCORING = {
   TOPE_CUOTA_SOBRE_INGRESO: 0.4,
 
   /**
-   * % del precio del proyecto que se estima como primera cuota mensual
-   * equivalente, para poder comparar contra el ingreso mensual declarado.
-   * PROPUESTO: aproxima una cuota de crédito hipotecario a 20 años sobre el
-   * 70% del valor de la vivienda (30% cuota inicial + subsidio ya restado
-   * en otro paso). Ratificar con un asesor financiero en el kickoff — hoy
-   * es una heurística razonable, no una fórmula bancaria certificada.
+   * Los parámetros del crédito con los que se estima la primera cuota.
+   *
+   * ⚠️ REEMPLAZARON AL 0,6% PLANO (2026-07-25). Aquel decía aproximar "una
+   * cuota a 20 años sobre el 70% del valor" y **no daba**: con la fórmula de
+   * anualidad, el 0,6% equivale a una tasa del **8,66% E.A.**, que no existe
+   * hoy en el mercado. Subestimaba la cuota entre 25% y 45%, así que el motor
+   * aprobaba a gente que el banco iba a rechazar — el error más caro posible
+   * para un producto cuya promesa es "capacidad validada".
+   *
+   * Cada número aquí tiene fuente (ver `docs/credito-y-subsidios.md`):
    */
-  PORCENTAJE_PRIMERA_CUOTA_ESTIMADA: 0.006,
+  CREDITO: {
+    /**
+     * Tasa efectiva anual. 13% es el promedio del mercado colombiano en 2026
+     * (la ponderada de no VIS que reporta la Superfinanciera es 15,18%, y el
+     * rango del mercado va de 10,93% a 17,75%). Se toma el promedio, no el
+     * extremo bajo: estimar por debajo es lo que rompió el modelo anterior.
+     */
+    TASA_EA: 0.13,
+    /** El plazo estándar de un crédito hipotecario de vivienda. */
+    PLAZO_ANIOS: 20,
+    /**
+     * Cuánto del valor de la vivienda se puede financiar. Lo fija el mismo
+     * Decreto 583 de 2025 que pone el tope del 40%, así que no es supuesto
+     * nuestro: 70% en general, 80% en VIS. Ojo con la consecuencia — la VIS
+     * permite financiar MÁS, así que su cuota mensual es más alta a igual precio.
+     */
+    LTV_NO_VIS: 0.7,
+    LTV_VIS: 0.8,
+  },
 
   /**
    * Umbral de "similitud alta" con compradores reales del mismo proyecto,

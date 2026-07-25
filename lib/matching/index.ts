@@ -1,4 +1,5 @@
 import type { Lead } from "@/lib/types";
+import { precioMaximoDe } from "@/lib/scoring/capacidad";
 import type { EntradaMatch, FichaProyecto, ProyectoElegido } from "./tipos";
 
 // El matcher es determinista y sin LLM: elige y deja la traza de por qué.
@@ -119,7 +120,16 @@ export function matchear({
   // castigar al lead con las manos vacías contradice la operación real: el
   // 27,1% de los compradores históricos NO son afiliados. El hallazgo del 90/10
   // no se pierde — sigue medido en el tablero y dicho en cada recomendación.
-  const candidatos = catalogo.filter((p) => p.precio_desde <= precio_maximo);
+  // El techo se calcula POR PROYECTO, no con un número plano: una VIS permite
+  // financiar el 80% en vez del 70%, así que a igual precio su cuota mensual es
+  // más alta y el máximo que el lead aguanta es más bajo. Con un solo número,
+  // una VIS cara se colaba con una cuota por encima del 40% — justo lo que la
+  // obligación 3 de este spec prohíbe. `precio_maximo` sigue mandando como
+  // techo del que llama (es el contrato de `EntradaMatch`).
+  const techoDe = (p: FichaProyecto) =>
+    Math.min(precio_maximo, precioMaximoDe(lead, p.vis));
+
+  const candidatos = catalogo.filter((p) => p.precio_desde <= techoDe(p));
 
   // Si en su zona hay con qué armar la recomendación, no se sale de la zona:
   // ofrecerle otra ciudad a quien ya dijo dónde quiere vivir quema el match.
@@ -138,7 +148,12 @@ export function matchear({
     .slice(0, MAXIMO_RECOMENDADOS)
     .map((ficha) => ({
       ficha,
-      razones: razonesDe(ficha, { precio_maximo, zona, noAfiliado, esInteres: esInteres(ficha) }),
+      razones: razonesDe(ficha, {
+        precio_maximo: techoDe(ficha),
+        zona,
+        noAfiliado,
+        esInteres: esInteres(ficha),
+      }),
     }));
 }
 
