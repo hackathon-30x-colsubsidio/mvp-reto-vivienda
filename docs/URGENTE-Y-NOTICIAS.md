@@ -4,6 +4,20 @@
 >
 > El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
 
+## 💬 2026-07-25 15:30 — El jurado ya puede preguntarle a Sara en medio del chat (y pedir un asesor)
+
+**Hecho**, en la rama `feat/026-sara-agente-y-ficha` (294 tests verdes). Hasta ahora, **cualquier cosa que el visitante escribiera se tragaba como respuesta al paso actual**: teclear *"¿cuánto vale?"* se parseaba como si fuera el dato que se le había pedido, y pedir un asesor —el trigger 3 de la operación real— no hacía nada. Es lo primero que hace cualquiera que abre un chat, así que era reproducible en el primer intento.
+
+**Qué se puede decir en cámara ahora, y qué no:**
+
+- **Sí:** *"pregúntale lo que quieras, no pierde el hilo"*. La duda se responde con el **catálogo real** y la **tabla de subsidios con fuente**, y **vuelve a la misma pregunta** — el paso nunca se salta.
+- **Sí:** *"si pide un asesor, se lo decimos y queda en el hilo que el asesor ve en su ficha"*. La conversación sigue, para que llegue sabiéndolo todo.
+- **Sí:** *"esto funciona aunque el modelo esté caído"*. La detección es TS puro y la respuesta sin LLM ya es correcta.
+- **No:** que Sara recomiende o compare proyectos. Está **prohibido en el prompt**: consulta precios y ubicaciones, recomendar es del matcher determinista. Si alguien le pide que recomiende, le dice que en un momento le arma opciones.
+- **No:** montos de subsidio. Se responde para qué sirve y quién puede pedirlo, **sin cifra**, porque las fuentes se contradicen.
+
+⚠️ **Para el merge:** la rama toca [`components/chat/ChatWhatsApp.tsx`](../components/chat/ChatWhatsApp.tsx) (roce con **P3 / ticket 024**) y `FilaLead.tsx` (roce con el recorrido de **P1**). **No toca** `preguntas.ts`, `lib/fixtures/`, `lib/scoring/`, `lib/matching/` ni `app/asesor/page.tsx`. Ya está rebasada sobre `main` con el cambio de la cuota y el SMMLV. Orden acordado: **023 → 024 → esta**. Decisiones en el [ADR 0006](adr/0006-prompt-maestro-y-desvio.md).
+
 ## ✅ 2026-07-25 14:00 — El 0,6% ya no existe: la cuota se calcula de verdad
 
 **Hecho** (219 tests verdes). El motor ya no estima la cuota con un porcentaje plano: usa la **fórmula de anualidad** con parámetros que tienen fuente — **13% E.A.** (promedio del mercado 2026), **20 años**, y el **LTV del propio Decreto 583** (70%, u **80% si es VIS**). Detalle en [`credito-y-subsidios.md`](credito-y-subsidios.md) y en [spec 03 D2](specs/03-scoring.md), ahora `[CERRADA]`.

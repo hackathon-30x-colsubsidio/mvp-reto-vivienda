@@ -50,22 +50,23 @@ El argumento a favor es del mentor, no nuestro: rechazó explícitamente *"ese p
 
 El argumento en contra es el calendario: faltan menos de 48 horas y A ya funciona. **Es una decisión de riesgo, y es del equipo.**
 
-### D2 · Qué sabe el agente al arrancar (el contexto) · [PROPUESTA — tachar o añadir]
+### D2 · Qué sabe el agente al arrancar (el contexto) · [CERRADA — Mani, 2026-07-25]
 
-Lista para que el equipo la edite en la reunión:
-
-| Entra al contexto | Por qué | ¿Discutible? |
+| Entra al contexto | Por qué | Estado |
 |---|---|---|
-| Nombre del lead | Para tutearlo por su nombre | No |
-| `PerfilConocido` (afiliación, ciudad, segmento, rango de ingreso) | Para no repreguntarlo — criterio 1 | No |
-| Proyecto por el que entró | Colsubsidio ya lo hace: [entraste por Araucaria, te habla de Araucaria](../reto/charla-mentor.md#click-to-whatsapp) | No |
-| **Los datos que faltan**, como lista explícita | Es el objetivo del turno | No |
-| Ficha del proyecto de entrada (precio desde, ubicación, tipologías) | Para responder "¿cuánto vale?" sin inventar | Sí — ¿el catálogo completo o solo ese proyecto? |
-| Tabla de subsidios | Para explicar cuál le puede aplicar | Sí — depende del [ticket 017](../tasks/017-tabla-subsidios.md) |
-| Historial, si es re-enganche | Para retomar sin repreguntar (spec [05](05-nutricion-reenganche.md)) | Sí |
-| Nada del scoring | El agente **no** sabe el puntaje ni la salida: no es su trabajo y no debe insinuárselo al lead | No |
+| Nombre del lead | Para tutearlo por su nombre | Construido |
+| `PerfilConocido` (afiliación, ciudad, segmento, rango de ingreso) | Para no repreguntarlo — criterio 1 | Construido, **solo en modo tono** (ver abajo) |
+| Proyecto por el que entró | Colsubsidio ya lo hace: [entraste por Araucaria, te habla de Araucaria](../reto/charla-mentor.md#click-to-whatsapp) | Construido — `fichaDeEntrada()` |
+| **Los datos que faltan**, como lista explícita | Es el objetivo del turno | Lo lleva TypeScript, no el prompt (D1 = A) |
+| Ficha del proyecto de entrada (precio desde, ubicación, VIS) | Para responder "¿cuánto vale?" sin inventar | Construido |
+| **Catálogo de los 18 proyectos**, como líneas de consulta | Para responder por CUALQUIER proyecto que la persona nombre, no solo por el de entrada | Construido — `catalogoParaPrompt()` |
+| Tabla de subsidios, con su fuente | Para decir la verdad sobre cuál aplica hoy | Construido — [`subsidios.ts`](../../lib/conversacion/subsidios.ts) |
+| Historial, si es re-enganche | Para retomar sin repreguntar (spec [05](05-nutricion-reenganche.md)) | Construido |
+| Nada del scoring | El agente **no** sabe el puntaje ni la salida: no es su trabajo y no debe insinuárselo al lead | Construido |
 
-**Lo que NO entra, y conviene decirlo explícito:** el catálogo completo de 18 proyectos con precios. Si el agente los tiene todos, va a empezar a recomendar en medio de la indagación, y el match es determinista por diseño (spec [04](04-match-agenda.md)).
+**El catálogo completo SÍ entra, y la regla que lo hace seguro no es esconderlo: es prohibir recomendar.** Este párrafo decía lo contrario ("lo que NO entra: el catálogo completo de 18 proyectos"), y el miedo era legítimo — un agente con todos los precios se pone a recomendar en medio de la indagación, y el match es determinista por diseño (spec [04](04-match-agenda.md)). Pero esconderle el catálogo no evita que recomiende: solo lo obliga a decir *"no sé"* cuando alguien pregunta por un proyecto que sí tenemos, que es peor. La frontera quedó en el verbo, no en el dato: **Sara puede CONSULTAR el catálogo (qué vale, dónde queda); comparar, sugerir o decir cuál le conviene está prohibido explícitamente en el prompt.** Recomendar necesita la capacidad de pago ya calculada, y eso no lo tiene ni lo va a tener.
+
+**El perfil del lead NO viaja en modo duda.** El historial sí (es la conversación), pero el `PerfilConocido` no se manda: no hace falta para responder cuánto cuesta un proyecto, y no mandarlo vuelve **imposible** —no solo prohibida— la regla de que nunca le recite sus datos de vuelta. El dato que no está no se filtra. Detalle en [`prompt-maestro.ts`](../../lib/conversacion/prompt-maestro.ts) y en el [ADR 0006](../adr/0006-prompt-maestro-y-desvio.md).
 
 ### D3 · Los nodos del workflow · [PROPUESTA — el straw proposal, nodo por nodo]
 
@@ -116,9 +117,15 @@ El equipo pidió "aprendizaje autónomo: las conversaciones no son estáticas si
 
 Los tres triggers son literales de la operación de hoy ([detalle](../reto/charla-mentor.md#click-to-whatsapp)):
 
-1. **No pudo agendar.**
+1. **No pudo agendar.** 🟢 Construido: si `/api/citas` no da franjas, se dice y se pasa a asesor, sin fingir la cita.
 2. **No pudo cotizar.**
-3. **Pide hablar con un asesor** habiendo explorado las opciones.
+3. **Pide hablar con un asesor** habiendo explorado las opciones. 🟢 **Construido el 2026-07-25.**
+
+**[HOY — trigger 3, 2026-07-25]** Lo detecta [`detectarDesvio()`](../../lib/conversacion/desvio.ts) sobre lo que la persona teclea, con una heurística **determinista y conservadora**: la palabra *asesor*, *humano*, *persona real*, o una forma explícita de pedir que la llamen. Ante la duda no desvía — desviar de más rompe la conversación (le consume el paso a alguien que sí estaba contestando), desviar de menos deja el comportamiento de antes. Lo que pasa cuando se dispara:
+
+- se le responde que sí, y el hilo guarda una fila **`sistema`** con la petición, así que **el asesor la ve en la ficha** (ADR 0003) — el handoff no depende de que alguien lea el chat;
+- **la conversación sigue**, y esto es deliberado: en el demo no hay humano al otro lado (pregunta 10), y cada dato que se alcance a saber antes de la llamada es un dato que la persona no repetirá. Cortar ahí le costaría a ella, no a nosotros;
+- el paso pendiente **no se pierde**: lo retoma el código, no el modelo.
 
 **[PROPUESTA]** Un cuarto: **N turnos sin que se llene ningún dato nuevo**. Protege contra el lead que se enreda, que es justo lo que el mentor no quiere. Falta decidir N (¿3?) y qué pasa en el demo, donde no hay humano al otro lado — probablemente un mensaje honesto de "te contacta un asesor" y el lead entra a la cola marcado.
 
@@ -205,11 +212,22 @@ stateDiagram-v2
     Nutricion: 12 · Razón + qué lo destrabaría (spec 05)
     Nutricion --> [*]
 
-    Indagacion --> Humano: pide asesor / no pudo cotizar / no pudo agendar
+    Indagacion --> Desvio: pregunta algo / pide un asesor
+    Desvio: Desvío · se responde con grounding, o se anota el handoff
+    Desvio --> Indagacion: se retoma LA MISMA pregunta
+
+    Indagacion --> Humano: no pudo cotizar
     Agenda --> Humano: no pudo agendar
 
     Humano: Handoff a asesor humano
     Humano --> [*]
+
+    note left of Desvio
+        Detección determinista (desvio.ts), conservadora:
+        ante la duda NO desvía. El paso nunca avanza.
+        "Pide asesor" deja fila `sistema` en el hilo y
+        la conversación SIGUE: el asesor lo ve en la ficha.
+    end note
 
     note left of Humano
         Los 3 triggers son los de la operación real.
@@ -224,7 +242,7 @@ stateDiagram-v2
 **Sobre la arquitectura**
 
 1. ~~**¿LLM conduce (B) o determinista conduce (A)?**~~ (D1) **Resuelto (sala del sábado 25, decisión 1): se queda A.** No gastar reunión aquí.
-2. **¿Qué entra al contexto del agente?** (D2) Especialmente: ¿le damos el catálogo completo o solo el proyecto de entrada?
+2. ~~**¿Qué entra al contexto del agente?**~~ (D2) **Cerrada (Mani, 2026-07-25): entra el catálogo completo, como consulta.** La regla que lo hace seguro no es esconder el dato sino prohibir el verbo — Sara consulta precios y ubicaciones, y tiene prohibido recomendar o comparar. Ver D2 y el [ADR 0006](../adr/0006-prompt-maestro-y-desvio.md).
 
 **Sobre los nodos**
 
@@ -250,7 +268,9 @@ stateDiagram-v2
     - **Cómo se dice sin sobrevender:** es **dictado transcrito en el navegador**, no una nota de voz almacenada. Ningún audio se sube ni se guarda. En producción, WhatsApp entrega el audio y se transcribe igual, así que el punto de entrada al flujo es el mismo — eso es lo honesto que se puede afirmar en el pitch.
     - **Degrada sin ruido:** si el navegador no soporta la API (Firefox) el botón no se pinta, y si la persona niega el micrófono no se insiste. El campo de texto siempre está — es la regla del repo, y aquí también manda.
     - **Por qué vale más que un adorno:** el brief es de propósito social. Alguien en una obra, manejando, o con poca práctica escribiendo, puede contestar hablando. Cubierto por [`dictado.test.tsx`](../../components/chat/dictado.test.tsx).
-13. **¿Qué pasa si el lead pregunta algo que no sabemos** (una fecha de entrega, un acabado)? No hay política de "no sé" definida, y el prompt del experto prohíbe inventar.
+13. ~~**¿Qué pasa si el lead pregunta algo que no sabemos** (una fecha de entrega, un acabado)?~~ **[CERRADA — 2026-07-25: decir "no sé" es la respuesta correcta, no un fracaso.]** Antes ni siquiera llegaba a ser un problema de política: la pregunta se consumía como respuesta al paso actual y se parseaba como si fuera el dato pedido. Ahora se detecta como desvío y se responde, y la política vive en dos sitios que dicen lo mismo:
+    - **En el prompt** (`promptDuda`, [`prompt-maestro.ts`](../../lib/conversacion/prompt-maestro.ts)): un bloque *SI NO SABES* explícito — *"esa no la tengo a la mano y prefiero no inventarte nada; el asesor te la confirma"* vale más que un dato inventado. Se prohíbe nombrar fechas de entrega, acabados, áreas, tasas y plazos, porque nada de eso está en el grounding.
+    - **Sin LLM**, en `respuestaDeterministaDuda()`: lo que se puede afirmar sale del catálogo real (precio *desde*, ciudad, zona) o de la tabla de subsidios con fuente; **el resto se contesta con un "no te la puedo confirmar sin inventarte nada", y queda anotada para el asesor.** El subsidio es el caso ejemplar: se responde para qué sirve y quién lo puede pedir, **sin monto**, porque las fuentes públicas se contradicen ([`subsidios.ts`](../../lib/conversacion/subsidios.ts)).
 
 ## Fuentes
 

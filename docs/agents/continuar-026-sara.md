@@ -1,3 +1,10 @@
+🔁 **HISTÓRICO — la rama se terminó el 2026-07-25 a las 15:30.** Este doc era el
+plan de cómo retomarla desde la Fase 3, y las fases 3 y 4 ya están hechas
+(commit `f0401d6` y los docs). Lo vigente es la entrada de las **15:30 en
+[`handoff.md`](handoff.md)**, el [ADR 0006](../adr/0006-prompt-maestro-y-desvio.md)
+y el [spec 02](../specs/02-conversador.md). Se conserva porque su sección final
+—los dos hallazgos que NO son de esta rama— sigue pendiente para el equipo.
+
 # Continuar la rama `feat/026-sara-agente-y-ficha` — desde la Fase 3
 
 > **Para quién es esto:** la sesión (o la persona) que retoma esta rama. Se puede
@@ -11,6 +18,14 @@
 > El plan completo, con su contexto y las decisiones de Mani, está en
 > `~/.claude/plans/quiero-continuar-con-la-vivid-quasar.md`. Este documento es su
 > estado de avance, no su reemplazo.
+>
+> **Lo que cambió al ejecutarlo (2026-07-25 15:30):** se rebasó sobre `main`
+> **sin** esperar al 024, que todavía no estaba mergeado — el rebase salió limpio
+> porque las fases 1-2 no tocaban `ChatWhatsApp.tsx`. Dos ajustes sobre lo
+> escrito abajo: la regex de "pedir asesor" enumera las formas de pedir que lo
+> llamen (la versión amplia atrapaba *"me llamo Diana"*), y el hallazgo 2 es
+> falso: **sí hay credencial de LLM en local**, y el modo duda se verificó en el
+> navegador contra el modelo real.
 
 ---
 
@@ -226,7 +241,8 @@ lanza en `/api/chat`):
      lead conversado en vivo ve un texto distinto (más seco) que el sembrado.
    - **Acción:** volver a correr `db/seed.sql` antes de grabar, con el seed
      regenerado por quien haya movido el SMMLV. Es de P1/P2, no de esta rama.
-2. **No hay `GEMINI_API_KEY` en el `.env` local**, así que el modo duda no se
-   pudo cronometrar (< 2s de primer token, ADR 0002). El endpoint responde 503 y
-   el cliente cae al texto determinista, que es el comportamiento correcto —
-   pero **queda pendiente medirlo con key** antes de darlo por bueno.
+2. ~~**No hay `GEMINI_API_KEY` en el `.env` local**~~ — **falso, corregido el
+   2026-07-25 15:30.** Sí hay credencial: el modo duda se probó en el navegador
+   contra el modelo real (precio, subsidio y handoff, todos correctos). Lo que
+   sigue pendiente es **cronometrar** el primer token contra el límite de 2s del
+   ADR 0002.

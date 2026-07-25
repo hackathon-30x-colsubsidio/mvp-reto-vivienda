@@ -62,11 +62,22 @@ stateDiagram-v2
     Nutricion: 12 · Razón + qué lo destrabaría (spec 05)
     Nutricion --> [*]
 
-    Indagacion --> Humano: pide asesor / no pudo cotizar / no pudo agendar
+    Indagacion --> Desvio: pregunta algo / pide un asesor
+    Desvio: Desvío · se responde con grounding, o se anota el handoff
+    Desvio --> Indagacion: se retoma LA MISMA pregunta
+
+    Indagacion --> Humano: no pudo cotizar
     Agenda --> Humano: no pudo agendar
 
     Humano: Handoff a asesor humano
     Humano --> [*]
+
+    note left of Desvio
+        Detección determinista (desvio.ts), conservadora:
+        ante la duda NO desvía. El paso nunca avanza.
+        "Pide asesor" deja fila `sistema` en el hilo y
+        la conversación SIGUE: el asesor lo ve en la ficha.
+    end note
 
     note left of Humano
         Los 3 triggers son los de la operación real.
@@ -98,6 +109,8 @@ Lo importante de ese ciclo: **quién decide que la conversación terminó es có
 
 **Y en paralelo a todo eso existe la salida hacia un humano.** Los tres motivos son los que ya usa Colsubsidio hoy: la persona no pudo agendar, no pudo cotizar, o pidió hablar con un asesor. Está propuesto un cuarto —que pasen varios turnos sin que se llene ningún dato— para atrapar al lead que se está enredando, que es justo lo que el mentor no quiere.
 
+**El desvío es el estado nuevo, y es el que reconoce que nadie contesta un cuestionario sin interrumpirlo.** A mitad de la indagación la gente pregunta *"¿cuánto vale?"* o pide un asesor, y hasta el 2026-07-25 eso se consumía como si fuera la respuesta al paso pendiente. Ahora se detecta —con reglas, no con el modelo— y se atiende: la duda se responde con el catálogo real y la tabla de subsidios, la petición de asesor queda anotada en el hilo, y en los dos casos **se vuelve a la misma pregunta**, que la retoma el código. Es la diferencia entre un formulario que se rompe si te sales y una conversación.
+
 ## Las transiciones
 
 | Desde | Hacia | Cuándo |
@@ -108,7 +121,9 @@ Lo importante de ese ciclo: **quién decide que la conversación terminó es có
 | Indagación | Cierre | No falta ninguno |
 | Cierre | Agenda | Pasó el corte |
 | Cierre | Nutrición | No pasó |
-| **Cualquier punto** | **Humano** | Pide asesor · no pudo cotizar · no pudo agendar |
+| Indagación | **Desvío** | Pregunta algo, o pide hablar con un asesor |
+| **Desvío** | Indagación | Siempre: se responde y se retoma **la misma** pregunta |
+| **Cualquier punto** | **Humano** | No pudo cotizar · no pudo agendar |
 
 ## La red que no aparece dibujada
 
