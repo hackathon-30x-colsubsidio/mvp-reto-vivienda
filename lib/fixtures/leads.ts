@@ -20,7 +20,13 @@ const GUION: Record<string, GuionDemo> = {
     evento: eventos.afiliadoListo,
     perfil: perfiles.afiliadoListo,
     consentimientoTs: "2026-07-23T14:32:10-05:00",
-    respuestasTecleadas: ["Sería la primera", "Mi Casa Ya", "Estoy al día con todo"],
+    respuestasTecleadas: [
+      "Sería la primera",
+      "Con mi pareja",
+      "Mi Casa Ya",
+      "Tengo 29",
+      "Estoy al día con todo",
+    ],
   },
 
   // Carlos: está en la base pero no es afiliado, así que de él solo se sabe la
@@ -31,8 +37,10 @@ const GUION: Record<string, GuionDemo> = {
     consentimientoTs: "2026-07-23T15:05:41-05:00",
     respuestasTecleadas: [
       "No, sería la primera",
+      "Con mi esposa y nuestros dos hijos",
       "2.850.000 entre mi esposa y yo",
       "Ninguno todavía",
+      "38",
       "Al día, nunca me he atrasado",
     ],
   },
@@ -44,8 +52,10 @@ const GUION: Record<string, GuionDemo> = {
     consentimientoTs: "2026-07-23T16:20:03-05:00",
     respuestasTecleadas: [
       "No, vivo en arriendo",
+      "Yo sola con mi hija",
       "Entre 1 y 2 salarios mínimos",
       "Ninguno",
+      "Tengo 24 años",
       "Tuve una mora hace poco",
       "Bogotá, por el sur",
     ],

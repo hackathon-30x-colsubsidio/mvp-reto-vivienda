@@ -2,6 +2,16 @@
 
 > El documento más concreto y resumido del repo. Si solo vas a leer un archivo hoy, es este. Se actualiza cada vez que algo cambia el rumbo del equipo.
 
+## 🟠 2026-07-25 15:00 — El matcher cambió (zona estricta + similitud real) y eso mueve TRES cosas que el equipo tiene que saber
+
+Detalle completo en [`handoff.md` 2026-07-25 15:00](agents/handoff.md). **211 tests verdes, typecheck y lint limpios.** Lo que le cambia el día a cada quien:
+
+1. **`db/seed.sql` cambió OTRA VEZ → hay que volver a correrlo en Supabase antes de grabar.** Los guiones de los 3 personajes ahora responden 2 preguntas nuevas y sus puntajes/proyectos los recalculó el motor con la similitud real. El seed viejo en producción muestra fichas que el código ya no produce.
+2. **La ficha de Carlos cambió de narrativa: ahora recibe 1 SOLO proyecto (Payandé).** Es la zona estricta funcionando — Carlos es de Ricaurte y Payandé es lo único de su zona que le cabe. Antes recibía 3 de ciudades ajenas. Si el guion del video decía "3 proyectos marcados por cupo", ya no es verdad: ahora la historia es *"solo se recomienda donde quiere vivir, y se le dice por qué"*.
+3. **`lib/types.ts` cambió (contrato entre tracks):** `respuestas` tiene 2 campos nuevos, `composicion_familiar` y `rango_edad` — el chat los pregunta ("¿con quién la compartirías?" y rango de edad) y la similitud los consume. Si tu track construye contra `Lead`, typecheck te lo va a decir.
+
+**Y una decisión reversible a un solo punto:** las recomendaciones ahora citan % del PPT de buyer personas ("el 91% gana hasta 2 SMLV, como tu hogar"). Daniel duda de si esos números son distribuibles al público — si el equipo decide que no, se vacían las `evidencias` en `similitudCon()` (`lib/scoring/similitud.ts`) y desaparecen de ficha, porqué y prompt a la vez, sin tocar nada más.
+
 ## 🔴 2026-07-24 21:00 — HAY QUE CORRER `db/seed.sql` ANTES DE GRABAR (y los 4 bloqueantes ya están corregidos)
 
 **Acción obligatoria de quien tenga la consola de Supabase: pegar [`db/seed.sql`](../db/seed.sql) en el SQL Editor y ejecutarlo.** Sin eso, el link público le muestra al jurado datos rotos.

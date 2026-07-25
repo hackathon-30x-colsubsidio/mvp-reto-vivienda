@@ -27,20 +27,29 @@ Qué proyectos se le recomiendan a un lead que pasó el corte, con qué porqué,
 
 Es la misma razón que en el scoring: una recomendación que no se puede justificar con factores visibles no entra al demo.
 
-### D2 · El orden de las reglas · [HOY — así está construido, ratificar el ranking]
+### D2 · El orden de las reglas · [HOY — así está construido desde 2026-07-25, decidido con Daniel]
 
 ```
 1. Si el lead cayó en nutrición → cero proyectos.
    (no se le ofrece lo que no puede pagar)
 2. Descartar todo proyecto con precio_desde > precio máximo del lead.
-   ES EL ÚNICO DESCARTE.
-3. Si hay 2+ candidatos en su zona → quedarse solo con esos.
-4. Ordenar: proyecto por el que preguntó → coincide la zona →
-   (si no afiliado) más cupo libre → precio ascendente.
-5. Tomar los 3 primeros.
+   ES EL ÚNICO DESCARTE FINANCIERO.
+3. ZONA ESTRICTA: si se conoce dónde quiere vivir (zona_interes del chat, o
+   la ciudad del enriquecimiento), solo se recomienda AHÍ — aunque quede 1.
+   El match es por tokens normalizados (lib/matching/geografia.ts): "Bogotá,
+   por el norte" sí encuentra Bogotá; "Ricaurte o Bogotá" matchea ambas.
+   · Zona sin candidatos → máx. 2 ALTERNATIVAS marcadas fuera_de_zona: true,
+     con la razón honesta primero y "Un asesor te contactará" en la explicación.
+   · Sin zona conocida no se inventa una: compite todo el catálogo.
+4. Ordenar: proyecto por el que preguntó → similitud con compradores reales
+   (ticket 016) + bonos visibles (VIS con subsidio +0,15 · barrio exacto +0,10)
+   → (si no afiliado) más cupo libre → precio ascendente DE ÚLTIMO.
+5. Tomar los 3 primeros (2 si son alternativas fuera de zona).
 ```
 
-Los pasos 1-3 son filtros (el QUÉ). **El paso 4 es una opinión** y es lo que hay que ratificar: dice que preferimos el proyecto que le interesa sobre el más barato, y la cercanía sobre el precio. Puede estar bien; nadie lo ha discutido.
+Los pasos 1-3 son filtros (el QUÉ). El paso 4 es el ranking, y su porqué quedó explicable: cada componente tiene nombre y número en el código.
+
+**Historia (2026-07-25):** antes el paso 3 decía *"si hay 2+ candidatos en su zona, quedarse solo con esos"* — un fallback que, cuando la zona no daba 2, recomendaba de TODO el catálogo en silencio; y el `coincideZona` era un `===` exacto contra el texto crudo del chat, así que "Bogotá, por el sur" no matcheaba nada y un bogotano recibía Girardot sin aviso. Además el desempate dominante del paso 4 era el precio: todo el mundo recibía los 3 proyectos más baratos que le cupieran, ganara 3 o 15 millones. Las dos cosas se corrigieron juntas (ver handoff 2026-07-25 15:00).
 
 **[PROPUESTA]** El proyecto por el que entró va de primero **siempre que pase los filtros**, porque es lo que Colsubsidio ya hace hoy: [entraste por Araucaria, te habla de Araucaria](../reto/charla-mentor.md#click-to-whatsapp). Hoy el ranking lo favorece pero un filtro previo puede haberlo eliminado — y si lo eliminó por precio o cupo, **hay que decirlo**, no omitirlo en silencio.
 
@@ -96,7 +105,7 @@ Nuestro MVP llega hasta la **cita en sala de ventas**, que es el paso inmediatam
 | `precio_maximo` | 🟢 Sale de `precioMaximoDe(lead)` — el gate del 40% despejado, la misma aritmética del motor — en `/api/match` y `/api/explicacion`. Ya no hay fixture por personaje | Costura S2 cerrada |
 | Franjas en el chat | 🟢 **Se ofrecen y se persisten** (D6) | — |
 | IDs de slots | 🟢 Un solo espacio, generado (D4) | — |
-| Similitud en el porqué | No se cita | [Ticket 018](../tasks/018-similitud-en-explicacion.md), bloqueado por [016](../tasks/016-distribuciones-por-proyecto.md) |
+| Similitud en el porqué | 🟢 Se cita con % reales: la razón "gente como él ya compró aquí: el X%…" entra a la traza y al `porque` de cada proyecto. Las evidencias se redactan en UN solo punto (`similitudCon`, lib/scoring/similitud.ts) por si el equipo decide no distribuir los % del PPT | [016](../tasks/016-distribuciones-por-proyecto.md) y [018](../tasks/018-similitud-en-explicacion.md) done (2026-07-25) |
 
 ## Diagrama
 
@@ -119,9 +128,9 @@ flowchart LR
 
     VACIO -->|"Sí"| ZONA
 
-    ZONA["Filtro 3 — zona<br/>si hay 2+ en su zona, solo esos"] --> RANK
+    ZONA["Filtro 3 — ZONA ESTRICTA<br/>con zona conocida, solo esa zona (aunque quede 1)<br/>zona sin candidatos → máx. 2 alternativas<br/>marcadas fuera_de_zona"] --> RANK
 
-    RANK["Ranking<br/>1 proyecto que preguntó · 2 zona<br/>3 más cupo libre · 4 precio ascendente"] --> TOP
+    RANK["Ranking<br/>1 proyecto que preguntó · 2 similitud compradores<br/>+ bonos VIS/barrio · 3 más cupo libre<br/>4 precio ascendente (último)"] --> TOP
 
     TOP["Top 3 + traza de por qué entró cada uno"] --> EXP
 

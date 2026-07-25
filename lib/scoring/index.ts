@@ -8,6 +8,7 @@
 //            así el puntaje es 100% trazable: puntaje = Σ aportes.
 
 import { CONFIG_SCORING } from "./config";
+import { similitudCon } from "./similitud";
 import type { FactorScore, Lead, ProyectoCatalogo, Score } from "../types";
 
 /** Aporte en puntos (0–100) de un factor al puntaje total. */
@@ -151,24 +152,24 @@ function factorSituacionCrediticia(lead: Lead): FactorScore {
   };
 }
 
-function factorSimilitudCompradores(proyecto: ProyectoCatalogo): FactorScore {
-  const { total } = proyecto.cupo_no_afiliados;
-  // `total` es el 10% del volumen histórico del proyecto, así que ×10 devuelve
-  // ese volumen. NO es un dato del Excel leído directo: es una derivación, y por
-  // eso el texto la declara. Una cifra que parece dato y es una multiplicación
-  // sin decirlo es caja negra aunque el número esté bien.
-  const nAproximado = total * 10;
-  // Señal PROVISIONAL: la similitud real (perfil del lead vs. distribución del
-  // proyecto) llega con las distribuciones por proyecto (ticket 016). Hasta
-  // entonces se puntúa 0.5 neutro para no inventar un fit por lead que no existe.
+function factorSimilitudCompradores(
+  lead: Lead,
+  proyecto: ProyectoCatalogo,
+  afiliado: boolean,
+): FactorScore {
+  // Similitud REAL contra la distribución de compradores del proyecto
+  // (ticket 016, data/sintetica/buyer_personas.json — derivado del PPT).
+  // Determinista y citable: cada señal trae su % en `evidencias`. Si el
+  // proyecto no tiene distribución confiable, la señal es 0.5 neutra — nunca
+  // se castiga a un lead por un hueco del PPT.
+  const { valorNorm, evidencias } = similitudCon(lead, proyecto.proyecto_id, afiliado);
   const peso = CONFIG_SCORING.PESOS.similitud_compradores;
-  const valorNorm = 0.5;
   return {
     nombre: "similitud_compradores_reales",
     valor:
-      nAproximado > 0
-        ? `${proyecto.nombre} tiene ~${nAproximado.toLocaleString("es-CO")} compradores históricos (derivado: el cupo 90/10 del proyecto ×10). Señal neutra 0,5 para todos: la similitud por perfil todavía no se calcula (ticket 016), así que este factor hoy no diferencia leads`
-        : "Sin histórico de compradores para este proyecto",
+      evidencias.length > 0
+        ? `Fit ${(valorNorm * 100).toFixed(0)}% con los compradores históricos de ${proyecto.nombre}: ${evidencias.join("; ")}`
+        : `Sin distribución confiable de compradores para ${proyecto.nombre}: señal neutra 0,5 (no se inventa un fit que no existe)`,
     cumple: true, // nunca bloquea (spec §4)
     fuente: "historico",
     peso,
@@ -267,7 +268,7 @@ export function calcularScore(lead: Lead, proyecto: ProyectoCatalogo): Score {
     factorSubsidio(lead, proyecto),
     factorYaTieneVivienda(lead),
     factorSituacionCrediticia(lead),
-    factorSimilitudCompradores(proyecto),
+    factorSimilitudCompradores(lead, proyecto, afiliado),
     factorCupo90_10(proyecto, afiliado),
   ];
 

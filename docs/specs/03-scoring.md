@@ -59,7 +59,7 @@ Los seis pesos (0,45 / 0,20 / 0,15 / 0,10 / 0,05 / 0,05) suman 1,0 y están escr
 
 ### D5 · Dos observaciones aritméticas que el equipo debería conocer · [HOY — verificable sumando]
 
-1. **Nadie puede sacar 100.** La similitud está fija en 0,5 mientras no existan las distribuciones por proyecto ([ticket 016](../tasks/016-distribuciones-por-proyecto.md)), así que aporta 10 de sus 20 puntos siempre. El techo real hoy es **90**.
+1. **[SUPERADA el 2026-07-25 — la similitud es real.]** ~~Nadie puede sacar 100: la similitud está fija en 0,5.~~ El [ticket 016](../tasks/016-distribuciones-por-proyecto.md) se cerró: `similitudCon()` ([`lib/scoring/similitud.ts`](../../lib/scoring/similitud.ts)) compara al lead contra las distribuciones reales por proyecto (`data/sintetica/buyer_personas.json`, derivado del PPT de buyer personas) en afiliación, banda SMLV, edad y composición del hogar, y **cita sus % en el factor**. Sigue sin cortar jamás. Solo cae al 0,5 neutro cuando el proyecto no tiene distribución confiable (Zarzal sin slide; Abeto/Vibonce/Araucaria/Los Nogales/Karakali marcados `confiable: false` por la nota de extracción del md) — un lead nunca se castiga por un hueco del PPT.
 2. **Un no afiliado tiene techo 87,5.** `cupo_90_10` para un no afiliado da como máximo señal 0,5, o sea 2,5 de sus 5 puntos. Un afiliado y un no afiliado idénticos en todo lo demás quedan separados por **2,5 a 4,5 puntos** según el cupo que le quede al proyecto — el desempate que pidió el mentor, no una condena (antes eran 10 a 18 puntos).
 
 Ninguna de las dos es un bug: la primera es un provisional declarado, la segunda es la regla 90/10 expresándose en la prioridad. **Pero las dos son decisiones**, y hoy nadie las ratificó. Con ellas encima, la pregunta al equipo es si el techo móvil confunde al asesor.
@@ -111,7 +111,7 @@ El motor es TypeScript puro, determinista, sin red. La IA solo **redacta** expli
 |---|---|---|
 | Gate del 40% | Funciona, con la norma citada en el texto del factor | — |
 | 7 factores visibles | Los 7 se emiten y la ficha los recorre con `.map()` | — |
-| Similitud real | Fija en 0,5, **y el factor lo dice en su propio texto** ("señal neutra 0,5 para todos: hoy no diferencia leads"), igual que declara que el "~N compradores" es una derivación del cupo ×10 y no un dato leído del Excel | Espera [016](../tasks/016-distribuciones-por-proyecto.md); [018](../tasks/018-similitud-en-explicacion.md) la lleva a la explicación |
+| Similitud real | 🟢 **Encendida (2026-07-25):** compara contra las distribuciones reales por proyecto y el factor cita sus % ("Fit 74% … el 91% gana hasta 2 SMLV, como tu hogar"). Neutra 0,5 solo sin distribución confiable, y lo dice | [016](../tasks/016-distribuciones-por-proyecto.md) y [018](../tasks/018-similitud-en-explicacion.md) done |
 | Escala del puntaje | 🟢 **Una sola** (D6) | — |
 | Pesos ratificados | No | Kickoff |
 | Subsidio | El motor resta `subsidio_monto_mensual`, pero nadie lo llena. **El factor ya no dice "Aplica" con aporte 0 en silencio:** dice "Declarado … sin monto verificado todavía, así que NO baja la cuota estimada ni suma puntos" | Tabla de subsidios, [017](../tasks/017-tabla-subsidios.md) |
@@ -141,7 +141,7 @@ flowchart TD
         F7["situación crediticia · 0,05"]
     end
 
-    SIM["similitud con compradores · 0,20<br/>evidencia, NUNCA corta<br/>(hoy fija en 0,5)"] -.-> PESO
+    SIM["similitud con compradores · 0,20<br/>evidencia, NUNCA corta<br/>(real desde 2026-07-25: buyer_personas.json)"] -.-> PESO
 
     PESO --> SUMA["puntaje = Σ aportes<br/>0–100, trazable factor por factor"]
 

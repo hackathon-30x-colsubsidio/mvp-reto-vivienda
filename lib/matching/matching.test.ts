@@ -180,3 +180,98 @@ describe("lead que llega sin nada (el 'soy yo' sin match de enriquecimiento)", (
     expect(nombres(elegidos)[0]).toBe("Ciudadela del Este");
   });
 });
+
+describe("zona estricta (2026-07-25): la zona SIEMPRE manda", () => {
+  it("'Bogotá, por el norte' escrito a mano sí encuentra Bogotá", () => {
+    const lead = leadDe({});
+    lead.respuestas.zona_interes = "Bogotá, por el norte";
+    const elegidos = matchear({
+      lead,
+      score: scoreDe("listo"),
+      catalogo,
+      precio_maximo: PRECIO_MAXIMO.holgado,
+    });
+    expect(elegidos.length).toBeGreaterThan(0);
+    expect(elegidos.every((e) => e.ficha.ciudad === "Bogotá")).toBe(true);
+    expect(elegidos.every((e) => e.fuera_de_zona !== true)).toBe(true);
+  });
+
+  it("un bogotano nunca recibe Medellín sin marca, aunque le alcance", () => {
+    const elegidos = matchear({
+      lead: leadDe({ ciudad: "Bogotá" }),
+      score: scoreDe("listo"),
+      catalogo,
+      precio_maximo: PRECIO_MAXIMO.holgado,
+    });
+    expect(elegidos.every((e) => e.ficha.ciudad === "Bogotá")).toBe(true);
+  });
+
+  it("si en su zona queda UN solo proyecto, se recomienda ese único (no se rellena con otras ciudades)", () => {
+    // En Medellín con 160M solo cabe Ciudadela del Este (158M). Antes el
+    // fallback (`enZona.length >= 2`) rellenaba con lo que fuera de otra parte.
+    const elegidos = matchear({
+      lead: leadDe({ ciudad: "Medellín" }),
+      score: scoreDe("listo"),
+      catalogo,
+      precio_maximo: 160_000_000,
+    });
+    expect(nombres(elegidos)).toEqual(["Ciudadela del Este"]);
+    expect(elegidos[0].fuera_de_zona).not.toBe(true);
+  });
+
+  it("zona sin candidatos → máx. 2 alternativas marcadas fuera_de_zona, con la razón honesta PRIMERO", () => {
+    const lead = leadDe({});
+    lead.respuestas.zona_interes = "Cali";
+    const elegidos = matchear({
+      lead,
+      score: scoreDe("listo"),
+      catalogo,
+      precio_maximo: PRECIO_MAXIMO.holgado,
+    });
+    expect(elegidos.length).toBeGreaterThan(0);
+    expect(elegidos.length).toBeLessThanOrEqual(2);
+    for (const { fuera_de_zona, razones } of elegidos) {
+      expect(fuera_de_zona).toBe(true);
+      expect(razones[0]).toMatch(/fuera de tu zona/);
+      expect(razones[0]).toContain("Cali");
+    }
+  });
+});
+
+describe("ranking multi-factor: adiós al 'siempre los 3 más baratos'", () => {
+  // Contra el catálogo REAL: dos bogotanos con ingresos distintos tienen que
+  // recibir recomendaciones distintas. Antes ambos recibían los más baratos.
+  it("dos leads con ingresos distintos reciben proyectos distintos", async () => {
+    const { catalogo: catalogoReal } = await import("./catalogo");
+
+    const modesto = leadDe({ ciudad: "Bogotá", afiliado: true });
+    modesto.respuestas.ingreso_hogar_mensual = 2_500_000;
+    const holgado = leadDe({ ciudad: "Bogotá", afiliado: true });
+    holgado.respuestas.ingreso_hogar_mensual = 8_000_000;
+
+    const deModesto = nombres(
+      matchear({ lead: modesto, score: scoreDe("listo"), catalogo: catalogoReal, precio_maximo: 190_000_000 }),
+    );
+    const deHolgado = nombres(
+      matchear({ lead: holgado, score: scoreDe("listo"), catalogo: catalogoReal, precio_maximo: 500_000_000 }),
+    );
+
+    expect(deModesto).not.toEqual(deHolgado);
+    expect(deModesto.length).toBeGreaterThan(0);
+    expect(deHolgado.length).toBeGreaterThan(0);
+  });
+
+  it("con subsidio declarado, la razón del proyecto VIS lo nombra", () => {
+    const lead = leadDe({ ciudad: "Bogotá", afiliado: true });
+    lead.respuestas.subsidios = ["Mi Casa Ya"];
+    const elegidos = matchear({
+      lead,
+      score: scoreDe("listo"),
+      catalogo,
+      precio_maximo: PRECIO_MAXIMO.holgado,
+    });
+    const vis = elegidos.find((e) => e.ficha.vis);
+    expect(vis).toBeDefined();
+    expect(vis!.razones.join(" ")).toContain("Mi Casa Ya");
+  });
+});

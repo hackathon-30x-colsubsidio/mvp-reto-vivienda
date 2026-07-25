@@ -1,7 +1,7 @@
 ---
 id: 018
 serves: "spec §4 (similitud como evidencia) + criterio de aceptación 2 (cero caja negra)"
-status: todo
+status: done
 ---
 
 # 018 — Similitud-distribución en el matcher y la explicación
@@ -17,8 +17,8 @@ Que el demo use la data histórica real **en vivo** en el punto que más lo dife
 - Fuera: score numérico de similitud (k-NN). Es evidencia de respaldo, **nunca** criterio de corte (spec §4).
 
 ## Done cuando
-- [ ] La explicación de un lead listo incluye la línea de similitud con un número real de `distribuciones` por proyecto.
-- [ ] El experto no inventa el porcentaje: si el dato no está, no lo dice.
+- [x] La explicación de un lead listo incluye la línea de similitud con un número real de `distribuciones` por proyecto. → Cerrado el 2026-07-25 junto con 016: el `porque` de cada proyecto recomendado cita las evidencias ("gente como él ya compró aquí: el 91% gana hasta 2 SMLV, como tu hogar") y el factor `similitud_compradores_reales` de la ficha muestra el fit con sus %. El prompt del experto recibe la traza con esas razones — redacta, no aporta.
+- [x] El experto no inventa el porcentaje: si el dato no está, no lo dice. → Las evidencias se redactan en UN único punto (`similitudCon`, `lib/scoring/similitud.ts`); sin distribución confiable la lista queda vacía y la razón no existe. ⚠️ Si el equipo decide que los % del PPT no son distribuibles, se vacían ahí y desaparecen de ficha, porque y prompt a la vez.
 
 ## Notas
 Decisión de grilling: "versión distribución (recommended)". Depende de que 016 exista.

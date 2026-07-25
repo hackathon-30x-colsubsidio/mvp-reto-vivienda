@@ -87,12 +87,14 @@ describe("criterio 4 — el lead listo llega cerrable", () => {
   it.each([
     ["afiliadoListo", afiliadoListo],
     ["noAfiliadoListo", noAfiliadoListo],
-  ] as const)("%s: muestra 2-3 proyectos con su porqué", (_n, curado) => {
+  ] as const)("%s: muestra 1-3 proyectos con su porqué", (_n, curado) => {
     render(<FichaLead item={enCola(curado)} />);
 
+    // 1 es legítimo desde la zona estricta (2026-07-25): a Carlos (Ricaurte)
+    // solo Payandé le queda en su zona, y no se le disfraza otra ciudad.
     const tarjetas = screen.getAllByTestId("proyecto");
     expect(tarjetas).toHaveLength(curado.proyectos.length);
-    expect(tarjetas.length).toBeGreaterThanOrEqual(2);
+    expect(tarjetas.length).toBeGreaterThanOrEqual(1);
     expect(tarjetas.length).toBeLessThanOrEqual(3);
 
     for (const proyecto of curado.proyectos) {

@@ -54,4 +54,10 @@ export interface EntradaMatch {
 export interface ProyectoElegido {
   ficha: FichaProyecto;
   razones: string[];
+  /**
+   * `true` cuando el proyecto se ofrece como ALTERNATIVA fuera de la zona que
+   * el lead pidió (en su zona no hubo nada dentro del presupuesto). La primera
+   * razón lo dice en voz alta; la ficha y la explicación no lo esconden.
+   */
+  fuera_de_zona?: boolean;
 }
