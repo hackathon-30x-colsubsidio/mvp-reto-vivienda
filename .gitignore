@@ -43,6 +43,10 @@ venv/
 .DS_Store
 .claude/settings.local.json
 
+# Scratchpad de sesión de agentes. Un `git add -A` metió aquí un HTML
+# temporal de verificación (commit 30fd376) y este repo es PÚBLICO.
+claude/
+
 # Herramental de agente vendorizado por terceros (123 archivos, ~2,9 MB).
 # Se reinstala con `npx impeccable install`; no es código del producto y este
 # repo es el entregable público. Lo que SÍ se versiona es su output: DESIGN.md,
