@@ -1,25 +1,75 @@
 import { describe, expect, it } from "vitest";
 import type { Lead, Score } from "@/lib/types";
-// Imports relativos a propósito: el alias "@/" lo resuelve Next, no vitest,
-// y estas fixtures se importan por valor (los tipos sí viajan por el alias).
-import * as leads from "../fixtures/leads";
-import * as scores from "../fixtures/scores";
 import { matchear } from "./index";
-import { catalogo, preciosMaximos } from "./fixtures";
+import { catalogo } from "./fixtures";
 
-// Un caso por personaje del demo (spec §4) + el lead que llega sin nada.
-// Lo que se prueba son las invariantes del criterio de aceptación 4: que el lead
-// listo reciba 2-3 proyectos que de verdad puede pagar, y que la regla 90/10 se
-// respete sin excepciones.
+// Un caso por forma de lead + el que llega sin nada. Lo que se prueba son las
+// invariantes del criterio de aceptación 4: que el lead listo reciba 2-3
+// proyectos que de verdad puede pagar, y que la regla 90/10 se haga VISIBLE
+// (ya no descarta — spec 04 D3, cerrada el 2026-07-24).
+//
+// ⚠️ Los leads se construyen acá y NO se importan de `lib/fixtures/`: estos
+// tests prueban el MATCHER contra un catálogo controlado (con la trampa de
+// "Ciudadela del Este"), no la identidad de los personajes del demo. Cuando los
+// personajes se alinearon al catálogo real (ticket 001) esta suite se rompió
+// entera sin que el matcher hubiera cambiado una línea — señal de que estaba
+// probando dos cosas a la vez.
 
 const nombres = (elegidos: ReturnType<typeof matchear>) => elegidos.map((e) => e.ficha.nombre);
 
-describe("afiliado listo (Diana)", () => {
+/** Precio máximo de cada caso. En producción sale de `precioMaximoDe(lead)`. */
+const PRECIO_MAXIMO = {
+  holgado: 230_000_000,
+  ajustado: 190_000_000,
+  insuficiente: 95_000_000,
+};
+
+function leadDe(overrides: {
+  proyecto_interes?: string;
+  ciudad?: string;
+  afiliado?: boolean;
+}): Lead {
+  return {
+    evento: {
+      lead_id: "lead-test",
+      nombre: "Persona de Prueba",
+      celular: "3000000000",
+      cedula: "1000000000",
+      ...(overrides.proyecto_interes ? { proyecto_interes: overrides.proyecto_interes } : {}),
+      fuente: "web",
+    },
+    perfil:
+      overrides.ciudad || overrides.afiliado !== undefined
+        ? { match: true, afiliado: overrides.afiliado, ciudad: overrides.ciudad }
+        : { match: false },
+    respuestas: {
+      consentimiento: { otorgado: true, timestamp: "2026-07-23T18:00:00-05:00" },
+      ingreso_hogar_mensual: 5_000_000,
+      tiene_vivienda: false,
+      subsidios: [],
+      situacion_crediticia: "buena",
+    },
+  };
+}
+
+function scoreDe(salida: Score["salida"]): Score {
+  return {
+    lead_id: "lead-test",
+    salida,
+    puntaje: salida === "nutricion" ? 0 : 70,
+    factores: [],
+    ...(salida === "nutricion"
+      ? { regla_fallida: "Tope del 40%", trigger_nutricion: "sube el ingreso" }
+      : {}),
+  };
+}
+
+describe("afiliado que pasa el corte", () => {
   const elegidos = matchear({
-    lead: leads.afiliadoListo,
-    score: scores.afiliadoListo,
+    lead: leadDe({ proyecto_interes: "Torres de Bellavista", ciudad: "Bogotá", afiliado: true }),
+    score: scoreDe("listo"),
     catalogo,
-    precio_maximo: preciosMaximos.afiliadoListo,
+    precio_maximo: PRECIO_MAXIMO.holgado,
   });
 
   it("recomienda entre 2 y 3 proyectos", () => {
@@ -29,11 +79,11 @@ describe("afiliado listo (Diana)", () => {
 
   it("ninguno supera su precio máximo", () => {
     for (const { ficha } of elegidos) {
-      expect(ficha.precio_desde).toBeLessThanOrEqual(preciosMaximos.afiliadoListo);
+      expect(ficha.precio_desde).toBeLessThanOrEqual(PRECIO_MAXIMO.holgado);
     }
   });
 
-  it("arranca por el proyecto que preguntó y no la saca de su ciudad", () => {
+  it("arranca por el proyecto que preguntó y no lo saca de su ciudad", () => {
     expect(nombres(elegidos)[0]).toBe("Torres de Bellavista");
     expect(elegidos.every((e) => e.ficha.ciudad === "Bogotá")).toBe(true);
   });
@@ -46,12 +96,17 @@ describe("afiliado listo (Diana)", () => {
   });
 });
 
-describe("no afiliado listo (Carlos)", () => {
+describe("no afiliado que pasa el corte", () => {
+  const lead = leadDe({
+    proyecto_interes: "Reserva del Poblado",
+    ciudad: "Medellín",
+    afiliado: false,
+  });
   const elegidos = matchear({
-    lead: leads.noAfiliadoListo,
-    score: scores.noAfiliadoListo,
+    lead,
+    score: scoreDe("listo_restriccion_cupo"),
     catalogo,
-    precio_maximo: preciosMaximos.noAfiliadoListo,
+    precio_maximo: PRECIO_MAXIMO.ajustado,
   });
 
   // El cupo 90/10 dejó de descartar (2026-07-24): con el catálogo real los 18
@@ -60,8 +115,6 @@ describe("no afiliado listo (Carlos)", () => {
   // Colsubsidio le interesa cerrar la venta. Ahora se muestran, ordenados por
   // cupo y con la advertencia encima.
   it("el proyecto con el cupo copado queda de último, no de primero", () => {
-    // Sigue viendo "Ciudadela del Este" —el más barato del catálogo, con el
-    // cupo agotado— pero después de los que sí tienen cupo libre.
     expect(nombres(elegidos)).toContain("Ciudadela del Este");
     expect(nombres(elegidos).at(-1)).toBe("Ciudadela del Este");
   });
@@ -74,11 +127,11 @@ describe("no afiliado listo (Carlos)", () => {
 
   it("si el proyecto no tiene cupo, se lo muestra CON la advertencia, no lo esconde", () => {
     const sinCupo = matchear({
-      lead: leads.noAfiliadoListo,
-      score: scores.noAfiliadoListo,
+      lead,
+      score: scoreDe("listo_restriccion_cupo"),
       // Solo queda en pie la trampa: el más barato del catálogo, con el cupo copado.
       catalogo: catalogo.filter((p) => p.nombre === "Ciudadela del Este"),
-      precio_maximo: preciosMaximos.noAfiliadoListo,
+      precio_maximo: PRECIO_MAXIMO.ajustado,
     });
 
     expect(nombres(sinCupo)).toEqual(["Ciudadela del Este"]);
@@ -87,19 +140,19 @@ describe("no afiliado listo (Carlos)", () => {
     expect(sinCupo[0].razones.some((r) => /validar cupo/.test(r))).toBe(true);
   });
 
-  it("recomienda en Medellín y arranca por el que preguntó", () => {
+  it("arranca por el que preguntó y se queda en su ciudad", () => {
     expect(nombres(elegidos)[0]).toBe("Reserva del Poblado");
     expect(elegidos.every((e) => e.ficha.ciudad === "Medellín")).toBe(true);
   });
 });
 
-describe("nutrición (Yuliana)", () => {
+describe("lead en nutrición", () => {
   it("no recibe ningún proyecto: no se recomienda lo que no puede pagar", () => {
     const elegidos = matchear({
-      lead: leads.nutricion,
-      score: scores.nutricion,
+      lead: leadDe({ ciudad: "Bogotá" }),
+      score: scoreDe("nutricion"),
       catalogo,
-      precio_maximo: preciosMaximos.nutricion,
+      precio_maximo: PRECIO_MAXIMO.insuficiente,
     });
     expect(elegidos).toEqual([]);
   });
@@ -108,24 +161,11 @@ describe("nutrición (Yuliana)", () => {
 describe("lead que llega sin nada (el 'soy yo' sin match de enriquecimiento)", () => {
   // Sin perfil, sin ciudad, sin zona de interés y sin proyecto de interés:
   // el peor caso del formulario libre. El matcher tiene que degradar, no caerse.
-  const leadDesnudo: Lead = {
-    evento: { ...leads.nutricion.evento, proyecto_interes: undefined },
-    perfil: { match: false },
-    respuestas: {
-      consentimiento: { otorgado: true, timestamp: "2026-07-23T18:00:00-05:00" },
-      rango_ingreso_hogar: "3-5 SMMLV",
-      tiene_vivienda: false,
-      subsidios: [],
-      situacion_crediticia: "buena",
-    },
-  };
-  const scoreListo: Score = { ...scores.afiliadoListo, lead_id: leadDesnudo.evento.lead_id };
-
   const elegidos = matchear({
-    lead: leadDesnudo,
-    score: scoreListo,
+    lead: leadDe({}),
+    score: scoreDe("listo"),
     catalogo,
-    precio_maximo: preciosMaximos.afiliadoListo,
+    precio_maximo: PRECIO_MAXIMO.holgado,
   });
 
   it("igual recomienda 2-3 proyectos, sin inventarse una zona", () => {

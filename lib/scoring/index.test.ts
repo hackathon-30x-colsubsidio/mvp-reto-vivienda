@@ -6,23 +6,35 @@ import { proyectoBosqueDeTurpial, proyectoInari } from "../fixtures/proyectos";
 import type { Lead } from "../types";
 
 describe("calcularScore — las 3 salidas del corte (spec §4)", () => {
+  // La salida depende de la pareja (lead, proyecto), así que estos casos fijan
+  // el ingreso a mano en vez de depender de cuánto gana un personaje del demo:
+  // cambiarle el ingreso a Diana no debe reescribir las reglas del motor.
+  const conIngreso = (base: Lead, ingreso: number): Lead => ({
+    ...base,
+    respuestas: { ...base.respuestas, ingreso_hogar_mensual: ingreso },
+  });
+
   it("afiliada + pasa el corte -> listo", () => {
-    const score = calcularScore(afiliadoListo, proyectoInari);
+    const score = calcularScore(conIngreso(afiliadoListo, 8_000_000), proyectoInari);
     expect(score.salida).toBe("listo");
     expect(score.regla_fallida).toBeUndefined();
     expect(score.trigger_nutricion).toBeUndefined();
   });
 
   it("no afiliado + pasa el corte -> listo_restriccion_cupo", () => {
-    const score = calcularScore(noAfiliadoListo, proyectoInari);
+    const score = calcularScore(conIngreso(noAfiliadoListo, 8_000_000), proyectoInari);
     expect(score.salida).toBe("listo_restriccion_cupo");
   });
 
   it("no pasa el tope del 40% -> nutricion, con regla_fallida y trigger no vacíos", () => {
-    const score = calcularScore(nutricion, proyectoBosqueDeTurpial);
+    const score = calcularScore(conIngreso(nutricion, 1_500_000), proyectoBosqueDeTurpial);
     expect(score.salida).toBe("nutricion");
-    expect(score.regla_fallida).toBe("cuota_ingreso_40");
-    expect(score.trigger_nutricion).toBeTruthy();
+    // La regla se guarda REDACTADA, no con su nombre técnico: es lo que el
+    // asesor lee tal cual en la ficha bajo "la regla que no pasó".
+    expect(score.regla_fallida).toMatch(/Decreto 583 de 2025/);
+    expect(score.regla_fallida).toMatch(/40%/);
+    // Y el trigger dice el número que la destraba, no una condición genérica.
+    expect(score.trigger_nutricion).toMatch(/el ingreso del hogar llega a \$/);
   });
 });
 

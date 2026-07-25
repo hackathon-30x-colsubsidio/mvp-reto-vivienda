@@ -6,11 +6,12 @@ import type { EntradaMatch, FichaProyecto, ProyectoElegido } from "./tipos";
 
 const MAXIMO_RECOMENDADOS = 3;
 
-const pesos = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
+// "$194.023.050", sin el espacio duro que mete `style: "currency"`: es el mismo
+// formato que usa el motor en el valor de sus factores, y el espacio duro además
+// rompía las búsquedas de texto en los tests de la ficha.
+const pesos = {
+  format: (n: number) => `$${Math.round(n).toLocaleString("es-CO")}`,
+};
 
 /** Lo que dijo en el chat manda; si no lo dijo, la ciudad del enriquecimiento. */
 function zonaDeInteres(lead: Lead): string | undefined {
@@ -32,16 +33,19 @@ function coincideZona(proyecto: FichaProyecto, zona: string | undefined): boolea
 /**
  * Elige 2-3 proyectos del catálogo por reglas explícitas.
  *
- * Orden de las reglas (las dos primeras descartan, las demás rankean):
+ * Orden de las reglas (solo la primera descarta, las demás rankean):
  * 1. Fuera todo proyecto por encima del `precio_maximo` que calculó el motor
  *    con el tope del 40% (Decreto 583 de 2025). El Track C no recalcula la norma.
- * 2. Si el lead es no afiliado, fuera todo proyecto sin cupo 90/10 disponible.
- *    En el catálogo real casi todos ya lo agotaron (usado >= total), así que un
- *    no afiliado puede quedar con cero proyectos: ese vacío NO se esconde, es la
- *    munición del reto (16/16 proyectos incumplen el 10%) y así lo trata el
- *    tablero (lib/fixtures/cola-historica.ts). El bloqueo es de cupo, no del lead.
- * 3. Primero el proyecto por el que preguntó, luego los de su zona, luego
- *    (si es no afiliado) los de más cupo libre, y al final los de cuota más holgada.
+ *    **Es el ÚNICO descarte.**
+ * 2. El cupo 90/10 ya NO descarta (cambiado el 2026-07-24, spec 04 D3): los
+ *    proyectos con el cupo copado se muestran de últimos y con la advertencia
+ *    encima. En el catálogo real los 18 lo tienen agotado, así que la regla dura
+ *    dejaba al no afiliado con cero proyectos aunque pasara el corte financiero.
+ *    El hallazgo no se pierde: se dice en cada recomendación (ver `razonesDe`) y
+ *    se sigue midiendo en el tablero.
+ * 3. Si hay 2+ candidatos en su zona, se recomienda solo dentro de la zona.
+ * 4. Ranking: primero el proyecto por el que preguntó, luego los de su zona,
+ *    luego (si es no afiliado) los de más cupo libre, y al final el más barato.
  *
  * En nutrición devuelve vacío: no se recomienda lo que el lead no puede pagar.
  */

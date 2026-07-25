@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { listarCola } from "@/lib/leads-repo";
-import { PRIORIDAD, type EstadoLead } from "@/lib/types-asesor";
+import type { EstadoLead } from "@/lib/types-asesor";
 import { FilaLead } from "./_components/FilaLead";
 import { AvisoOrigen } from "./_components/AvisoOrigen";
 
@@ -12,26 +12,50 @@ export const metadata: Metadata = {
 // La cola cambia cuando el asesor dispara un trigger: no se cachea.
 export const dynamic = "force-dynamic";
 
-const TITULO_GRUPO: Record<EstadoLead, string> = {
-  listo: "Listos para llamar",
-  listo_restriccion_cupo: "Listos, con restricción de cupo 90/10",
-  nutricion: "En nutrición — todavía no pueden comprar",
-};
-
-const SUBTITULO_GRUPO: Record<EstadoLead, string> = {
-  listo: "Pasaron el corte y son afiliados. Cita agendada y proyectos recomendados.",
-  listo_restriccion_cupo:
-    "Pasaron el corte pero no son afiliados: compiten por el 10% de cupo del proyecto. Validar cupo antes de prometer.",
-  nutricion:
-    "Nadie se descarta. Cada uno tiene la regla exacta que no pasó y el trigger que lo volvería viable.",
-};
+// =====================================================================
+// DOS grupos, no tres (spec 06 D7, CERRADA — Mani 2026-07-24).
+//
+// `listo` y `listo_restriccion_cupo` comparten sección y adentro manda el
+// PUNTAJE. Antes eran dos secciones con el no afiliado siempre debajo, así que
+// un no afiliado con 71 puntos aparecía bajo un afiliado con 42: la afiliación
+// decidía a quién llamar primero. El mentor lo puso al revés — *"siempre va a
+// ser la prioridad de los ingresos"*. La distinción del cupo 90/10 no se pierde:
+// viaja en el badge de cada fila, que es donde el asesor la necesita.
+//
+// `ordenarCola` (lib/types-asesor.ts) ya ordenaba así; esta pantalla lo estaba
+// deshaciendo al re-partir por estado.
+// =====================================================================
+const GRUPOS: {
+  clave: string;
+  estados: EstadoLead[];
+  titulo: string;
+  subtitulo: string;
+  vacio: string;
+}[] = [
+  {
+    clave: "puede-comprar",
+    estados: ["listo", "listo_restriccion_cupo"],
+    titulo: "Pueden comprar hoy",
+    subtitulo:
+      "Pasaron el corte del 40% (Decreto 583 de 2025), ordenados por puntaje: arriba quien está más cerca de cerrar. A los que no son afiliados el badge les marca el cupo 90/10, que el asesor valida antes de separar.",
+    vacio: "Nadie pasó el corte por ahora.",
+  },
+  {
+    clave: "nutricion",
+    estados: ["nutricion"],
+    titulo: "Todavía no pueden comprar",
+    subtitulo:
+      "Nadie se descarta. Cada uno tiene la regla exacta que no pasó y el trigger que lo volvería viable. Van de últimos porque llamarlos hoy no cierra nada — no por su afiliación.",
+    vacio: "Nadie en nutrición por ahora.",
+  },
+];
 
 export default async function ColaAsesorPage() {
   const { leads, origen } = await listarCola();
 
-  const grupos = (Object.keys(PRIORIDAD) as EstadoLead[]).map((estado) => ({
-    estado,
-    items: leads.filter((l) => l.curado.score.salida === estado),
+  const grupos = GRUPOS.map((grupo) => ({
+    ...grupo,
+    items: leads.filter((l) => grupo.estados.includes(l.curado.score.salida)),
   }));
 
   return (
@@ -74,21 +98,21 @@ export default async function ColaAsesorPage() {
         <AvisoOrigen origen={origen} />
 
         <div className="space-y-10">
-          {grupos.map(({ estado, items }) => (
-            <section key={estado}>
+          {grupos.map(({ clave, titulo, subtitulo, vacio, items }) => (
+            <section key={clave}>
               <h2 className="text-xl font-bold tracking-tight text-tinta">
-                {TITULO_GRUPO[estado]}{" "}
+                {titulo}{" "}
                 <span className="cifra font-normal text-tinta-suave">
                   ({items.length})
                 </span>
               </h2>
               <p className="mt-1 mb-4 max-w-[68ch] text-base text-tinta-suave">
-                {SUBTITULO_GRUPO[estado]}
+                {subtitulo}
               </p>
 
               {items.length === 0 ? (
                 <p className="rounded-md border-2 border-dashed border-borde px-4 py-8 text-center text-base text-tinta-suave">
-                  Nadie en este grupo por ahora.
+                  {vacio}
                 </p>
               ) : (
                 <div className="divide-y-2 divide-borde overflow-hidden rounded-md border-2 border-borde">

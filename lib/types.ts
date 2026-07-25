@@ -58,6 +58,12 @@ export interface ResultadoCurado {
   error?: string;
   /** Se guardó, pero con una salvedad que hay que decir en voz alta. */
   advertencia?: string;
+  /**
+   * El proyecto sobre el que se ofrece la cita: el #1 del match (criterio de
+   * aceptación 4, ticket 005). Viene vacío si el lead cayó en nutrición o si no
+   * le quedó ningún proyecto — ahí no hay nada que agendar.
+   */
+  proyecto_cita?: { proyecto_id: string; nombre: string };
 }
 
 // ── B → C: el veredicto del motor ────────────────────────

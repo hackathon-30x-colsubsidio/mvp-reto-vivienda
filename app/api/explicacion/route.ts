@@ -1,7 +1,7 @@
 import type { Lead, Score } from "@/lib/types";
 import { matchear } from "@/lib/matching";
 import { catalogo } from "@/lib/matching/catalogo";
-import { preciosMaximos } from "@/lib/matching/fixtures";
+import { precioMaximoDe } from "@/lib/scoring/capacidad";
 import { explicacionFallback } from "@/lib/matching/explicacion-fallback";
 import {
   SYSTEM_PROMPT,
@@ -57,7 +57,12 @@ export async function POST(req: Request) {
 
   // Se vuelve a correr el matcher acá (es determinista y sin red) para que quien
   // llama no tenga que cargar el catálogo ni las trazas de un lado a otro.
-  const precio_maximo = cuerpo.precio_maximo ?? precioMaximoDeFixture(score.salida);
+  //
+  // El precio máximo sale de `precioMaximoDe()` — el gate del 40% despejado al
+  // revés, la MISMA aritmética del motor (costura S2 / ticket 004). Antes salía
+  // de una fixture por personaje, que es justo la duplicación de la norma que la
+  // costura quería evitar: si el Decreto cambia, cambia en config.ts y ya.
+  const precio_maximo = cuerpo.precio_maximo ?? precioMaximoDe(lead);
   const elegidos = matchear({ lead, score, catalogo, precio_maximo });
 
   let prompt: string;
@@ -85,12 +90,6 @@ export async function POST(req: Request) {
   // del 500 mudo se sirve el guion del personaje. El cliente aún así debe cortar por
   // timeout si el LLM se cuelga, igual que el conversador (ChatWhatsApp.tsx).
   return respuestaTexto(conFallback(cuerpoStream, fallback));
-}
-
-function precioMaximoDeFixture(salida: Score["salida"]): number {
-  if (salida === "nutricion") return preciosMaximos.nutricion;
-  if (salida === "listo_restriccion_cupo") return preciosMaximos.noAfiliadoListo;
-  return preciosMaximos.afiliadoListo;
 }
 
 function respuestaTexto(cuerpo: ReadableStream<Uint8Array>): Response {

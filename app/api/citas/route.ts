@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
-import slots from "@/data/sintetica/slots.json";
+import { franjaExiste, franjasDe } from "@/lib/citas";
 
 // =====================================================================
 // /api/citas — la mitad de D del ticket 005 (costura S3).
@@ -19,43 +19,19 @@ import slots from "@/data/sintetica/slots.json";
 
 export const dynamic = "force-dynamic";
 
-interface Franja {
-  sala_ventas: string;
-  proyecto_id: string;
-  proyecto: string;
-  fecha: string;
-}
-
-/** Aplana el catálogo a una lista de franjas ofrecibles. */
-function catalogo(): Franja[] {
-  return slots.salas.flatMap((sala) =>
-    sala.franjas.map((fecha) => ({
-      sala_ventas: sala.sala_ventas,
-      proyecto_id: sala.proyecto_id,
-      proyecto: sala.proyecto,
-      fecha,
-    })),
-  );
-}
-
 /**
- * GET /api/citas?proyecto_id=p-07&limite=3
+ * GET /api/citas?proyecto_id=la-macarena&limite=3
  *
- * Las franjas que A puede ofrecer en el chat. Sin `proyecto_id`
- * devuelve las de todas las salas. No toca la DB: es catálogo.
+ * Las franjas que el chat ofrece al cerrar la conversación de un lead listo.
+ * Sin `proyecto_id` devuelve las de todas las salas. No toca la DB: es catálogo.
  */
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const proyectoId = params.get("proyecto_id");
   const limite = Number(params.get("limite") ?? 3);
 
-  let franjas = catalogo();
-  if (proyectoId) franjas = franjas.filter((f) => f.proyecto_id === proyectoId);
-
-  franjas.sort((a, b) => a.fecha.localeCompare(b.fecha));
-
   return NextResponse.json({
-    franjas: Number.isFinite(limite) && limite > 0 ? franjas.slice(0, limite) : franjas,
+    franjas: franjasDe(proyectoId, Number.isFinite(limite) ? limite : 3),
   });
 }
 
@@ -89,10 +65,7 @@ export async function POST(request: Request) {
   // La franja tiene que existir en el catálogo: así el chat no puede
   // agendar una hora inventada y la ficha del asesor no muestra una
   // cita que no existe en ninguna sala.
-  const existe = catalogo().some(
-    (f) => f.fecha === fecha && f.sala_ventas === sala_ventas,
-  );
-  if (!existe) {
+  if (!franjaExiste(fecha, sala_ventas)) {
     return NextResponse.json(
       { error: "Esa franja no está en data/sintetica/slots.json" },
       { status: 422 },

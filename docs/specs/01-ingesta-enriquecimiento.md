@@ -91,10 +91,10 @@ Todo aterriza hoy en su CRM y el asesor ve el resumen ahí. La integración real
 |---|---|---|
 | `LeadEvento` | Existe y se registra con su fuente | — |
 | Fuente visible al asesor | Sí, en la ficha | — |
-| Enriquecimiento | [`enriquecimiento-simulado.ts`](../../lib/conversacion/enriquecimiento-simulado.ts) resuelve **solo 3 cédulas fixture**; cualquier otra da `match: false` | Las 303 identidades de [`identidades.json`](../../data/sintetica/identidades.json) no las usa el chat. Ticket [003](../tasks/003-enriquecimiento-por-cedula.md) |
-| Autorización | Primera burbuja del chat, con Ley 1581 citada | La redacción amable de D5 no está aplicada |
+| Enriquecimiento | 🟢 **Cerrado el 2026-07-24.** [`lib/enriquecimiento.ts`](../../lib/enriquecimiento.ts) resuelve las **303 identidades** de [`identidades.json`](../../data/sintetica/identidades.json) más los 3 personajes canónicos, servido por `GET /api/enriquecer` (del lado del servidor: el JSON pesa ~100 KB y no tiene por qué viajar al navegador). Un rango "no disponible (no afiliado)" **no** se toma como rango, así que a esa persona sí se le pregunta el ingreso | Ticket [003](../tasks/003-enriquecimiento-por-cedula.md) hecho |
+| Autorización | Primera burbuja del chat, con Ley 1581 citada y la redacción amable de D5 ("¿me compartes la autorización?") | — |
 | Atribución de canal | No existe | D4, sin ticket |
-| Proyecto de entrada | El campo existe; los 3 personajes lo traen **inventado** (uno en Medellín, ciudad que el catálogo real no tiene) | Ticket [001](../tasks/001-personajes-canonicos.md) |
+| Proyecto de entrada | 🟢 **Cerrado el 2026-07-24.** Los 3 personajes entran por proyectos del catálogo REAL (LA ARBOLEDA · PAYANDÉ · LA MACARENA) y sus ciudades existen. Ya no hay Medellín | Ticket [001](../tasks/001-personajes-canonicos.md) hecho |
 
 ## Diagrama
 

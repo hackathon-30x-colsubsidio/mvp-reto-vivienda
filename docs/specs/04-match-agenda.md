@@ -56,21 +56,13 @@ El argumento es del mentor: a Colsubsidio **le interesa cerrar la venta**, y la 
 
 **[PROPUESTA, sigue abierta] Ofrecerle la afiliación como camino.** Es un producto real de Colsubsidio y sería la salida más útil para ese lead. Nadie ha escrito ese mensaje todavía.
 
-### D4 · Los IDs de proyecto no coinciden entre catálogos · [PROPUESTA + brecha real]
+### D4 · Un solo espacio de IDs: los slugs del catálogo real · [CERRADA — 2026-07-24, `slots.json` se genera]
 
-Conviven dos espacios de identificadores:
+Conviviendo dos espacios de identificadores, las franjas de cita colgaban de IDs (`p-03`, `p-07`…) que el catálogo real no tiene: **el chat pedía franjas de un proyecto real y recibía una lista vacía, sin que nada fallara.** Dos de las cuatro salas eran de **Medellín**, ciudad que el catálogo de 18 proyectos no tiene. Era el mismo bug ya cazado una vez ([handoff, 2026-07-23 22:50](../agents/handoff.md)), que volvió por el cambio de catálogo.
 
-| Fuente | IDs | Quién la usa |
-|---|---|---|
-| [`data/sintetica/proyectos.json`](../../data/sintetica/proyectos.json) | slugs (`abeto`, `araucaria`…) | El matcher, en producción |
-| [`data/sintetica/slots.json`](../../data/sintetica/slots.json) | `p-03`, `p-07`, `p-09`, `p-12` | El agendador |
-| [`lib/matching/fixtures.ts`](../../lib/matching/fixtures.ts) | `p-0X` | Solo los tests |
+**Se cerró de raíz: `slots.json` ya no se escribe a mano, se GENERA** desde `proyectos.json` (`npx tsx scripts/generar-slots.ts`). Una sala por proyecto real, con su mismo slug y su ciudad real, 3 franjas cada una. Los IDs no pueden volver a desalinearse porque no hay dos listas que mantener, y [`fixtures.test.ts`](../../lib/fixtures/fixtures.test.ts) falla si un proyecto recomendado se queda sin franjas.
 
-**Las franjas de cita están colgadas de IDs que el catálogo real no tiene.** En cuanto el chat pida franjas para un proyecto real, va a recibir una lista vacía — y no va a fallar, simplemente no habrá horarios. Es exactamente el bug que ya se cazó una vez ([handoff, 2026-07-23 22:50](../agents/handoff.md)) y volvió por el cambio de catálogo.
-
-Propuesta: **un solo espacio de IDs, los slugs del catálogo real**, y `slots.json` se regenera contra ellos. Necesita ticket.
-
-Ojo también: las salas de venta de `slots.json` incluyen **Medellín**, y el catálogo real de 18 proyectos **no tiene Medellín**.
+El catálogo controlado de [`lib/matching/fixtures.ts`](../../lib/matching/fixtures.ts) (con `p-0X` y la trampa de "Ciudadela del Este") **sigue existiendo y está bien así**: es solo de los tests del matcher, y a propósito no es el catálogo vivo.
 
 ### D5 · Hay un tercer catálogo, y es documental · [HOY — aclaración para que nadie lo cablee]
 
@@ -78,13 +70,15 @@ Ojo también: las salas de venta de `slots.json` incluyen **Medellín**, y el ca
 
 Su valor es alimentar el **porqué** del match con detalle real (alcobas, m², zonas sociales) en vez de solo precio y ubicación. **[PROPUESTA]** Que el experto lo use como grounding. Hoy no lo hace.
 
-### D6 · Cuándo y cómo se ofrece la cita · [PROPUESTA]
+### D6 · Cómo se ofrece la cita · [HOY — así está construido desde el 2026-07-24]
 
-`GET /api/citas` devuelve franjas y `POST /api/citas` persiste la elegida. **El chat nunca las ofrece.**
+`GET /api/citas` devuelve franjas y `POST /api/citas` persiste la elegida. **Ahora el chat sí las ofrece**, y con eso el criterio de aceptación 4 se cumple de punta a punta por primera vez (antes el lead listo llegaba al asesor sin cita).
 
-Propuesta de secuencia: el lead ve sus 2-3 proyectos → elige uno → se le ofrecen 3 franjas de la sala de ventas de ese proyecto → elige → queda la cita. Si no logra agendar, **handoff a humano** ([trigger real del mentor](../reto/charla-mentor.md#click-to-whatsapp)).
+La secuencia construida: la conversación cierra → `/api/curar` califica, matchea y devuelve el **proyecto #1 del match** → el chat pide sus 3 franjas → el lead toca una → `POST /api/citas` la persiste → se le confirma con día y sala.
 
-Falta decidir: ¿se puede agendar sin elegir proyecto? ¿qué pasa si ninguna franja le sirve?
+**Se agenda sobre el proyecto mejor rankeado, sin pedirle antes que elija entre los tres.** Es una decisión, no un olvido: en un chat cada paso extra es gente que se cae, y el asesor puede cambiarlo en la llamada. Los otros dos proyectos igual le llegan al asesor en la ficha. **[PROPUESTA]** Si el equipo prefiere que elija primero, es un paso más en el mismo sitio.
+
+Si las franjas no cargan o el POST falla, **no se finge una cita**: se dice y se pasa a asesor humano, que es uno de los tres triggers reales de handoff ([mentor](../reto/charla-mentor.md#click-to-whatsapp)). Cubierto por [`ChatWhatsApp.test.tsx`](../../components/chat/ChatWhatsApp.test.tsx).
 
 ### D7 · La cita es nuestro proxy de la separación · [PROPUESTA — honestidad de alcance]
 
@@ -98,10 +92,10 @@ Nuestro MVP llega hasta la **cita en sala de ventas**, que es el paso inmediatam
 |---|---|---|
 | Matcher determinista | Funciona, con traza citable | — |
 | Catálogo real cableado | Sí, los 18 proyectos ([ticket 010](../tasks/010-fallback-conversador.md)) | — |
-| Explicación del porqué | `/api/explicacion` en streaming, con fallback determinista para los 3 personajes | El "soy yo" degrada a 503 |
-| `precio_maximo` | Viaja como parámetro; para los personajes sale de una fixture | [Ticket 002](../tasks/002-contratos-capacidad-en-score.md) |
-| Franjas en el chat | No se ofrecen | [Ticket 005](../tasks/005-agendador.md) |
-| IDs de slots | No coinciden con el catálogo (D4) | Sin ticket |
+| Explicación del porqué | La que se guarda y se ve en la ficha es **determinista** (`explicacionDeterminista`, armada con los `valor` que ya calculó el motor). `/api/explicacion` sigue existiendo en streaming con su fallback, pero **ninguna pantalla lo llama hoy** | Decidir si la ficha lo consume o si se declara así en el pitch |
+| `precio_maximo` | 🟢 Sale de `precioMaximoDe(lead)` — el gate del 40% despejado, la misma aritmética del motor — en `/api/match` y `/api/explicacion`. Ya no hay fixture por personaje | Costura S2 cerrada |
+| Franjas en el chat | 🟢 **Se ofrecen y se persisten** (D6) | — |
+| IDs de slots | 🟢 Un solo espacio, generado (D4) | — |
 | Similitud en el porqué | No se cita | [Ticket 018](../tasks/018-similitud-en-explicacion.md), bloqueado por [016](../tasks/016-distribuciones-por-proyecto.md) |
 
 ## Diagrama

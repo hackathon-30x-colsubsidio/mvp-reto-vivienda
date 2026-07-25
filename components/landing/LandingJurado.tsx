@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { LeadEvento, PerfilConocido } from "@/lib/types";
-import { leadsEvento, perfilesConocidos } from "@/lib/fixtures";
-import { enriquecerSimulado } from "@/lib/conversacion/enriquecimiento-simulado";
+import * as leadsEvento from "@/lib/fixtures/leads-evento";
+import * as perfilesConocidos from "@/lib/fixtures/perfiles-conocidos";
 import { TarjetaPersonaje } from "./TarjetaPersonaje";
 import { FormularioSoyYo } from "./FormularioSoyYo";
 import { BotonTema } from "@/components/ui/BotonTema";
@@ -38,6 +39,24 @@ const personajes = [
     perfil: perfilesConocidos.nutricion,
   },
 ];
+
+/**
+ * El enriquecimiento por cédula vive en el servidor (ticket 003): la base son
+ * 303 identidades sintéticas y no tiene por qué viajar al navegador. Si la ruta
+ * falla, el lead entra sin perfil — que es un camino válido del demo (se le
+ * pregunta todo), no un error que haya que tapar.
+ */
+async function enriquecer(cedula: string): Promise<PerfilConocido> {
+  try {
+    const resp = await fetch(`/api/enriquecer?cedula=${encodeURIComponent(cedula)}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const { perfil } = (await resp.json()) as { perfil: PerfilConocido };
+    return perfil;
+  } catch (e) {
+    console.error("[enriquecer] sin perfil:", e);
+    return { match: false };
+  }
+}
 
 export function LandingJurado({
   onIniciar,
@@ -75,9 +94,15 @@ export function LandingJurado({
                 <span className="text-sm font-bold tracking-[0.08em] text-sobre-campo uppercase">
                   Colsubsidio · Vivienda
                 </span>
-                <span className="cifra text-xs text-sobre-campo-suave">
-                  Curado de leads · MVP
-                </span>
+                {/* Demo autogestionado (AGENTS.md): el jurado tiene que poder
+                    llegar al clímax —la bandeja del asesor— sin escribir una
+                    URL a mano y sin depender de terminar una conversación. */}
+                <Link
+                  href="/asesor"
+                  className="text-sm font-bold text-sobre-campo hover:underline"
+                >
+                  Ver la bandeja del asesor →
+                </Link>
               </div>
             </div>
 
@@ -120,8 +145,8 @@ export function LandingJurado({
                 {mostrarFormulario ? (
                   <FormularioSoyYo
                     onCancelar={() => setMostrarFormulario(false)}
-                    onEnviar={(evento) =>
-                      onIniciar(evento, enriquecerSimulado(evento.cedula))
+                    onEnviar={async (evento) =>
+                      onIniciar(evento, await enriquecer(evento.cedula))
                     }
                   />
                 ) : (

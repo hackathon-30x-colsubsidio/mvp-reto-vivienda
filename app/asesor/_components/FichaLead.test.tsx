@@ -143,12 +143,10 @@ describe("habeas data y regla 90/10", () => {
     render(<FichaLead item={enCola(noAfiliadoListo)} />);
 
     // El cupo se ve DOS veces, y las dos importan: en el badge de la
-    // salida (lo que el asesor ve de un vistazo) y en el factor de
-    // afiliación (el porqué auditable).
+    // salida (lo que el asesor ve de un vistazo) y en el factor
+    // `cupo_90_10` con su número (el porqué auditable).
     expect(screen.getByText("Listo · cupo 90/10")).toBeInTheDocument();
-    expect(
-      screen.getByText(/no afiliado \(marca contra el cupo 90\/10/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/regla: máx\. 10%/i)).toBeInTheDocument();
     expect(screen.getByText("No afiliado")).toBeInTheDocument();
   });
 

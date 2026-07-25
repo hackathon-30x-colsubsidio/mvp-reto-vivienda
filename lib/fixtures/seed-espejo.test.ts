@@ -1,38 +1,56 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import * as leads from "./leads";
+import { generarSeedSql } from "./seed-sql";
+import { conversaciones } from "./leads";
 import * as scores from "./scores";
 
-// `db/seed.sql` se declara a sí mismo "un ESPEJO de lib/fixtures, no la fuente".
-// Ese espejo se rompió dos veces sin que nadie lo notara, porque nada lo
-// chequeaba: primero le faltó `ingreso_hogar_mensual` (el motor recibía un lead
-// sin ingreso y lo mandaba a nutrición), después le faltó `puntaje` (la ficha
-// del asesor mostraba 0/100 mientras la explicación decía otra cosa).
+// `db/seed.sql` se declara "un ESPEJO de lib/fixtures, no la fuente". Ese espejo
+// se rompió DOS veces sin que nadie lo notara, porque se copiaba a mano y nada
+// lo chequeaba: primero le faltó `ingreso_hogar_mensual` (el motor recibía un
+// lead sin ingreso y lo mandaba a nutrición), después le faltó `puntaje` (la
+// ficha del asesor mostraba 0/100 mientras la explicación decía otra cosa).
 //
-// Esto no valida SQL: solo verifica que los números que el demo enseña en
-// pantalla estén en los dos lados. Si cambias una fixture, cambia el seed.
+// Ahora el seed se GENERA desde las fixtures, y este test es el que impide que
+// el archivo en disco quede viejo: si alguien cambia una fixture y no regenera,
+// falla aquí y no delante del jurado.
 
-const SEED = readFileSync(join(process.cwd(), "db", "seed.sql"), "utf-8");
-
-const PERSONAJES = [
-  { nombre: "lead-001 · afiliado listo", lead: leads.afiliadoListo, score: scores.afiliadoListo },
-  { nombre: "lead-002 · no afiliado", lead: leads.noAfiliadoListo, score: scores.noAfiliadoListo },
-  { nombre: "lead-003 · nutrición", lead: leads.nutricion, score: scores.nutricion },
-] as const;
+const RUTA = join(process.cwd(), "db", "seed.sql");
 
 describe("db/seed.sql espeja lib/fixtures", () => {
-  it.each(PERSONAJES)("$nombre — el puntaje de la cola", ({ score }) => {
-    expect(SEED).toContain(`'${score.salida}',\n  ${score.puntaje},`);
+  const sql = generarSeedSql();
+
+  it("el archivo en disco es exactamente lo que genera el script", () => {
+    expect(
+      readFileSync(RUTA, "utf-8"),
+      "db/seed.sql quedó viejo. Regenéralo con: npx tsx scripts/generar-seed.ts",
+    ).toBe(sql);
   });
 
-  it.each(PERSONAJES)("$nombre — el ingreso que necesita el motor", ({ lead }) => {
-    const ingreso = lead.respuestas.ingreso_hogar_mensual;
-    expect(ingreso).toBeDefined();
-    expect(SEED).toContain(`'ingreso_hogar_mensual', ${ingreso}`);
+  it("siembra los números que el MOTOR calculó, no otros", () => {
+    for (const [nombre, score] of Object.entries(scores)) {
+      expect(sql, `${nombre}: falta su puntaje`).toContain(`\n  ${score.puntaje},\n`);
+      expect(sql, `${nombre}: falta su salida`).toContain(`'${score.salida}',`);
+    }
   });
 
-  it.each(PERSONAJES)("$nombre — la situación crediticia como enum", ({ lead }) => {
-    expect(SEED).toContain(`'situacion_crediticia', '${lead.respuestas.situacion_crediticia}'`);
+  it("siembra el ingreso que necesita el gate del 40%", () => {
+    for (const [nombre, { lead }] of Object.entries(conversaciones)) {
+      const ingreso = lead.respuestas.ingreso_hogar_mensual;
+      expect(
+        ingreso,
+        `${nombre} sin ingreso: el motor lo mandaría a nutrición por dato faltante`,
+      ).toBeDefined();
+      expect(sql).toContain(`"ingreso_hogar_mensual":${ingreso}`);
+    }
+  });
+
+  it("siembra el hilo completo, con la evidencia de habeas data", () => {
+    for (const [nombre, { hilo }] of Object.entries(conversaciones)) {
+      expect(hilo.length, `${nombre}: el hilo quedó corto`).toBeGreaterThan(6);
+      expect(hilo.some((m) => m.rol === "sistema")).toBe(true);
+    }
+    // Ley 1581 de 2012: el consentimiento se registra con marca de tiempo.
+    expect(sql).toContain("Consentimiento habeas data otorgado (Ley 1581 de 2012)");
   });
 });

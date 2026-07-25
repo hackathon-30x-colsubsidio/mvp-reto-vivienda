@@ -6,7 +6,7 @@ import { BloqueProyectos } from "./BloqueProyectos";
 import { BloqueCita } from "./BloqueCita";
 import { BloqueNutricion } from "./BloqueNutricion";
 import { TablaPuntaje } from "./TablaPuntaje";
-import { fechaCorta, fechaLarga, NOMBRE_FUENTE } from "@/lib/formato";
+import { etiquetaCrediticia, fechaCorta, fechaLarga, NOMBRE_FUENTE } from "@/lib/formato";
 
 /**
  * La ficha del lead: el clímax del demo.
@@ -201,7 +201,12 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
               />
             )}
             {respuestas.situacion_crediticia && (
-              <Dato termino="Situación crediticia" valor={respuestas.situacion_crediticia} />
+              // El enum crudo ("sin_info") no se muestra: se lee como error del
+              // sistema, y el sello del lead ya usa estas mismas etiquetas.
+              <Dato
+                termino="Situación crediticia"
+                valor={`${etiquetaCrediticia(respuestas.situacion_crediticia)} (autorreportada)`}
+              />
             )}
             {respuestas.subsidios && (
               <Dato

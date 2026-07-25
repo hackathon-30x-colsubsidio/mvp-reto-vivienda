@@ -1,4 +1,4 @@
-import type { Lead, PerfilConocido } from "@/lib/types";
+import type { Lead, LeadEvento, PerfilConocido } from "@/lib/types";
 
 // Set de preguntas del spec §6: los 4 que el brief lista como capacidad de
 // compra + la zona de interés para el matcher. NUNCA se pregunta lo que el
@@ -118,6 +118,33 @@ export function ingresoDesdeRango(rango: string): number | undefined {
   return parsearIngresoMensual(rango);
 }
 
+/**
+ * Deja el ingreso como NÚMERO, que es lo que el motor necesita para el gate del
+ * 40%. Si la persona no lo escribió —porque el enriquecimiento ya traía su rango
+ * y no se le repregunta (criterio de aceptación 1)— se toma el **punto medio**
+ * del rango conocido.
+ *
+ * ⚠️ El punto medio es una de las dos decisiones que el TEAM ratifica o tumba
+ * (spec 02, pregunta 6). Se revierte borrando esta función y volviendo a dejar
+ * `ingreso_hogar_mensual` sin llenar — con la consecuencia de que todo lead
+ * perfilado cae a nutrición por dato faltante.
+ *
+ * Vive aquí y no en el chat porque lo usan los dos lados: la conversación real
+ * (`ChatWhatsApp`) y el guion con el que se siembran los personajes del demo
+ * (`lib/fixtures/guion-demo.ts`). Con dos copias, el personaje sembrado y el
+ * mismo personaje conversado darían números distintos.
+ */
+export function completarIngreso(
+  perfil: PerfilConocido,
+  respuestas: Lead["respuestas"],
+): Lead["respuestas"] {
+  if (respuestas.ingreso_hogar_mensual !== undefined || !perfil.rango_ingreso) {
+    return respuestas;
+  }
+  const derivado = ingresoDesdeRango(perfil.rango_ingreso);
+  return derivado ? { ...respuestas, ingreso_hogar_mensual: derivado } : respuestas;
+}
+
 function interpretarIngreso(texto: string): Respuesta {
   const monto = parsearIngresoMensual(texto);
   return {
@@ -197,8 +224,10 @@ const ACUSE_SUBSIDIO =
 
 const SIN_SUBSIDIO: Respuesta = {
   patch: { subsidios: [] },
+  // Sin género: el agente no sabe con quién habla, y "tranquila" a un Carlos
+  // rompe la ilusión de que alguien lo está escuchando de verdad.
   acuse:
-    "Tranquila, no pasa nada — la mayoría llega así. Si aplicas a alguno, el asesor te lo dice y se postula contigo.",
+    "No pasa nada, la mayoría llega así. Si aplicas a alguno, el asesor te lo dice y se postula contigo.",
 };
 
 const SUBSIDIO_POR_CONFIRMAR: Respuesta = {
@@ -311,6 +340,41 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
   return pasos;
 }
 
+// ── Las filas `sistema` del hilo (ADR 0003) ──────────────
+// No son mensajes de nadie: son los eventos que hacen auditable la conversación
+// en la tabla `conversaciones`. Viven aquí para que el hilo que guarda el chat
+// real y el que siembra el demo sean el mismo texto.
+
+/** Cómo se lee la fuente del lead dentro del hilo guardado. */
+const ETIQUETA_FUENTE: Record<string, string> = {
+  meta: "Meta Lead Ads",
+  google: "Google Ads",
+  web: "la web de Colsubsidio",
+};
+
+/** Primera fila del hilo: de dónde vino el lead y qué se supo antes de hablarle. */
+export function mensajeIngesta(evento: LeadEvento, perfil: PerfilConocido): string {
+  return (
+    `Lead recibido de ${ETIQUETA_FUENTE[evento.fuente] ?? evento.fuente}` +
+    `${evento.proyecto_interes ? `, interesado en ${evento.proyecto_interes}` : ""}. ` +
+    `Enriquecimiento por cédula: ${
+      perfil.match
+        ? "match encontrado, no se repregunta lo conocido"
+        : "sin match, se pregunta todo"
+    }.`
+  );
+}
+
+/** Evidencia auditable de habeas data, con su hora (Ley 1581 de 2012). */
+export function mensajeConsentimiento(otorgado: boolean, timestamp: string): string {
+  return otorgado
+    ? `Consentimiento habeas data otorgado (Ley 1581 de 2012) — ${timestamp}`
+    : `Consentimiento habeas data NO otorgado — ${timestamp}. La conversación termina y no se persiste el lead.`;
+}
+
+/** Lo que el lead toca para autorizar. Es un acto jurídico: va por botón, no por texto. */
+export const RESPUESTA_CONSENTIMIENTO = "Sí, la comparto";
+
 // ── Los mensajes del agente que no son preguntas ─────────
 
 /** Bubble 1: llega instantánea, con nombre propio y el proyecto por el que entró. */
@@ -362,7 +426,7 @@ export function mensajeYaSabemos(perfil: PerfilConocido, nombre: string): string
   const primerNombre = nombre.split(" ")[0];
 
   if (!perfil.match) {
-    return `Perfecto, ${primerNombre}, gracias 🙌 Todavía no te tengo en nuestra base, así que arrancamos de cero: son cuatro preguntas cortas, nada de formulario eterno. Te prometo que valen la pena.`;
+    return `Perfecto, ${primerNombre}, gracias 🙌 Todavía no te tengo en nuestra base, así que arrancamos de cero: son unas preguntas cortas, nada de formulario eterno. Te prometo que valen la pena.`;
   }
 
   const sabemosAlgo =
@@ -377,6 +441,45 @@ export function mensajeYaSabemos(perfil: PerfilConocido, nombre: string): string
   }
 
   return `Gracias, ${primerNombre} 🙌 Lo que ya nos habías dado está acá conmigo, así que no te voy a hacer repetir nada. Solo te pregunto lo que me falte.`;
+}
+
+// ── Re-enganche desde nutrición (spec 05 D4) ─────────────
+
+/**
+ * El primer mensaje cuando el trigger se dispara y la persona vuelve.
+ *
+ * Tres reglas del contrato, y las tres se ven en el texto: **nombra la razón
+ * original** (no la hace repetir su historia), **no repregunta nada** de lo que
+ * ya contó, y solo pregunta **lo que pudo cambiar**. El consentimiento tampoco
+ * se vuelve a pedir: ya lo dio, y por eso podemos escribirle — nunca contacto
+ * frío ([mentor](../../docs/reto/charla-mentor.md#remarketing)).
+ */
+export function mensajeReenganche(nombre: string, reglaFallida?: string): string {
+  const primerNombre = nombre.split(" ")[0];
+  const contexto = reglaFallida
+    ? "Cuando hablamos, la cuota del proyecto se te iba por encima del tope legal del 40% de tus ingresos, así que quedamos en que te escribía apenas eso pudiera cambiar."
+    : "Quedamos en que te escribía apenas algo pudiera cambiar a tu favor.";
+
+  return `¡Hola de nuevo, ${primerNombre}! 👋 Soy ${NOMBRE_AGENTE}. ${contexto} No te voy a hacer repetir nada: tengo todo lo que me contaste.`;
+}
+
+/**
+ * Lo único que se pregunta al volver: lo que pudo cambiar.
+ *
+ * El resto ya está en su ficha, y volver a preguntarlo rompería el criterio de
+ * aceptación 1 justo en el momento en que la persona nos está dando una segunda
+ * oportunidad.
+ */
+export function preguntasDeReenganche(): PasoPregunta[] {
+  return [
+    {
+      campo: "rango_ingreso_hogar",
+      pregunta:
+        "Solo necesito confirmar una cosa para volver a hacer las cuentas: ¿cuánto está entrando al mes en tu hogar hoy? Si cambió aunque sea un poco, puede alcanzar para que ya te sirva.",
+      placeholder: "Ej: 2.400.000 · sigue igual",
+      interpretarTexto: interpretarIngreso,
+    },
+  ];
 }
 
 export function mensajeCierre(nombre: string): string {

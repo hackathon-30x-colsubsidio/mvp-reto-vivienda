@@ -92,7 +92,7 @@ Quién decide el grupo es `Score.salida`. El puntaje solo ordena **dentro** de u
 
 | Qué | Hoy | Brecha |
 |---|---|---|
-| Bandeja por salida | 3 secciones con títulos propios y estado vacío explícito | Vocabulario propenso/no propenso (D1) |
+| Bandeja | 🟢 **DOS secciones desde el 2026-07-24: "Pueden comprar hoy" y "Todavía no pueden comprar".** La página seguía re-partiendo por estado y deshacía en pantalla la decisión de D7 (un no afiliado con 71 aparecía debajo de un afiliado con 42). Ahora `listo` y `listo_restriccion_cupo` comparten sección, adentro manda el puntaje, y la distinción del cupo viaja en el badge de cada fila | Vocabulario propenso/no propenso (D1) |
 | Ficha con todos los factores | Sí, `.map()` sin filtrar, con test que lo protege | La conversación no se muestra (D2) |
 | Tablero | 6 métricas + serie de 14 días + grupos por afiliación | Las métricas del mentor (D3) |
 | Métricas de conversación | Ninguna | Nadie las instrumenta |
