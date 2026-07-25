@@ -242,7 +242,10 @@ stateDiagram-v2
 
 **Vacíos que nadie ha respondido**
 
-12. **¿Notas de voz?** El mentor las mencionó como algo que la gente usa. No las tenemos ni en el alcance ni descartadas.
+12. ~~**¿Notas de voz?**~~ **[CERRADA — 2026-07-25: se contesta hablando.]** El mentor las había puesto sobre la mesa (*"unas personas prefieren escoger y otras escribir o mandar notas de voz"*, D4). Hay un botón de micrófono al lado del campo: el navegador transcribe en vivo (Web Speech API, `es-CO`) y el texto cae en el input, donde la persona lo puede corregir antes de enviar. Entra por el **mismo** `interpretarTexto` que una respuesta escrita — el motor no se entera de que fue dictada.
+    - **Cómo se dice sin sobrevender:** es **dictado transcrito en el navegador**, no una nota de voz almacenada. Ningún audio se sube ni se guarda. En producción, WhatsApp entrega el audio y se transcribe igual, así que el punto de entrada al flujo es el mismo — eso es lo honesto que se puede afirmar en el pitch.
+    - **Degrada sin ruido:** si el navegador no soporta la API (Firefox) el botón no se pinta, y si la persona niega el micrófono no se insiste. El campo de texto siempre está — es la regla del repo, y aquí también manda.
+    - **Por qué vale más que un adorno:** el brief es de propósito social. Alguien en una obra, manejando, o con poca práctica escribiendo, puede contestar hablando. Cubierto por [`dictado.test.tsx`](../../components/chat/dictado.test.tsx).
 13. **¿Qué pasa si el lead pregunta algo que no sabemos** (una fecha de entrega, un acabado)? No hay política de "no sé" definida, y el prompt del experto prohíbe inventar.
 
 ## Fuentes

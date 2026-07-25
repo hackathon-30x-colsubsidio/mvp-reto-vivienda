@@ -26,6 +26,7 @@ import {
   type Respuesta,
 } from "@/lib/conversacion/preguntas";
 import { fechaLarga } from "@/lib/formato";
+import { useDictado } from "./useDictado";
 import { MensajeBurbuja, type Mensaje } from "./MensajeBurbuja";
 import { SelloPerfil } from "./SelloPerfil";
 import { BotonTema } from "@/components/ui/BotonTema";
@@ -121,6 +122,8 @@ export function ChatWhatsApp({
   const [resultado, setResultado] = useState<ResultadoCurado | null>(null);
   /** Las 3 franjas de sala de ventas que se le ofrecen al lead listo (ticket 005). */
   const [franjas, setFranjas] = useState<Franja[]>([]);
+  /** Contestar hablando: el dictado solo escribe en el campo de texto. */
+  const dictado = useDictado({ onTexto: setTextoInput });
   const finRef = useRef<HTMLDivElement>(null);
   const iniciado = useRef(false);
   const historialRef = useRef<{ role: "user" | "assistant"; content: string }[]>(
@@ -637,9 +640,61 @@ export function ChatWhatsApp({
                     <input
                       value={textoInput}
                       onChange={(e) => setTextoInput(e.target.value)}
-                      placeholder={pasoActual.placeholder}
+                      placeholder={
+                        dictado.estado === "escuchando"
+                          ? "Te escucho…"
+                          : pasoActual.placeholder
+                      }
                       aria-label="Tu respuesta"
                     />
+
+                    {/* Contestar hablando. El mentor lo pidió ("unas personas
+                        prefieren escribir y otras mandar notas de voz") y es
+                        inclusión real: se puede responder desde una obra o
+                        manejando. Solo LLENA este campo — la persona alcanza a
+                        leer y corregir antes de enviar, y el texto entra por el
+                        mismo camino que si lo hubiera escrito. Si el navegador
+                        no soporta la API, este botón no existe. */}
+                    {dictado.estado !== "no-soportado" && (
+                      <button
+                        type="button"
+                        className={`mic${dictado.estado === "escuchando" ? " mic--vivo" : ""}`}
+                        onClick={() =>
+                          dictado.estado === "escuchando"
+                            ? dictado.detener()
+                            : dictado.arrancar(textoInput)
+                        }
+                        disabled={escribiendo || dictado.estado === "sin-permiso"}
+                        aria-pressed={dictado.estado === "escuchando"}
+                        aria-label={
+                          dictado.estado === "escuchando"
+                            ? "Dejar de dictar"
+                            : "Contestar hablando"
+                        }
+                        title={
+                          dictado.estado === "sin-permiso"
+                            ? "Sin permiso del micrófono — puedes contestar escribiendo"
+                            : "Contestar hablando"
+                        }
+                      >
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                          <line x1="12" y1="19" x2="12" y2="22" />
+                        </svg>
+                      </button>
+                    )}
+
                     <button
                       type="submit"
                       className="send"
