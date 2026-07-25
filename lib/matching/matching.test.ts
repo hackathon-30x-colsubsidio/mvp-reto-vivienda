@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Lead, Score } from "@/lib/types";
 import { matchear } from "./index";
-import { catalogo } from "./fixtures";
+import { catalogo as controlado } from "./fixtures";
+import { catalogo } from "./catalogo";
 
 // Un caso por forma de lead + el que llega sin nada. Lo que se prueba son las
 // invariantes del criterio de aceptación 4: que el lead listo reciba 2-3
@@ -68,7 +69,7 @@ describe("afiliado que pasa el corte", () => {
   const elegidos = matchear({
     lead: leadDe({ proyecto_interes: "Torres de Bellavista", ciudad: "Bogotá", afiliado: true }),
     score: scoreDe("listo"),
-    catalogo,
+    catalogo: controlado,
     precio_maximo: PRECIO_MAXIMO.holgado,
   });
 
@@ -105,7 +106,7 @@ describe("no afiliado que pasa el corte", () => {
   const elegidos = matchear({
     lead,
     score: scoreDe("listo_restriccion_cupo"),
-    catalogo,
+    catalogo: controlado,
     precio_maximo: PRECIO_MAXIMO.ajustado,
   });
 
@@ -130,7 +131,7 @@ describe("no afiliado que pasa el corte", () => {
       lead,
       score: scoreDe("listo_restriccion_cupo"),
       // Solo queda en pie la trampa: el más barato del catálogo, con el cupo copado.
-      catalogo: catalogo.filter((p) => p.nombre === "Ciudadela del Este"),
+      catalogo: controlado.filter((p) => p.nombre === "Ciudadela del Este"),
       precio_maximo: PRECIO_MAXIMO.ajustado,
     });
 
@@ -146,12 +147,116 @@ describe("no afiliado que pasa el corte", () => {
   });
 });
 
+describe("cuando TODOS los proyectos tienen el cupo copado (el catálogo real de hoy)", () => {
+  // Regresión de un sesgo que se comía la recomendación entera: con el cupo
+  // agotado en los 18 proyectos, `total - usado` es negativo en todos, y ordenar
+  // por "más cupo libre" pasaba a significar "el proyecto más pequeño" — un
+  // proyecto con 1 cupo y 2 vendidos (−1) le ganaba a uno con 37 y 82 (−45)
+  // aunque fuera mucho más caro. Como el cupo se compara antes que el precio, el
+  // precio dejaba de contar y TODO no afiliado veía los mismos 3 proyectos.
+  const copado = controlado.map((p) => ({
+    ...p,
+    cupo_no_afiliados: {
+      total: p.precio_desde > 200_000_000 ? 1 : 40,
+      // El caro se pasó por poco; el barato se pasó por mucho. Con el sesgo
+      // viejo, el caro ganaba.
+      usado: p.precio_desde > 200_000_000 ? 2 : 90,
+    },
+  }));
+
+  const elegidos = matchear({
+    lead: leadDe({ afiliado: false }),
+    score: scoreDe("listo_restriccion_cupo"),
+    catalogo: copado,
+    precio_maximo: PRECIO_MAXIMO.holgado,
+  });
+
+  it("manda el precio, no cuál se pasó del cupo por menos unidades", () => {
+    const precios = elegidos.map((e) => e.ficha.precio_desde);
+    expect(precios).toEqual([...precios].sort((a, b) => a - b));
+    expect(elegidos[0].ficha.precio_desde).toBeLessThanOrEqual(200_000_000);
+  });
+
+  it("y aun así a cada uno se le dice que el cupo está copado", () => {
+    for (const { razones } of elegidos) {
+      expect(razones.some((r) => /copado/.test(r))).toBe(true);
+    }
+  });
+});
+
+describe("la zona que el lead ESCRIBE, no la que encaja exacta", () => {
+  // La pregunta del chat es "¿dónde te imaginas viviendo?" con texto libre y el
+  // placeholder dice "Ej: Bogotá, por el norte". Con igualdad exacta, esa
+  // respuesta no coincidía con la ciudad "Bogotá" y el lead perdía el filtro de
+  // zona sin que nada fallara.
+  function zonasDe(zona: string) {
+    const lead = leadDe({ afiliado: true });
+    lead.respuestas.zona_interes = zona;
+    return matchear({
+      lead,
+      score: scoreDe("listo"),
+      catalogo,
+      precio_maximo: PRECIO_MAXIMO.holgado,
+    }).map((e) => e.ficha.ciudad);
+  }
+
+  it.each([
+    ["Bogotá", "la ciudad pelada"],
+    ["bogota", "sin tilde y en minúsculas"],
+    ["Bogotá, por el norte", "como lo escribe una persona"],
+    ["quiero algo en Bogotá", "en una frase"],
+  ])("'%s' (%s) recomienda en Bogotá", (zona) => {
+    expect(zonasDe(zona).every((ciudad) => ciudad === "Bogotá")).toBe(true);
+  });
+
+  it("una respuesta demasiado corta no matchea todo el catálogo", () => {
+    const ciudades = new Set(zonasDe("a"));
+    expect(ciudades.size).toBeGreaterThan(0);
+    // Si "a" contara como zona, coincidiría con cualquier ciudad y la traza
+    // diría "queda en la zona que le interesa" a todo el mundo.
+    const lead = leadDe({ afiliado: true });
+    lead.respuestas.zona_interes = "a";
+    const elegidos = matchear({
+      lead,
+      score: scoreDe("listo"),
+      catalogo,
+      precio_maximo: PRECIO_MAXIMO.holgado,
+    });
+    for (const { razones } of elegidos) {
+      expect(razones.some((r) => r.includes("la zona que le interesa"))).toBe(false);
+    }
+  });
+
+  it("un proyecto con la ubicación sin confirmar NUNCA cuenta como zona", () => {
+    // VIBO ONCE y KARAKALI aparecen en dos ciudades distintas en el insumo.
+    // Prometer "queda donde quieres vivir" sería inventar.
+    const dudoso = catalogo.find((p) => p.ubicacion_incierta)!;
+    expect(dudoso, "el catálogo real debería traer al menos uno").toBeDefined();
+
+    const lead = leadDe({ afiliado: true });
+    lead.respuestas.zona_interes = "Ricaurte";
+    const elegidos = matchear({
+      lead,
+      score: scoreDe("listo"),
+      catalogo: [dudoso],
+      // Que quepa por precio: lo que se prueba es la zona, no el filtro.
+      precio_maximo: dudoso.precio_desde,
+    });
+
+    const razones = elegidos[0].razones;
+    expect(razones.some((r) => r.includes("la zona que le interesa"))).toBe(false);
+    expect(razones.some((r) => /ubicación de este proyecto no está confirmada/.test(r))).toBe(
+      true,
+    );
+  });
+});
+
 describe("lead en nutrición", () => {
   it("no recibe ningún proyecto: no se recomienda lo que no puede pagar", () => {
     const elegidos = matchear({
       lead: leadDe({ ciudad: "Bogotá" }),
       score: scoreDe("nutricion"),
-      catalogo,
+      catalogo: controlado,
       precio_maximo: PRECIO_MAXIMO.insuficiente,
     });
     expect(elegidos).toEqual([]);
@@ -164,7 +269,7 @@ describe("lead que llega sin nada (el 'soy yo' sin match de enriquecimiento)", (
   const elegidos = matchear({
     lead: leadDe({}),
     score: scoreDe("listo"),
-    catalogo,
+    catalogo: controlado,
     precio_maximo: PRECIO_MAXIMO.holgado,
   });
 

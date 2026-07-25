@@ -22,12 +22,60 @@ function cupoLibre(proyecto: FichaProyecto): number {
   return proyecto.cupo_no_afiliados.total - proyecto.cupo_no_afiliados.usado;
 }
 
+/**
+ * Cupo que de verdad queda, para ORDENAR. Nunca negativo.
+ *
+ * ⚠️ Esto arregla un sesgo que se comía la recomendación entera. En el catálogo
+ * real **los 18 proyectos tienen el cupo copado**, así que `cupoLibre` es
+ * negativo en todos y ordenar por "el que tenga más cupo libre" degeneraba en
+ * "el que se pasó por menos unidades" — que es solo otra forma de decir **el
+ * proyecto más pequeño**: ZARZAL (1 permitido, 2 vendidos → −1) le ganaba a
+ * LA MACARENA (37 permitidos, 82 vendidos → −45), aunque sea $77M más caro.
+ * Como el cupo se compara ANTES que el precio, el precio dejaba de contar y
+ * todo no afiliado terminaba viendo los mismos 3 proyectos.
+ *
+ * Con el tope en 0, todos los copados empatan y el desempate cae al precio,
+ * que es lo que le sirve al lead. El cupo sigue desempatando **mientras haya
+ * cupo de verdad**, que es lo que la regla 90/10 quiere decir.
+ */
+function cupoDisponible(proyecto: FichaProyecto): number {
+  return Math.max(0, cupoLibre(proyecto));
+}
+
+/** Sin tildes y en minúsculas: "Bogotá" y "bogota" son la misma ciudad. */
+function normalizar(texto: string): string {
+  return texto
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "");
+}
+
+/**
+ * ¿Este proyecto queda donde el lead quiere vivir?
+ *
+ * La comparación es por **inclusión en los dos sentidos**, no por igualdad: la
+ * pregunta del chat es *"¿dónde te imaginas viviendo?"* con texto libre, así que
+ * la respuesta real es "Bogotá, por el norte" o "en Chía", casi nunca la ciudad
+ * pelada. Con igualdad exacta, esas respuestas NO coincidían con nada y el lead
+ * perdía el filtro de zona sin que nada fallara.
+ *
+ * Dos guardas:
+ * - se piden 3 caracteres mínimo, para que un "a" suelto no matchee todo;
+ * - un proyecto con la **ubicación sin confirmar** nunca cuenta como
+ *   coincidencia: su ciudad dice dos cosas distintas y prometerla sería inventar.
+ */
 function coincideZona(proyecto: FichaProyecto, zona: string | undefined): boolean {
-  if (!zona) return false;
-  const normal = (t: string) => t.trim().toLowerCase();
-  return [proyecto.ciudad, proyecto.zona].some(
-    (campo) => campo !== undefined && normal(campo) === normal(zona),
-  );
+  if (!zona || proyecto.ubicacion_incierta) return false;
+
+  const buscada = normalizar(zona);
+  if (buscada.length < 3) return false;
+
+  return [proyecto.ciudad, proyecto.zona].some((campo) => {
+    if (!campo) return false;
+    const delProyecto = normalizar(campo);
+    return delProyecto.includes(buscada) || buscada.includes(delProyecto);
+  });
 }
 
 /**
@@ -82,7 +130,9 @@ export function matchear({
       (a, b) =>
         Number(esInteres(b)) - Number(esInteres(a)) ||
         Number(coincideZona(b, zona)) - Number(coincideZona(a, zona)) ||
-        (noAfiliado ? cupoLibre(b) - cupoLibre(a) : 0) ||
+        // Solo desempata mientras quede cupo de verdad: si están todos copados
+        // (hoy, los 18), esto da 0 y manda el precio. Ver `cupoDisponible`.
+        (noAfiliado ? cupoDisponible(b) - cupoDisponible(a) : 0) ||
         a.precio_desde - b.precio_desde,
     )
     .slice(0, MAXIMO_RECOMENDADOS)
@@ -116,6 +166,13 @@ function razonesDe(
   }
   if (coincideZona(proyecto, contexto.zona)) {
     razones.push(`queda en ${proyecto.ciudad}, la zona que le interesa`);
+  }
+  if (proyecto.ubicacion_incierta) {
+    // Entra por precio, nunca por zona (ver `coincideZona`), y el asesor tiene
+    // que saber por qué no se le promete una ciudad: la fuente dice dos.
+    razones.push(
+      `⚠️ la ubicación de este proyecto no está confirmada — el insumo original lo reporta en dos ciudades distintas (${proyecto.ciudad}), así que hay que verificarla antes de ofrecérsela`,
+    );
   }
   if (contexto.noAfiliado) {
     razones.push(

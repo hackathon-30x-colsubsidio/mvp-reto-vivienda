@@ -25,6 +25,17 @@ export interface FichaProyecto {
   cupo_no_afiliados: { usado: number; total: number };
   brochure?: string;
   recorrido_360?: string;
+  /**
+   * La ciudad de este proyecto NO está confirmada: las dos hojas del insumo
+   * original se contradicen (pasa con VIBO ONCE y KARAKALI, ver AGENTS.md).
+   *
+   * El matcher lo necesita para no afirmar lo que no sabe: un proyecto con la
+   * ubicación en duda **no cuenta como coincidencia de zona**, porque decirle a
+   * alguien "queda en la ciudad que te interesa" cuando la fuente dice dos
+   * ciudades distintas es inventar. Se puede recomendar igual por precio, con
+   * la advertencia encima.
+   */
+  ubicacion_incierta?: boolean;
 }
 
 /**
