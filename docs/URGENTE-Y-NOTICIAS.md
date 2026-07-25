@@ -17,7 +17,17 @@
 
 **🔴 Dos cosas que hay que atender antes de grabar:**
 
-- **Hay que volver a correr [`db/seed.sql`](../db/seed.sql) en Supabase.** El seed se regeneró (el factor de la cuota ahora nombra el proyecto). Y en la bandeja **en vivo** se ve el desfase: la explicación de Carlos dice *"cuota de PAYANDÉ ($1.053.000), el 36,9%"* cuando el motor calcula **$1.573.834 = 39,3%**. Son filas viejas contradiciendo al motor, en la pantalla que es el clímax del demo.
+- **🔴 Hay que volver a correr [`db/seed.sql`](../db/seed.sql) en Supabase. Es la única acción que queda y bloquea la grabación.** Medido contra la URL pública el 2026-07-25 en la noche, esto es lo que hay en la base:
+
+  | lead_id | Nombre | Puntaje en la base | Debería ser |
+  |---|---|---|---|
+  | lead-001 | Diana Marcela Ríos | **65** | **73** |
+  | lead-002 | Carlos Andrés Muñoz | 24 | 24 (su explicación **sí** está vieja) |
+  | lead-003 | Yuliana Andrea Pérez | 0 | 0 |
+  | lead-1785015727239 | Prueba Puente Capacidad | — | fila de prueba, se borra |
+  | lead-1785015813435 | sebas | — | fila de prueba, se borra |
+
+  **La ficha de Diana es el clímax del video (beat 3) y está mostrando un puntaje que el motor no calcula**: su fila la pisó una conversación de prueba. Además la explicación de Carlos dice *"cuota de PAYANDÉ ($1.053.000), el 36,9%"* cuando el motor calcula **$1.573.834 = 39,3%**. Correr el seed arregla las tres filas **y de paso barre las dos de prueba** (el archivo hace `delete` antes de sembrar). Después de correrlo hay que ver **73 · 24 · 0**.
 - **Los puntajes que citan los docs están viejos: son 73 · 24 · 0, no 75 · 28 · 0.** Verificado contra el seed generado por el motor. Diana sigue **justo en el techo alcanzable** (que sigue siendo 75, no 100), así que la recomendación de no decir la cifra en cámara **no cambia** — pero si alguien la dice, que diga la de verdad.
 
 **📣 Decisión de producto (Mani): el pitch NO habla del 27,1% vs. el 10%.** Con eso se **descarta el [ticket 019](tasks/019-franja-impacto.md)** (la franja de impacto) y hay que **reescribir el beat 0 del [guion](pitch/guion-video.md)**, que abría con esa cifra y la llamaba "la munición". El gancho pasa a ser el hueco real: la página de vivienda sin formulario y sin proyectos — *no existe el embudo*. ⚠️ Queda una decisión pendiente para Mani: la métrica **"Leads no afiliados"** del tablero sigue enunciando esa comparación y va marcada como la principal. No se tocó (el tablero ya estaba fuera del video); quitarla o dejarla es decisión suya.
