@@ -24,13 +24,14 @@ El pipeline es **determinista y auditable**; la IA vive en dos puntos acotados (
 
 ## Operating Context
 
-Tres superficies, recorridas en este orden en el demo:
+Cuatro superficies, recorridas en este orden en el demo:
 
 1. **Landing del jurado** (`/`) — 3 personajes pre-sembrados (afiliado listo, no afiliado listo, lead de nutrición) + un botón "soy yo" con formulario libre. Un clic arranca la conversación.
-2. **Chat estilo WhatsApp** (`/`, en estado de conversación) — pide autorización de datos, dice explícitamente qué ya sabe del lead, y pregunta solo lo que falta. Conversa: explica para qué sirve cada pregunta, reacciona a cada respuesta, y deja escribir siempre (los atajos son atajos, no la única salida). Chat web con estética WhatsApp y disclaimer visible de que en producción corre sobre WhatsApp Business API.
-3. **Consola del asesor** (`/asesor`, `/asesor/[leadId]`) — cola priorizada y ficha completa: score factor por factor, el porqué en lenguaje natural, proyectos, cita, o razón + trigger de nutrición.
+2. **Chat estilo WhatsApp** (`/`, en estado de conversación) — pide autorización de datos, dice explícitamente qué ya sabe del lead, y pregunta solo lo que falta. Conversa: explica para qué sirve cada pregunta, reacciona a cada respuesta, y deja escribir siempre (los atajos son atajos, no la única salida). Cierra **agendando la cita**. Chat web con estética WhatsApp y disclaimer visible de que en producción corre sobre WhatsApp Business API.
+3. **Consola del asesor · Leads** (`/asesor`, `/asesor/[leadId]`) — el clímax. Bandeja en dos grupos ("pueden comprar hoy" / "todavía no pueden comprar") y ficha completa: el puntaje con su aritmética factor por factor, el porqué, proyectos, cita, o razón + trigger de nutrición. Lista y ficha conviven: abrir un lead no hace perder la cola.
+4. **Consola del asesor · Métricas** (`/asesor/tablero`) — cuánto entra, cómo se reparte por afiliación y quién es el mejor de cada lado, con el **% de no afiliados contra el 10% de la regla 90/10** como cifra central. Entró al alcance del MVP el 2026-07-25 (sala de decisiones, decisión 4): no es analítica de pauta, es la operación del asesor.
 
-Todas las llamadas al LLM van en streaming (primer token < 2s). Escala del demo: jurado + equipo, decenas de sesiones concurrentes.
+El LLM vive en **una sola** de las cuatro: pule el tono del conversador, en streaming (primer token < 2s). El porqué que ve el asesor se redacta determinista, así que la ficha no depende de que un modelo esté vivo ([ADR 0005](docs/adr/0005-afiliacion-cupo-y-explicacion.md)). Escala del demo: jurado + equipo, decenas de sesiones concurrentes.
 
 ## Capabilities and Constraints
 

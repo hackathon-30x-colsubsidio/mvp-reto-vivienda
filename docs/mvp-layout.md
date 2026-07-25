@@ -109,7 +109,7 @@ Hallazgos del análisis del Excel real (`docs/recursos-reto/hackathon_VIVIENDAv2
 - **Munición de impacto ya validada:** 27,1% de los compradores históricos NO son afiliados (vs. el 10% permitido) y los 16 proyectos con ubicación conocida incumplen el límite 90/10. El problema que ataca el workflow es real y medible — usar en pitch y en la vista del asesor.
 - **No hay columna "afiliado" explícita**: se infiere de `PERIODO_AFILIADO` vacío/lleno.
 - **`VLR_VIVIENDA` trae 4 ceros de más**: ÷10.000 para el precio real.
-- **`SEGMENTO_POBLACIONAL`/`CATEGORIA`/`PIRAMIDE_NUEVA` vienen anonimizados con letras griegas** (no Básico/Medio/Alto/Joven): decidir si se infiere el mapeo cruzando contra los % del PPT o se tratan como clusters anónimos (item del roadmap).
+- **`SEGMENTO_POBLACIONAL`/`CATEGORIA`/`PIRAMIDE_NUEVA` vienen anonimizados con letras griegas** (no Básico/Medio/Alto/Joven). ✅ **Cerrado en el grilling 2026-07-24: se tratan como clusters anónimos ante el jurado**; el mapeo descifrado viaja solo como etiqueta `[inferido]`, nunca presentado como oficial.
 - **Base sintética de identidades**: la data real es anónima (sin cédulas); el "ya te conocemos" del demo se simula con una base generada a partir de las distribuciones reales del Excel/buyer personas.
 
 ## 9. Siguiente paso

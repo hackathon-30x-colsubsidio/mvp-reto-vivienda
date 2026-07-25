@@ -1,6 +1,32 @@
 # 🚨 Urgente y Noticias
 
 > El documento más concreto y resumido del repo. Si solo vas a leer un archivo hoy, es este. Se actualiza cada vez que algo cambia el rumbo del equipo.
+>
+> El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
+
+## 📋 2026-07-25 — Decisiones de Mani + los docs quedaron al día (audit completo)
+
+**Lo que hay que saber en una línea:** el tablero **entra al MVP y al pitch**, la afiliación **nunca se le pregunta al lead** (sale de la cédula), **nadie se descarta ni por aritmética** (un solo proyecto viable ya no bota el lead), y los **pesos del motor quedan abiertos a propósito**.
+
+**Las decisiones (van a los specs, no se re-litigan):**
+
+| # | Decisión | Veredicto |
+|---|---|---|
+| 1 | ¿El LLM conduce la conversación? | **NO.** Conduce el código; el LLM pule el tono |
+| 4 | ¿El tablero entra al video/MVP? | **SÍ** (cambia el default anterior). ⚠️ **Es un plano nuevo para el guion del video** |
+| 5 | ¿La ficha llama al experto LLM? | **NO: la explicación es determinista, y se dice como ventaja** — no depende de que un modelo esté vivo |
+| 6 | ¿Se le pregunta la afiliación al lead? | **NUNCA.** Sale de la cédula, como en la operación real; sin match se asume no afiliado (caso conservador) |
+| 9 | ¿CHECK de proyectos en `≤ 3`? | **SÍ.** Los leads nunca se descartan: rechazar exactamente 1 proyecto perdía el lead entero. Y se muestran **varios proyectos potenciales**, no solo el de entrada |
+| 10 | ¿"Propenso / no propenso"? | **NO.** Se adopta la agrupación del mentor, no su vocabulario |
+| 3 · 7 · 8 | Franja de impacto · el 0,6% · los pesos | **ABIERTAS.** El 0,6% es supuesto nuestro (financia el 70% del valor, cuota ≈0,6% de eso ≈ 20 años); los pesos quedan calibrables a propósito |
+
+**Y el audit de docs, que era el otro pedido.** Un agente fresco leía `plan.md` (del jueves), `prompts/` y `roles-recta-final` como si fueran vigentes, y arrancaba creyendo que la IA estaba caída y que el chat terminaba en `console.log`. Ahora: **`AGENTS.md` abre con "empieza aquí"** (plan-sabado-25 → handoff → URGENTE), **todo doc superado lleva banner `🔁 HISTÓRICO`** con su vigente, y ningún doc vivo afirma algo que el código desmienta.
+
+**Tres cosas que el audit encontró y conviene saber antes del pitch:**
+
+1. **El techo real del puntaje es 75, no 100 ni 90.** El subsidio aporta 0 a todo lead real (nadie pregunta el monto) y la similitud aporta la mitad fija. **Diana con 74 está a UN punto del máximo alcanzable**, no a 26. Si alguien dice "74 sobre 100" en el video, se está subvendiendo. ⚠️ Los 57 leads sintéticos del tablero **sí** traen subsidio, así que el promedio mezcla dos techos.
+2. **`/api/match` y `/api/explicacion` no las llama ninguna pantalla.** No es deuda (decisión 5), pero que nadie invierta tiempo ahí creyendo que están en el camino del demo.
+3. **El hilo de la conversación se guarda y nunca se lee.** Es la brecha más barata de cerrar y la que da paridad con lo que el asesor ya tiene hoy en su plataforma.
 
 ## 🔴 2026-07-24 21:00 — HAY QUE CORRER `db/seed.sql` ANTES DE GRABAR (y los 4 bloqueantes ya están corregidos)
 
@@ -154,7 +180,7 @@ Registrado en `docs/adr/0002-stack-mvp.md`. Lo que cada quien necesita saber **a
 - **Un solo monolito Next.js (TypeScript, App Router)** deployado en Vercel — frontend y API routes juntos, auto-deploy al pushear a `main`. `main` siempre desplegable: es el link del demo.
 - **Los datos estáticos NO van a base de datos**: son JSON en `data/sintetica/`, generados por un script Python que corre **solo offline** en `scripts/`. Python nunca en producción.
 - **Supabase** solo para lo que muta: leads, conversaciones, citas (2-3 tablas).
-- **La IA solo vive en 2 endpoints** (`/api/chat` y `/api/explicacion`), con `claude-opus-4-8` y **streaming obligatorio**. El scoring es TypeScript puro sin LLM — es la regla "cero caja negra".
+- **La IA solo vive en 2 endpoints** (`/api/chat` y `/api/explicacion`), con `claude-opus-4-8` y **streaming obligatorio**. *(Superado: el proveedor pasó a Gemini esa misma noche, y desde el 2026-07-25 la explicación de la ficha es determinista — el LLM queda solo en el conversador.)* El scoring es TypeScript puro sin LLM — es la regla "cero caja negra".
 - **El repo es público**: API keys solo en `.env` local (gitignored) y env vars de Vercel. Jamás en un commit.
 - **Contratos entre tracks** (`Lead`, `Score`, `LeadCurado`) en `lib/types.ts` — cada quien construye contra fixtures, nadie espera al de al lado.
 Feedback loops (`npm test` / `tsc --noEmit` / `npm run dev`) ya definidos en `AGENTS.md`. Siguiente paso: scaffold de Next.js + conectar Vercel y Supabase.
@@ -162,7 +188,7 @@ Feedback loops (`npm test` / `tsc --noEmit` / `npm run dev`) ya definidos en `AG
 ## ✅ 2026-07-24 — La DB existe y `/asesor` está en el link público
 Track D mergeado a `main` (`db137f7`). El demo ya se recorre entero en **https://mvp-reto-vivienda.vercel.app** — landing y chat de A, `/asesor` de D. Esquema en [`docs/adr/0003-esquema-db-leads.md`](adr/0003-esquema-db-leads.md), SQL en `db/`.
 
-- **🔴 Falta un paso para que producción persista:** las env vars de Supabase están en el `.env` de una sola máquina. Hay que cargarlas en **Vercel → Settings → Environment Variables** y **redesplegar**. Mientras tanto el demo funciona con fixtures y lo avisa en pantalla (no miente, pero no guarda nada).
+- ~~**🔴 Falta un paso para que producción persista:**~~ *(Resuelto el 2026-07-24: la URL pública responde `origen: supabase`, medido con `curl`.)* Las env vars de Supabase están en el `.env` de una sola máquina. Hay que cargarlas en **Vercel → Settings → Environment Variables** y **redesplegar**. Mientras tanto el demo funciona con fixtures y lo avisa en pantalla (no miente, pero no guarda nada).
 - **Nadie escribe a Supabase directo.** A y C llaman a `POST /api/leads` (recibe un `LeadCurado`) y `POST /api/citas` (persiste la franja elegida). Un solo lugar valida y mapea.
 - **Los criterios de aceptación los enforcea Postgres**, no la revisión de código: un lead de nutrición sin trigger, o uno calificado sin factores, **falla el insert**. Verificado contra la DB real. Si tu track recibe un 422, es el dato, no el servidor.
 - **A tiene pendiente cerrar el criterio 3** ([ticket 007](tasks/007-reenganche-nutricion.md)): el botón "simular trigger" ya lleva al chat con `/?lead_id=X&reenganche=1`, pero `app/page.tsx` no lee la URL todavía, así que el clic aterriza en el landing.

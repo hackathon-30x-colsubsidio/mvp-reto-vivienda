@@ -104,3 +104,36 @@ Que los datos que el agente cita (catálogo, subsidios, textos legales) vivan en
 
 **Recalibración offline**:
 La única forma de "aprendizaje" que admite este proyecto: un humano revisa conversaciones y métricas y ajusta prompts o pesos **en un commit con autor y fecha**. Nunca ajuste automático en línea, que sería caja negra.
+
+**Curado** (verbo: *curar* un lead):
+Pasar un lead crudo por toda la cadena —calificarlo, matchearlo con proyectos, redactar su porqué y agendarle cita— hasta dejarlo listo para que el asesor lo llame. Un *lead curado* es el resultado de eso, y es la unidad que viaja a la base de datos.
+
+**Lead-evento**:
+El paquete mínimo con el que un lead entra al sistema desde cualquier canal (nombre, celular, cédula, proyecto de interés y fuente). Se llama evento porque cualquier canal futuro emite el mismo, y por eso el multi-canal no exige construir canales.
+
+**Gate del 40%**:
+El único corte que bloquea: si la primera cuota estimada supera el 40% del ingreso del hogar, el banco legalmente no puede prestar (Decreto 583 de 2025) y el lead pasa a nutrición. Se distingue de todo lo demás del scoring, que **ordena** pero no bloquea.
+
+**Holgura de capacidad**:
+Cuánto margen le sobra a un lead por debajo del tope del 40%. Es lo que separa "apenas pasa" de "pasa con mucho aire", y por eso es el factor que más pesa: dos leads aprobados no son igual de buenos.
+
+**Precio máximo**:
+El precio de vivienda más alto que un lead puede pagar sin romper el gate del 40% — el mismo cálculo despejado al revés. Es el contrato entre el motor y el matcher: el matcher no reimplementa la regla, la consume.
+
+**Puntaje** (vs. **salida**):
+Dos cosas distintas que no se deben confundir. La **salida** (listo / listo con restricción de cupo / nutrición) es lo que *decide* qué pasa con el lead. El **puntaje** (0-100) solo *ordena* dentro de un mismo grupo de la cola. Un puntaje nunca decide, y por eso nunca se muestra sin su desglose.
+
+**Aporte** (con **peso** y **señal**):
+Las tres cifras con las que cada factor rinde cuentas: cuánto pesa ese factor, qué tan bien lo cumple este lead, y cuántos puntos aporta al final (peso × señal). Es el "cero caja negra" hecho dato: el asesor puede sumar los aportes y le da el puntaje.
+
+**Trigger de nutrición**:
+La condición concreta que volvería comprable a un lead que hoy no lo es, escrita con su número ("le faltan $110.286 de ingreso mensual"). No es una nota de seguimiento: es obligatorio en la base de datos para todo lead en nutrición, porque un "vuelve luego" sin condición es un descarte con buenos modales.
+
+**Personaje canónico**:
+Cada uno de los tres leads pre-sembrados del demo (Diana, Carlos, Yuliana), que cubren los tres caminos del flujo. Son la identidad compartida del equipo: se declaran una sola vez y todo el repo los consume desde ahí.
+
+**Guion** (y **replay**):
+El libreto de lo que un personaje canónico **teclea**, no de lo que responde. Se corre contra el conversador real, así que el personaje sembrado y ese mismo personaje conversado en vivo por el jurado producen el mismo lead y el mismo puntaje.
+
+**Sello**:
+El bloque visual que le devuelve al lead lo que el sistema ya sabe de él, y el que marca el estado de un lead en la consola del asesor.
