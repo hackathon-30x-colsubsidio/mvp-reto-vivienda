@@ -144,7 +144,7 @@ El formulario genera un `lead_id` único (`lead-<timestamp>`), así que **nunca 
 | **El caso Carlos** — no afiliado, cupo 90/10 | `2000000003` | En la base pero NO afiliado → **sí le preguntan el ingreso** (de un no afiliado no se conocen ingresos), y sale `listo_restriccion_cupo` con la advertencia de cupo en cada proyecto |
 | **El caso Yuliana** — sin match, se pregunta todo | `9999999999` (inventada) | Sin match → le preguntan hasta la zona. Para forzar **nutrición**, responder un ingreso de `1.500.000`: la cuota del proyecto más barato le da 60% |
 
-Dos detalles del formulario: el **proyecto de interés es opcional** (si se deja vacío se califica contra el más económico del catálogo), y si quieres probar uno específico hay que escribir su nombre **exacto** del catálogo — `LA ARBOLEDA`, `PAYANDÉ`, `MONGUI`…
+Un detalle del formulario: el **proyecto de interés es opcional** (si se deja en "Todavía no tengo uno en mente", se califica contra el más económico del catálogo, que es el caso conservador). Desde el 2026-07-25 **se elige de una lista** con los 18 proyectos reales, agrupados por ciudad y con su precio desde — antes era texto libre, y un nombre mal escrito hacía que el sistema calificara contra otro proyecto **sin decirlo**.
 
 ### Limpiar la basura de pruebas (1 línea de SQL)
 
