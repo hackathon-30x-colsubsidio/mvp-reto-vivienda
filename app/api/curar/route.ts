@@ -59,6 +59,16 @@ export async function POST(request: Request) {
     puntaje: curado.score.puntaje,
     proyectos: curado.proyectos.length,
     explicacion: curado.explicacion,
+    // Sobre este proyecto el chat ofrece las franjas de sala de ventas: es el
+    // #1 del match, el que el ranking dejó arriba (criterio 4, ticket 005).
+    ...(curado.proyectos[0]
+      ? {
+          proyecto_cita: {
+            proyecto_id: curado.proyectos[0].proyecto_id,
+            nombre: curado.proyectos[0].nombre,
+          },
+        }
+      : {}),
   };
 
   // 2. Persistir. El veredicto viaja en la respuesta pase lo que pase: si la

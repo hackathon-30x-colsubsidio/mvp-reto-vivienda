@@ -1,17 +1,7 @@
 import type { Lead, PerfilConocido } from "@/lib/types";
-
-/**
- * `situacion_crediticia` llega como enum del conversador, y el enum no se le
- * enseña a nadie: "sin_info" en el sello de alguien que acaba de contarnos su
- * vida se lee como un error del sistema. Ninguna etiqueta suena a veredicto —
- * aquí no se califica a la persona, se refleja lo que dijo.
- */
-const CREDITO: Record<string, string> = {
-  buena: "Al día",
-  regular: "En proceso de arreglo",
-  mala: "Con algo pendiente",
-  sin_info: "Por confirmar",
-};
+// El enum de la situación crediticia nunca se le enseña a nadie: las etiquetas
+// humanas viven en lib/formato.ts, compartidas con la ficha del asesor.
+import { etiquetaCrediticia } from "@/lib/formato";
 
 /**
  * El cierre de la conversación: le devuelve al lead, en una sola tarjeta, lo
@@ -58,8 +48,7 @@ export function SelloPerfil({
   if (respuestas.situacion_crediticia) {
     filas.push({
       etiqueta: "Situación crediticia",
-      valor:
-        CREDITO[respuestas.situacion_crediticia] ?? respuestas.situacion_crediticia,
+      valor: etiquetaCrediticia(respuestas.situacion_crediticia),
     });
   }
 

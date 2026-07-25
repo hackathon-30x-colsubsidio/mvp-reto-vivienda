@@ -64,22 +64,15 @@ Los seis pesos (0,45 / 0,20 / 0,15 / 0,10 / 0,05 / 0,05) suman 1,0 y están escr
 
 Ninguna de las dos es un bug: la primera es un provisional declarado, la segunda es la regla 90/10 expresándose en la prioridad. **Pero las dos son decisiones**, y hoy nadie las ratificó. Con ellas encima, la pregunta al equipo es si el techo móvil confunde al asesor.
 
-### D6 · Hay dos escalas de puntaje conviviendo · [PROPUESTA — la decisión más urgente de este spec]
+### D6 · Una sola escala de puntaje · [CERRADA — 2026-07-24 15:20, ya no hay decisión que tomar]
 
-Existen **dos** cálculos distintos para el mismo lead:
+> ⚠️ **Esta decisión aparecía como "la más urgente del spec" y ya estaba resuelta en el código.** Se dejó aquí escrita como pendiente y el equipo iba a gastar reunión en ella. Lo verificó la auditoría del 2026-07-24: `lib/scoring/puntaje.ts` **no existe**.
 
-| | `Score.puntaje` | `calcularPuntaje()` |
-|---|---|---|
-| Dónde | [`lib/scoring/index.ts`](../../lib/scoring/index.ts) + [`config.ts`](../../lib/scoring/config.ts) | [`lib/scoring/puntaje.ts`](../../lib/scoring/puntaje.ts) |
-| Cómo puntúa | Continuo: `peso × señal × 100` | Binario: cumple todo el peso o cero |
-| Pesos | 0,30 / 0,20 / 0,20 / 0,15 / 0,10 / 0,05 | 35 / 20 / 15 / 10 / 10 / 10 |
-| Quién lo usa | Se guarda en Supabase | **Toda la UI**: ficha, tablero, orden de los grupos, métrica "puntaje promedio" |
+Convivieron dos cálculos para el mismo lead —`Score.puntaje` (continuo, pesos de `config.ts`, el que guarda Supabase) y `calcularPuntaje()` de `puntaje.ts` (binario sobre `factor.cumple`, pesos propios, el que veía **toda la UI**)— y el asesor veía en pantalla un número que el motor nunca calculó.
 
-Los pesos ni siquiera coinciden en el orden: en el continuo la situación crediticia es lo último (0,05); en el binario es el tercero (15). **El número que el asesor ve en pantalla no es el número que el motor calculó.**
+**Se cerró borrando el binario.** La escala canónica es la del motor: continua, porque distingue "apenas pasa" de "pasa con mucho margen", que es justo lo que sirve para priorizar una cola. Hoy `agrupadores.ts::puntajeDe`, `FilaLeadPuntaje.tsx`, `FichaLead.tsx` y `TablaPuntaje.tsx` leen `curado.score.puntaje` directo, y `TablaPuntaje` pinta `peso% × señal%` en vez de "cumple / no cumple".
 
-**Propuesta:** la escala canónica es la del motor (continua), porque distingue "apenas pasa" de "pasa con mucho margen", que es justo lo que sirve para priorizar una cola. `puntaje.ts` converge hacia ella. **Pero es el equipo quien decide** — la alternativa razonable es quedarse con la binaria por ser la que ya está probada y visible, y borrar la otra.
-
-Lo que **no** es opción es dejar las dos: un mismo lead con dos puntajes distintos es exactamente la caja negra que [`AGENTS.md`](../../AGENTS.md) prohíbe.
+Por qué el binario además era *peor* y no solo distinto: `cuota_ingreso_40` (35 de sus 100 puntos) y `cupo_90_10` (10) leían `factor.cumple`, que el motor deja **siempre en `true`** para quien ya pasó el gate. O sea 45 de 100 puntos no diferenciaban entre ningún lead "listo": la holgura real no pesaba nada en el número que ordenaba la cola.
 
 ### D7 · Las tres salidas · [CERRADA — `spec.md §4`]
 
@@ -118,10 +111,12 @@ El motor es TypeScript puro, determinista, sin red. La IA solo **redacta** expli
 |---|---|---|
 | Gate del 40% | Funciona, con la norma citada en el texto del factor | — |
 | 7 factores visibles | Los 7 se emiten y la ficha los recorre con `.map()` | — |
-| Similitud real | Fija en 0,5 | Espera [016](../tasks/016-distribuciones-por-proyecto.md); [018](../tasks/018-similitud-en-explicacion.md) la lleva a la explicación |
-| Escala del puntaje | Dos coexistiendo (D6) | Sin dueño ni ticket |
+| Similitud real | Fija en 0,5, **y el factor lo dice en su propio texto** ("señal neutra 0,5 para todos: hoy no diferencia leads"), igual que declara que el "~N compradores" es una derivación del cupo ×10 y no un dato leído del Excel | Espera [016](../tasks/016-distribuciones-por-proyecto.md); [018](../tasks/018-similitud-en-explicacion.md) la lleva a la explicación |
+| Escala del puntaje | 🟢 **Una sola** (D6) | — |
 | Pesos ratificados | No | Kickoff |
-| Subsidio | El motor resta `subsidio_monto_mensual`, pero nadie lo llena | Tabla de subsidios, [017](../tasks/017-tabla-subsidios.md) |
+| Subsidio | El motor resta `subsidio_monto_mensual`, pero nadie lo llena. **El factor ya no dice "Aplica" con aporte 0 en silencio:** dice "Declarado … sin monto verificado todavía, así que NO baja la cuota estimada ni suma puntos" | Tabla de subsidios, [017](../tasks/017-tabla-subsidios.md) |
+| Regla fallida | 🟢 Se guarda **redactada** (`"Tope del 40% (Decreto 583 de 2025) — Cuota estimada $… = …% del ingreso"`), no con el nombre técnico del factor, que es lo que el asesor leía crudo en la ficha | — |
+| Trigger de nutrición | 🟢 Trae **el número que lo destraba**: a cuánto tiene que llegar el ingreso del hogar y cuánto le falta, derivado del gate — no una condición genérica | — |
 
 ## Diagrama
 
@@ -169,7 +164,7 @@ Leer el diagrama: **solo el rombo del 40% tiene poder de decisión.** Todo lo de
 ## Preguntas al TEAM
 
 1. **¿Ratificamos el 0,6% como estimador de la cuota?** (D2) Es el número del que depende todo el gate. ¿Alguien puede validarlo con un asesor financiero antes del domingo?
-2. **¿Cuál escala de puntaje es la canónica?** (D6) Es la decisión más urgente: hoy la pantalla muestra un número distinto al que calcula el motor.
+2. ~~**¿Cuál escala de puntaje es la canónica?**~~ (D6) **Ya no es pregunta: hay una sola desde el 2026-07-24.** No gastar reunión aquí.
 3. **¿Los pesos quedan como están?** (D4) Si alguien no está de acuerdo con la frase "la situación crediticia es lo que menos pesa porque nadie la verificó", hay que cambiarla.
 4. **¿Molesta que el techo del puntaje sea 90 (y 80 para no afiliados)?** (D5) ¿Se normaliza sobre lo evaluable, se declara en pantalla, o se deja así?
 5. **¿Adoptamos "propenso / no propenso"?** (D8) Son las palabras del mentor, pero chocan con "nadie se descarta".

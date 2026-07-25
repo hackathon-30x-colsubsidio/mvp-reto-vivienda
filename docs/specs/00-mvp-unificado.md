@@ -96,10 +96,11 @@ El diagrama describe el contrato. Esto es lo que falta para que exista de punta 
 | Tramo | Estado | Dónde |
 |---|---|---|
 | ② → ③ | 🟢 **Cerrado el 2026-07-24.** `/api/curar` encadena conversación → motor → matcher → DB, y guarda también el hilo de mensajes | [Ticket 006](../tasks/006-orquestador.md) |
-| ② | 🟢 **Cerrado el 2026-07-24.** El ingreso ya se obtiene como número (parseo del texto libre + punto medio del rango conocido) y la situación crediticia sale como enum. **Sigue faltando el monto del subsidio**, así que el subsidio aún no baja la cuota | [Spec 02](02-conversador.md), brechas 1-3 |
-| ④ | 🔴 El chat nunca ofrece franjas; los IDs de slots no coinciden con el catálogo real | [Ticket 005](../tasks/005-agendador.md) · [spec 04](04-match-agenda.md) D4 |
-| ⑤ → ② | 🔴 El botón de re-enganche redirige con parámetros que nadie lee | [Ticket 007](../tasks/007-reenganche-nutricion.md) |
-| ⑥ | ⚠️ Vive de fixtures + 57 leads sintéticos marcados como tales | Env vars de Supabase en Vercel |
+| ② | 🟢 **Cerrado el 2026-07-24.** El ingreso ya se obtiene como número (parseo del texto libre + punto medio del rango conocido) y la situación crediticia sale como enum. **Sigue faltando el monto del subsidio**, y ahora el factor lo DICE en vez de anunciar "Aplica" y aportar 0 | [Spec 02](02-conversador.md), brechas 1-3 |
+| ① | 🟢 **Cerrado el 2026-07-24.** El enriquecimiento resuelve las **303 identidades** (`/api/enriquecer`), no solo 3 cédulas fixture: el "soy yo" del jurado también puede ver el momento de "ya te conocemos" | [Ticket 003](../tasks/003-enriquecimiento-por-cedula.md) |
+| ④ | 🟢 **Cerrado el 2026-07-24.** El chat ofrece las 3 franjas del proyecto recomendado y persiste la elegida; `slots.json` se genera desde el catálogo real, así que los IDs no pueden desalinearse | [Ticket 005](../tasks/005-agendador.md) · [spec 04](04-match-agenda.md) D4/D6 |
+| ⑤ → ② | 🟢 **Cerrado el 2026-07-24.** El botón de re-enganche aterriza en la conversación, que retoma nombrando la razón original y pregunta solo lo que pudo cambiar | [Ticket 007](../tasks/007-reenganche-nutricion.md) |
+| ⑥ | ⚠️ Responde contra Supabase en producción. **Los 3 personajes hay que re-sembrarlos** (`db/seed.sql`) después de cualquier prueba: una conversación pisa la fila sembrada | [Auditoría](../agents/auditoria-2026-07-24.md) 🔴-1 |
 
 ## Los specs
 

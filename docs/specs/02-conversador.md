@@ -136,10 +136,10 @@ De las tres brechas de datos que rompían el motor, **dos se cerraron el 2026-07
 
 | Otras brechas | Hoy | Dónde |
 |---|---|---|
-| `afiliado_autoreportado` | El contrato de tipos dice que se pregunta si no hay match; **la pregunta no existe** | D3 nodo 4 |
+| `afiliado_autoreportado` | El contrato de tipos dice que se pregunta si no hay match; **la pregunta no existe** y el motor asume no afiliado | D3 nodo 4 — sigue siendo decisión del TEAM |
 | Cierre de la conversación | 🟢 **Cerrado el 2026-07-24.** Llama a [`/api/curar`](../../app/api/curar/route.ts): califica con el motor, matchea y persiste el lead **con su hilo completo** en Supabase | [Ticket 006](../tasks/006-orquestador.md) |
-| Oferta de franjas | El chat nunca la hace, aunque `/api/citas` funciona | [Ticket 005](../tasks/005-agendador.md) |
-| Re-enganche | El botón lleva a `/?lead_id=X&reenganche=1` y **nadie lee esos parámetros** | [Ticket 007](../tasks/007-reenganche-nutricion.md) |
+| Oferta de franjas | 🟢 **Cerrado el 2026-07-24.** Al cerrar, el chat ofrece 3 franjas de la sala de ventas del proyecto recomendado y persiste la elegida (`POST /api/citas`). Si fallan, lo dice y pasa a asesor humano — no finge una cita | [Ticket 005](../tasks/005-agendador.md) |
+| Re-enganche | 🟢 **Cerrado el 2026-07-24.** El chat lee `?lead_id=`, retoma nombrando la razón original y pregunta solo lo que pudo cambiar | [Ticket 007](../tasks/007-reenganche-nutricion.md) |
 
 ## Diagrama
 

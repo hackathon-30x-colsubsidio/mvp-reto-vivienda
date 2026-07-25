@@ -1,44 +1,64 @@
 import type { Lead } from "@/lib/types";
 import * as eventos from "./leads-evento";
 import * as perfiles from "./perfiles-conocidos";
+import { replayGuion, type ConversacionDemo, type GuionDemo } from "./guion-demo";
 
-export const afiliadoListo: Lead = {
-  evento: eventos.afiliadoListo,
-  perfil: perfiles.afiliadoListo,
-  respuestas: {
-    consentimiento: { otorgado: true, timestamp: "2026-07-23T14:32:10-05:00" },
-    // rango_ingreso_hogar no se pregunta: ya lo trajo el enriquecimiento (criterio de aceptación 1)
-    ingreso_hogar_mensual: 6_000_000, // usado por el motor de scoring (Track B) para el tope del 40%
-    tiene_vivienda: false,
-    subsidios: ["Mi Casa Ya"],
-    situacion_crediticia: "buena",
-    // zona_interes no se pregunta: la ciudad ya vino del enriquecimiento
+// Los 3 personajes con su conversación terminada.
+//
+// ⚠️ NO se escriben las respuestas: se escribe lo que la persona TECLEA, y el
+// guion se replaya contra el conversador real (ver guion-demo.ts). Así el
+// personaje sembrado y el mismo personaje conversado en vivo por el jurado
+// producen el mismo `Lead` — y por lo tanto el mismo puntaje en la ficha.
+//
+// Si cambias el set de preguntas en `lib/conversacion/preguntas.ts`, el replay
+// falla en voz alta diciendo qué pregunta quedó sin respuesta. Es a propósito.
+
+const GUION: Record<string, GuionDemo> = {
+  // Diana: afiliada y conocida. NO se le pregunta ni ingreso (sale del rango del
+  // enriquecimiento) ni ciudad → el criterio de aceptación 1, en vivo.
+  afiliadoListo: {
+    evento: eventos.afiliadoListo,
+    perfil: perfiles.afiliadoListo,
+    consentimientoTs: "2026-07-23T14:32:10-05:00",
+    respuestasTecleadas: ["Sería la primera", "Mi Casa Ya", "Estoy al día con todo"],
+  },
+
+  // Carlos: está en la base pero no es afiliado, así que de él solo se sabe la
+  // ciudad. A él SÍ se le pregunta cuánto entra al mes; la zona no.
+  noAfiliadoListo: {
+    evento: eventos.noAfiliadoListo,
+    perfil: perfiles.noAfiliadoListo,
+    consentimientoTs: "2026-07-23T15:05:41-05:00",
+    respuestasTecleadas: [
+      "No, sería la primera",
+      "2.850.000 entre mi esposa y yo",
+      "Ninguno todavía",
+      "Al día, nunca me he atrasado",
+    ],
+  },
+
+  // Yuliana: sin match. Se le pregunta todo, incluida la zona.
+  nutricion: {
+    evento: eventos.nutricion,
+    perfil: perfiles.nutricion,
+    consentimientoTs: "2026-07-23T16:20:03-05:00",
+    respuestasTecleadas: [
+      "No, vivo en arriendo",
+      "Entre 1 y 2 salarios mínimos",
+      "Ninguno",
+      "Tuve una mora hace poco",
+      "Bogotá, por el sur",
+    ],
   },
 };
 
-export const noAfiliadoListo: Lead = {
-  evento: eventos.noAfiliadoListo,
-  perfil: perfiles.noAfiliadoListo,
-  respuestas: {
-    consentimiento: { otorgado: true, timestamp: "2026-07-23T15:05:41-05:00" },
-    ingreso_hogar_mensual: 5_500_000,
-    tiene_vivienda: false,
-    subsidios: [],
-    situacion_crediticia: "buena",
-  },
+/** La conversación completa de cada personaje: el lead y el hilo que se persiste. */
+export const conversaciones: Record<string, ConversacionDemo> = {
+  afiliadoListo: replayGuion(GUION.afiliadoListo),
+  noAfiliadoListo: replayGuion(GUION.noAfiliadoListo),
+  nutricion: replayGuion(GUION.nutricion),
 };
 
-export const nutricion: Lead = {
-  evento: eventos.nutricion,
-  perfil: perfiles.nutricion,
-  respuestas: {
-    consentimiento: { otorgado: true, timestamp: "2026-07-23T16:20:03-05:00" },
-    // sin match de enriquecimiento: se pregunta todo el set del spec §6
-    rango_ingreso_hogar: "1-2 SMMLV",
-    ingreso_hogar_mensual: 1_800_000,
-    tiene_vivienda: false,
-    subsidios: [],
-    situacion_crediticia: "mala",
-    zona_interes: "Bogotá",
-  },
-};
+export const afiliadoListo: Lead = conversaciones.afiliadoListo.lead;
+export const noAfiliadoListo: Lead = conversaciones.noAfiliadoListo.lead;
+export const nutricion: Lead = conversaciones.nutricion.lead;

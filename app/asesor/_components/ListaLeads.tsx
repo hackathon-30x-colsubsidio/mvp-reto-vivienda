@@ -12,48 +12,56 @@ import { FilaLead } from "./FilaLead";
 // /asesor/[leadId] (con la ficha al lado). Por eso recibe `seleccionado`
 // en vez de leerlo: un layout no puede ver los params de sus hijos.
 //
-// ⚠️ SON DOS SECCIONES, NO TRES, y es una decisión cerrada
-//    ([spec 06](docs/specs/06-dashboard-asesor.md), Mani 2026-07-24).
-//    `listo` y `listo_restriccion_cupo` comparten sección porque
-//    separarlas ponía al no afiliado SIEMPRE debajo del afiliado: uno
-//    con 71 puntos aparecía bajo uno con 42, o sea que la afiliación
-//    decidía a quién llamar primero. El mentor lo puso al revés
-//    —*"siempre va a ser la prioridad de los ingresos"*— así que dentro
-//    del grupo manda el puntaje y la afiliación solo desempata (0,05 en
-//    lib/scoring/config.ts). La píldora de cada fila sigue diciendo
-//    quién trae restricción de cupo: se distingue sin re-ordenar.
+// ⚠️ SON DOS GRUPOS, NO TRES (spec 06 D7, CERRADA — Mani 2026-07-24).
+//    `listo` y `listo_restriccion_cupo` comparten sección y adentro manda
+//    el PUNTAJE. Antes eran dos secciones con el no afiliado siempre
+//    debajo, así que uno con 71 puntos aparecía bajo un afiliado con 42:
+//    la afiliación decidía a quién llamar primero. El mentor lo puso al
+//    revés —*"siempre va a ser la prioridad de los ingresos"*—, y la
+//    afiliación quedó como desempate (0,05 en lib/scoring/config.ts).
+//    La distinción del cupo 90/10 no se pierde: viaja en la píldora de
+//    cada fila, que es donde el asesor la necesita.
 //
-//    Nutrición sigue aparte, y eso NO es por afiliación: es que todavía
-//    no puede comprar. Se ve con su conteo aunque el asesor nunca la
-//    abra, que es lo que hace legible "nadie se descarta".
+//    `ordenarCola` (lib/types-asesor.ts) ya ordena así; esta pantalla lo
+//    deshacía al re-partir por estado.
 //
-// Los subtítulos largos de cada grupo se mudaron al panel derecho de
+//    Nutrición va aparte, y eso NO es por afiliación: es que todavía no
+//    puede comprar. Se ve con su conteo aunque el asesor nunca la abra,
+//    que es lo que hace legible "nadie se descarta".
+//
+// Los subtítulos largos viven aquí pero los pinta el panel derecho de
 // /asesor: en una columna de 380px se comían la lista entera, y ahí es
 // justo donde el jurado aterriza primero.
 // =====================================================================
 
-/** Las secciones de la bandeja. El orden es el orden en que se pintan. */
-const SECCIONES = [
-  { clave: "puede_comprar", salidas: ["listo", "listo_restriccion_cupo"] },
-  { clave: "nutricion", salidas: ["nutricion"] },
-] as const satisfies ReadonlyArray<{
+/**
+ * Los grupos de la bandeja. Fuente única: la lista los usa para repartir
+ * y el panel derecho de `/asesor` para explicarlos.
+ */
+export const GRUPOS: {
   clave: string;
-  salidas: ReadonlyArray<EstadoLead>;
-}>;
-
-type ClaveSeccion = (typeof SECCIONES)[number]["clave"];
-
-export const TITULO_GRUPO: Record<ClaveSeccion, string> = {
-  puede_comprar: "Puede comprar ahora",
-  nutricion: "En nutrición — todavía no pueden comprar",
-};
-
-export const SUBTITULO_GRUPO: Record<ClaveSeccion, string> = {
-  puede_comprar:
-    "Pasaron el corte, ordenados por puntaje. Los que traen restricción de cupo 90/10 van marcados: hay que validar cupo antes de prometer, pero no por eso se llaman después.",
-  nutricion:
-    "Nadie se descarta. Cada uno tiene la regla exacta que no pasó y el trigger que lo volvería viable.",
-};
+  estados: EstadoLead[];
+  titulo: string;
+  subtitulo: string;
+  vacio: string;
+}[] = [
+  {
+    clave: "puede-comprar",
+    estados: ["listo", "listo_restriccion_cupo"],
+    titulo: "Pueden comprar hoy",
+    subtitulo:
+      "Pasaron el corte del 40% (Decreto 583 de 2025), ordenados por puntaje: arriba quien está más cerca de cerrar. A los que no son afiliados la píldora les marca el cupo 90/10, que el asesor valida antes de separar.",
+    vacio: "Nadie pasó el corte por ahora.",
+  },
+  {
+    clave: "nutricion",
+    estados: ["nutricion"],
+    titulo: "Todavía no pueden comprar",
+    subtitulo:
+      "Nadie se descarta. Cada uno tiene la regla exacta que no pasó y el trigger que lo volvería viable. Van de últimos porque llamarlos hoy no cierra nada — no por su afiliación.",
+    vacio: "Nadie en nutrición por ahora.",
+  },
+];
 
 const TODOS = "todos";
 
@@ -86,17 +94,15 @@ export function ListaLeads({
     return coincideEstado && coincideNombre;
   });
 
-  const grupos = SECCIONES
-    // Si el asesor filtró por una salida, la otra sección no aporta:
-    // sería una cabecera con "nadie aquí" debajo.
-    .filter((s) => estado === TODOS || (s.salidas as readonly string[]).includes(estado))
-    .map((s) => ({
-      clave: s.clave,
+  const grupos = GRUPOS
+    // Si el asesor filtró por una salida, el otro grupo no aporta: sería
+    // una cabecera con "nadie aquí" debajo.
+    .filter((g) => estado === TODOS || g.estados.includes(estado as EstadoLead))
+    .map((g) => ({
+      ...g,
       // `ordenarCola` ya dejó el arreglo en el orden que manda el spec
       // (puntaje dentro del grupo); aquí solo se reparte, no se re-ordena.
-      items: visibles.filter((l) =>
-        (s.salidas as readonly string[]).includes(l.curado.score.salida),
-      ),
+      items: visibles.filter((l) => g.estados.includes(l.curado.score.salida)),
     }));
 
   const hayFiltro = aguja !== "" || estado !== TODOS;
@@ -153,10 +159,10 @@ export function ListaLeads({
       </form>
 
       <div className="min-h-0 flex-1 lg:overflow-y-auto">
-        {grupos.map(({ clave, items }) => (
+        {grupos.map(({ clave, titulo, vacio, items }) => (
           <section key={clave}>
             <h2 className="border-borde bg-surface-sunken text-texto-suave sticky top-0 border-b px-4 py-2 text-[13px] font-bold">
-              {TITULO_GRUPO[clave]}{" "}
+              {titulo}{" "}
               <span className="cifra text-texto-tenue font-normal">
                 ({items.length})
               </span>
@@ -164,7 +170,7 @@ export function ListaLeads({
 
             {items.length === 0 ? (
               <p className="text-texto-tenue px-4 py-6 text-center text-[13px]">
-                Nadie en este grupo por ahora.
+                {vacio}
               </p>
             ) : (
               <div className="divide-borde divide-y">

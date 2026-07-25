@@ -1,47 +1,205 @@
 {
-  "_nota": "Catálogo de franjas simuladas de sala de ventas (ticket 005). NO es data real de Colsubsidio: son horarios inventados. Vive como JSON y no en Supabase porque no muta (regla del ADR 0002: a la DB solo va lo que muta). Solo la franja ELEGIDA se persiste en la tabla citas. Fuera de alcance por el ticket 005: disponibilidad real, conflictos y cancelación — un slot elegido no se bloquea para otros.",
-  "_duenos": "A ofrece estas franjas al final de la conversación del lead listo; D persiste la elegida (POST /api/citas) y la muestra en la ficha.",
-  "_ids": "Los proyecto_id son los MISMOS de lib/fixtures/proyectos-recomendados.ts (ticket 001). Si cambian allá, cambian aquí: un id que no cuadre deja al chat sin franjas que ofrecer.",
-  "_citas_sembradas": "Las franjas que ya usan los personajes en lib/fixtures/leads-curados.ts están en esta lista a propósito: 2026-07-25T10:00 en Sala Bogotá Centro (Diana) y 2026-07-25T16:00 en Sala Medellín Poblado (Carlos).",
+  "_nota": "Catálogo de franjas simuladas de sala de ventas (ticket 005). NO es data real de Colsubsidio: los horarios son inventados y el reto excluye la integración de calendario (spec §2). Lo que sí es real es el proyecto y su ciudad: salen de data/sintetica/proyectos.json.",
+  "_generado": "ARCHIVO GENERADO — no editar a mano. Se regenera con `npx tsx scripts/generar-slots.ts` a partir de data/sintetica/proyectos.json.",
+  "_ids": "Un sala por proyecto del catálogo real, con su MISMO proyecto_id (slug). Antes eran ids inventados que no existían en el catálogo, y el chat recibía listas vacías sin que nada fallara.",
+  "_duenos": "El chat ofrece estas franjas al cerrar la conversación de un lead listo (GET /api/citas) y persiste la elegida (POST /api/citas). Fuera de alcance del ticket 005: disponibilidad real, conflictos y cancelación — un slot elegido no se bloquea para otros.",
   "salas": [
     {
-      "sala_ventas": "Sala Bogotá Centro",
-      "proyecto_id": "p-07",
-      "proyecto": "Torres de Bellavista",
+      "proyecto_id": "abeto",
+      "proyecto": "ABETO",
+      "ciudad": "Bogotá",
+      "sala_ventas": "Sala de ventas ABETO",
       "franjas": [
-        "2026-07-25T10:00:00-05:00",
-        "2026-07-25T14:00:00-05:00",
-        "2026-07-26T10:00:00-05:00"
+        "2026-07-27T09:00:00-05:00",
+        "2026-07-28T11:00:00-05:00",
+        "2026-07-29T15:00:00-05:00"
       ]
     },
     {
-      "sala_ventas": "Sala Bogotá Norte",
-      "proyecto_id": "p-12",
-      "proyecto": "Reserva de los Cerros",
+      "proyecto_id": "araucaria",
+      "proyecto": "ARAUCARIA",
+      "ciudad": "Bogotá",
+      "sala_ventas": "Sala de ventas ARAUCARIA",
       "franjas": [
-        "2026-07-25T09:00:00-05:00",
-        "2026-07-25T15:00:00-05:00",
-        "2026-07-26T11:00:00-05:00"
+        "2026-07-27T11:00:00-05:00",
+        "2026-07-28T15:00:00-05:00",
+        "2026-07-29T09:00:00-05:00"
       ]
     },
     {
-      "sala_ventas": "Sala Medellín Poblado",
-      "proyecto_id": "p-03",
-      "proyecto": "Reserva del Poblado",
+      "proyecto_id": "bosque-de-arrayan",
+      "proyecto": "BOSQUE DE ARRAYÁN",
+      "ciudad": "Tocancipá",
+      "sala_ventas": "Sala de ventas BOSQUE DE ARRAYÁN",
       "franjas": [
-        "2026-07-25T11:00:00-05:00",
-        "2026-07-25T16:00:00-05:00",
-        "2026-07-26T09:00:00-05:00"
+        "2026-07-27T15:00:00-05:00",
+        "2026-07-28T09:00:00-05:00",
+        "2026-07-29T11:00:00-05:00"
       ]
     },
     {
-      "sala_ventas": "Sala Medellín Las Palmas",
-      "proyecto_id": "p-09",
-      "proyecto": "Alto de las Palmas",
+      "proyecto_id": "bosque-de-turpial",
+      "proyecto": "BOSQUE DE TURPIAL",
+      "ciudad": "Tocancipá",
+      "sala_ventas": "Sala de ventas BOSQUE DE TURPIAL",
       "franjas": [
-        "2026-07-25T10:30:00-05:00",
-        "2026-07-25T17:00:00-05:00",
-        "2026-07-26T14:00:00-05:00"
+        "2026-07-27T09:00:00-05:00",
+        "2026-07-28T11:00:00-05:00",
+        "2026-07-29T15:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "inari",
+      "proyecto": "INARI",
+      "ciudad": "Chía",
+      "sala_ventas": "Sala de ventas INARI",
+      "franjas": [
+        "2026-07-27T11:00:00-05:00",
+        "2026-07-28T15:00:00-05:00",
+        "2026-07-29T09:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "karakali",
+      "proyecto": "KARAKALI",
+      "ciudad": "Ricaurte o Bogotá (ubicación contradictoria entre hojas, sin confirmar)",
+      "sala_ventas": "Sala de ventas KARAKALI",
+      "franjas": [
+        "2026-07-27T15:00:00-05:00",
+        "2026-07-28T09:00:00-05:00",
+        "2026-07-29T11:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "la-arboleda",
+      "proyecto": "LA ARBOLEDA",
+      "ciudad": "Bogotá",
+      "sala_ventas": "Sala de ventas LA ARBOLEDA",
+      "franjas": [
+        "2026-07-27T09:00:00-05:00",
+        "2026-07-28T11:00:00-05:00",
+        "2026-07-29T15:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "la-macarena",
+      "proyecto": "LA MACARENA",
+      "ciudad": "Bogotá",
+      "sala_ventas": "Sala de ventas LA MACARENA",
+      "franjas": [
+        "2026-07-27T11:00:00-05:00",
+        "2026-07-28T15:00:00-05:00",
+        "2026-07-29T09:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "los-nogales",
+      "proyecto": "LOS NOGALES",
+      "ciudad": "Bogotá",
+      "sala_ventas": "Sala de ventas LOS NOGALES",
+      "franjas": [
+        "2026-07-27T15:00:00-05:00",
+        "2026-07-28T09:00:00-05:00",
+        "2026-07-29T11:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "mongui",
+      "proyecto": "MONGUI",
+      "ciudad": "Bogotá",
+      "sala_ventas": "Sala de ventas MONGUI",
+      "franjas": [
+        "2026-07-27T09:00:00-05:00",
+        "2026-07-28T11:00:00-05:00",
+        "2026-07-29T15:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "pamplona",
+      "proyecto": "PAMPLONA",
+      "ciudad": "Bogotá",
+      "sala_ventas": "Sala de ventas PAMPLONA",
+      "franjas": [
+        "2026-07-27T11:00:00-05:00",
+        "2026-07-28T15:00:00-05:00",
+        "2026-07-29T09:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "payande",
+      "proyecto": "PAYANDÉ",
+      "ciudad": "Ricaurte",
+      "sala_ventas": "Sala de ventas PAYANDÉ",
+      "franjas": [
+        "2026-07-27T15:00:00-05:00",
+        "2026-07-28T09:00:00-05:00",
+        "2026-07-29T11:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "reserva-de-aguayacan",
+      "proyecto": "RESERVA DE AGUAYACÁN",
+      "ciudad": "Girardot",
+      "sala_ventas": "Sala de ventas RESERVA DE AGUAYACÁN",
+      "franjas": [
+        "2026-07-27T09:00:00-05:00",
+        "2026-07-28T11:00:00-05:00",
+        "2026-07-29T15:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "saman",
+      "proyecto": "SAMÁN",
+      "ciudad": "Ricaurte",
+      "sala_ventas": "Sala de ventas SAMÁN",
+      "franjas": [
+        "2026-07-27T11:00:00-05:00",
+        "2026-07-28T15:00:00-05:00",
+        "2026-07-29T09:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "verde-esperanza",
+      "proyecto": "VERDE ESPERANZA",
+      "ciudad": "Ubaté",
+      "sala_ventas": "Sala de ventas VERDE ESPERANZA",
+      "franjas": [
+        "2026-07-27T15:00:00-05:00",
+        "2026-07-28T09:00:00-05:00",
+        "2026-07-29T11:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "versalles",
+      "proyecto": "VERSALLES",
+      "ciudad": "Bogotá",
+      "sala_ventas": "Sala de ventas VERSALLES",
+      "franjas": [
+        "2026-07-27T09:00:00-05:00",
+        "2026-07-28T11:00:00-05:00",
+        "2026-07-29T15:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "vibo-once",
+      "proyecto": "VIBO ONCE",
+      "ciudad": "Ricaurte o Bogotá (ubicación contradictoria entre hojas, sin confirmar)",
+      "sala_ventas": "Sala de ventas VIBO ONCE",
+      "franjas": [
+        "2026-07-27T11:00:00-05:00",
+        "2026-07-28T15:00:00-05:00",
+        "2026-07-29T09:00:00-05:00"
+      ]
+    },
+    {
+      "proyecto_id": "zarzal",
+      "proyecto": "ZARZAL",
+      "ciudad": "Bogotá",
+      "sala_ventas": "Sala de ventas ZARZAL",
+      "franjas": [
+        "2026-07-27T15:00:00-05:00",
+        "2026-07-28T09:00:00-05:00",
+        "2026-07-29T11:00:00-05:00"
       ]
     }
   ]

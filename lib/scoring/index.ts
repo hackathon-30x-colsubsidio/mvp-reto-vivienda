@@ -101,10 +101,16 @@ function factorSubsidio(lead: Lead, proyecto: ProyectoCatalogo): FactorScore {
   const cobertura = cuotaBruta > 0 ? clamp01(monto / cuotaBruta) : aplica ? 0.5 : 0;
   const peso = CONFIG_SCORING.PESOS.subsidio;
 
+  // ⚠️ Mientras nadie pregunte el MONTO del subsidio (brecha 2 del spec 02,
+  // ticket 017), la cobertura es 0 y el factor no puede bajar la cuota. Eso se
+  // DICE en el propio valor: un factor que anuncia "Aplica" y aporta 0 puntos
+  // sin explicar por qué es exactamente la caja negra que AGENTS.md prohíbe.
   return {
     nombre: "subsidio_aplicable",
     valor: aplica
-      ? `Aplica: ${subsidios.length ? subsidios.join(", ") : "subsidio declarado"}${monto ? ` (baja la cuota ~$${monto.toLocaleString("es-CO")}/mes)` : ""}`
+      ? monto > 0
+        ? `Aplica: ${subsidios.join(", ")} — baja la cuota ~$${monto.toLocaleString("es-CO")}/mes`
+        : `Declarado: ${subsidios.length ? subsidios.join(", ") : "subsidio por confirmar"} — sin monto verificado todavía, así que NO baja la cuota estimada ni suma puntos. El asesor lo valida y postula.`
       : "Sin subsidio declarado",
     cumple: aplica,
     fuente: "conversacion",
@@ -147,7 +153,10 @@ function factorSituacionCrediticia(lead: Lead): FactorScore {
 
 function factorSimilitudCompradores(proyecto: ProyectoCatalogo): FactorScore {
   const { total } = proyecto.cupo_no_afiliados;
-  // total = 10% del volumen histórico del proyecto (proxy de "cuántos compradores tiene").
+  // `total` es el 10% del volumen histórico del proyecto, así que ×10 devuelve
+  // ese volumen. NO es un dato del Excel leído directo: es una derivación, y por
+  // eso el texto la declara. Una cifra que parece dato y es una multiplicación
+  // sin decirlo es caja negra aunque el número esté bien.
   const nAproximado = total * 10;
   // Señal PROVISIONAL: la similitud real (perfil del lead vs. distribución del
   // proyecto) llega con las distribuciones por proyecto (ticket 016). Hasta
@@ -158,7 +167,7 @@ function factorSimilitudCompradores(proyecto: ProyectoCatalogo): FactorScore {
     nombre: "similitud_compradores_reales",
     valor:
       nAproximado > 0
-        ? `~${nAproximado} compradores históricos en ${proyecto.nombre} — evidencia de respaldo (similitud por perfil llega con ticket 016)`
+        ? `${proyecto.nombre} tiene ~${nAproximado.toLocaleString("es-CO")} compradores históricos (derivado: el cupo 90/10 del proyecto ×10). Señal neutra 0,5 para todos: la similitud por perfil todavía no se calcula (ticket 016), así que este factor hoy no diferencia leads`
         : "Sin histórico de compradores para este proyecto",
     cumple: true, // nunca bloquea (spec §4)
     fuente: "historico",
@@ -213,6 +222,41 @@ function factorCupo90_10(proyecto: ProyectoCatalogo, afiliado: boolean): FactorS
   };
 }
 
+/**
+ * El trigger de recontacto, derivado del dato del lead — nunca genérico.
+ *
+ * `spec.md §7` cerró el trigger como **híbrido**: lleva fecha solo si la regla
+ * fallida es temporal y la fecha se deriva de un dato que el lead ya dio. El
+ * gate del 40% no es temporal, así que aquí va la **condición exacta**, con el
+ * número que la destraba: cuánto ingreso hace que esta misma cuota quepa. Ese
+ * número no se inventa — es el gate despejado (cuota / 40%), la misma
+ * aritmética de `capacidad.ts`.
+ */
+function triggerDelGate(lead: Lead, proyecto: ProyectoCatalogo): string {
+  const ingreso = lead.respuestas.ingreso_hogar_mensual;
+  const precio = proyecto.precio_desde;
+
+  if (!ingreso || !precio) {
+    return "Falta el ingreso del hogar para poder evaluar el tope del 40% (Decreto 583 de 2025). Vuelve a calificar apenas lo declare: con ese dato el motor resuelve en el acto.";
+  }
+
+  const cuotaNeta = Math.max(
+    0,
+    precio * CONFIG_SCORING.PORCENTAJE_PRIMERA_CUOTA_ESTIMADA -
+      (lead.respuestas.subsidio_monto_mensual ?? 0),
+  );
+  const ingresoNecesario = Math.ceil(cuotaNeta / CONFIG_SCORING.TOPE_CUOTA_SOBRE_INGRESO);
+  const falta = Math.max(0, ingresoNecesario - ingreso);
+  const pesos = (n: number) => `$${n.toLocaleString("es-CO")}`;
+
+  return (
+    `Con el ingreso declarado (${pesos(ingreso)}) la cuota de ${proyecto.nombre} no cabe bajo el 40%. ` +
+    `Se recontacta si pasa cualquiera de estas tres: (1) el ingreso del hogar llega a ${pesos(ingresoNecesario)} ` +
+    `—le faltan ${pesos(falta)}—, (2) aplica a un subsidio que baje la cuota mensual, o ` +
+    `(3) entra al catálogo un proyecto que sí le quepa.`
+  );
+}
+
 export function calcularScore(lead: Lead, proyecto: ProyectoCatalogo): Score {
   const afiliado = afiliadoEfectivo(lead);
 
@@ -235,9 +279,11 @@ export function calcularScore(lead: Lead, proyecto: ProyectoCatalogo): Score {
       salida: "nutricion",
       puntaje: 0, // no entra a la cola priorizada: primero tiene que pasar el gate
       factores,
-      regla_fallida: factorCuota.nombre,
-      trigger_nutricion:
-        "La primera cuota estimada supera el 40% del ingreso del hogar declarado. Vuelve a calificar si: sube el ingreso declarado, aplica un subsidio que baje la cuota, o cambia a un proyecto de menor precio.",
+      // La regla que falló se guarda REDACTADA, no con su nombre técnico: es lo
+      // que el asesor lee bajo "la regla que no pasó" en la ficha. `valor` ya
+      // trae la cuota, el porcentaje, el ingreso y la norma citada.
+      regla_fallida: `Tope del 40% (Decreto 583 de 2025) — ${factorCuota.valor}`,
+      trigger_nutricion: triggerDelGate(lead, proyecto),
     };
   }
 

@@ -57,3 +57,24 @@ export const NOMBRE_FUENTE: Record<string, string> = {
   google: "Google Ads",
   web: "Formulario web",
 };
+
+/**
+ * `situacion_crediticia` viaja como enum entre el conversador y el motor, y el
+ * enum NO se le enseña a nadie: "sin_info" en una pantalla se lee como un error
+ * del sistema. Vive aquí, y no en un componente, porque lo usan las dos caras —
+ * el sello del lead al cerrar el chat y la ficha del asesor— y con dos copias
+ * una se queda vieja.
+ *
+ * Ninguna etiqueta suena a veredicto: no se califica a la persona, se refleja
+ * lo que dijo.
+ */
+export const ETIQUETA_CREDITICIA: Record<string, string> = {
+  buena: "Al día",
+  regular: "En proceso de arreglo",
+  mala: "Con algo pendiente",
+  sin_info: "Por confirmar",
+};
+
+export function etiquetaCrediticia(valor: string): string {
+  return ETIQUETA_CREDITICIA[valor] ?? valor;
+}

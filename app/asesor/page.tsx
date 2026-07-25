@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { listarCola } from "@/lib/leads-repo";
-import type { EstadoLead } from "@/lib/types-asesor";
 import { Tarjeta } from "@/components/ui/Tarjeta";
 import { Pildora } from "@/components/ui/Pildora";
 import { AvisoOrigen } from "./_components/AvisoOrigen";
-import { ListaLeads, TITULO_GRUPO, SUBTITULO_GRUPO } from "./_components/ListaLeads";
+import { ListaLeads, GRUPOS } from "./_components/ListaLeads";
 
 export const metadata: Metadata = {
   title: "Bandeja del asesor · Colsubsidio Vivienda",
@@ -12,17 +11,6 @@ export const metadata: Metadata = {
 
 // La cola cambia cuando el asesor dispara un trigger: no se cachea.
 export const dynamic = "force-dynamic";
-
-// El mapa que usa el panel derecho para explicar las secciones. Vive
-// aquí y no en ListaLeads porque es material de la pantalla de entrada;
-// los títulos y subtítulos sí salen de allá, que es la fuente.
-const SECCIONES_EXPLICADAS = [
-  {
-    clave: "puede_comprar" as const,
-    salidas: ["listo", "listo_restriccion_cupo"] as EstadoLead[],
-  },
-  { clave: "nutricion" as const, salidas: ["nutricion"] as EstadoLead[] },
-];
 
 interface Props {
   searchParams: Promise<{ q?: string; estado?: string }>;
@@ -32,16 +20,14 @@ export default async function BandejaAsesorPage({ searchParams }: Props) {
   const { leads, origen } = await listarCola();
   const { q, estado } = await searchParams;
 
-  const conteo = (e: EstadoLead) =>
-    leads.filter((l) => l.curado.score.salida === e).length;
-
   return (
     <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
       <ListaLeads leads={leads} busqueda={q} estado={estado} />
 
       {/* El panel derecho antes de elegir a nadie. No es un placeholder:
           es donde el jurado, que recorre esto solo y sin narración,
-          entiende qué son las tres secciones de la izquierda. */}
+          entiende qué son las secciones de la izquierda. Los grupos
+          salen de GRUPOS, la misma fuente que pinta la lista. */}
       <main className="min-h-0 flex-1 px-6 py-8 lg:overflow-y-auto lg:px-10">
         <div className="mx-auto max-w-[68ch]">
           <h1 className="text-texto text-[38px] leading-tight font-extrabold tracking-[-0.02em]">
@@ -62,29 +48,34 @@ export default async function BandejaAsesorPage({ searchParams }: Props) {
             <AvisoOrigen origen={origen} />
           </div>
 
-          {/* Las dos secciones de la bandeja, explicadas. Son DOS y no
-              tres a propósito: ver el encabezado de ListaLeads. Las
-              píldoras van juntas en la de "puede comprar" porque ahí
-              conviven las dos salidas. */}
           <div className="mt-6 space-y-3">
-            {SECCIONES_EXPLICADAS.map(({ clave, salidas }) => (
-              <Tarjeta key={clave} className="p-5">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  {salidas.map((e) => (
-                    <Pildora key={e} estado={e} />
-                  ))}
-                  <h2 className="text-texto text-[16px] font-bold">
-                    {TITULO_GRUPO[clave]}
-                  </h2>
-                  <span className="cifra text-texto-tenue ml-auto text-[15px]">
-                    {salidas.reduce((n, e) => n + conteo(e), 0)}
-                  </span>
-                </div>
-                <p className="text-texto-suave mt-2 text-[15px] leading-normal">
-                  {SUBTITULO_GRUPO[clave]}
-                </p>
-              </Tarjeta>
-            ))}
+            {GRUPOS.map((grupo) => {
+              const n = leads.filter((l) =>
+                grupo.estados.includes(l.curado.score.salida),
+              ).length;
+
+              return (
+                <Tarjeta key={grupo.clave} className="p-5">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                    {/* Las dos píldoras juntas en "pueden comprar hoy":
+                        ahí conviven las dos salidas, y verlas lado a lado
+                        es lo que explica que compartan sección. */}
+                    {grupo.estados.map((e) => (
+                      <Pildora key={e} estado={e} />
+                    ))}
+                    <h2 className="text-texto text-[16px] font-bold">
+                      {grupo.titulo}
+                    </h2>
+                    <span className="cifra text-texto-tenue ml-auto text-[15px]">
+                      {n}
+                    </span>
+                  </div>
+                  <p className="text-texto-suave mt-2 text-[15px] leading-normal">
+                    {grupo.subtitulo}
+                  </p>
+                </Tarjeta>
+              );
+            })}
           </div>
         </div>
       </main>

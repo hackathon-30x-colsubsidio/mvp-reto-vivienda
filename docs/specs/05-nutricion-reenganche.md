@@ -67,7 +67,14 @@ Cuando el trigger se dispara, el lead vuelve a conversar. Contrato propuesto:
 - Solo se pregunta lo que **cambió**.
 - Se vuelve a calificar. Puede salir listo, o puede volver a nutrición con otra razón — y eso está bien.
 
-**Brecha:** el botón del asesor marca `re_enganchado_en`, deja una fila de sistema con el trigger exacto, y redirige a `/?lead_id=X&reenganche=1`. **Nadie lee esos parámetros** ([`app/page.tsx`](../../app/page.tsx) no usa `useSearchParams`), así que el clic aterriza en el landing como si fuera un lead nuevo. El criterio de aceptación 3 **no está verificado end-to-end** por esto ([ticket 007](../tasks/007-reenganche-nutricion.md)).
+**[HOY — cerrado el 2026-07-24, ticket 007]** Los cuatro puntos de arriba están construidos. El botón del asesor marca `re_enganchado_en`, deja la fila de sistema con el trigger exacto y redirige a `/?lead_id=X&reenganche=1`; **[`app/page.tsx`](../../app/page.tsx) ahora sí lee esos parámetros**, trae el lead con `GET /api/leads/:id` y abre la conversación en modo re-enganche:
+
+- el primer mensaje **nombra la razón original** y dice explícitamente que no le harán repetir nada;
+- **no se vuelve a pedir el consentimiento** — ya lo dio, y es justo lo que permite escribirle (nunca contacto frío);
+- se pregunta **solo el ingreso**, que es lo único que pudo cambiar (`preguntasDeReenganche`);
+- al cerrar vuelve a pasar por el motor, y puede salir listo o volver a nutrición con su nueva razón.
+
+El criterio de aceptación 3 quedó verificado de punta a punta en [`ChatWhatsApp.test.tsx`](../../components/chat/ChatWhatsApp.test.tsx), que antes no existía.
 
 ### D5 · El re-enganche no es un cuarto estado · [CERRADA — ADR 0003]
 
@@ -83,10 +90,10 @@ Alternativa que alguien podría querer: un proceso que revise periódicamente. *
 
 | Qué | Hoy | Brecha |
 |---|---|---|
-| Razón + trigger | Se emiten y se muestran; Postgres rechaza un lead de nutrición sin ellos | Solo existe la razón #1 (D1) |
-| Trigger híbrido | Solo la redacción condicional del 40% | La rama con fecha no está implementada |
+| Razón + trigger | Se emiten y se muestran; Postgres rechaza un lead de nutrición sin ellos. La razón va **redactada** (con la norma citada) y el trigger trae **el monto exacto** que la destraba, derivado del gate | Solo existe la razón #1 (D1) |
+| Trigger híbrido | La rama condicional, con su número. La rama **con fecha** sigue sin implementarse (hoy ninguna regla fallida es temporal) | Aparece con la antigüedad de afiliación |
 | Marca de re-enganche | `PATCH /api/leads/[id]` funciona y persiste | — |
-| Retomar la conversación | 🔴 El chat no lee `?lead_id=` | [Ticket 007](../tasks/007-reenganche-nutricion.md) — criterio 3 sin verificar |
+| Retomar la conversación | 🟢 **Cerrado el 2026-07-24** (D4) | — |
 | Fugas como razón | No se registran | D1 razones 4-6 |
 
 ## Diagrama

@@ -10,22 +10,44 @@ import type {
 } from "@/lib/types";
 import {
   NOMBRE_AGENTE,
+  completarIngreso,
   construirPreguntas,
-  ingresoDesdeRango,
   mensajeAutorizacion,
   mensajeCierre,
+  mensajeConsentimiento,
+  mensajeIngesta,
   mensajeSaludo,
+  mensajeReenganche,
   mensajeSinAutorizacion,
   mensajeYaSabemos,
+  preguntasDeReenganche,
+  RESPUESTA_CONSENTIMIENTO,
   type PasoPregunta,
   type Respuesta,
 } from "@/lib/conversacion/preguntas";
+import { fechaLarga } from "@/lib/formato";
 import { MensajeBurbuja, type Mensaje } from "./MensajeBurbuja";
 import { SelloPerfil } from "./SelloPerfil";
 import { BotonTema } from "@/components/ui/BotonTema";
 import { IsotipoAzul, IsotipoBlanco, LockupBlanco } from "@/components/ui/Marca";
 
-type Fase = "consentimiento" | "pregunta" | "terminado" | "rechazado";
+// "cerrando" es el rato en que el motor califica y se decide si hay cita que
+// ofrecer: no se pinta el sello todavía, porque la conversación no acabó.
+type Fase =
+  | "consentimiento"
+  | "pregunta"
+  | "cerrando"
+  | "agenda"
+  | "terminado"
+  | "rechazado";
+
+/** Una franja de sala de ventas, tal como la sirve `GET /api/citas`. */
+interface Franja {
+  sala_ventas: string;
+  proyecto_id: string;
+  proyecto: string;
+  fecha: string;
+}
 
 function horaActual(): string {
   return new Date().toLocaleTimeString("es-CO", {
@@ -42,21 +64,30 @@ function nuevoId(): string {
 
 const pausa = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** Cómo se lee la fuente en el hilo guardado. La ficha del asesor la muestra. */
-const ETIQUETA_FUENTE: Record<string, string> = {
-  meta: "Meta Lead Ads",
-  google: "Google Ads",
-  web: "la web de Colsubsidio",
-};
+/**
+ * Lo que trae un lead que vuelve porque se le disparó el trigger de nutrición
+ * (criterio de aceptación 3, ticket 007). Si viene, la conversación NO arranca
+ * de cero: retoma.
+ */
+export interface Reenganche {
+  /** Lo que ya contó la primera vez. No se le vuelve a preguntar. */
+  respuestasPrevias: Lead["respuestas"];
+  /** La regla que no pasó, para nombrarla en el primer mensaje. */
+  reglaFallida?: string;
+  /** El trigger que se disparó. Queda en el hilo como fila de sistema. */
+  trigger?: string;
+}
 
 export function ChatWhatsApp({
   evento,
   perfil,
+  reenganche,
   onTerminar,
   onVolver,
 }: {
   evento: LeadEvento;
   perfil: PerfilConocido;
+  reenganche?: Reenganche;
   /**
    * Cierra el flujo: manda el `Lead` y el hilo completo a `/api/curar`, que
    * califica y persiste. Devuelve el veredicto para que el chat pueda decir
@@ -65,13 +96,21 @@ export function ChatWhatsApp({
   onTerminar: (lead: Lead, transcripcion: MensajeConversacion[]) => Promise<ResultadoCurado>;
   onVolver: () => void;
 }) {
-  const [pasos] = useState<PasoPregunta[]>(() => construirPreguntas(perfil));
+  // Al re-enganchar solo se pregunta lo que pudo cambiar: el resto ya lo contó
+  // y repreguntarlo rompería el criterio 1 en el peor momento (spec 05 D4).
+  const [pasos] = useState<PasoPregunta[]>(() =>
+    reenganche ? preguntasDeReenganche() : construirPreguntas(perfil),
+  );
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
-  const [fase, setFase] = useState<Fase>("consentimiento");
+  // El que vuelve ya autorizó sus datos la primera vez: no se le vuelve a pedir
+  // (y por eso se le puede escribir — nunca contacto frío).
+  const [fase, setFase] = useState<Fase>(reenganche ? "pregunta" : "consentimiento");
   const [indicePaso, setIndicePaso] = useState(0);
-  const [respuestas, setRespuestas] = useState<Lead["respuestas"]>({
-    consentimiento: { otorgado: false, timestamp: "" },
-  });
+  const [respuestas, setRespuestas] = useState<Lead["respuestas"]>(
+    reenganche?.respuestasPrevias ?? {
+      consentimiento: { otorgado: false, timestamp: "" },
+    },
+  );
   const [textoInput, setTextoInput] = useState("");
   const [escribiendo, setEscribiendo] = useState(false);
   // Telón de arranque. No retrasa nada: el efecto de abajo dispara el primer
@@ -80,6 +119,8 @@ export function ChatWhatsApp({
   const [cargando, setCargando] = useState(true);
   /** Veredicto de `/api/curar`. Null mientras la conversación no ha cerrado. */
   const [resultado, setResultado] = useState<ResultadoCurado | null>(null);
+  /** Las 3 franjas de sala de ventas que se le ofrecen al lead listo (ticket 005). */
+  const [franjas, setFranjas] = useState<Franja[]>([]);
   const finRef = useRef<HTMLDivElement>(null);
   const iniciado = useRef(false);
   const historialRef = useRef<{ role: "user" | "assistant"; content: string }[]>(
@@ -111,14 +152,26 @@ export function ChatWhatsApp({
     if (iniciado.current) return;
     iniciado.current = true;
     void (async () => {
+      // Vuelve porque se le disparó el trigger: se retoma, no se empieza.
+      if (reenganche) {
+        anotar(
+          "sistema",
+          `Re-enganche: el lead vuelve a la conversación tras dispararse su trigger de nutrición.${
+            reenganche.trigger ? ` Motivo: ${reenganche.trigger}` : ""
+          }`,
+        );
+        await agregarBotInstantaneo(
+          mensajeReenganche(evento.nombre, reenganche.reglaFallida),
+          350,
+        );
+        await pausa(500);
+        await agregarBot(pasos[0].pregunta);
+        return;
+      }
+
       // Primera fila del hilo: de dónde vino y qué se supo antes de hablarle.
       // Es la que hace legible el resto de la conversación en la DB.
-      anotar(
-        "sistema",
-        `Lead recibido de ${ETIQUETA_FUENTE[evento.fuente] ?? evento.fuente}` +
-          `${evento.proyecto_interes ? `, interesado en ${evento.proyecto_interes}` : ""}. ` +
-          `Enriquecimiento por cédula: ${perfil.match ? "match encontrado, no se repregunta lo conocido" : "sin match, se pregunta todo"}.`,
-      );
+      anotar("sistema", mensajeIngesta(evento, perfil));
       // El saludo va instantáneo (sin LLM): el chat tiene que sentirse vivo en
       // el primer segundo. La autorización sí se pule, porque es el mensaje
       // donde más gente se cae (charla-mentor.md #puntos-de-fuga).
@@ -240,7 +293,7 @@ export function ChatWhatsApp({
   }
 
   async function responderConsentimiento(acepta: boolean) {
-    agregarUsuario(acepta ? "Sí, la comparto" : "Ahora no");
+    agregarUsuario(acepta ? RESPUESTA_CONSENTIMIENTO : "Ahora no");
     const timestamp = new Date().toISOString();
     const nuevasRespuestas: Lead["respuestas"] = {
       ...respuestas,
@@ -250,12 +303,7 @@ export function ChatWhatsApp({
 
     // Evidencia auditable de habeas data (Ley 1581 de 2012), en el hilo y con
     // hora. Va como fila `sistema` porque no es un mensaje de nadie.
-    anotar(
-      "sistema",
-      acepta
-        ? `Consentimiento habeas data otorgado (Ley 1581 de 2012) — ${timestamp}`
-        : `Consentimiento habeas data NO otorgado — ${timestamp}. La conversación termina y no se persiste el lead.`,
-    );
+    anotar("sistema", mensajeConsentimiento(acepta, timestamp));
 
     if (!acepta) {
       setFase("rechazado");
@@ -302,21 +350,15 @@ export function ChatWhatsApp({
   }
 
   async function terminar(respuestasFinales: Lead["respuestas"]) {
-    setFase("terminado");
+    setFase("cerrando");
 
     // El motor necesita el ingreso como número para el tope del 40%. Si el
     // enriquecimiento trajo el rango, no se le vuelve a preguntar a la persona
     // (criterio 1) — se toma el punto medio del rango que ya se conocía.
-    const derivado =
-      respuestasFinales.ingreso_hogar_mensual === undefined && perfil.rango_ingreso
-        ? ingresoDesdeRango(perfil.rango_ingreso)
-        : undefined;
     const lead: Lead = {
       evento,
       perfil,
-      respuestas: derivado
-        ? { ...respuestasFinales, ingreso_hogar_mensual: derivado }
-        : respuestasFinales,
+      respuestas: completarIngreso(perfil, respuestasFinales),
     };
 
     await agregarBotInstantaneo(mensajeCierre(evento.nombre), 700);
@@ -334,8 +376,85 @@ export function ChatWhatsApp({
         `⚠️ Nota del demo: tu perfil se calificó, pero no se pudo guardar en la base (${veredicto.error ?? "razón desconocida"}), así que no va a aparecer en la bandeja del asesor.`,
         400,
       );
-    } else if (veredicto.advertencia) {
+      setFase("terminado");
+      return;
+    }
+
+    if (veredicto.advertencia) {
       await agregarBotInstantaneo(`⚠️ Nota del demo: ${veredicto.advertencia}`, 400);
+    }
+
+    // Criterio de aceptación 4: el lead listo sale con una CITA, no solo con
+    // proyectos. Sin esto la conversación terminaba en "te escribe un asesor",
+    // que es justo el silencio que el reto quiere quitar.
+    if (veredicto.proyecto_cita) {
+      await ofrecerFranjas(veredicto.proyecto_cita);
+      return;
+    }
+
+    setFase("terminado");
+  }
+
+  /**
+   * Ofrece 3 franjas de la sala de ventas del proyecto #1 del match.
+   *
+   * Se agenda sobre el proyecto mejor rankeado y no se le pide antes al lead que
+   * elija entre los tres: en un chat, cada paso extra es gente que se cae, y el
+   * asesor puede cambiarlo en la llamada. Los otros proyectos igual le llegan al
+   * asesor en la ficha.
+   */
+  async function ofrecerFranjas(proyecto: { proyecto_id: string; nombre: string }) {
+    try {
+      const resp = await fetch(
+        `/api/citas?proyecto_id=${encodeURIComponent(proyecto.proyecto_id)}&limite=3`,
+      );
+      const datos = (await resp.json()) as { franjas?: Franja[] };
+      if (!resp.ok || !datos.franjas?.length) throw new Error("sin franjas");
+
+      setFranjas(datos.franjas);
+      setFase("agenda");
+      await agregarBotInstantaneo(
+        `Y lo mejor: puedes ir a ver ${proyecto.nombre} sin compromiso. ¿Cuándo te queda bien pasar por la sala de ventas? 🗓️`,
+        700,
+      );
+    } catch {
+      // "No pudo agendar" es uno de los tres triggers reales de handoff a humano
+      // (spec 02 D6). No se finge una cita que no existe.
+      await agregarBotInstantaneo(
+        "Los horarios de la sala de ventas no me cargaron en este momento 😕 No se pierde nada: un asesor te escribe para cuadrar la visita, y ya tiene todo lo que me contaste.",
+        500,
+      );
+      setFase("terminado");
+    }
+  }
+
+  /** El lead eligió su franja: se persiste y queda la cita (POST /api/citas). */
+  async function elegirFranja(franja: Franja) {
+    const cuando = fechaLarga(franja.fecha);
+    agregarUsuario(cuando);
+    setFase("terminado");
+
+    try {
+      const resp = await fetch("/api/citas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lead_id: evento.lead_id,
+          fecha: franja.fecha,
+          sala_ventas: franja.sala_ventas,
+        }),
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+      await agregarBotInstantaneo(
+        `¡Listo! 🎉 Te espero el ${cuando} en ${franja.sala_ventas}. Le paso tu cita y tu historia completa al asesor, así que llegas y no tienes que explicar nada otra vez.`,
+        600,
+      );
+    } catch {
+      await agregarBotInstantaneo(
+        `Anoté que quieres ir el ${cuando}, pero no pude confirmar la cita en el sistema. Un asesor te la confirma — no la pierdes.`,
+        500,
+      );
     }
   }
 
@@ -544,6 +663,24 @@ export function ChatWhatsApp({
                     </button>
                   </form>
                 </>
+              )}
+
+              {/* Las franjas de sala de ventas: el paso que convierte un lead
+                  calificado en un lead con cita (criterio 4). Son chips porque
+                  aquí la lista NO sesga — es el catálogo real de horarios. */}
+              {fase === "agenda" && (
+                <div className="chips">
+                  {franjas.map((franja) => (
+                    <button
+                      key={franja.fecha}
+                      disabled={escribiendo}
+                      onClick={() => void elegirFranja(franja)}
+                      className="chip"
+                    >
+                      {fechaLarga(franja.fecha)}
+                    </button>
+                  ))}
+                </div>
               )}
 
               {(fase === "terminado" || fase === "rechazado") && (

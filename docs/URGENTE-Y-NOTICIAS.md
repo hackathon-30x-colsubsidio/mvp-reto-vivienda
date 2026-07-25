@@ -2,6 +2,25 @@
 
 > El documento más concreto y resumido del repo. Si solo vas a leer un archivo hoy, es este. Se actualiza cada vez que algo cambia el rumbo del equipo.
 
+## 🔴 2026-07-24 21:00 — HAY QUE CORRER `db/seed.sql` ANTES DE GRABAR (y los 4 bloqueantes ya están corregidos)
+
+**Acción obligatoria de quien tenga la consola de Supabase: pegar [`db/seed.sql`](../db/seed.sql) en el SQL Editor y ejecutarlo.** Sin eso, el link público le muestra al jurado datos rotos.
+
+**Qué encontró la auditoría en producción** (medido con `curl`, no supuesto): **Carlos aparecía con puntaje 0/100, cero proyectos y una cita en "Sala Medellín Poblado"** —ciudad que el catálogo real no tiene— y **Diana con situación crediticia "mala" y 70/100** en vez de su ficha curada. No era un bug del código actual: son filas de conversaciones de prueba corridas contra deploys viejos, que **pisaron a los personajes sembrados** (upsert por `lead_id`, tal como avisa el ticket 006). El seed las borra y vuelve a sembrar.
+
+> ⚠️ **Regla de operación hasta el domingo:** probar el chat con **cédulas y lead_id nuevos**, nunca con `lead-001/002/003`. Si alguien conversa como Diana en producción, hay que re-sembrar antes de grabar.
+
+**Lo que se corrigió** (190 tests verdes, typecheck y lint limpios — detalle en [`handoff.md`](agents/handoff.md) y [`auditoria-2026-07-24.md`](agents/auditoria-2026-07-24.md)):
+
+- **El criterio 4 ya se cumple: el lead listo sale con CITA.** No existía en el flujo vivo — el chat nunca ofrecía franjas y `slots.json` colgaba de ids que el catálogo real no tiene, así que pedir horarios devolvía **lista vacía sin fallar**. Ahora el chat ofrece 3 franjas del proyecto recomendado y persiste la elegida.
+- **El criterio 3 ya se demuestra: el botón "simular trigger" vuelve a la conversación.** `app/page.tsx` no leía `?lead_id=` y el clic aterrizaba en el landing. Ahora retoma nombrando la razón original, sin repreguntar nada y sin volver a pedir el consentimiento.
+- **La portada ya lleva a `/asesor`** con un clic (no había ningún enlace: el demo no era autogestionado).
+- **Los 3 personajes viven en el catálogo real y sus números los calcula el MOTOR.** Diana 74 · Carlos 32 con 3 proyectos marcados por cupo · Yuliana en nutrición, a $110.286 de pasar. Se acabaron los 84/61/0 escritos a mano que el motor nunca produjo. `db/seed.sql` y `data/sintetica/slots.json` **ahora se generan** (`npx tsx scripts/generar-seed.ts` · `generar-slots.ts`) — no se editan a mano nunca más.
+- **Tres cosas que se veían en pantalla y contradecían "cero caja negra":** el subsidio decía "Aplica" y aportaba 0 puntos sin explicar por qué; la similitud mostraba "~370 compradores" sin decir que es una derivación; y la regla fallida se mostraba como `cuota_ingreso_40`. Las tres arregladas, y el trigger ahora dice **cuánto le falta** para pasar.
+- **La bandeja ya no separa al no afiliado en su propio grupo** debajo del afiliado: era una decisión ya tomada (spec 06 D7) que la pantalla deshacía.
+
+**Sigue abierto y es del equipo, no del código:** el monto real de los subsidios (hoy el factor no puede bajar la cuota y lo dice), la similitud por proyecto, si al lead sin match se le pregunta la afiliación, y si el tablero entra al video de 2 minutos.
+
 ## 🎨 2026-07-24 18:50 — El design system de Colsubsidio reemplazó a "El formato sellado", y la consola del asesor cambió de forma
 
 Rama `feat/consola-asesor`. **Si vas a tocar UI, esto te aplica: `DESIGN.md` cambió entero.**
@@ -23,7 +42,7 @@ Rama `feat/consola-asesor`. **Si vas a tocar UI, esto te aplica: `DESIGN.md` cam
 
 **⚠️ Pendiente de verificación humana:** el recorrido a ojo no se hizo (la automatización de navegador no estuvo disponible). Se verificó sirviendo el HTML y el CSS compilado del dev server: las 3 rutas en 200, la ficha con sus 7 factores completos, un solo `.resaltado` por pantalla y las utilidades resolviendo los tokens nuevos. **Falta mirarlo en pantalla, en claro y en oscuro, y en móvil.**
 
-**Al mezclar con `main` se alineó la bandeja con la decisión de las 18:40** (la entrada de abajo): la lista dejó de apilar "Listos" y "Listos · cupo 90/10" como dos secciones, porque eso volvía a poner al no afiliado debajo del afiliado sin importar el puntaje — justo lo que ese cambio corrigió. Ahora es **un solo grupo "Puede comprar ahora"** ordenado por puntaje, con la píldora de cupo distinguiendo a cada quien dentro. El filtro del selector sigue permitiendo aislar las tres salidas.
+**Nota del merge (2026-07-25):** esta rama y la auditoría de las 21:00 tocaron la bandeja en paralelo y **llegaron por separado a la misma conclusión** — fundir "Listos" y "Listos · cupo 90/10" en un solo grupo, porque apilarlos volvía a poner al no afiliado debajo del afiliado sin importar el puntaje. Al mezclar se conservó **el copy de la auditoría** (cita el Decreto 583 y trae mensajes de vacío por grupo) sobre el layout de consola de esta rama. `GRUPOS` vive ahora en `ListaLeads.tsx` como fuente única: lo usan la lista y el panel derecho.
 
 ## ⚖️ 2026-07-24 18:40 — La afiliación ya no decide la cola: desempata
 

@@ -1,6 +1,6 @@
 import { matchear } from "@/lib/matching";
 import { catalogo } from "@/lib/matching/catalogo";
-import { preciosMaximos } from "@/lib/matching/fixtures";
+import { precioMaximoDe } from "@/lib/scoring/capacidad";
 import type { EntradaMatch } from "@/lib/matching/tipos";
 
 // Elegir proyectos es determinista: reglas puras, sin LLM y sin red (ADR 0002).
@@ -23,10 +23,11 @@ export async function POST(req: Request) {
     return new Response("Faltan lead y score", { status: 400 });
   }
 
-  // El precio máximo lo calcula el motor de B con el tope del 40% (ticket 004).
-  // Mientras `Score` no lo traiga (ticket 002), viaja en el cuerpo o cae al
-  // fixture del personaje. Cuando 002 aterrice: score.precio_maximo y se acabó.
-  const precio_maximo = cuerpo.precio_maximo ?? precioMaximoDeFixture(score.salida);
+  // El precio máximo es el gate del 40% despejado al revés, calculado por el
+  // MOTOR (`lib/scoring/capacidad.ts`, costura S2 / ticket 004). El matcher no
+  // reimplementa la norma ni cae a una fixture por personaje: si el Decreto
+  // cambia, cambia en config.ts y esto sigue siendo correcto.
+  const precio_maximo = cuerpo.precio_maximo ?? precioMaximoDe(lead);
 
   const elegidos = matchear({ lead, score, catalogo, precio_maximo });
 
@@ -40,10 +41,4 @@ export async function POST(req: Request) {
     })),
     precio_maximo,
   });
-}
-
-function precioMaximoDeFixture(salida: Cuerpo["score"]["salida"]): number {
-  if (salida === "nutricion") return preciosMaximos.nutricion;
-  if (salida === "listo_restriccion_cupo") return preciosMaximos.noAfiliadoListo;
-  return preciosMaximos.afiliadoListo;
 }
