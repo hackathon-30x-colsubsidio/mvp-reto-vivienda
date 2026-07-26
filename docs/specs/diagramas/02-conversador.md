@@ -50,7 +50,28 @@ stateDiagram-v2
         Quién decide que está completo: TypeScript, no el LLM
     end note
 
-    Indagacion --> Cierre
+    Indagacion --> Banco
+
+    state "Banco — hasta 2 preguntas más, solo si valen la pena" as Banco {
+        direction TB
+        [*] --> Consulta
+        Consulta: ¿alguna cambiaría la recomendación?
+        Consulta --> Preguntar: el selector devuelve un id
+        Consulta --> [*]: ninguna vale la pena (falla cerrada)
+        Preguntar: Se pregunta como un paso más (atajos + texto)
+        Preguntar --> Consulta: ¿otra? — tope de 2
+    }
+
+    note right of Banco
+        El selector vive en el SERVIDOR: necesita el catálogo y el
+        matcher para saber qué separa a los candidatos de ESTE lead.
+        El LLM ESCOGE un id de una lista cerrada; no escribe la pregunta.
+        Aditivo y falla cerrada: si no se activa, la conversación
+        termina exactamente igual y el lead nunca se entera.
+        NO corre en el re-enganche: ahí no están las 7 base.
+    end note
+
+    Banco --> Cierre
 
     Cierre: 10 · Cierre → orquestador → motor (spec 03)
     Cierre --> Agenda: salió listo

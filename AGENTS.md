@@ -10,12 +10,12 @@ Un workflow que hace que los leads pagos se parezcan a los orgánicos: el lead e
 
 ## Empieza aquí (estado del proyecto, 2026-07-26)
 
-El flujo corre de punta a punta y los 4 criterios de aceptación están construidos. **Van 7 de las 8 ramas del plan de arquitectura en `main`** (1 escenarios, 2 contrato, 3 guardas, 4 IA, 6 sesgo, 7 banco, 8 brochures) **más el selector del banco**; falta **solo la 5**, que es la última y la que enciende todo. **789 tests verdes.** **Antes de tocar nada, en este orden:**
+El flujo corre de punta a punta y los 4 criterios de aceptación están construidos. **Las 8 ramas del plan de arquitectura están en `main` y el banco ya está cableado al chat: el plan no tiene huecos.** **861 tests verdes.** Lo que queda abierto es **copy y decisiones de producto**, no cableado — ver el §7 del plan y el D8 del spec 02. **Antes de tocar nada, en este orden:**
 
-0. **¿Vas a cablear la rama 5?** Todo lo que necesitas está en
-   **[`docs/agents/rama-5-cableado.md`](docs/agents/rama-5-cableado.md)** y es autocontenido: las
-   firmas reales de las 5 piezas, qué cambió en `main` debajo de tu rama, las 3 decisiones abiertas y
-   la verificación. **Es la única de las 8 ramas que falta.**
+0. **¿Vas a tocar el conversador?** Lee **las cuatro trampas** de la sección *Conventions* de este
+   archivo (abajo) y el **[D8 del spec 02](docs/specs/02-conversador.md)**, que es el banco de
+   preguntas: cuándo entra, por qué esas cuatro preguntas y no otras, y las tres cosas que se
+   comportan distinto por no ser de las 7 base.
 1. **[`docs/agents/plan-arquitectura-conversador.md`](docs/agents/plan-arquitectura-conversador.md)** — **el plan de trabajo vigente y el canal de sincronización de los 5 computadores.** 8 ramas con **propiedad de archivos asignada** (tocar un archivo que no es tuyo hace que se rechace el merge), la bitácora de hallazgos, y los 15 puntos marcados `🔴 CONSULTAR` que nadie escribe sin aprobación — todos son personalidad o comportamiento del agente. **Su regla de oro: no asumas, consulta.**
 2. **[`docs/agents/plan-sabado-25.md`](docs/agents/plan-sabado-25.md)** — qué se hace HOY: el reparto por 5 personas, las 10 decisiones, los 3 checkpoints, las reglas del día y el **recetario para probar sin pisar a los 3 personajes** del demo. Su **addendum de las 12:00** trae los 3 tickets que salieron de la discusión de workflow.
 3. **[`docs/agents/discusion-workflow-2026-07-25.md`](docs/agents/discusion-workflow-2026-07-25.md)** — el delta del plan: los dos motores, el layout contra el reto, y el **único defecto abierto que el jurado puede reproducir solo** (ticket 023). Trae también los seis supuestos que la sala dio por ciertos y el código desmiente, con su medición.

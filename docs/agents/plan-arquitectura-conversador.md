@@ -351,6 +351,10 @@ completa igual · zod rechaza correctamente una respuesta fuera del enum (test c
 
 ### Rama 5 · `feat/maquina-conversacion` — P1 · **última en mergear**
 
+> ✅ **ENTREGADA** — mergeada el 2026-07-26 en `0cc1c05`. El **banco quedó fuera de esta rama** (se
+> escribió antes de que `/api/banco` existiera) y se cableó aparte en `30e1c05`; su contrato vive en
+> el [D8 del spec 02](../specs/02-conversador.md). Ver el cierre al final de este documento.
+
 > 📄 **Todo lo que P1 necesita para pushear está en
 > [`rama-5-cableado.md`](rama-5-cableado.md)** (2026-07-26): las firmas reales de las 5 piezas que
 > cablea, **qué cambió en `main` debajo de su rama**, las 3 decisiones que solo él puede cerrar y la
@@ -1137,3 +1141,44 @@ derivadas). `seed-espejo.test.ts` falla si quedó viejo.
 ⚠️ **Cambió el 2026-07-26:** la rama 4 entró **antes** que la 7. Podía, porque difirió (c), que era
 lo único suyo que dependía de los campos de la 7. Van en `main`: **1, 3, 2, 4**. Faltan **6, 7, 8 y
 5**, y la 5 sigue siendo la última.
+
+## ✅ CERRADO — 2026-07-26 10:15 (hora Colombia)
+
+**Las 8 ramas están en `main` y el banco quedó cableado al chat. El plan no tiene huecos de
+cableado.** 861 tests verdes en 45 archivos, typecheck y lint limpios, **el seed sin una línea de
+diff** (los 3 personajes del demo no se movieron).
+
+- La **rama 5** la mergeó Alejo siguiendo el protocolo (rebase sobre `main`, él de último), en
+  `0cc1c05`. Un merge independiente de la misma rama produjo **exactamente los mismos bytes** en los
+  4 archivos de código, así que el rebase no resolvió nada de forma sorpresiva.
+- **El banco quedó sin cablear en la rama 5 y se cableó aparte** (`30e1c05`): la 5 se escribió a las
+  07:45–08:21, **antes de que existiera `/api/banco`** (`4458e42`), así que no podía llamarlo. Era el
+  último hueco. **El detalle completo vive en el [D8 del spec 02](../specs/02-conversador.md)** —
+  cuándo entra, por qué esas cuatro preguntas, las cuatro formas de fallar cerrada, y las tres cosas
+  que se comportan distinto por no ser de las 7 base.
+- **Sin tocar una línea de JSX**, que era la restricción dura de la rama 5: una `PreguntaBanco` es
+  `Omit<PasoPregunta,"campo">` más su campo, así que entra en la misma lista de pasos y hereda los
+  atajos, el placeholder y el campo de texto de lo que ya estaba.
+- **Los puntos 4, 5 y 7 del §7 estaban cerrados y el equipo no se había enterado.** Alejo los
+  consultó y los escribió en `maquina.ts` (`TEXTO_ES_IA`, `mensajeMuchasPreguntas`,
+  `TEXTO_NO_ENTENDI`), cada uno con su *"Consultado y aprobado"*. No hubo que ratificar nada para
+  cablear.
+- **Las otras 3 ramas vivas no tienen nada que mergear**, verificado archivo por archivo y no por
+  SHA: `feat/banco-preguntas` está completa en `main`; `feat/escenarios-conversacion` e
+  `iteracion-engine` están en `main` **y evolucionadas más allá de su versión**. Aparecen como "no
+  mergeadas" solo porque sus commits se reaplicaron con otro hash.
+
+**Lo que queda abierto es copy y producto, no cableado:**
+
+- 🔴 **El copy de las 4 preguntas del banco y sus chips** (puntos 1, 2 y 3 de §7). Se reescribe
+  entero sin tocar lógica. Lo que está medido —y no es opinión— es *cuáles* dimensiones vale la pena
+  preguntar.
+- 🟡 **El re-enganche no lleva banco**, decisión de quien cableó: no tiene las 7 base y alargarlo
+  iría contra lo único que promete. Se revierte quitando una línea de `elegirDelBanco`.
+- 🟡 **La conversación pasó de 7 turnos a 7–9.** Quien cronometre el video del pitch debe contarlo.
+
+**Verificación del cierre, corrida:** los 3 personajes de punta a punta en el navegador con el LLM
+vivo, las entradas sucias por texto libre sobre una pregunta del banco, y `/asesor` con los 3
+sembrados. El punto 4 de la lista de arriba (`GEMINI_API_KEY` vacía) **no se corrió a mano**: los
+tests cubren el fallback determinístico y el equipo decidió que no era prioridad (hay créditos de
+sobra).

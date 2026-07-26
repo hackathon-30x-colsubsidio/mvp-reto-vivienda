@@ -16,6 +16,13 @@ dueño: Rol 4 (Pitch & Video)
 > 2. **No decir el puntaje "sobre 100".** El techo alcanzable hoy es **75** (el subsidio aporta 0 a todo lead real), así que la fracción sobre 100 subvende — y **Diana está justo en ese techo**. **Números vigentes: Diana 73 · Carlos 24 · Yuliana 0**, verificados contra el seed que genera el motor (los 75/28 que este doc citaba antes estaban viejos). Lo seguro es no decir la cifra y hablar de **el orden de la cola**: quién está más cerca de comprar.
 > 3. **🆕 Nada del 27,1% vs. el 10%** (decisión de Mani, 2026-07-25 noche). Esa comparación **sale del pitch**, y con ella se descartó el ticket 019. El beat 0 ya no abre con una cifra: abre con el hueco.
 
+> ⚠️ **El chat se alargó — 2026-07-26, antes de grabar.** Dos cambios entraron a `main` después de que se escribió este presupuesto de tiempo, y los dos suman segundos al plano del chat:
+>
+> 1. **La conversación pasó de 7 turnos a 7–9.** Al terminar las preguntas base entra el **banco**: un selector decide si alguna pregunta más cambiaría la recomendación y, si la hay, la hace (máximo 2). **No es determinista** — a veces pregunta una, a veces dos, a veces ninguna, y cuál pregunta puede variar entre tomas. Si el plano del chat va con el tiempo justo, **grabar la toma dos veces y quedarse con la corta**. Detalle en el [D8 del spec 02](../specs/02-conversador.md).
+> 2. **El lead ahora OYE sus proyectos** antes de que se le ofrezca la cita, y recibe el link del recorrido virtual del #1. Es una burbuja más, y es de las buenas para el video: es donde se ve que el motor decidió y el agente solo puso la voz.
+>
+> Lo que esto **no** cambia: los puntajes (73 / 24 / 0) ni la salida de ningún personaje.
+
 ## Presupuesto de tiempo (120 s duros)
 
 | # | Tramo | En pantalla | Criterio / gancho | Seg |

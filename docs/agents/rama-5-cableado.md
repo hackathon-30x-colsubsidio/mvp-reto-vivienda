@@ -2,6 +2,15 @@
 > handoff para pushearla y ya cumplió. Lo vigente son las **cuatro trampas** de la sección
 > *Conventions* de [`AGENTS.md`](../../AGENTS.md) y la bitácora de
 > [`plan-arquitectura-conversador.md`](plan-arquitectura-conversador.md).
+>
+> ⚠️ **De las 5 piezas del §2, la rama 5 cableó cuatro: el banco (c y d) NO.** Se escribió antes de
+> que `/api/banco` existiera, así que no podía llamarlo. El banco se cableó aparte el mismo día
+> (`30e1c05`) y **su contrato vigente es el [D8 del spec 02](../specs/02-conversador.md)**, no el §2
+> de aquí abajo.
+>
+> ⚠️ **Los 3 puntos del §3 ya están cerrados**, aunque abajo digan que están abiertos: se
+> consultaron y se escribieron en `maquina.ts` (`TEXTO_ES_IA`, `mensajeMuchasPreguntas`,
+> `TEXTO_NO_ENTENDI`).
 
 # Rama 5 · lo que necesitas para pushear
 

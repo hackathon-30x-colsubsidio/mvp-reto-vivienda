@@ -85,6 +85,7 @@ Numerados para poder discutirlos uno por uno en la reunión:
 | 7 | **Subsidios** | Lead | Quick reply + texto | Si dice que sí, se indaga cuál |
 | 8 | **Situación crediticia** | Lead | Quick reply (al día / con mora / sin historial) | — |
 | 9 | **Zona de interés** | Lead | **Texto libre** | Solo si el enriquecimiento no trajo ciudad |
+| 9b | **Banco: hasta 2 preguntas más** | Lead | Atajos + texto | **Solo si alguna cambiaría la recomendación** → [D8](#d8--el-banco-de-preguntas--hoy--así-está-construido-cableado-el-2026-07-26) |
 | 10 | **Cierre** | Agente | — | Llama al orquestador → spec [03](03-scoring.md) |
 | 11 | **Oferta de franjas** | Lead | Quick reply | **Solo si salió listo** → spec [04](04-match-agenda.md) |
 | 12 | **Nutrición honesta** | Agente | — | Si no pasó: la razón + qué lo destrabaría → spec [05](05-nutricion-reenganche.md) |
@@ -138,6 +139,45 @@ Los tres triggers son literales de la operación de hoy ([detalle](../reto/charl
 Si el primer token no llega en 3 segundos, [`ChatWhatsApp.tsx`](../../components/chat/ChatWhatsApp.tsx) aborta y pinta el texto determinista. Se puso por el cold start de Vertex (~7s) y **es lo que blinda el demo**.
 
 Si el equipo aprueba D1-B, este flujo **deja de ser el primario y pasa a ser la red**. Eso es un cambio de rol importante: hoy el fallback es idéntico al camino feliz; con B, el fallback es visiblemente más pobre que la conversación buena. Hay que decidir si eso es aceptable en el video.
+
+### D8 · El banco de preguntas · [HOY — así está construido, cableado el 2026-07-26]
+
+**Qué es:** después de las 7 base, la conversación puede hacer **hasta 2 preguntas más**, elegidas para este lead. No las escribe el modelo: existen **cuatro**, escritas a mano en [`banco-preguntas.ts`](../../lib/conversacion/banco-preguntas.ts), y el modelo solo **escoge un id** de esa lista (o ninguno). Es el mismo reparto de D1: conduce el código, el LLM pone criterio y voz.
+
+**Por qué existe:** las 7 base son las que el motor necesita para *calificar*. El banco pregunta lo que separa a los proyectos que ya le caben, es decir, lo que mejora la *recomendación*. Sin él, dos leads con el mismo ingreso reciben la misma lista.
+
+**Por qué estas cuatro y no otras.** Se midieron los 18 brochures antes de escribir una sola pregunta, y el criterio fue *¿esto puede cambiar una recomendación?*:
+
+| id | Qué pregunta | Qué la justifica | ¿matchea? |
+|---|---|---|---|
+| `alcobas` | Cuántas alcobas necesita | 17/18 declaran tipología; solo **3 de 18** tienen de 3 alcobas y 5 tienen de 1. La más rentable del banco | sí |
+| `amenidades` | Qué quiere en el conjunto | Discrimina desparejo: mascotas en **4/18**, coworking en 11, gimnasio en 14. Zonas de niños **NO** se pregunta: está en 18/18 y no separa nada | sí |
+| `espacio` | Compacto o más metros | Área privada de 21,6 a 68,06 m². Se pregunta como preferencia porque **nadie sabe de memoria cuántos m² necesita** | sí |
+| `momento` | Para cuándo la quiere | **NO cambia qué proyectos se recomiendan** y lo dice: `estado` (entrega) solo se conoce en 7/18. Ordena la cola del asesor | no |
+
+**Cómo se elige.** `POST /api/banco` con el lead → `{ id }`. El selector corre **server-side** porque necesita el catálogo y el matcher para saber qué separa a los candidatos de *este* lead, y eso el cliente no lo puede calcular. **`{ id: null }` es la respuesta normal, no un error:** significa "ninguna vale la pena".
+
+**Falla cerrada, en los cuatro casos**, y en todos la conversación termina exactamente como terminaba antes de que la capa existiera — sin mensaje de error, porque no hay nada que decirle al lead: sin credencial · `id: null` · un id que el modelo se inventó · una pregunta cuyo dato ya tenemos (criterio de aceptación 1: nunca se repregunta lo conocido).
+
+**Se pinta como un paso más.** Una `PreguntaBanco` es `Omit<PasoPregunta, "campo">` más su campo, así que **entra en la misma lista de pasos del chat** y hereda todo D4 sin código nuevo: sus atajos arriba, el campo de texto siempre disponible, y escribir vale exactamente lo mismo que tocar el chip. Cablearlo no costó **una sola línea de JSX**.
+
+**Lo único que cambia por ser del banco**, y está documentado donde ocurre:
+
+1. **La interpreta su propia pregunta.** Su campo vive en `CampoBanco`, aparte del enum de zod de las 7 base (`CampoPregunta`) — a propósito: un intérprete autorizado a escribir en `momento_compra` sin que nadie lo haya preguntado es justo lo que ese enum existe para impedir.
+2. **El patch se acumula** (`aplicarRespuestaBanco`), porque el patch pelado pisaría el texto crudo que la primera pregunta hubiera dejado en `preferencias_libres`.
+3. **No hay rama `no_entendido`.** Sus intérpretes nunca se quedan mudos: lo que no logran clasificar entra a `preferencias_libres` y **llega crudo a la ficha del asesor**. Es el antídoto del hueco 2 (el dato que se perdía detrás de un acuse amable).
+
+**Lo que NO cambia:** identidad, dudas, pedir un asesor y corregir un dato se atienden **igual en la pregunta 8 que en la 3** — `decidirTurnoLibre` conserva los tres primeros clasificadores de `decidirTurno`, en el mismo orden.
+
+**[DECISIÓN de este cableado — TEAM puede revertirla] El re-enganche no lleva banco.** No tiene las 7 base (retoma solo con lo que pudo cambiar) y alargarlo con preguntas nuevas iría contra lo único que promete, que es no hacer repetir a quien ya conversó. Se revierte quitando la primera línea de `elegirDelBanco`.
+
+**El seed sigue siendo determinista:** el banco **no entra al replay**. `replayGuion` corre solo las 7 base, así que los 3 personajes sembrados y esos mismos personajes conversados en vivo siguen produciendo el mismo `Lead` y el mismo puntaje.
+
+**Medido en vivo el 2026-07-26**, no solo en test: para Diana el selector pidió `alcobas` y **la recomendación cambió con la respuesta** (el porqué pasó a citar las tipologías: *"sus tipologías son de 1 alcoba"*, *"apartamentos de 2 alcobas"*). En otra corrida pidió `espacio` primero y `alcobas` después, y se detuvo en el tope. Cubierto por [`ChatWhatsApp.banco.test.tsx`](../../components/chat/ChatWhatsApp.banco.test.tsx): camino feliz, tope de 2 y dos formas de fallar.
+
+**🔴 Lo que sigue abierto:** el **copy** de las 4 preguntas y sus chips (puntos 1, 2 y 3 del §7 del plan). Es texto que lee el lead y **se puede reescribir entero sin tocar una línea de lógica** — esa es justamente la idea. Lo que sí está medido, y no es opinión, es *cuáles* dimensiones vale la pena preguntar (la tabla de arriba).
+
+**Consecuencia para el demo y el pitch:** la conversación pasa de 7 turnos a **7–9**. Quien cronometre el video debe contar con eso; el guion no se actualizó.
 
 ## Estado hoy vs contrato
 
@@ -202,9 +242,31 @@ stateDiagram-v2
         9 zona · SOLO TEXTO LIBRE, solo si falta
         El texto libre nunca desaparece: los atajos son ayuda.
         Quién decide que está completo: TypeScript, no el LLM
+        Al terminar estas, entra el BANCO (hasta 2 más) — ver D8
     end note
 
-    Indagacion --> Cierre
+    Indagacion --> Banco
+
+    state "Banco — hasta 2 preguntas más, solo si valen la pena" as Banco {
+        direction TB
+        [*] --> Consulta
+        Consulta: ¿alguna cambiaría la recomendación?
+        Consulta --> Preguntar: el selector devuelve un id
+        Consulta --> [*]: ninguna vale la pena (falla cerrada)
+        Preguntar: Se pregunta como un paso más (atajos + texto)
+        Preguntar --> Consulta: ¿otra? — tope de 2
+    }
+
+    note right of Banco
+        El selector vive en el SERVIDOR: necesita el catálogo y el
+        matcher para saber qué separa a los candidatos de ESTE lead.
+        El LLM ESCOGE un id de una lista cerrada; no escribe la pregunta.
+        Aditivo y falla cerrada: si no se activa, la conversación
+        termina exactamente igual y el lead nunca se entera.
+        NO corre en el re-enganche: ahí no están las 7 base.
+    end note
+
+    Banco --> Cierre
 
     Cierre: 10 · Cierre → orquestador → motor (spec 03)
     Cierre --> Agenda: salió listo

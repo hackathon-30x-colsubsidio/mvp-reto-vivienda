@@ -114,6 +114,17 @@ El paquete mínimo con el que un lead entra al sistema desde cualquier canal (no
 **Gate del 40%**:
 El único corte que bloquea: si la primera cuota estimada supera el 40% del ingreso del hogar, el banco legalmente no puede prestar (Decreto 583 de 2025) y el lead pasa a nutrición. Se distingue de todo lo demás del scoring, que **ordena** pero no bloquea.
 
+**Banco de preguntas** (⚠️ *no* el banco que presta):
+El conjunto cerrado de preguntas que el agente puede hacer **después** de las 7 base, como máximo dos, y solo si alguna cambiaría la recomendación. Las 7 base existen para **calificar** (las necesita el motor); el banco existe para **recomendar mejor** (separa entre los proyectos que ya le caben). Un modelo **escoge un id** de la lista; nunca escribe la pregunta. Contrato en el [D8 del spec 02](../specs/02-conversador.md).
+
+> **La palabra "banco" está sobrecargada en este repo y conviene decirla completa.** *El banco* a secas es el prestamista del gate del 40%; *el banco de preguntas* es esto. En código no se confunden porque viven en `lib/conversacion/banco-preguntas.ts`, pero en una conversación de equipo sí.
+
+**Pregunta base** (las 7):
+Las que conduce el código y **no se tocan** (decisión 1 de la sala del sábado 25). Son las que llenan lo que el motor necesita para calificar. Se distinguen del banco en tres cosas: su campo vive en el enum de zod (`CampoPregunta`), pueden emitir `no_entendido` —y entonces la IA de respaldo intenta rescatarlas—, y **son las únicas que entran al replay**, que es lo que mantiene determinista el seed del demo.
+
+**Falla cerrada** (una capa que *falla cerrada*):
+Que cuando la capa no puede hacer su trabajo —no hay credencial, el modelo devuelve nada, o devuelve algo inválido— el sistema siga exactamente como si esa capa no existiera, **sin decírselo al lead**. Es la forma que tienen el banco, el intérprete de IA y el guard de ser aditivos: ninguno puede romper la conversación, solo mejorarla. Lo contrario sería tratar "ninguna pregunta vale la pena" como un error.
+
 **Holgura de capacidad**:
 Cuánto margen le sobra a un lead por debajo del tope del 40%. Es lo que separa "apenas pasa" de "pasa con mucho aire", y por eso es el factor que más pesa: dos leads aprobados no son igual de buenos.
 

@@ -4,7 +4,24 @@
 >
 > El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
 
+## 🟢 2026-07-26 10:15 — LAS 8 RAMAS ESTÁN EN `main`, el banco quedó cableado y el jurado ya puede salir del panel
+
+**861 tests verdes en 45 archivos**, typecheck y lint limpios, cero errores de consola y de servidor, y **el seed sin una línea de diff** (los 3 personajes no se movieron). El plan de arquitectura **no tiene huecos de cableado**; lo que queda abierto es copy y producto.
+
+**Tres cosas que cambian lo que ves en el demo:**
+
+1. **La conversación ahora puede hacer hasta 2 preguntas más.** Es el **banco**, que hasta hoy era código que nadie ejecutaba desde el chat: la rama 5 se escribió antes de que `/api/banco` existiera. Ahora, al terminar las 7 base, un selector server-side decide si alguna pregunta más **cambiaría la recomendación**; si ninguna vale la pena no pregunta nada y el lead ni se entera. **⚠️ La conversación pasó de 7 turnos a 7–9: quien cronometre el video del pitch tiene que contarlo.** El detalle completo está en el **[D8 del spec 02](specs/02-conversador.md)**.
+2. **Y sirve de verdad, medido:** para Diana el selector pidió las alcobas y **la recomendación cambió con la respuesta** — el porqué pasó a citar las tipologías ("sus tipologías son de 1 alcoba"). No es decorado.
+3. **El panel del asesor ya tiene salida.** Antes, entrar a `/asesor` no tenía vuelta al inicio (el logo va al tablero y la nav solo cruza entre las dos vistas), así que un jurado que recorre el demo **solo** quedaba atrapado. Hay un **"Volver al inicio"** en el header, en las tres pantallas. Y se arregló que el "volver" del chat **no volvía** cuando se llegaba por "Simular trigger": quien probaba el re-enganche quedaba encerrado en la conversación.
+
+**📌 Corrección a lo que se venía diciendo:** los **puntos 4, 5 y 7 del §7** (qué responde Sara a "¿eres un bot?", el copy tras 3 desvíos, y la política de `no_entendido`) **ya estaban cerrados** — Alejo los consultó y los escribió en `maquina.ts`. Se creían abiertos y no lo estaban.
+
+**Lo que sigue abierto, y es de producto:** el **copy de las 4 preguntas del banco y sus chips** (puntos 1, 2 y 3 del §7). Se reescribe entero sin tocar una línea de lógica; lo que está medido, y no es opinión, es *cuáles* dimensiones vale la pena preguntar. Y una decisión de quien cableó, reversible con una línea: **el re-enganche no lleva banco**, porque no tiene las 7 base y alargarlo iría contra lo único que promete.
+
 ## 🟢 2026-07-26 — Los 6 bugs de interpretación están ARREGLADOS. Quedan 4 ramas: 6, 7, 8 y 5
+
+> 🔁 **Superada en lo que dice de las ramas:** ya están las 8 en `main` (ver la entrada de arriba).
+> Lo que sigue vigente es la trampa del `\b` en español y la corrección sobre `tiene_vivienda`.
 
 **704 tests verdes**, typecheck y lint limpios, y la prueba que vale: **los 3 personajes canónicos no se movieron (73 / 24 / 0)** y `db/seed.sql` regenera **sin una línea de diff**. O sea que el demo se ve igual, pero deja de mentir sobre quien escribe distinto.
 
