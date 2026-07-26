@@ -62,7 +62,7 @@
     {
       "proyecto_id": "karakali",
       "proyecto": "KARAKALI",
-      "ciudad": "Ricaurte o Bogotá (ubicación contradictoria entre hojas, sin confirmar)",
+      "ciudad": "Bogotá",
       "sala_ventas": "Sala de ventas KARAKALI",
       "franjas": [
         "2026-07-27T15:00:00-05:00",
@@ -183,7 +183,7 @@
     {
       "proyecto_id": "vibo-once",
       "proyecto": "VIBO ONCE",
-      "ciudad": "Ricaurte o Bogotá (ubicación contradictoria entre hojas, sin confirmar)",
+      "ciudad": "Bogotá",
       "sala_ventas": "Sala de ventas VIBO ONCE",
       "franjas": [
         "2026-07-27T11:00:00-05:00",

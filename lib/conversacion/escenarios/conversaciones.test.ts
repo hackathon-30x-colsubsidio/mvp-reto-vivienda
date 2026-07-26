@@ -188,7 +188,7 @@ describe("HOY una conversación sucia termina normal y pierde datos", () => {
   const r = replayEscenario({
     perfil: SIN_DATOS,
     tecleado: [
-      "pues no sé", // ⚠️ se lee como "primera vivienda"
+      "pues no sé", // ya NO se lee como "primera vivienda"
       "vivo con mi mamá y mi hermana", // ⚠️ se pierde
       "2 palos",
       "no tngo nada",
@@ -206,20 +206,32 @@ describe("HOY una conversación sucia termina normal y pierde datos", () => {
     for (const t of r.turnos) if (t.tipo === "respondio") expect(t.acuse).toBeTruthy();
   });
 
-  // ⚠️ BUG CONGELADO — la medida del hueco 2 del plan: 2 de 7 campos
-  // se pierden en silencio, y los dos alimentan la similitud con
+  // ⚠️ BUG CONGELADO — el hueco 2 del plan, que sigue abierto: 3 de 7
+  // campos se pierden en silencio, y alimentan la similitud con
   // compradores reales, o sea que el error llega hasta qué proyecto se
-  // le recomienda. Cuando la rama 5 arregle esto, este test falla — y
-  // esa falla es la señal de que se arregló.
-  it("pierde 2 de los 7 campos, sin decírselo a nadie", () => {
-    expect(r.camposVacios).toEqual(["composicion_familiar", "rango_edad"]);
+  // le recomienda. **Esto NO lo arregla el intérprete de IA de la rama
+  // 4** (ese solo se activa cuando ya hay un `no_entendido`, y quién lo
+  // atiende lo decide la rama 5). Cuando la rama 5 lo cierre, este test
+  // falla — y esa falla es la señal de que se arregló.
+  //
+  // Nota del 2026-07-26: eran 2, ahora son 3. No es un retroceso: es
+  // `tiene_vivienda` que dejó de INVENTAR un `false` y ahora se declara
+  // vacío, honestamente. Perder el dato es mejor que afirmarlo falso.
+  it("pierde 3 de los 7 campos, sin decírselo a nadie", () => {
+    expect(r.camposVacios).toEqual([
+      "tiene_vivienda",
+      "composicion_familiar",
+      "rango_edad",
+    ]);
   });
 
-  // ⚠️ BUG CONGELADO — no es pérdida, es invención: "pues no sé" queda
-  // como primera vivienda, que habilita subsidios que quizá no le
-  // aplican.
-  it("y afirma una vivienda que la persona nunca declaró", () => {
-    expect(r.respuestas.tiene_vivienda).toBe(false);
+  // ✅ ARREGLADO 2026-07-26 — era el peor de los seis. "pues no sé"
+  // quedaba como `false`, o sea "primera vivienda": una afirmación sobre
+  // la vida de alguien que esa persona nunca hizo, que le regalaba 5
+  // puntos de 100 y ponía "No tiene vivienda propia" en la ficha del
+  // asesor. Ahora no afirma nada.
+  it("y ya NO afirma una vivienda que la persona nunca declaró", () => {
+    expect(r.respuestas.tiene_vivienda).toBeUndefined();
   });
 });
 

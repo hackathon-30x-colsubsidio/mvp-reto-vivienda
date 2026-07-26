@@ -63,20 +63,62 @@ describe("lo que se entiende, y sigue entendiéndose igual", () => {
     expect(interpretarEdad(texto)).toBe(esperado);
   });
 
-  // ⚠️ COMPORTAMIENTO CONGELADO, y está MAL: `^treinta\b` (que existe para el
-  // "treinta" pelado) se come "treinta y ocho" antes de que la segunda rama
-  // pueda leerlo, así que 36-39 escritos en palabras caen en el tramo de abajo.
-  // No se arregla en esta rama —la rama 2 no cambia comportamiento— y queda en
-  // la bitácora del plan: es un `\b(?! y)` de una línea, pero mueve la
-  // similitud de quien lo escriba así y eso lo decide quien manda.
-  it("BUG congelado: 36-39 en palabras caen en 20_35", () => {
-    expect(interpretarEdad("treinta y ocho")).toBe("20_35");
+  // ✅ ARREGLADO 2026-07-26. `^treinta\b` (que existe para el "treinta" pelado)
+  // se comía "treinta y ocho" antes de que la segunda rama pudiera leerlo, así
+  // que los 36-39 escritos en palabras caían en el tramo de abajo y movían la
+  // similitud. El arreglo es el `(?! y)`.
+  it("36-39 en palabras caen en su tramo, no en 20_35", () => {
+    expect(interpretarEdad("treinta y seis")).toBe("36_45");
+    expect(interpretarEdad("treinta y ocho")).toBe("36_45");
+    // Y el "treinta" pelado, que es para lo que existe esa rama, no se movió.
+    expect(interpretarEdad("treinta")).toBe("20_35");
+    expect(interpretarEdad("treinta y cinco")).toBe("20_35");
+  });
+
+  // "Más de 45" es 46 en adelante. Escribir la etiqueta del chip tiene que
+  // valer lo mismo que tocarlo (spec 02 D4); antes daba 36_45.
+  it("'más de N' cuenta como N+1", () => {
+    expect(interpretarEdad("Más de 45")).toBe("46_mas");
+    expect(interpretarEdad("mas de 45")).toBe("46_mas");
+    expect(interpretarEdad("más de 30")).toBe("20_35");
   });
 
   it("subsidios: la lista vacía es una respuesta, no un vacío", () => {
     expect(interpretarSubsidios("Ninguno")).toEqual([]);
     expect(interpretarSubsidios("no sé si aplico")).toEqual(["Por confirmar"]);
     expect(interpretarSubsidios("Mi Casa Ya")).toEqual(["Mi Casa Ya"]);
+  });
+
+  // ✅ ARREGLADO 2026-07-26 — las dos ramas que hablan de hijos no usaban el
+  // mismo vocabulario, y por eso "niña" y "peques" caían en el cajón equivocado.
+  it("composición: 'hijo' se nombra de muchas formas, y todas cuentan igual", () => {
+    // "peques" faltaba: daba `pareja`, porque ganaba la rama de "señora".
+    expect(interpretarComposicion("con mi señora y los peques")).toBe("familia_con_hijos");
+    // La rama de monoparental exigía la raíz `hij`, que "niña" no tiene.
+    expect(interpretarComposicion("me toca criar sola a mi niña")).toBe("monoparental");
+    expect(interpretarComposicion("solo con mi peque")).toBe("monoparental");
+  });
+
+  it("composición: lo que ya funcionaba no se movió", () => {
+    expect(interpretarComposicion("con mi señora")).toBe("pareja");
+    expect(interpretarComposicion("solo yo")).toBe("solo");
+    expect(interpretarComposicion("con mi esposa y los niños")).toBe("familia_con_hijos");
+    expect(interpretarComposicion("yo con mis hijos")).toBe("monoparental");
+    // "pequeño" habla del apartamento, no de un hijo: la `\b` de `peques?\b`
+    // es lo que separa los dos casos.
+    expect(interpretarComposicion("con mi señora, algo pequeño")).toBe("pareja");
+  });
+
+  // ✅ ARREGLADO 2026-07-26 — el peor de los seis.
+  it("vivienda: decir que no se SABE no es decir que NO", () => {
+    for (const duda of ["pues no sé", "no sé todavía", "no estoy seguro", "ni idea"]) {
+      expect(interpretarVivienda(duda), duda).toBeUndefined();
+    }
+    // Negar de verdad sigue contando; si no, el arreglo se pasó de largo.
+    for (const niega of ["no", "no tengo", "vivo en arriendo", "sería la primera"]) {
+      expect(interpretarVivienda(niega), niega).toBe(false);
+    }
+    expect(interpretarVivienda("ya tengo casa")).toBe(true);
   });
 });
 

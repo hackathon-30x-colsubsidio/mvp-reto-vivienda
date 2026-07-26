@@ -4,6 +4,25 @@
 >
 > El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
 
+## 🟢 2026-07-26 — Los 6 bugs de interpretación están ARREGLADOS. Quedan 4 ramas: 6, 7, 8 y 5
+
+**704 tests verdes**, typecheck y lint limpios, y la prueba que vale: **los 3 personajes canónicos no se movieron (73 / 24 / 0)** y `db/seed.sql` regenera **sin una línea de diff**. O sea que el demo se ve igual, pero deja de mentir sobre quien escribe distinto.
+
+| # | Qué hacía | Arreglo |
+|---|---|---|
+| 1 | `"pues no sé"` → "no tiene vivienda" | mirar la duda antes que la negación |
+| 2 | `"treinta y ocho"` → tramo 20-35 | `(?! y)` |
+| 3 | `"ya salí de un reporte"` (con tilde) → `mala` | normalizar tildes |
+| 4 | `"Más de 45"` y `"El de mi caja…"` escritos ≠ el chip | N+1, y etiquetas canónicas |
+| 5 | `"con mi señora y los peques"` → pareja | "peques" entra a la lista de hijos |
+| 6 | `"me toca criar sola a mi niña"` → familia con hijos | una sola lista de raíces de "hijo" |
+
+**🔴 La causa raíz de tres de los seis es la misma trampa de JavaScript, y conviene que todos la sepan: `\b` no sirve en español.** Se define sobre `[A-Za-z0-9_]`, así que **las vocales con tilde y la `ñ` no cuentan como letra**. Por eso `/\bno s[ée]\b/` nunca casaba con "no sé", y `/peques?\b/` sí casa dentro de "pequeño". Si escribes un regex sobre texto en español, normaliza con `sinTildes` primero o usa un lookahead. Ya se barrió el repo: no queda ningún otro caso.
+
+**📌 Corrección a lo que este mismo documento decía.** Veníamos repitiendo que `tiene_vivienda: false` "habilita los subsidios de primera vivienda". **Es impreciso:** el código dispara ese recurso igual con `false` que con "no informado". Lo que de verdad costaba el bug es que **regalaba 5 puntos de 100** en el factor `ya_tiene_vivienda` y hacía que la ficha del asesor **afirmara** "No tiene vivienda propia" sobre algo que nadie dijo. Igual de grave, por otra razón.
+
+**Lo que sigue abierto del hueco 2:** la conversación sucia ahora pierde **3** campos en vez de 2, y no es un retroceso: `tiene_vivienda` dejó de inventar y ahora se declara vacío. Perder el dato es mejor que afirmarlo falso. Quién atiende ese vacío lo decide **la rama 5**.
+
 ## 🔵 2026-07-26 — Va la rama 4 (IA) en `main`. Quedan 4 ramas, y ahora son **6** los bugs de interpretación abiertos
 
 **En `main`: 1 (escenarios), 3 (guardas), 2 (contrato) y 4 (IA). 687 tests verdes**, typecheck y lint limpios. **Faltan 4 ramas: la 6 (sesgo de similitud), la 7 (banco de preguntas), la 8 (brochures al matcher) y la 5 (máquina de conversación, que sigue siendo la última).**

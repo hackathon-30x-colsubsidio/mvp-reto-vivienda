@@ -63,16 +63,28 @@ describe("primera vivienda o ya tiene", () => {
     expect(r.patch.tiene_vivienda).toBe(esperado);
   });
 
-  // ⚠️ BUG CONGELADO — peor que perder el dato: se lo INVENTA. `NIEGA`
-  // atrapa el "no" de "no sé" y lo lee como "no tengo vivienda", que
-  // habilita los subsidios de primera vivienda. Un lead que dijo que no
-  // sabía queda declarado como primer comprador ante el motor.
-  // Anotado en la bitácora del plan para P2.
-  it.each([["pues no sé"], ["no sé todavía"], ["no estoy seguro"]])(
-    "HOY inventa 'primera vivienda' cuando la persona dice %s",
+  // ✅ ARREGLADO 2026-07-26 (era el peor de los seis: no perdía el dato,
+  // se lo INVENTABA). `NIEGA` atrapaba el "no" de "no sé" y lo leía como
+  // "no tengo vivienda", así que quien dijo que no sabía quedaba
+  // declarado como primer comprador ante el motor: +5 puntos de 100 en
+  // el factor `ya_tiene_vivienda` y un "No tiene vivienda propia" en la
+  // ficha del asesor, sobre algo que nadie afirmó.
+  it.each([["pues no sé"], ["no sé todavía"], ["no estoy seguro"], ["ni idea"]])(
+    "no afirma nada cuando la persona dice %s",
     (texto) => {
       const r = interpretarUno(SIN_DATOS, "tiene_vivienda", texto);
-      expect(r.patch.tiene_vivienda).toBe(false);
+      expect(r.patch.tiene_vivienda).toBeUndefined();
+    },
+  );
+
+  // La otra mitad del arreglo: negar de verdad SÍ tiene que seguir
+  // contando. Si esto se rompe, el arreglo se pasó de largo.
+  it.each([["no"], ["no tengo"], ["todavía no"], ["nunca he tenido"]])(
+    "una negación de verdad sigue siendo 'no tiene': %s",
+    (texto) => {
+      expect(interpretarUno(SIN_DATOS, "tiene_vivienda", texto).patch.tiene_vivienda).toBe(
+        false,
+      );
     },
   );
 
@@ -128,14 +140,22 @@ describe("rango de edad", () => {
     expect(r.patch.rango_edad).toBe(esperado);
   });
 
-  // ⚠️ BUG CONGELADO — quien escribe su edad en letras entre 36 y 39
-  // queda clasificado como 20-35. Causa: en `interpretarEdad` la rama
-  // `^treinta\b` se evalúa ANTES que `treinta y (seis|siete|ocho|
-  // nueve)`, así que gana siempre. La edad alimenta la similitud con
-  // compradores reales, o sea que el error llega hasta qué proyecto se
-  // recomienda. Anotado en la bitácora para P2.
+  // ✅ ARREGLADO 2026-07-26 con un `(?! y)`. La rama `^treinta\b` se
+  // evaluaba ANTES que `treinta y (seis|siete|ocho|nueve)` y ganaba
+  // siempre, así que los 36-39 escritos en letras caían en 20-35. La
+  // edad alimenta la similitud con compradores reales, o sea que el
+  // error llegaba hasta qué proyecto se recomienda.
   it.each([["treinta y seis"], ["treinta y siete"], ["treinta y ocho"], ["treinta y nueve"]])(
-    "HOY clasifica mal %s como 20-35",
+    "clasifica bien %s como 36-45",
+    (texto) => {
+      expect(interpretarUno(SIN_DATOS, "rango_edad", texto).patch.rango_edad).toBe("36_45");
+    },
+  );
+
+  // Y los treinta de abajo no se movieron: sin esto, el `(?! y)` podría
+  // haber roto el tramo que sí funcionaba.
+  it.each([["treinta"], ["treinta y dos"], ["treinta y cinco"]])(
+    "%s sigue siendo 20-35",
     (texto) => {
       expect(interpretarUno(SIN_DATOS, "rango_edad", texto).patch.rango_edad).toBe("20_35");
     },
@@ -164,20 +184,17 @@ describe("situación crediticia", () => {
     expect(r.patch.situacion_crediticia).toBe(esperado);
   });
 
-  // ⚠️ BUG CONGELADO — la MISMA frase, escrita con la tilde correcta,
-  // da un veredicto peor. `interpretarCrediticia` compara contra un
-  // regex sin normalizar tildes (`/sali|.../` no atrapa "salí"), así
-  // que cae hasta la rama de mora porque "reporte" contiene "report".
-  // Quien escribe bien su español queda calificado peor que quien no.
-  // `interpretarZona` sí normaliza con `sinTildes` — la inconsistencia
-  // entre intérpretes es justo lo que la rama 2 unifica.
-  // Anotado en la bitácora para P2.
-  it("HOY 'ya salí de un reporte' (con tilde) cae a mora, no a regular", () => {
+  // ✅ ARREGLADO 2026-07-26 aplicando `sinTildes`, el mismo que ya usaba
+  // la zona. Antes, la MISMA frase escrita con su tilde daba un
+  // veredicto PEOR: `/sali|.../` no atrapaba "salí", así que caía hasta
+  // la rama de mora porque "reporte" contiene "report". Quien escribe
+  // bien su español quedaba calificado peor que quien no.
+  it("'ya salí de un reporte' vale lo mismo con tilde que sin ella", () => {
     expect(
       interpretarUno(SIN_DATOS, "situacion_crediticia", "ya salí de un reporte").patch
         .situacion_crediticia,
-    ).toBe("mala");
-    // Sin la tilde, la misma frase da otro resultado.
+    ).toBe("regular");
+    // La misma frase sin la tilde: mismo resultado. Ese es todo el punto.
     expect(
       interpretarUno(SIN_DATOS, "situacion_crediticia", "ya sali de un reporte").patch
         .situacion_crediticia,
@@ -211,13 +228,24 @@ describe("subsidios", () => {
     expect(r.patch.subsidios).toEqual(["Por confirmar"]);
   });
 
-  // ⚠️ BUG CONGELADO — escribir vale distinto que tocar el chip, y la
-  // convención del repo dice que tienen que valer lo mismo (spec 02
-  // D4). El chip guarda "Mi Casa Ya"; escribirlo guarda el texto crudo
-  // en minúscula. Anotado en la bitácora para P2.
-  it("HOY guarda el texto crudo en vez de la etiqueta del chip", () => {
-    const r = interpretarUno(SIN_DATOS, "subsidios", "mi casa ya");
-    expect(r.patch.subsidios).toEqual(["mi casa ya"]);
+  // ✅ ARREGLADO 2026-07-26. Escribir un subsidio que el chat nombra con
+  // etiqueta propia guarda ESA etiqueta, no la frase cruda: el chip es un
+  // atajo, no otra respuesta (spec 02 D4).
+  it.each([
+    ["mi casa ya", ["Mi Casa Ya"]],
+    ["Mi Casa Ya", ["Mi Casa Ya"]],
+    ["El de mi caja de compensación", ["Subsidio caja de compensación"]],
+    ["el de la caja", ["Subsidio caja de compensación"]],
+  ])("'%s' se guarda con la etiqueta del chip", (texto, esperado) => {
+    expect(interpretarUno(SIN_DATOS, "subsidios", texto).patch.subsidios).toEqual(esperado);
+  });
+
+  // Y lo que NO conocemos se sigue guardando tal cual lo dijo: nombrar un
+  // subsidio que no está en nuestra tabla no lo vuelve inválido.
+  it("un subsidio que no conocemos se guarda crudo", () => {
+    expect(interpretarUno(SIN_DATOS, "subsidios", "tengo el de fonvivienda").patch.subsidios).toEqual(
+      ["tengo el de fonvivienda"],
+    );
   });
 });
 
@@ -264,22 +292,23 @@ describe("cada chip vale lo mismo que escribir su etiqueta", () => {
     (paso.opciones ?? []).map((opcion) => ({ paso, opcion })),
   );
 
-  // Las dos que HOY divergen. Están aquí, con nombre, en vez de
-  // debilitar la afirmación para todas — así el día que se arreglen,
-  // este test falla y obliga a sacarlas de la lista.
-  const DIVERGEN_HOY = new Set([
-    // ⚠️ `numerosDe("Más de 45")` saca el 45 y `45 <= 45` cae en el
-    // rango de en medio. Quien teclee la etiqueta del chip tal cual
-    // queda en 36-45 en vez de 46+. La edad alimenta la similitud, así
-    // que el error llega hasta qué proyecto se recomienda.
-    "Más de 45",
-    // ⚠️ Cosmético pero de la misma clase: guarda la frase del lead en
-    // vez de la etiqueta canónica que usa el chip.
-    "El de mi caja de compensación",
-  ]);
+  // ✅ 2026-07-26 — la lista de excepciones quedó VACÍA. Tenía las dos
+  // que divergían ("Más de 45", que daba 36_45 porque `numerosDe` saca
+  // el 45 y `45 <= 45`; y "El de mi caja de compensación", que guardaba
+  // la frase del lead en vez de la etiqueta canónica). Se arreglaron, y
+  // la afirmación ahora vale para TODOS los chips sin excepción.
+  //
+  // Se conserva la constante, no por ceremonia: si mañana alguien agrega
+  // un chip cuyo texto el intérprete no entiende, el sitio donde se
+  // documenta la deuda ya existe y no hay que reinventar el patrón.
+  const DIVERGEN_HOY = new Set<string>([]);
 
   it("hay chips que probar", () => {
     expect(conChips.length).toBeGreaterThan(10);
+  });
+
+  it("ningún chip diverge: la lista de excepciones está vacía", () => {
+    expect([...DIVERGEN_HOY]).toEqual([]);
   });
 
   it.each(
@@ -291,16 +320,5 @@ describe("cada chip vale lo mismo que escribir su etiqueta", () => {
       (c) => c.paso.campo === campo && c.opcion.etiqueta === etiqueta,
     )!;
     expect(paso.interpretarTexto(opcion.etiqueta).patch).toEqual(opcion.patch);
-  });
-
-  // ⚠️ BUG CONGELADO — anotados en la bitácora para P2.
-  it("HOY 'Más de 45' escrito da 36_45, pero el chip da 46_mas", () => {
-    expect(interpretarUno(SIN_DATOS, "rango_edad", "Más de 45").patch.rango_edad).toBe("36_45");
-  });
-
-  it("HOY el subsidio de la caja guarda la frase del lead, no la etiqueta", () => {
-    expect(
-      interpretarUno(SIN_DATOS, "subsidios", "El de mi caja de compensación").patch.subsidios,
-    ).toEqual(["El de mi caja de compensación"]);
   });
 });

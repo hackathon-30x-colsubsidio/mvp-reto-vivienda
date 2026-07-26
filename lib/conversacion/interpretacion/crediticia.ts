@@ -1,4 +1,5 @@
 import type { ValorDe } from "../acciones";
+import { sinTildes } from "./texto";
 
 /**
  * Cómo va su vida crediticia, normalizado al enum que espera el motor.
@@ -17,7 +18,12 @@ import type { ValorDe } from "../acciones";
 export function interpretarCrediticia(
   texto: string,
 ): ValorDe<"situacion_crediticia"> | undefined {
-  const t = texto.toLowerCase();
+  // ⚠️ `sinTildes`, no `toLowerCase`, y no es cosmético: con `toLowerCase` el
+  // regex `/sali|.../` no atrapaba "salí", así que **"ya salí de un reporte"
+  // caía a `mala`** (por el "report" de "reporte") mientras que "ya sali de un
+  // reporte" daba `regular`. Quien escribe bien su español quedaba calificado
+  // peor. La zona ya normalizaba así; ahora los dos intérpretes son consistentes.
+  const t = sinTildes(texto);
   if (/al d[íi]a|bien|excelente|buena|sin deudas|limpio|impecable/.test(t)) return "buena";
   if (/nunca|no he tenido|no tengo historial|sin historial|primera vez|no he pedido/.test(t)) {
     return "sin_info";

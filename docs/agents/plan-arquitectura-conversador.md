@@ -686,6 +686,52 @@ diff, y esa es la prueba). Estado uno por uno:
   conservador de todos: `"entre los dos juntamos como cinco y pico"` también sale `undefined`, que
   es el sesgo correcto para el insumo del gate del 40%. → **todos** · ✅ medido
 
+### 2026-07-26 · los 6 bugs de interpretación — ARREGLADOS
+
+Aprobados por Mani y arreglados con medición antes y después. **Los 3 personajes canónicos no se
+movieron: 73 / 24 / 0**, y `db/seed.sql` regenera **sin una línea de diff**. Los 14 tests
+`BUG CONGELADO` que fallaron al arreglarlos se voltearon a afirmar el arreglo, con su porqué.
+**704 tests verdes.**
+
+| # | Qué hacía | Arreglo | Dónde |
+|---|---|---|---|
+| 1 | `"pues no sé"` → `tiene_vivienda: false` | mirar la duda **antes** que la negación | `vivienda.ts` |
+| 2 | `"treinta y ocho"` → `20_35` | `^treinta\b(?! y)` | `edad.ts` |
+| 3 | `"ya salí de un reporte"` → `mala` | `sinTildes` en vez de `toLowerCase` | `crediticia.ts` |
+| 4a | `"Más de 45"` escrito → `36_45` (el chip da `46_mas`) | `más de N` cuenta como N+1 | `edad.ts` |
+| 4b | `"El de mi caja…"` escrito → frase cruda | tabla de etiquetas canónicas | `subsidios.ts` |
+| 5 | `"con mi señora y los peques"` → `pareja` | `peques?` entra a la lista de hijos | `composicion.ts` |
+| 6 | `"me toca criar sola a mi niña"` → `familia_con_hijos` | **una sola** lista de raíces de "hijo" para las dos ramas | `composicion.ts` |
+
+- **[bugs] 🔴 La causa raíz de tres de los seis es la misma, y es una trampa de JavaScript: `\b` no
+  es de fiar en español.** `\b` se define sobre `[A-Za-z0-9_]`, así que **las vocales acentuadas y
+  la `ñ` NO son caracteres de palabra**. Dos consecuencias medidas, en direcciones opuestas:
+  - `/\bno s[ée]\b/` **nunca** casaba con "no sé" (no hay frontera entre `é` y el espacio: los dos
+    son "no-palabra"). Fue el primer intento de arreglo del bug 1 y falló en silencio.
+  - `/peques?\b/` **sí** casa dentro de "pequeño" (sí hay frontera entre `e` y `ñ`). Lo atrapó un
+    test de control que escribí para el bug 5: `"con mi señora, algo pequeño"` entraba como
+    `familia_con_hijos`.
+
+  La salida es `sinTildes` primero, o un lookahead explícito. **Barrido hecho: no queda ningún otro
+  `\b` pegado a un carácter acentuado en el repo.** → **todos** · ✅ documentado en el código
+- **[bugs] Corrección a los docs del repo, no al código.** Se venía repitiendo (aquí, en
+  `URGENTE-Y-NOTICIAS.md` y en el handoff) que `tiene_vivienda: false` *"habilita los subsidios de
+  primera vivienda"*. **Es impreciso**: `recursos/index.ts:70` calcula `!tieneVivienda` sobre
+  `=== true`, así que `false` y `undefined` disparan el recurso **igual**. Lo que de verdad costaba
+  el bug, medido: el factor `ya_tiene_vivienda` de `scoring/index.ts:147` puntúa `false` como 1,0 y
+  `undefined` como 0,5 sobre un peso de 0,10, o sea que la afirmación falsa **regalaba 5 puntos de
+  100**, y la ficha del asesor afirmaba "No tiene vivienda propia" donde la verdad era "No
+  informado". Sigue siendo grave; es grave por otra razón. → **todos** · ✅ corregido
+- **[bugs] El hueco 2 pasó de 2 campos perdidos a 3, y NO es un retroceso.** En la conversación
+  sucia de `conversaciones.test.ts`, `tiene_vivienda` dejó de inventar un `false` y ahora se declara
+  vacío. **Perder el dato es mejor que afirmarlo falso**, y quién atiende ese vacío lo decide la
+  rama 5 (punto 7). → **P1 (rama 5)** · ⬜ sigue abierto
+- **[bugs] `data/sintetica/slots.json` estaba VIEJO en disco**, y no por esta tanda. Desde que el
+  catálogo resolvió la ubicación de KARAKALI y VIBO ONCE (2026-07-25) nadie lo regeneró, así que la
+  ciudad de esas dos salas de ventas decía *"Ricaurte o Bogotá (ubicación contradictoria entre
+  hojas, sin confirmar)"* — texto que el lead vería al agendar. Regenerado. Es el recordatorio de
+  por qué los 4 archivos generados se regeneran y no se editan. → **todos** · ✅ arreglado
+
 ---
 
 ## 9 · Protocolo de sincronización
