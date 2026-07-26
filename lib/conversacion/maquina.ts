@@ -110,6 +110,26 @@ export function esPreguntaDeIdentidad(texto: string): boolean {
   return PREGUNTA_IDENTIDAD.test(texto);
 }
 
+/**
+ * Los números que aparecen en un texto, normalizados.
+ *
+ * Existe por un falso positivo medido en el navegador el 2026-07-26: el guard
+ * bloqueaba la recomendación de Sara con `cifra_inventada` porque el `porque`
+ * de cada proyecto trae los porcentajes de la similitud ("el 63% de quienes
+ * compraron ahí son afiliados, como tú"). Esos porcentajes los calculó el
+ * motor y viajan al prompt dentro de `listaParaPrompt`, así que Sara SÍ puede
+ * citarlos — pero no estaban en `cifrasPermitidas` y el lead terminaba viendo
+ * siempre el texto determinista.
+ *
+ * Ensancha lo permitido solo con cifras que el propio motor emitió, y solo
+ * para ese turno.
+ */
+export function cifrasDe(texto: string): number[] {
+  return (texto.match(/\d[\d.,]*/g) ?? [])
+    .map((crudo) => Number(crudo.replace(/[.,]/g, "")))
+    .filter((n) => Number.isFinite(n) && n > 0);
+}
+
 /** Lo que la máquina necesita saber del turno para decidir. */
 export interface ContextoTurno {
   /** El campo de la pregunta pendiente. */
