@@ -36,8 +36,16 @@ import {
 import { accionDeValor, respuestaDeAccion } from "@/lib/conversacion/preguntas";
 import type { CampoPregunta } from "@/lib/conversacion/acciones";
 import {
+  aplicarRespuestaBanco,
+  bancoDisponible,
+  preguntaDelBanco,
+  MAX_PREGUNTAS_BANCO,
+  type PreguntaBanco,
+} from "@/lib/conversacion/banco-preguntas";
+import {
   cifrasDe,
   decidirTurno,
+  decidirTurnoLibre,
   mensajeMuchasPreguntas,
   notaSistemaMuchasPreguntas,
   notaSistemaSinInterpretar,
@@ -113,6 +121,20 @@ const esCampoIA = (campo: CampoPregunta): campo is CampoInterpretable =>
   (CAMPOS_IA as readonly string[]).includes(campo);
 
 /**
+ * Lo que la conversación puede tener pendiente: una de las 7 base, o una del
+ * banco.
+ *
+ * Se guardan en la MISMA lista a propósito. Una `PreguntaBanco` es
+ * `Omit<PasoPregunta, "campo">` más su campo propio, así que se pinta, acusa e
+ * interpreta igual que un paso base: metiéndola aquí, los chips, el placeholder
+ * y el campo de texto salen gratis y **no hubo que tocar una línea de JSX**.
+ */
+type PasoChat = PasoPregunta | PreguntaBanco;
+
+/** Solo las del banco traen `id`: es lo que las distingue en la lista. */
+const esBanco = (paso: PasoChat): paso is PreguntaBanco => "id" in paso;
+
+/**
  * Lo que trae un lead que vuelve porque se le disparó el trigger de nutrición
  * (criterio de aceptación 3, ticket 007). Si viene, la conversación NO arranca
  * de cero: retoma.
@@ -146,7 +168,9 @@ export function ChatWhatsApp({
 }) {
   // Al re-enganchar solo se pregunta lo que pudo cambiar: el resto ya lo contó
   // y repreguntarlo rompería el criterio 1 en el peor momento (spec 05 D4).
-  const [pasos] = useState<PasoPregunta[]>(() =>
+  // Crece: al agotarse las base, el banco le puede añadir hasta 2 (ver
+  // `seguirDelBancoOTerminar`).
+  const [pasos, setPasos] = useState<PasoChat[]>(() =>
     reenganche ? preguntasDeReenganche() : construirPreguntas(perfil),
   );
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
@@ -193,6 +217,8 @@ export function ChatWhatsApp({
    * el bucle, no para castigar a quien pregunta.
    */
   const sinAvanzar = useRef(0);
+  /** Cuántas del banco se han hecho ya. Tope duro: `MAX_PREGUNTAS_BANCO`. */
+  const bancoHechas = useRef(0);
 
   function anotar(rol: MensajeConversacion["rol"], mensaje: string) {
     transcripcionRef.current = [...transcripcionRef.current, { rol, mensaje }];
@@ -429,10 +455,12 @@ export function ChatWhatsApp({
     // Contestó: el contador de turnos sin avanzar vuelve a cero. El tope de
     // desvíos existe para el bucle, no para castigar a quien pregunta mucho.
     sinAvanzar.current = 0;
-    const nuevasRespuestas: Lead["respuestas"] = {
-      ...respuestas,
-      ...respuesta.patch,
-    };
+    // El banco acumula en vez de reemplazar: el patch pelado pisaría el texto
+    // crudo que la primera pregunta hubiera dejado en `preferencias_libres`, y
+    // ese campo existe justamente para que no se pierda nada de lo que dijo.
+    const nuevasRespuestas: Lead["respuestas"] = esBanco(pasos[indicePaso])
+      ? aplicarRespuestaBanco(respuestas, respuesta.patch)
+      : { ...respuestas, ...respuesta.patch };
     setRespuestas(nuevasRespuestas);
 
     // La respuesta no dejó un dato usable (hoy: un ingreso ilegible, que es el
@@ -464,7 +492,74 @@ export function ChatWhatsApp({
       setIndicePaso(siguienteIndice);
       await agregarBot(pasos[siguienteIndice].pregunta);
     } else {
-      await terminar(nuevasRespuestas);
+      await seguirDelBancoOTerminar(nuevasRespuestas);
+    }
+  }
+
+  /**
+   * Se acabaron las preguntas: ¿vale la pena una más del banco, o se cierra?
+   *
+   * El banco es **aditivo**. Falla cerrada en los cuatro casos —sin key, sin
+   * preguntas disponibles, sin candidatos que reordenar, o si el modelo se
+   * inventa un id— y en todos la conversación termina exactamente como
+   * terminaba antes de que esta capa existiera. Por eso no hay ni un mensaje de
+   * error: no hay nada que decirle al lead.
+   *
+   * Quién decide es el servidor (`POST /api/banco`): el selector necesita el
+   * catálogo y el matcher para saber qué separa a los candidatos de ESTE lead,
+   * y eso el cliente no lo puede calcular. El LLM **escoge un id de la lista**,
+   * no escribe la pregunta (§4 del plan).
+   */
+  async function seguirDelBancoOTerminar(respuestasActuales: Lead["respuestas"]) {
+    const siguiente = await elegirDelBanco(respuestasActuales);
+    if (!siguiente) {
+      await terminar(respuestasActuales);
+      return;
+    }
+
+    bancoHechas.current += 1;
+    setPasos((previos) => [...previos, siguiente]);
+    setIndicePaso(pasos.length);
+    await agregarBot(siguiente.pregunta);
+  }
+
+  /** La pregunta del banco que sigue, o `null` si ninguna vale la pena. */
+  async function elegirDelBanco(
+    respuestasActuales: Lead["respuestas"],
+  ): Promise<PreguntaBanco | null> {
+    // El re-enganche NO lleva banco: no tiene las 7 base (retoma con lo que
+    // pudo cambiar) y alargarlo con preguntas nuevas iría contra lo único que
+    // promete, que es no hacerle repetir nada a quien ya conversó.
+    if (reenganche) return null;
+    if (bancoHechas.current >= MAX_PREGUNTAS_BANCO) return null;
+    if (bancoDisponible(respuestasActuales).length === 0) return null;
+
+    const lead: Lead = {
+      evento,
+      perfil,
+      respuestas: completarDesdePerfil(perfil, respuestasActuales),
+    };
+
+    try {
+      const resp = await fetch("/api/banco", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lead }),
+      });
+      if (!resp.ok) return null;
+
+      // `{ id: null }` es la respuesta NORMAL, no un error: significa "ninguna
+      // vale la pena". Tratarla como fallo apagaría la capa entera.
+      const { id } = (await resp.json()) as { id?: string | null };
+      if (!id) return null;
+
+      const pregunta = preguntaDelBanco(id);
+      // Se inventó un id, o escogió una cuyo dato ya tenemos: se cierra sin
+      // preguntar. Nunca se repregunta lo conocido (criterio de aceptación 1).
+      if (!pregunta) return null;
+      return respuestasActuales[pregunta.campo] === undefined ? pregunta : null;
+    } catch {
+      return null; // sin red: la conversación termina como hoy
     }
   }
 
@@ -690,10 +785,16 @@ export function ChatWhatsApp({
    */
   async function manejarTurno(texto: string) {
     const paso = pasos[indicePaso];
-    const accion = decidirTurno(texto, {
-      campo: paso.campo,
-      yaRespondidos: pasos.slice(0, indicePaso).map((p) => p.campo),
-    });
+    // Las base ya contestadas, que es contra lo que se detecta una corrección.
+    // Las del banco no entran: `accionDeCorreccion` razona sobre el enum de zod
+    // de las 7 base y el campo del banco vive aparte (ver `CampoBanco`).
+    const yaRespondidos = pasos
+      .slice(0, indicePaso)
+      .flatMap((p) => (esBanco(p) ? [] : [p.campo]));
+
+    const accion = esBanco(paso)
+      ? decidirTurnoLibre(texto, { yaRespondidos, interpretar: paso.interpretarTexto })
+      : decidirTurno(texto, { campo: paso.campo, yaRespondidos });
 
     switch (accion.tipo) {
       // Preguntó si habla con una máquina. Se le dice la verdad: hasta esta
@@ -749,6 +850,12 @@ export function ChatWhatsApp({
       // pero dejando dicho en el hilo qué no se entendió.
       case "no_entendido":
         return manejarNoEntendido(texto, accion.campo);
+
+      // Una del banco: su intérprete ya devolvió la `Respuesta` lista, y nunca
+      // se queda mudo —lo que no clasifica entra a `preferencias_libres`— así
+      // que no hay nada que rescatar con la IA.
+      case "responder_libre":
+        return responderPregunta(texto, accion.respuesta);
 
       // `responder_paso` y `confirmar_dato`: el camino de siempre.
       default:

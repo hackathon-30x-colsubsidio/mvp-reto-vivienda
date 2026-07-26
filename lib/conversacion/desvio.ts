@@ -266,6 +266,6 @@ export function accionDeDesvio(desvio: Desvio, textoCrudo: string): AccionTurno 
  * el hilo del perfilamiento ni inventarse una pregunta nueva por su cuenta
  * (decisión 1 de la sala del sábado 25 — conduce el código).
  */
-export function repreguntar(paso: PasoPregunta): string {
+export function repreguntar(paso: Pick<PasoPregunta, "pregunta">): string {
   return `Sigamos donde estábamos. ${paso.pregunta}`;
 }

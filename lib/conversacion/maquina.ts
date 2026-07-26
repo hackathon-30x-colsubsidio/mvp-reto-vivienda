@@ -1,5 +1,5 @@
 import type { AccionTurno, CampoPregunta } from "./acciones";
-import { accionDeCorreccion, accionDeTexto } from "./preguntas";
+import { accionDeCorreccion, accionDeTexto, type Respuesta } from "./preguntas";
 import { accionDeDesvio, detectarDesvio, esFueraDeTema } from "./desvio";
 
 // =====================================================================
@@ -139,7 +139,14 @@ export interface ContextoTurno {
 }
 
 /** `identidad` es de esta rama; el resto sale del vocabulario de la rama 2. */
-export type AccionDeTurno = AccionTurno | { tipo: "identidad"; textoCrudo: string };
+export type AccionDeTurno =
+  | AccionTurno
+  | { tipo: "identidad"; textoCrudo: string }
+  /**
+   * Una respuesta que ya viene interpretada porque su pregunta no es de las 7
+   * base y trae su propio intérprete (hoy: el banco). Ver `decidirTurnoLibre`.
+   */
+  | { tipo: "responder_libre"; respuesta: Respuesta; textoCrudo: string };
 
 /**
  * Qué pasó en este turno. Puro, síncrono y sin React.
@@ -170,4 +177,39 @@ export function decidirTurno(texto: string, ctx: ContextoTurno): AccionDeTurno {
   }
 
   return accion;
+}
+
+/**
+ * El turno de una pregunta que NO es de las 7 base — hoy, una del banco.
+ *
+ * Conserva **los tres primeros clasificadores tal cual**, porque ninguno
+ * depende del campo: quien pregunta si habla con una máquina, quien tiene una
+ * duda, quien pide un asesor y quien corrige un dato que ya dio merecen la
+ * misma atención en la pregunta 8 que en la 3.
+ *
+ * Lo único que cambia es quién interpreta la respuesta. El campo del banco NO
+ * vive en el enum de zod de `acciones.ts` —a propósito, ver `CampoBanco`— así
+ * que `accionDeTexto` no tiene intérprete para él; lo trae la pregunta.
+ *
+ * Y por eso mismo **no hay rama `no_entendido` aquí**: los intérpretes del
+ * banco siempre devuelven una `Respuesta` —lo que no logran clasificar entra a
+ * `preferencias_libres` y llega crudo a la ficha del asesor— así que no queda
+ * nada que rescatar con la IA ni que refinar como fuera de tema.
+ */
+export function decidirTurnoLibre(
+  texto: string,
+  ctx: {
+    yaRespondidos: CampoPregunta[];
+    interpretar: (texto: string) => Respuesta;
+  },
+): AccionDeTurno {
+  if (esPreguntaDeIdentidad(texto)) return { tipo: "identidad", textoCrudo: texto };
+
+  const desvio = detectarDesvio(texto);
+  if (desvio) return accionDeDesvio(desvio, texto);
+
+  const correccion = accionDeCorreccion(texto, ctx.yaRespondidos);
+  if (correccion) return correccion;
+
+  return { tipo: "responder_libre", respuesta: ctx.interpretar(texto), textoCrudo: texto };
 }
