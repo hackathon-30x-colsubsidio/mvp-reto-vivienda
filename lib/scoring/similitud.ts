@@ -46,7 +46,60 @@ export interface Similitud {
   evidencias: string[];
 }
 
-const NEUTRA: Similitud = { valorNorm: 0.5, evidencias: [] };
+/**
+ * Lo que vale un proyecto del que NO tenemos compradores.
+ *
+ * Era `0.5`, y ese número **no era neutro**. Medido con `scripts/sonda-similitud.ts`
+ * sobre 852 similitudes con evidencia real: la mediana es 0,385 y el p75 es
+ * 0,470, así que **0,5 le ganaba al 79,7% de los proyectos que SÍ conocemos**.
+ * No saber nada de un proyecto lo ponía por encima de casi todos los demás.
+ *
+ * El costo estaba medido y era grande: los 6 sin distribución confiable (ABETO,
+ * ARAUCARIA, KARAKALI, LOS NOGALES, VIBO ONCE, ZARZAL) son todos de Bogotá, y
+ * **en Bogotá se llevaban el 54,2% de las citas** siendo un tercio del catálogo.
+ * Es el 55% que el plan le atribuía a ZARZAL: era de Bogotá, no global.
+ *
+ * Ahora es la MEDIANA de los porcentajes que traen las distribuciones
+ * confiables. Se deriva del dato y no se escribe a mano —igual que el resto de
+ * los espejos del repo— así que si mañana el PPT trae otros proyectos, el
+ * neutro se recalibra solo en vez de quedar viejo en silencio. Y dice
+ * exactamente lo que queremos que diga: *de este no sabemos, va como uno del
+ * montón*, ni premiado ni castigado.
+ *
+ * ⚠️ La otra opción del punto 13 —normalizar contra el máximo del catálogo para
+ * ese lead— **no se puede hacer aquí**: `similitudCon` ve un proyecto a la vez y
+ * el máximo depende del lead, así que exigiría cambiar la firma y con ella los
+ * dos consumidores (`lib/scoring/index.ts` y `lib/matching/index.ts`). Deja de
+ * ser el cambio de 3 líneas que la rama 6 declara y se mete en archivos de otra
+ * rama. Queda anotado en la bitácora por si alguien lo quiere retomar.
+ */
+function medianaDeLasDistribuciones(): number {
+  const pcts: number[] = [];
+
+  for (const dist of Object.values(DISTRIBUCIONES)) {
+    if (!dist.confiable) continue;
+    // La afiliación entra por sus dos caras: el lead puede ser afiliado o no, y
+    // la señal que recibe es el complemento en el segundo caso.
+    if (dist.afiliado_pct !== undefined) {
+      pcts.push(dist.afiliado_pct, 100 - dist.afiliado_pct);
+    }
+    for (const grupo of [dist.salario, dist.edad, dist.familia]) {
+      if (!grupo) continue;
+      for (const pct of Object.values(grupo)) {
+        if (typeof pct === "number") pcts.push(pct);
+      }
+    }
+  }
+
+  if (pcts.length === 0) return 0.5;
+  pcts.sort((a, b) => a - b);
+  return pcts[Math.floor(pcts.length / 2)] / 100;
+}
+
+/** Expuesto para que el test pueda afirmar que sale del dato y no de la nada. */
+export const SIMILITUD_NEUTRA = medianaDeLasDistribuciones();
+
+const NEUTRA: Similitud = { valorNorm: SIMILITUD_NEUTRA, evidencias: [] };
 
 /** Cómo se llama cada conformación del hogar en el PPT vs. en el chat. */
 const FAMILIA_A_BUCKET: Record<

@@ -392,6 +392,11 @@ Hoy los 6 proyectos **sin** distribución confiable devuelven 0,5 y los que **s�
 real puntúan 0,23–0,40: los sin datos ganan estructuralmente, y por eso ZARZAL —que ni siquiera
 está en el PPT— se lleva el 55% de las citas.
 
+> ⚠️ **Corregido con la sonda (2026-07-26).** El diagnóstico es correcto pero la cifra estaba mal
+> atribuida: **el 55% era de Bogotá, no global**, y no era de ZARZAL solo sino de los **seis** sin
+> datos juntos (medido: 54,2% de las citas de Bogotá; ZARZAL solo saca 10,8% global). El líder
+> global es PAYANDÉ con 35,3%, y eso es zona y precio, no similitud. Detalle en la bitácora.
+
 **🔴 CONSULTAR antes de escribir:** cuál de los dos enfoques (mediana vs. normalizar). Cambian los
 puntajes de todos los leads sembrados y la ficha del asesor muestra números distintos.
 
@@ -487,7 +492,7 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 | 10 | Prompt del intérprete de respaldo | 4 | ✅ **cerrado** (2026-07-26) — clasifica, no conversa; ve un solo mensaje |
 | 11 | Máximo de líneas del guard | 3 | ✅ **3 líneas y 4 frases** (2026-07-25) |
 | 12 | Texto de la fila `sistema` cuando el guard bloquea | 3 | ✅ **cerrado** (2026-07-25) |
-| 13 | Mediana vs. normalizar en el sesgo de similitud | 6 | ⬜ abierto |
+| 13 | Mediana vs. normalizar en el sesgo de similitud | 6 | ✅ **mediana** (2026-07-26) — normalizar no cabe en esta rama, ver bitácora |
 | 14 | Valores de los tres bonos nuevos | 8 | ⬜ abierto |
 | 15 | Redacción del `porque` cuando un bono se activa | 8 | ⬜ abierto |
 | 16 | Copy del mensaje de recomendación **sin IA** (el fallback) | 4 | ⬜ **abierto — lo ratifica Mani** |
@@ -841,6 +846,43 @@ movieron: 73 / 24 / 0**, y `db/seed.sql` regenera **sin una línea de diff**. Lo
   ciudad de esas dos salas de ventas decía *"Ricaurte o Bogotá (ubicación contradictoria entre
   hojas, sin confirmar)"* — texto que el lead vería al agendar. Regenerado. Es el recordatorio de
   por qué los 4 archivos generados se regeneran y no se editan. → **todos** · ✅ arreglado
+- **[6] La sonda de 1.200 perfiles NO existía; ahora sí, y corrige la cifra del plan** → **todos** ·
+  hecha. `npx tsx scripts/sonda-similitud.ts`, script nuevo, no toca datos ni red. El "55% de
+  ZARZAL" del §1 venía de un análisis que nadie podía repetir, y **estaba mal atribuido**: el 55%
+  es de **Bogotá** y de los **seis** proyectos sin datos juntos, no de ZARZAL solo. Medido antes del
+  arreglo: ZARZAL 10,8% global, el líder es PAYANDÉ con 35,3% (que es zona y precio, no similitud).
+  El §1 ya quedó corregido con esta nota. **La sonda queda para que la rama 8 mida sus bonos con la
+  misma vara.**
+- **[6] Cerrado el punto 13: MEDIANA, y normalizar ni siquiera era opción** → **P5** · hecho.
+  Normalizar contra el máximo del catálogo para ese lead **no se puede hacer dentro de
+  `similitud.ts`**: `similitudCon` ve un proyecto a la vez y el máximo depende del lead, así que
+  exigiría cambiar la firma y con ella sus dos consumidores (`lib/scoring/index.ts` y
+  `lib/matching/index.ts`). Deja de ser el cambio de 3 líneas que la rama declara y se mete en
+  archivos de otra rama. Si alguien lo quiere retomar, es su propia rama.
+- **[6] El neutro se deriva del dato, no es un número escrito a mano** → **P5** · hecho.
+  El plan proponía "≈0,30"; la mediana real de las distribuciones confiables es **0,350**, y la
+  mediana de las 852 similitudes con evidencia real es 0,385. Quedó como
+  `SIMILITUD_NEUTRA = medianaDeLasDistribuciones()`, calculada al cargar el módulo: si mañana el PPT
+  trae otros proyectos, el neutro se recalibra solo en vez de quedar viejo en silencio — misma regla
+  que los 4 archivos generados. Hay test que impide que vuelva a ser 0,5.
+- **[6] ANTES / DESPUÉS, con la sonda de 1.200 perfiles** → **todos** · es la definición de listo.
+
+  | | antes (`NEUTRA` = 0,500) | después (`= 0,350`) |
+  |---|---|---|
+  | los 6 sin datos se llevan el #1 | **10,8%** de las citas | **4,4%** |
+  | ídem, solo en Bogotá, donde compiten | **54,2%** de 144 citas | **22,2%** |
+  | el neutro le gana a … de los que SÍ tienen evidencia | **79,7%** | **41,3%** |
+  | proyectos que llegan a ser #1 alguna vez | 11 de 18 | **12 de 18** |
+  | líder | PAYANDÉ 35,3% | PAYANDÉ 35,3% (sin cambio: es zona y precio) |
+
+  Su peso por conteo sería 33,3%, así que pasaron de estar **muy por encima** de lo que les toca a
+  estar por debajo — que es lo correcto: no tienen evidencia con qué ganar, y siguen ganando donde
+  el precio y la zona sí los favorecen.
+- **[6] Los 3 personajes del demo NO cambian, y está verificado** → **todos** · tranquilos.
+  `db/seed.sql` regenerado sale **byte a byte idéntico**, y los 759 tests pasan. La razón: ninguno de
+  los proyectos que se les recomienda (LA ARBOLEDA, MONGUI, VERSALLES, PAYANDÉ) está entre los 6 sin
+  distribución. O sea que el temor del §6 —"cambian los puntajes de todos los leads sembrados"— no se
+  materializó, y el video grabado sigue siendo válido.
 
 ---
 

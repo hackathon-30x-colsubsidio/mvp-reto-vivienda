@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { similitudCon } from "./similitud";
+import { similitudCon, SIMILITUD_NEUTRA } from "./similitud";
 import type { Lead } from "../types";
 
 // La similitud se prueba contra el JSON DERIVADO real (buyer_personas.json):
@@ -31,16 +31,40 @@ describe("similitudCon", () => {
     );
   });
 
-  it("proyecto sin distribución (Zarzal no tiene slide) → 0.5 neutro, sin evidencias", () => {
+  it("proyecto sin distribución (Zarzal no tiene slide) → el neutro, sin evidencias", () => {
     const s = similitudCon(leadDe({ ingreso_hogar_mensual: 2_000_000 }), "zarzal", true);
-    expect(s.valorNorm).toBe(0.5);
+    expect(s.valorNorm).toBe(SIMILITUD_NEUTRA);
     expect(s.evidencias).toHaveLength(0);
   });
 
-  it("slide marcado no confiable (Abeto) → 0.5 neutro: no se castiga por un error del PPT", () => {
+  it("slide marcado no confiable (Abeto) → el neutro: no se castiga por un error del PPT", () => {
     const s = similitudCon(leadDe({ ingreso_hogar_mensual: 2_000_000 }), "abeto", true);
-    expect(s.valorNorm).toBe(0.5);
+    expect(s.valorNorm).toBe(SIMILITUD_NEUTRA);
     expect(s.evidencias).toHaveLength(0);
+  });
+
+  // El neutro NO puede volver a ser 0,5, y esta es la red que lo impide.
+  // Medido con `scripts/sonda-similitud.ts`: 0,5 le ganaba al 79,7% de los
+  // proyectos CON evidencia real, y en Bogotá los 6 sin datos se llevaban el
+  // 54,2% de las citas siendo un tercio del catálogo.
+  describe("el neutro sale del dato, no de un número redondo", () => {
+    it("es la mediana de las distribuciones confiables, no 0,5", () => {
+      expect(SIMILITUD_NEUTRA).toBeLessThan(0.5);
+      expect(SIMILITUD_NEUTRA).toBeGreaterThan(0.2);
+    });
+
+    it("no le gana a la mayoría de los proyectos que sí tienen evidencia", () => {
+      // La comparación que importa: un proyecto del que no sabemos nada no
+      // puede quedar por encima de la mitad de los que sí conocemos.
+      const conEvidencia = ["la-macarena", "inari", "payande"]
+        .map((id) => similitudCon(leadDe({ ingreso_hogar_mensual: 2_000_000 }), id, true))
+        .filter((s) => s.evidencias.length > 0)
+        .map((s) => s.valorNorm);
+
+      expect(conEvidencia.length, "la muestra quedó vacía").toBeGreaterThan(1);
+      const superados = conEvidencia.filter((v) => v < SIMILITUD_NEUTRA).length;
+      expect(superados).toBeLessThan(conEvidencia.length);
+    });
   });
 
   it("lead sin ninguna dimensión → 0.5 neutro (no se inventa un fit)", () => {
