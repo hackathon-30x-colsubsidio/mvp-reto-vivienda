@@ -27,13 +27,29 @@ import {
   type Respuesta,
 } from "@/lib/conversacion/preguntas";
 import {
-  detectarDesvio,
+  mensajeFueraDeTema,
   mensajeHandoffAsesor,
   notaSistemaHandoff,
   repreguntar,
   respuestaDeterministaDuda,
-  type Desvio,
 } from "@/lib/conversacion/desvio";
+import { accionDeValor, respuestaDeAccion } from "@/lib/conversacion/preguntas";
+import type { CampoPregunta } from "@/lib/conversacion/acciones";
+import {
+  decidirTurno,
+  mensajeMuchasPreguntas,
+  notaSistemaMuchasPreguntas,
+  notaSistemaSinInterpretar,
+  MAX_DESVIOS_SEGUIDOS,
+  TEXTO_ES_IA,
+  TEXTO_NO_ENTENDI,
+} from "@/lib/conversacion/maquina";
+import {
+  CAMPOS_IA,
+  LIMITE_INTERPRETE_MS,
+  validarInterpretacion,
+} from "@/lib/conversacion/interprete-ia";
+import type { CampoInterpretable } from "@/lib/conversacion/interpretacion";
 import {
   notaSistemaGuard,
   postGuard,
@@ -79,6 +95,16 @@ function nuevoId(): string {
 }
 
 const pausa = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * ¿A este campo le puede ayudar el intérprete de la rama 4?
+ *
+ * `zona_interes` queda por fuera y no es un olvido: su intérprete acepta
+ * cualquier cosa (guarda el texto crudo), así que nunca emite `no_entendido`
+ * y no hay nada que rescatar.
+ */
+const esCampoIA = (campo: CampoPregunta): campo is CampoInterpretable =>
+  (CAMPOS_IA as readonly string[]).includes(campo);
 
 /**
  * Lo que trae un lead que vuelve porque se le disparó el trigger de nutrición
@@ -154,6 +180,13 @@ export function ChatWhatsApp({
   const transcripcionRef = useRef<MensajeConversacion[]>([]);
   /** En qué paso ya se repreguntó. Se concede una vez: insistir es interrogar. */
   const repreguntadoEn = useRef<number | null>(null);
+  /**
+   * Turnos seguidos sin avanzar el perfilamiento (dudas, fuera de tema,
+   * identidad). Al llegar a `MAX_DESVIOS_SEGUIDOS` se ofrece un asesor. Se
+   * reinicia en cuanto la persona contesta algo, porque el tope existe para
+   * el bucle, no para castigar a quien pregunta.
+   */
+  const sinAvanzar = useRef(0);
 
   function anotar(rol: MensajeConversacion["rol"], mensaje: string) {
     transcripcionRef.current = [...transcripcionRef.current, { rol, mensaje }];
@@ -385,6 +418,9 @@ export function ChatWhatsApp({
    */
   async function responderPregunta(etiquetaUsuario: string, respuesta: Respuesta) {
     agregarUsuario(etiquetaUsuario);
+    // Contestó: el contador de turnos sin avanzar vuelve a cero. El tope de
+    // desvíos existe para el bucle, no para castigar a quien pregunta mucho.
+    sinAvanzar.current = 0;
     const nuevasRespuestas: Lead["respuestas"] = {
       ...respuestas,
       ...respuesta.patch,
@@ -577,57 +613,178 @@ export function ChatWhatsApp({
     if (!texto || fase !== "pregunta" || escribiendo) return;
     setTextoInput("");
 
-    // Antes, TODO lo que la persona tecleaba se consumía como respuesta al paso
-    // actual: preguntar "¿cuánto vale?" se parseaba como si fuera el dato que se
-    // le pidió, y pedir un asesor no hacía nada. Si se salió del guion, se le
-    // responde y se retoma — el paso NO avanza.
-    const desvio = detectarDesvio(texto);
-    if (desvio) {
-      void manejarDesvio(texto, desvio);
-      return;
-    }
-
-    void responderPregunta(texto, pasos[indicePaso].interpretarTexto(texto));
+    void manejarTurno(texto);
   }
 
   /**
-   * La persona preguntó algo, o pidió un humano, a mitad del perfilamiento.
+   * Qué se hace con lo que la persona escribió.
    *
-   * Nunca avanza `indicePaso`: se atiende el desvío y se vuelve a la misma
-   * pregunta. Es lo que hace que responder una duda no le cueste a la persona
-   * el dato que estaba dando — y que el `Lead` final salga igual de completo.
+   * La DECISIÓN vive en `maquina.ts` y es pura: aquí solo se ejecutan los
+   * efectos (pintar, llamar al LLM, guardar). Antes esta lógica estaba
+   * repartida entre `enviarTexto` y `responderPregunta` y no se podía probar
+   * sin montar el chat entero.
    *
-   * La petición de asesor queda como fila `sistema` en el hilo (ADR 0003), así
-   * que el asesor la ve en la ficha: el handoff no se pierde por seguir la
-   * conversación.
+   * Ninguna de las ramas que NO son respuesta avanza `indicePaso`: se atiende
+   * lo que la persona dijo y se vuelve a la misma pregunta. Es lo que hace que
+   * salirse del guion no le cueste el dato que estaba dando.
    */
-  async function manejarDesvio(texto: string, desvio: Desvio) {
-    agregarUsuario(texto);
+  async function manejarTurno(texto: string) {
+    const paso = pasos[indicePaso];
+    const accion = decidirTurno(texto, {
+      campo: paso.campo,
+      yaRespondidos: pasos.slice(0, indicePaso).map((p) => p.campo),
+    });
 
-    if (desvio.tipo === "asesor") {
-      anotar("sistema", notaSistemaHandoff());
-      await agregarBotInstantaneo(mensajeHandoffAsesor(evento.nombre));
-    } else {
-      // El texto determinista viaja como fallback de la llamada que lo va a
-      // reemplazar: si el LLM no contesta, la persona igual recibe la respuesta.
-      //
-      // Los dos proyectos que Sara SÍ puede nombrar aquí: el que la persona
-      // acaba de mencionar y aquel por el que entró por la pauta. Nombrar
-      // cualquier otro de los 18 sería recomendar sin motor, y el guard lo
-      // bloquea.
-      await agregarBot(
-        respuestaDeterministaDuda(desvio, evento.proyecto_interes),
-        { modo: "duda", pregunta: texto },
-        {
-          proyectosPermitidos: [desvio.proyecto?.nombre, evento.proyecto_interes].filter(
-            (n): n is string => Boolean(n),
+    switch (accion.tipo) {
+      // Preguntó si habla con una máquina. Se le dice la verdad: hasta esta
+      // rama caía en duda `general` y contestaba "esa no te la puedo
+      // confirmar", que es una evasiva justo donde importa no darla.
+      case "identidad":
+        return atenderSinAvanzar(texto, () => agregarBotInstantaneo(TEXTO_ES_IA));
+
+      case "handoff_asesor":
+        return atenderSinAvanzar(texto, async () => {
+          anotar("sistema", notaSistemaHandoff());
+          await agregarBotInstantaneo(mensajeHandoffAsesor(evento.nombre));
+        });
+
+      case "responder_duda":
+        return atenderSinAvanzar(texto, () =>
+          // El texto determinista viaja como fallback de la llamada que lo va a
+          // reemplazar: si el LLM no contesta, la persona igual recibe respuesta.
+          //
+          // Los dos proyectos que Sara SÍ puede nombrar: el que la persona
+          // acaba de mencionar y aquel por el que entró por la pauta. Nombrar
+          // cualquier otro de los 18 sería recomendar sin motor, y el guard lo
+          // bloquea.
+          agregarBot(
+            respuestaDeterministaDuda(
+              { tipo: "duda", clase: accion.clase, ...(accion.proyecto ? { proyecto: accion.proyecto } : {}) },
+              evento.proyecto_interes,
+            ),
+            { modo: "duda", pregunta: texto },
+            {
+              proyectosPermitidos: [accion.proyecto?.nombre, evento.proyecto_interes].filter(
+                (n): n is string => Boolean(n),
+              ),
+            },
           ),
-        },
-      );
+        );
+
+      // No era un intento de responder (una risa, un emoji, una cuenta). Se
+      // reconoce en una línea y se retoma, sin regañar ni disculparse.
+      case "fuera_de_tema":
+        return atenderSinAvanzar(texto, () => agregarBotInstantaneo(mensajeFueraDeTema()));
+
+      // Está cambiando algo que ya había dicho. Se sobrescribe y se retoma:
+      // corregir no puede costarle el paso en el que iba.
+      case "corregir_dato":
+        return atenderSinAvanzar(
+          texto,
+          () => agregarBotInstantaneo(accion.acuse),
+          accion.patch,
+        );
+
+      // Ni el regex ni la IA: se repregunta una vez y a la segunda se sigue,
+      // pero dejando dicho en el hilo qué no se entendió.
+      case "no_entendido":
+        return manejarNoEntendido(texto, accion.campo);
+
+      // `responder_paso` y `confirmar_dato`: el camino de siempre.
+      default:
+        return responderPregunta(texto, respuestaDeAccion(accion));
+    }
+  }
+
+  /**
+   * Atiende algo que NO es una respuesta y vuelve a la pregunta pendiente.
+   *
+   * Lleva la cuenta de cuántos turnos seguidos van sin avanzar: al tercero se
+   * ofrece un asesor y se sigue conversando. Hasta esta rama no había tope y
+   * se podía preguntar indefinidamente sin que la conversación se moviera.
+   */
+  async function atenderSinAvanzar(
+    texto: string,
+    atender: () => Promise<void>,
+    patch?: Partial<Lead["respuestas"]>,
+  ) {
+    agregarUsuario(texto);
+    if (patch) setRespuestas((prev) => ({ ...prev, ...patch }));
+
+    await atender();
+
+    sinAvanzar.current += 1;
+    if (sinAvanzar.current === MAX_DESVIOS_SEGUIDOS) {
+      anotar("sistema", notaSistemaMuchasPreguntas(sinAvanzar.current));
+      await pausa(400);
+      await agregarBotInstantaneo(mensajeMuchasPreguntas());
     }
 
     await pausa(500);
     await agregarBot(repreguntar(pasos[indicePaso]));
+  }
+
+  /**
+   * El regex no entendió. Antes de repreguntar, se le da un intento a la IA.
+   *
+   * Regex primero, IA de respaldo (§3 del plan): la mayoría de respuestas las
+   * resuelve el regex a 0 ms y solo las difíciles pagan la llamada. Si la IA no
+   * contesta a tiempo o devuelve algo fuera del menú, se cae a repreguntar —
+   * que es exactamente el comportamiento sin IA.
+   */
+  async function manejarNoEntendido(texto: string, campo: CampoPregunta) {
+    const rescatada = await rescatarConIA(campo, texto);
+    if (rescatada) return responderPregunta(texto, respuestaDeAccion(rescatada));
+
+    const mudo = respuestaDeAccion({ tipo: "no_entendido", campo, textoCrudo: texto });
+
+    // Ya se repreguntó una vez: se sigue, pero el hilo dice qué se perdió. Sin
+    // esto el dato desaparecía con un acuse amable y nadie se enteraba —
+    // ni la persona, ni el motor, ni el asesor.
+    if (repreguntadoEn.current === indicePaso) {
+      anotar("sistema", notaSistemaSinInterpretar(campo, texto));
+    }
+
+    return responderPregunta(texto, {
+      ...mudo,
+      repreguntar: true,
+      acuse: TEXTO_NO_ENTENDI,
+      acuseSiInsiste: mudo.acuse,
+    });
+  }
+
+  /**
+   * El intérprete de la rama 4, cableado.
+   *
+   * Devuelve una acción ya lista si el modelo clasificó dentro del menú del
+   * campo, o `null` en cualquier otro caso: sin key, sin red, fuera del enum,
+   * o pasados los 3 s. `zona_interes` no pasa por aquí — su intérprete acepta
+   * cualquier cosa, así que nunca emite `no_entendido`.
+   */
+  async function rescatarConIA(campo: CampoPregunta, texto: string) {
+    if (!esCampoIA(campo)) return null;
+
+    const control = new AbortController();
+    const timeout = setTimeout(() => control.abort(), LIMITE_INTERPRETE_MS);
+    try {
+      const resp = await fetch("/api/interpretar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ campo, texto, pregunta: pasos[indicePaso].pregunta }),
+        signal: control.signal,
+      });
+      if (!resp.ok) return null;
+
+      // Se le pasa el SOBRE completo (`{ valor }`), que es la forma que valida
+      // `validarInterpretacion` — la misma con la que el modelo contestó. Ahí
+      // adentro, el ingreso pasa por dos puertas: zod y `plausible()`.
+      const validado = validarInterpretacion(campo, await resp.json());
+      return validado === undefined ? null : accionDeValor(campo, validado, texto);
+    } catch {
+      return null; // red caída, abortado o JSON inválido: el camino sin IA
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   const pasoActual = fase === "pregunta" ? pasos[indicePaso] : undefined;
