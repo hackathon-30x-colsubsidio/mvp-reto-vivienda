@@ -156,6 +156,20 @@ describe("criterio de aceptación 1 — no se repregunta lo que ya sabemos", () 
     expect(r.respuestas.ingreso_hogar_mensual).toBe(4 * 1_750_905);
     expect(r.respuestas.rango_edad).toBe("36_45");
   });
+
+  // El completado desde el perfil pasa en `terminar()`, o sea SOLO al
+  // consumir el último paso. Quien abandona a mitad no tiene ingreso,
+  // aunque su cédula lo trajera. Si esto se relaja, un escenario de
+  // abandono mentiría sobre qué se alcanzó a saber del lead.
+  it("pero solo al terminar: quien abandona a mitad no lo recibe", () => {
+    const aMedias = replayEscenario({
+      perfil: CONOCIDO,
+      tecleado: ["sería la primera", "con mi pareja"],
+    });
+    expect(aMedias.pasoPendiente).toBe("subsidios");
+    expect(aMedias.respuestas.ingreso_hogar_mensual).toBeUndefined();
+    expect(aMedias.respuestas.rango_edad).toBeUndefined();
+  });
 });
 
 describe("el campo vacío no hace nada", () => {

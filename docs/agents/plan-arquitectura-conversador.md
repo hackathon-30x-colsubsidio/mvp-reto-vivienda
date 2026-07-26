@@ -525,11 +525,15 @@ llega al motor:
 
 **Para P5 (rama 8 · catálogo).**
 
-- **Dos enlaces del catálogo traen caracteres invisibles** y no abren: `ZARZAL.recorrido_360`
-  termina en un `U+200B` (espacio de ancho cero) y `VERSALLES.recorrido_360` trae tres saltos de
-  línea. Importa más de lo que parece: **ZARZAL es el proyecto del 55% de las citas**, así que es
-  el enlace que el jurado tiene más probabilidad de cliquear desde la ficha. Se ven bien a simple
-  vista en el JSON. · ⬜ abierto
+- **Dos `recorrido_360` del catálogo están rotos**, y son dos problemas distintos:
+  - `ZARZAL` termina en un `U+200B` (espacio de ancho cero) pegado a la URL.
+  - `VERSALLES` **no trae una URL sino cuatro**, metidas en el mismo string y separadas por saltos
+    de línea (`APTOA`, `APTOB`, `APTOC`, `AMENIDADES`). El `href` se las lleva concatenadas.
+
+  Los dos se ven bien a simple vista en el JSON. Importa más de lo que parece: **ZARZAL es el
+  proyecto del 55% de las citas**, así que es el enlace que el jurado tiene más probabilidad de
+  cliquear desde la ficha. El de VERSALLES además plantea una decisión de producto —¿se muestran
+  los cuatro recorridos, o solo uno?— que es de P3/P5, no mía. · ⬜ abierto
 
 **Para P1 (rama 5 · máquina) — deuda que yo mismo dejé.**
 

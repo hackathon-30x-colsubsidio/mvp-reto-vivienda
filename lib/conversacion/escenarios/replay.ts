@@ -33,6 +33,12 @@ import { detectarDesvio, respuestaDeterministaDuda } from "../desvio";
 // exista, `replayEscenario` debe pasar a llamar al reducer real y este
 // bloque de lógica se borra — si no, quedan dos fuentes que pueden
 // divergir, que es justo el hueco 3 del plan.
+//
+// ⚠️ ALCANCE: solo la fase `pregunta`. El consentimiento, el cierre, la
+// agenda de la cita y el re-enganche NO se modelan aquí — los cubren
+// `ChatWhatsApp.test.tsx` (criterios 3 y 4), que siguen siendo la única
+// red de esas transiciones. Quien haga la rama 5 no debe leer un verde
+// de este archivo como "la conversación entera está cubierta".
 // =====================================================================
 
 /** Lo que pasó en un turno, con el detalle que permite afirmar sobre él. */
@@ -176,11 +182,19 @@ export function replayEscenario({ perfil, tecleado }: Escenario): ResultadoEscen
 
   // `terminar:406` — el motor recibe el ingreso y la edad completados
   // desde el perfil cuando la conversación no los preguntó.
-  const finales = completarDesdePerfil(perfil, respuestas);
+  //
+  // Solo si la conversación LLEGÓ al final: `terminar()` se llama desde
+  // `responderPregunta` cuando se consume el último paso, así que una
+  // conversación abandonada a mitad nunca pasa por aquí. Sin esta
+  // condición el arnés rellenaba datos que en el chat real no existen,
+  // y un escenario de abandono habría mentido sobre qué se alcanzó a
+  // saber del lead.
+  const completo = indicePaso >= pasos.length;
+  const finales = completo ? completarDesdePerfil(perfil, respuestas) : respuestas;
 
   return {
     turnos,
-    pasoPendiente: indicePaso < pasos.length ? pasos[indicePaso].campo : null,
+    pasoPendiente: completo ? null : pasos[indicePaso].campo,
     respuestas: finales,
     camposVacios: pasos
       .map((p) => p.campo)
