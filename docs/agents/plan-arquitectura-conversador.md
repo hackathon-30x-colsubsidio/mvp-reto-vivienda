@@ -351,6 +351,11 @@ completa igual · zod rechaza correctamente una respuesta fuera del enum (test c
 
 ### Rama 5 · `feat/maquina-conversacion` — P1 · **última en mergear**
 
+> 📄 **Todo lo que P1 necesita para pushear está en
+> [`rama-5-cableado.md`](rama-5-cableado.md)** (2026-07-26): las firmas reales de las 5 piezas que
+> cablea, **qué cambió en `main` debajo de su rama**, las 3 decisiones que solo él puede cerrar y la
+> lista de verificación. Es autocontenido — no hace falta releer este plan entero para cablear.
+
 **Posee:** `lib/conversacion/maquina.ts` (nuevo), `components/chat/ChatWhatsApp.tsx`,
 `lib/fixtures/guion-demo.ts`.
 **Depende de:** rama 1 verde · contrato de rama 2 · función de rama 3 · endpoints de rama 4 ·
