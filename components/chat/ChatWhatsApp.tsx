@@ -57,6 +57,7 @@ import {
   type ContextoGuard,
 } from "@/lib/conversacion/guardas";
 import {
+  mensajeMaterialDelProyecto,
   mensajeRecomendacionDeterminista,
   proyectosParaVerbalizar,
   type ProyectoVerbalizable,
@@ -557,6 +558,12 @@ export function ChatWhatsApp({
         ...cifrasDe(p.porque),
       ]),
     });
+
+    // El link para que pueda VER el proyecto, en burbuja aparte y sin pasar por
+    // el LLM: así se manda un link por WhatsApp, y así el modelo no puede
+    // mutilar la url. Solo el #1, que es sobre el que se ofrece la cita.
+    const material = mensajeMaterialDelProyecto(proyectos[0]);
+    if (material) await agregarBotInstantaneo(material, 700);
   }
 
   /**

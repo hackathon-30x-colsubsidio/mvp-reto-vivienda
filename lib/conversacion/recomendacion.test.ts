@@ -2,10 +2,12 @@ import { describe, it, expect } from "vitest";
 import {
   listaParaPrompt,
   mensajeRecomendacionDeterminista,
-  proyectosParaVerbalizar,
+  mensajeMaterialDelProyecto,
+  proyectosParaVerbalizar
 } from "./recomendacion";
 import { promptRecomendacion } from "./prompt-maestro";
 import { catalogo } from "@/lib/matching/catalogo";
+import { leadsCurados } from "@/lib/fixtures";
 import { curar } from "@/lib/curar";
 import { frasesDe, MAX_FRASES, MAX_LINEAS, postGuard } from "./guardas";
 import * as leads from "@/lib/fixtures/leads";
@@ -152,5 +154,67 @@ describe("el mensaje sin IA — el que se pinta si Gemini no responde", () => {
     // precio. La zona no se promete: alguno pudo entrar fuera de zona.
     expect(mensaje).toMatch(/presupuesto/i);
     expect(mensaje).not.toMatch(/tu ciudad|tu zona/i);
+  });
+});
+
+// =====================================================================
+// El link con el que la persona puede VER el proyecto (2026-07-26).
+//
+// Va en burbuja aparte y sin pasar por el LLM: así se manda un link por
+// WhatsApp, y así el modelo no puede mutilar la url. El guard no tendría
+// cómo atraparlo — `cifra_inventada` mira números, no direcciones.
+// =====================================================================
+
+describe("el material del proyecto #1", () => {
+  it("manda el brochure cuando lo hay, con la url intacta", () => {
+    const payande = catalogo.find((p) => p.nombre === "PAYANDÉ")!;
+    const [proyecto] = proyectosParaVerbalizar(leadsCurados.noAfiliadoListo.lead);
+
+    expect(proyecto.material).toEqual({ url: payande.brochure, tipo: "brochure" });
+    const mensaje = mensajeMaterialDelProyecto(proyecto)!;
+    expect(mensaje).toContain(payande.brochure!);
+    expect(mensaje).toMatch(/brochure de PAYANDÉ/);
+  });
+
+  it("cae al recorrido 360 cuando no hay brochure — si no, Diana se queda sin link", () => {
+    // LA ARBOLEDA es el #1 de Diana y es uno de los 2 proyectos sin brochure.
+    // Sin este fallback, el personaje que abre el demo no vería ningún link.
+    const arboleda = catalogo.find((p) => p.nombre === "LA ARBOLEDA")!;
+    expect(arboleda.brochure, "si LA ARBOLEDA ya tiene brochure, este test sobra").toBeUndefined();
+
+    const [proyecto] = proyectosParaVerbalizar(leadsCurados.afiliadoListo.lead);
+    expect(proyecto.nombre).toBe("LA ARBOLEDA");
+    expect(proyecto.material?.tipo).toBe("recorrido");
+
+    const mensaje = mensajeMaterialDelProyecto(proyecto)!;
+    expect(mensaje).toMatch(/recorrido virtual de LA ARBOLEDA/);
+    expect(mensaje).toContain(proyecto.material!.url);
+  });
+
+  it("manda UNA sola url, aunque el recorrido traiga varias", () => {
+    // VERSALLES trae una por tipología más una de amenidades. Cuatro links en un
+    // mensaje de WhatsApp no es darle más: es que no abra ninguno.
+    const mensaje = mensajeMaterialDelProyecto({
+      nombre: "VERSALLES",
+      ciudad: "Soacha",
+      precio_desde: 211_000_000,
+      vis: true,
+      porque: "x",
+      material: { url: "https://ejemplo.co/a", tipo: "recorrido" },
+    })!;
+    expect(mensaje.match(/https?:\/\//g)).toHaveLength(1);
+  });
+
+  it("sin material y sin proyecto, no inventa una burbuja vacía", () => {
+    expect(mensajeMaterialDelProyecto(undefined)).toBeNull();
+    expect(
+      mensajeMaterialDelProyecto({
+        nombre: "X",
+        ciudad: "Bogotá",
+        precio_desde: 1,
+        vis: false,
+        porque: "x",
+      }),
+    ).toBeNull();
   });
 });

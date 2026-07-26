@@ -41,6 +41,15 @@ export interface ProyectoVerbalizable {
   vis: boolean;
   /** El porqué que ya calculó el matcher, citable tal cual. */
   porque: string;
+  /**
+   * El material oficial para que el lead **vea** el proyecto, si lo hay.
+   *
+   * Cae al recorrido 360 cuando no hay brochure, y no es un consuelo: de los 18
+   * proyectos, 16 traen brochure y los 2 que no —ABETO y LA ARBOLEDA— sí traen
+   * recorrido. Sin ese fallback, **el #1 de Diana se quedaría sin link**, que es
+   * justo el personaje que abre el demo.
+   */
+  material?: { url: string; tipo: "brochure" | "recorrido" };
 }
 
 /**
@@ -62,9 +71,47 @@ export function proyectosParaVerbalizar(lead: Lead): ProyectoVerbalizable[] {
         precio_desde: ficha.precio_desde,
         vis: ficha.vis,
         porque: recomendado.porque,
+        ...(materialDe(ficha) ? { material: materialDe(ficha)! } : {}),
       },
     ];
   });
+}
+
+/**
+ * El link con el que la persona puede ver el proyecto.
+ *
+ * `recorrido_360` puede traer VARIAS urls separadas por salto de línea (VERSALLES
+ * trae una por tipología más una de amenidades): se manda la primera. Mandarle
+ * cuatro links a alguien por WhatsApp no es darle más, es que no abra ninguno.
+ */
+function materialDe(ficha: {
+  brochure?: string;
+  recorrido_360?: string;
+}): { url: string; tipo: "brochure" | "recorrido" } | undefined {
+  if (ficha.brochure) return { url: ficha.brochure, tipo: "brochure" };
+  const primera = ficha.recorrido_360?.split("\n")[0]?.trim();
+  return primera ? { url: primera, tipo: "recorrido" } : undefined;
+}
+
+/**
+ * La burbuja con el link del proyecto #1, o `null` si no hay material.
+ *
+ * Va en mensaje aparte y **sin pasar por el LLM** (`agregarBotInstantaneo`), por
+ * dos razones: así es como se manda un link por WhatsApp, y así el modelo no
+ * puede mutilar la url ni inventarse otra. El guard no tendría cómo atraparlo —
+ * `cifra_inventada` mira números, no direcciones.
+ *
+ * Solo el #1: es el proyecto sobre el que se ofrece la cita. Tres links en el
+ * cierre es un volante, no una recomendación.
+ */
+export function mensajeMaterialDelProyecto(
+  proyecto: ProyectoVerbalizable | undefined,
+): string | null {
+  if (!proyecto?.material) return null;
+
+  return proyecto.material.tipo === "brochure"
+    ? `Y te dejo el brochure de ${proyecto.nombre} para que lo veas con calma 👇 ${proyecto.material.url}`
+    : `Y te dejo el recorrido virtual de ${proyecto.nombre}, para que lo camines desde el celular 👇 ${proyecto.material.url}`;
 }
 
 /** Los proyectos como los ve el modelo: numerados, con su porqué, y nada más. */
