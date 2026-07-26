@@ -55,6 +55,11 @@ import {
   postGuard,
   type ContextoGuard,
 } from "@/lib/conversacion/guardas";
+import {
+  mensajeRecomendacionDeterminista,
+  proyectosParaVerbalizar,
+  type ProyectoVerbalizable,
+} from "@/lib/conversacion/recomendacion";
 import { mensajeDeRecursos } from "@/lib/recursos/mensajes";
 import { fechaLarga } from "@/lib/formato";
 import { useDictado } from "./useDictado";
@@ -299,7 +304,9 @@ export function ChatWhatsApp({
    */
   async function agregarBot(
     textoBase: string,
-    duda?: { modo: "duda"; pregunta: string },
+    extra?:
+      | { modo: "duda"; pregunta: string }
+      | { modo: "recomendacion"; lead: Lead },
     guard: ContextoGuard = {},
   ) {
     setEscribiendo(true);
@@ -322,7 +329,7 @@ export function ChatWhatsApp({
         body: JSON.stringify({
           mensajes: historialRef.current,
           mensaje_a_redactar: textoBase,
-          ...(duda ?? {}),
+          ...(extra ?? {}),
           proyecto_interes: evento.proyecto_interes,
         }),
         signal: control.signal,
@@ -495,6 +502,12 @@ export function ChatWhatsApp({
       await agregarBotInstantaneo(`⚠️ Nota del demo: ${veredicto.advertencia}`, 400);
     }
 
+    // El lead OYE los proyectos que el motor le eligió. Hasta esta rama,
+    // `curar()` los calculaba con su porqué y solo los veía el asesor: al lead
+    // le llegaban como un número (`ResultadoCurado.proyectos`). La
+    // conversación terminaba en entrevista y promesa, sin devolverle nada.
+    await agregarRecomendacion(lead);
+
     // Criterio de aceptación 4: el lead listo sale con una CITA, no solo con
     // proyectos. Sin esto la conversación terminaba en "te escribe un asesor",
     // que es justo el silencio que el reto quiere quitar.
@@ -505,6 +518,36 @@ export function ChatWhatsApp({
 
     await cerrar(veredicto);
     setFase("terminado");
+  }
+
+  /**
+   * Los proyectos que el motor eligió, dichos en voz alta.
+   *
+   * El motor corre PRIMERO y el modelo solo redacta lo que ya eligió: la lista
+   * cerrada viaja al prompt y el guard bloquea cualquier nombre fuera de ella.
+   * Sara pone la voz; la decisión sigue siendo del matcher, con sus reglas
+   * visibles (cero caja negra).
+   *
+   * Si el lead cayó en nutrición, o si nada del catálogo le cabe, no se dice
+   * nada: no hay recomendación que dar y decir algo igual sería inventarla.
+   */
+  async function agregarRecomendacion(lead: Lead) {
+    let proyectos: ProyectoVerbalizable[];
+    try {
+      proyectos = proyectosParaVerbalizar(lead);
+    } catch {
+      return; // el motor no pudo calificar: no hay nada que recomendar
+    }
+
+    const base = mensajeRecomendacionDeterminista(proyectos);
+    if (!base) return;
+
+    await agregarBot(base, { modo: "recomendacion", lead }, {
+      // Lo único que Sara puede nombrar aquí. Cualquier otro de los 18 sería
+      // recomendar sin motor, y su precio sería una cifra inventada.
+      proyectosPermitidos: proyectos.map((p) => p.nombre),
+      cifrasPermitidas: proyectos.map((p) => p.precio_desde),
+    });
   }
 
   /**
@@ -567,6 +610,14 @@ export function ChatWhatsApp({
     } catch {
       // "No pudo agendar" es uno de los tres triggers reales de handoff a humano
       // (spec 02 D6). No se finge una cita que no existe.
+      //
+      // Hasta esta rama se le decía al lead pero NO quedaba rastro: el asesor
+      // lo veía como un mensaje más del hilo, no como el trigger que es. La
+      // fila `sistema` es lo que lo convierte en algo que se puede atender.
+      anotar(
+        "sistema",
+        `No se pudieron cargar las franjas de la sala de ventas de ${proyecto.nombre} (trigger "no pudo agendar", spec 02 D6). Se le dijo al lead que un asesor lo contacta.`,
+      );
       await agregarBotInstantaneo(
         "Los horarios de la sala de ventas no me cargaron en este momento 😕 No se pierde nada: un asesor te escribe para cuadrar la visita, y ya tiene todo lo que me contaste.",
         500,
