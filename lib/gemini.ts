@@ -256,3 +256,54 @@ export function streamGemini(opts: {
     },
   });
 }
+
+/**
+ * Le pide al modelo un JSON con forma fija y lo devuelve parseado, o `null`.
+ *
+ * ⚠️ **NO va en streaming, y es una excepción consciente** a la restricción de
+ * `AGENTS.md` ("toda llamada al LLM va en streaming"). Las dos razones de esa
+ * regla son el límite de tiempo de las funciones de Vercel y que el chat se vea
+ * vivo mientras escribe; ninguna aplica a una clasificación de una palabra que
+ * nadie ve llegar. Streamearla obligaría además a acumular el texto completo
+ * antes de poder validarlo, que es el mismo trabajo con más código.
+ * **Todo lo que el lead LEE sigue yendo en streaming**, sin excepción.
+ *
+ * `esquema` viaja como `responseJsonSchema`: el modelo no elige la forma, la
+ * recibe. Aun así quien llama valida con zod — esto reduce los errores, no los
+ * vuelve imposibles, y el borde de confianza es el zod, no el proveedor.
+ *
+ * **Falla cerrada, nunca lanza.** Sin credencial, por timeout, por error de red
+ * o por JSON ilegible devuelve `null`, y quien llama lo trata como "tampoco se
+ * entendió". Es lo que hace que la capa de IA se pueda apagar sola sin que la
+ * conversación lo note.
+ */
+export async function generarJSON(opts: {
+  system: string;
+  prompt: string;
+  esquema: unknown;
+  maxTokens: number;
+  signal?: AbortSignal;
+}): Promise<unknown> {
+  if (!hayKeyGemini()) return null;
+
+  try {
+    const { ai, model } = crearCliente();
+    const respuesta = await ai.models.generateContent({
+      model,
+      contents: [{ role: "user", parts: [{ text: opts.prompt }] }],
+      config: {
+        systemInstruction: opts.system,
+        maxOutputTokens: opts.maxTokens,
+        thinkingConfig: { thinkingBudget: 0 },
+        responseMimeType: "application/json",
+        responseJsonSchema: opts.esquema,
+        abortSignal: opts.signal,
+      },
+    });
+
+    const texto = respuesta.text?.trim();
+    return texto ? JSON.parse(texto) : null;
+  } catch {
+    return null;
+  }
+}

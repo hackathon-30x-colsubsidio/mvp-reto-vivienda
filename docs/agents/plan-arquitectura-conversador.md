@@ -275,11 +275,18 @@ falso positivo sobre los mensajes reales de `preguntas.ts` (pruébalos todos).
 
 ---
 
-### Rama 4 · `feat/interprete-ia` — P4
+### Rama 4 · `feat/interprete-ia` — P4 · ✅ ENTREGADA (a) y (b) · ⬜ (c) diferida
+
+> **Cerrada en lo que no dependía de nadie.** Mergeada a `main` con **687 tests** (48 nuevos),
+> `tsc` y `lint` verdes, y la capa probada contra Gemini vivo (487–725 ms, muy debajo del corte
+> de 3 s). **(c) el selector del banco NO se construyó**: depende de campos que la rama 7 no ha
+> publicado. La rama 4 quedó mergeable sin él (decisión de Mani, 2026-07-26), así que el orden
+> de merge del plan cambió: **4 entró antes que 7**.
 
 **Posee:** `lib/conversacion/interprete-ia.ts`, `app/api/interpretar/route.ts`,
-`lib/conversacion/recomendacion-parcial.ts`, `lib/conversacion/selector-banco.ts` (nuevos),
-`lib/gemini.ts`, `app/api/chat/route.ts`.
+`lib/conversacion/recomendacion.ts`, `lib/conversacion/selector-banco.ts` (nuevos),
+`lib/gemini.ts`, `app/api/chat/route.ts`, **`lib/conversacion/prompt-maestro.ts`** (no estaba
+en el mapa de §2 — ver bitácora).
 **Prohibido:** `preguntas.ts`, `desvio.ts`, `ChatWhatsApp.tsx`, `lib/matching/**`.
 **Depende de:** el tipo `AccionTurno` de la rama 2 · los campos nuevos de la rama 7 (para **c**).
 
@@ -292,23 +299,34 @@ que produce el regex**. Fuera del enum → se trata como `no_entendido` → repr
 `interpretarIngreso:234`. Es el insumo del único gate legal (40%, Decreto 583 de 2025): un mal
 parseo cambia el veredicto en silencio.
 
-**(b) Recomendación verbalizada.** Cuando el lead pregunta qué le conviene, se corre `matchear()`
-sobre el perfil parcial y el prompt de duda recibe **la lista cerrada que eligió el motor**, con su
-`porque`. Sara solo redacta.
+**(b) Recomendación verbalizada.** ✅ **Construida, pero SOLO AL FINAL** — no como respuesta a una
+duda a mitad (reencuadre de Mani, 2026-07-26). La razón es medida: `precioMaximoDe` devuelve 0 sin
+ingreso, que es la 3ª de las 7 preguntas, así que antes de eso `matchear()` filtra el catálogo
+entero y no hay nada que verbalizar. A mitad sigue el texto determinista de hoy.
 
-**(c) Selector del banco.** Recibe qué dimensiones quedaron sin saber y cuáles discriminan más entre
-los proyectos que le quedan al lead; devuelve **un id del banco**, validado con zod. Id inexistente,
-timeout o error → la capa no se activa.
+Llena un hueco que nadie había nombrado: **hoy el lead nunca oía sus proyectos.**
+`ResultadoCurado.proyectos` es un **número**, y lo único que se nombraba era el #1 dentro del
+ofrecimiento de cita. El `porque` de los tres solo lo veía el asesor.
+
+`POST /api/chat { modo: "recomendacion", lead }` corre `curar()` **server-side** y streamea la
+redacción. Viaja el lead y no la lista porque la lista no existe en el cliente; calcularla en el
+servidor evita cambiar `lib/types.ts`, que es de P3.
+
+**(c) Selector del banco.** ⬜ **NO construido.** Depende de campos que la rama 7 no ha publicado, y
+sus tres puntos de consulta (1, 2, 3) siguen abiertos. `selector-banco.ts` **no existe todavía**:
+se construye si la rama 7 llega a tiempo, y si no, el chat queda en 7 turnos como hoy.
 
 **🔴 CONSULTAR antes de escribir:**
-- **La reescritura de `prompt-maestro.ts:157`**, de *"nunca recomiendes"* a *"solo puedes nombrar
-  los proyectos de esta lista"*. Es un cambio de personalidad y hay un test que lo fija
-  (`prompt-maestro.test.ts:43`).
-- El prompt del selector del banco: **qué le decimos que es "óptimo"** para preguntar algo.
-- El prompt del intérprete: cómo se le pide que clasifique sin sesgar.
+- ~~La reescritura de `prompt-maestro.ts:157`.~~ ✅ **Resuelto sin reescribirla** (§8): se agregó
+  `promptRecomendacion` aparte. El modo duda conserva la prohibición completa —ahí no hay motor
+  detrás— y sus dos aserciones quedaron intactas.
+- El prompt del selector del banco: **qué le decimos que es "óptimo"**. → sigue abierto con (c).
+- ~~El prompt del intérprete.~~ ✅ consultado y aprobado (§8): clasifica, no conversa, y ve **un
+  solo mensaje** (nunca el historial).
 
 **Definición de listo:** con `GEMINI_API_KEY` vacía, los tres caminos fallan cerrado y el chat se
 completa igual · zod rechaza correctamente una respuesta fuera del enum (test con salida falsa).
+→ ✅ los dos, más la sonda contra Gemini vivo pegada en la bitácora.
 
 ---
 
@@ -445,9 +463,9 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 | 5 | Copy del ofrecimiento de asesor tras 3 desvíos | 5 | ⬜ abierto |
 | 6 | Copy de `corregir_dato` y de `fuera_de_tema` | 2 | ✅ cerrado — consultado y aprobado, ver bitácora |
 | 7 | Qué hace el reducer con `no_entendido` a la segunda vez | 5 | ⬜ abierto |
-| 8 | Reescritura de `prompt-maestro.ts:157` (prohibición de recomendar) | 4 | ⬜ abierto |
-| 9 | Prompt del selector del banco: qué es "óptimo" | 4 | ⬜ abierto |
-| 10 | Prompt del intérprete de respaldo | 4 | ⬜ abierto |
+| 8 | Reescritura de `prompt-maestro.ts:157` (prohibición de recomendar) | 4 | ✅ **cerrado sin reescribirla** (2026-07-26) — prompt nuevo aparte, ver bitácora |
+| 9 | Prompt del selector del banco: qué es "óptimo" | 4 | ⬜ abierto — **diferido con (c)**, depende de la rama 7 |
+| 10 | Prompt del intérprete de respaldo | 4 | ✅ **cerrado** (2026-07-26) — clasifica, no conversa; ve un solo mensaje |
 | 11 | Máximo de líneas del guard | 3 | ✅ **3 líneas y 4 frases** (2026-07-25) |
 | 12 | Texto de la fila `sistema` cuando el guard bloquea | 3 | ✅ **cerrado** (2026-07-25) |
 | 13 | Mediana vs. normalizar en el sesgo de similitud | 6 | ⬜ abierto |
@@ -605,6 +623,69 @@ diff, y esa es la prueba). Estado uno por uno:
   O sea: P1, cuando cablees, `no_entendido` de crediticia **no debe afirmar `sin_info`**. · ✅ el
   vocabulario está; la decisión es del punto 7
 
+### 2026-07-26 · rama 4 (IA: intérprete + recomendación) — entregada sin (c)
+
+- **[rama 4] Lo más importante que aprendí, y cambia cómo se leen los 4 bugs abiertos: el intérprete
+  de IA NO los rescata.** Solo corre cuando el regex devuelve `undefined`. Los 4 bugs (y los 2
+  nuevos de abajo) devuelven un valor **equivocado con seguridad**, así que la capa nunca se activa
+  y el dato malo entra al motor igual. Esta rama tapa el hueco 2 (el dato que se pierde en
+  silencio); **no tapa la afirmación falsa**. Los 4 siguen esperando tu aprobación. → **todos** ·
+  ⬜ los 4 siguen abiertos
+- **[rama 4] 🔴 DOS BUGS NUEVOS de interpretación, de la misma familia que los 4** — los encontró
+  la sonda en vivo, en casos donde el regex contesta con seguridad. Los dos son de una línea y los
+  dos están en `interpretacion/composicion.ts`:
+  - `"con mi señora y los peques"` → **`pareja`**, debería ser `familia_con_hijos`. `"peques"` no
+    está en la lista de raíces de hijos (`hij|niñ|bebé|chiquit|pelad[oa]s`) y la rama de `señora`
+    gana primero.
+  - `"me toca criar sola a mi niña"` → **`familia_con_hijos`**, debería ser `monoparental`. La rama
+    de monoparental exige la raíz `hij`, y "niña" no la tiene — aunque la rama de abajo sí
+    reconoce `niñ`. O sea: las dos ramas no usan el mismo vocabulario de "hijo".
+  → **P2** · ⬜ abierto
+- **[rama 4] `prompt-maestro.ts` NO tenía dueña en §2** y la rama 4 la necesitaba. La tomé. Si
+  alguien más la necesita, avisar antes. → **todos** · ⚠️ para saber
+- **[rama 4] El punto 8 se cerró SIN reescribir la prohibición.** En vez de cambiar
+  `promptDuda:157` (que rompía `prompt-maestro.test.ts:43-46`, contra la regla de §3), se agregó
+  **`promptRecomendacion` aparte**. El modo duda conserva la prohibición completa, y es correcto:
+  ahí no hay motor detrás. Los dos modos dicen lo mismo, *el que escoge es el código*. Ningún test
+  existente se tocó. → **todos** · ✅ resuelto
+- **[rama 4] Hoy el lead NUNCA oía sus proyectos, y nadie lo había nombrado.**
+  `ResultadoCurado.proyectos` es un `number`: lo único que se decía era el #1 dentro del
+  ofrecimiento de cita ("puedes ir a ver ARAUCARIA"). El `porque` de los tres solo llegaba al
+  asesor. Eso es lo que llena (b). → **P1 (rama 5), hay que cablearlo** · ✅ listo
+- **[rama 4] Cómo se cablea (b), para P1.** `POST /api/chat { modo: "recomendacion", lead }` →
+  streamea el mensaje. Va en `terminar()`, **entre `mensajeCierre` y `ofrecerFranjas`**. El
+  fallback sin IA es `mensajeRecomendacionDeterminista(proyectosParaVerbalizar(lead))`, que
+  devuelve `null` cuando no hay nada que decir (nutrición) — con `null` no se pinta nada. Viaja el
+  `lead` y no la lista porque la lista no existe en el cliente, y calcularla server-side evita
+  cambiar `lib/types.ts`, que es de P3. → **P1 (rama 5)** · ✅ listo para cablear
+- **[rama 4] 🔴 Ratificar: el copy del mensaje de recomendación SIN IA.** El aprobado fue el
+  prompt; este es su derivado, y existe porque el demo no puede depender de que Gemini esté vivo.
+  Dice menos a propósito: nombra los proyectos con su precio "desde" (dato duro del catálogo) y
+  manda el porqué al asesor, en vez de resumir tres `porque` en una frase que ya no sería citable.
+  Cabe en las 3 líneas y 4 frases del guard, con test que lo verifica.
+  → *«Con todo lo que me contaste, estos son los que te sirven: LA ARBOLEDA (desde $194.023.050),
+  MONGUI (desde $179.361.000) y VERSALLES (desde $211.000.000). El asesor te lleva el detalle de
+  cada uno y por qué te los escogí.»* → **todos** · ⬜ abierto
+- **[rama 4] 🔴 Para P5: el `porque` del matcher ahora lo LEE EL LEAD, no solo el asesor.** Sube el
+  listón de un texto que se escribió para la ficha. Dos cosas que ya se ven en los personajes
+  sembrados: (a) mezcla persona — *"es el proyecto por el que **preguntó**"* junto a *"como
+  **tú**"*; (b) VERSALLES trae *"el **0%** gana más de 2 salarios mínimos, **como tu hogar**"*, que
+  se contradice solo. Sara lo reescribe al redactar, pero el fallback determinista no, y el asesor
+  lo ve tal cual hoy. → **P5** · ⬜ abierto
+- **[rama 4] Excepción consciente a una restricción no-negociable de `AGENTS.md`.** `generarJSON()`
+  (intérprete y, en su día, selector) **no va en streaming**. Las dos razones de esa regla —el
+  límite de tiempo de Vercel y que el chat se vea vivo— no aplican a una clasificación de una
+  palabra que nadie ve llegar, y streamearla obligaría a acumular el texto entero antes de
+  validarlo. **Todo lo que el lead LEE sigue en streaming**, sin excepción. Anotado en `AGENTS.md`.
+  → **todos** · ✅ documentado
+- **[rama 4] Sonda contra Gemini vivo, 11 casos donde el regex se rinde** (Vertex,
+  `gemini-2.5-flash`): **487–725 ms**, muy debajo del corte de 3 s. Rescata dato real
+  (`"estoy viendo si vendo la que tengo"` → `true`; `"pues mas o menos, tuve un lio hace años"` →
+  `regular`) y **se niega a inventar** donde importa (`"pues todavia lo estoy pensando"`,
+  `"jajaja"`, `"ni idea"`, `"800"` → todos `undefined` → repregunta). El ingreso es el más
+  conservador de todos: `"entre los dos juntamos como cinco y pico"` también sale `undefined`, que
+  es el sesgo correcto para el insumo del gate del 40%. → **todos** · ✅ medido
+
 ---
 
 ## 9 · Protocolo de sincronización
@@ -642,3 +723,7 @@ derivadas). `seed-espejo.test.ts` falla si quedó viejo.
 ⚠️ **Nunca correr `npm run build` con `npm run dev` encendido** (`AGENTS.md` — costó 20 min una vez).
 
 **Orden de merge a `main`:** `1, 3, 6 → 2 → 7 → 4, 8 → 5`.
+
+⚠️ **Cambió el 2026-07-26:** la rama 4 entró **antes** que la 7. Podía, porque difirió (c), que era
+lo único suyo que dependía de los campos de la 7. Van en `main`: **1, 3, 2, 4**. Faltan **6, 7, 8 y
+5**, y la 5 sigue siendo la última.

@@ -23,7 +23,13 @@ import { tablaSubsidiosParaPrompt } from "./subsidios";
 //     duda ("¿cuánto vale?") se consumía como si fuera la respuesta al
 //     paso actual.
 //
-//  3. EXPERTO (`lib/matching/prompt-experto.ts`) — DORMIDO. Redactaba
+//  3. RECOMENDACIÓN (`promptRecomendacion`, aquí) — NUEVO (rama 4). Le
+//     dice al lead, AL CERRAR, cuáles proyectos le eligió el motor y por
+//     qué. No decide nada: recibe la lista ya elegida con su `porque`
+//     calculado y solo la redacta. Ver la nota de abajo sobre por qué
+//     esto NO contradice "Sara no recomienda".
+//
+//  4. EXPERTO (`lib/matching/prompt-experto.ts`) — DORMIDO. Redactaba
 //     el porqué de la ficha vía `/api/explicacion`, y desde la decisión
 //     5 de la sala del 2026-07-25 la explicación que se ve es
 //     determinista ("el porqué no depende de que un modelo esté vivo").
@@ -42,6 +48,13 @@ import { tablaSubsidiosParaPrompt } from "./subsidios";
 //    que lo hace con reglas auditables (precio máximo del gate del 40%,
 //    zona, cupo). Sara puede CONSULTAR el catálogo para responder qué
 //    vale algo; comparar y sugerir es otra cosa, y no le toca.
+//
+//    ⚠️ Esto sigue en pie, y `promptRecomendacion` no lo rompe: ahí Sara
+//    no ELIGE, VERBALIZA. Recibe la lista que el matcher ya cerró con su
+//    `porque` calculado y no tiene forma de nombrar nada más. Por eso el
+//    modo duda —donde no hay motor detrás— conserva la prohibición
+//    completa, y su test también. Los dos modos dicen lo mismo: el que
+//    escoge es el código.
 //
 // ── Por qué el prompt de duda no recibe el perfil del lead ───────────
 //
@@ -168,6 +181,46 @@ Reglas que no puedes romper:
 SI NO SABES: decirlo es la respuesta correcta, no un fracaso. Algo como "esa no la tengo a la mano
 y prefiero no inventarte nada; el asesor te la confirma" vale más que un dato inventado. Nunca
 rellenes con lo que suene razonable.
+
+Responde solo con el mensaje, sin comillas ni texto adicional.`;
+}
+
+/**
+ * Modo recomendación: el cierre, cuando el motor ya eligió.
+ *
+ * 🔴 Copy consultado con Mani el 2026-07-26 (punto 8 de la lista de consulta).
+ *
+ * `listaCerrada` es la única fuente de nombres que tiene el modelo, y viene de
+ * `recomendacion.ts` con el `porque` que calculó el matcher. La diferencia con
+ * el modo duda es toda: allá el catálogo es de CONSULTA y recomendar está
+ * prohibido, porque no hay motor detrás; aquí el motor ya corrió y lo único que
+ * falta es decirlo bien.
+ *
+ * El tope de 3 frases no es estético: el guard de la rama 3 trunca en 3 líneas
+ * y 4 frases, y un mensaje que nombra 3 proyectos se pasa de largo sin querer.
+ */
+export function promptRecomendacion({ listaCerrada }: { listaCerrada: string }): string {
+  return `Eres ${NOMBRE_AGENTE}, del equipo de Vivienda de Colsubsidio, escribiendo por WhatsApp a una
+persona que acaba de terminar de contarte su situación. Español colombiano, tuteo, cálido y
+directo, como le escribirías a alguien a quien le tienes cariño. Cero corporativo.
+
+LA SITUACIÓN: el sistema ya estudió su caso con reglas explícitas y ya eligió qué proyectos le
+sirven. Tu único trabajo es contárselos. No elegiste tú: lo estás diciendo.
+
+LOS PROYECTOS ELEGIDOS (los únicos que puedes nombrar):
+${listaCerrada}
+
+Reglas que no puedes romper:
+- Solo puedes nombrar los proyectos de esta lista. Ningún otro nombre existe.
+- No cambies el orden: el 1 es el que el sistema puso primero.
+- Di POR QUÉ le sirven, con las razones de arriba y ninguna otra. Es lo que hace que confíe.
+- 2 o 3 frases, en un solo párrafo. Nada de listas con viñetas ni de numeración.
+- No inventes precios, áreas, fechas de entrega, acabados ni características que no estén arriba.
+- Un precio es "desde": la tipología más económica, nunca el valor de la vivienda.
+- NUNCA le recites sus propios datos (ingresos, deudas, afiliación).
+- NUNCA menciones puntajes, calificaciones, cortes ni "perfilamiento". No los conoces.
+- No hagas preguntas ni la despidas: el sistema sigue solo después de tu mensaje.
+- Máximo un emoji.
 
 Responde solo con el mensaje, sin comillas ni texto adicional.`;
 }
