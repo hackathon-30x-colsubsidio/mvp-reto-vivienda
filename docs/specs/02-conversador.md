@@ -159,6 +159,8 @@ Si el equipo aprueba D1-B, este flujo **deja de ser el primario y pasa a ser la 
 
 **Falla cerrada, en los cuatro casos**, y en todos la conversación termina exactamente como terminaba antes de que la capa existiera — sin mensaje de error, porque no hay nada que decirle al lead: sin credencial · `id: null` · un id que el modelo se inventó · una pregunta cuyo dato ya tenemos (criterio de aceptación 1: nunca se repregunta lo conocido).
 
+> ⚠️ **Fallar cerrada es correcto para el lead y pésimo para depurar:** desde afuera, *"no está cableado"* y *"el selector dijo que ninguna valía la pena"* se ven **exactamente igual** — en los dos casos no pasa nada. Por eso existe **`npx tsx scripts/diagnostico-banco.ts`**, que recorre las mismas puertas que `seleccionarDelBanco` en orden y dice **en cuál se cerró**. Si el banco "no preguntó" y quieres saber por qué, empieza ahí y no por el chat.
+
 **Se pinta como un paso más.** Una `PreguntaBanco` es `Omit<PasoPregunta, "campo">` más su campo, así que **entra en la misma lista de pasos del chat** y hereda todo D4 sin código nuevo: sus atajos arriba, el campo de texto siempre disponible, y escribir vale exactamente lo mismo que tocar el chip. Cablearlo no costó **una sola línea de JSX**.
 
 **Lo único que cambia por ser del banco**, y está documentado donde ocurre:
