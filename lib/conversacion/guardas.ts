@@ -107,6 +107,24 @@ const sinTildes = (t: string) =>
 const escaparRegExp = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
+ * Frontera de palabra que SÍ sirve en español.
+ *
+ * `\b` de JavaScript se define sobre `[A-Za-z0-9_]`, así que la `ñ` y las
+ * vocales con tilde no cuentan como letra: `/\bJosé\b/` **nunca** casa, porque
+ * entre la `é` y lo que siga no hay frontera — son dos no-palabras. Este guard
+ * llevaba ese bug en `nombre_agregado`: era ciego a José, Andrés, Iván y
+ * Nicolás, y pasaba los tests solo porque los tres personajes del demo (Diana,
+ * Carlos, Yuliana) no llevan tilde en el primer nombre.
+ *
+ * Es la trampa que `AGENTS.md` documenta desde el 2026-07-26. Aquí se resuelve
+ * con la otra salida que esa regla admite —el lookahead explícito— y no con
+ * `sinTildes`, porque el nombre hay que **borrarlo del texto original**, con sus
+ * tildes puestas.
+ */
+const LETRA = "0-9A-Za-zÁÉÍÓÚÜÑáéíóúüñ";
+const palabra = (t: string) => `(?<![${LETRA}])${t}(?![${LETRA}])`;
+
+/**
  * Un emoji, incluidas las secuencias con ZWJ y los selectores de variación:
  * 👨‍👩‍👧 es UN emoji, no tres.
  */
@@ -367,9 +385,9 @@ function quitarNombre(texto: string, nombre: string): string {
   if (!primero) return texto;
 
   return texto
-    .replace(new RegExp(`\\s*,\\s*\\b${primero}\\b(?=[,.!?…:;]|\\s|$)`, "gi"), "")
-    .replace(new RegExp(`\\b${primero}\\b\\s*,\\s*`, "gi"), "")
-    .replace(new RegExp(`\\s*\\b${primero}\\b`, "gi"), "")
+    .replace(new RegExp(`\\s*,\\s*${palabra(primero)}(?=[,.!?…:;]|\\s|$)`, "gi"), "")
+    .replace(new RegExp(`${palabra(primero)}\\s*,\\s*`, "gi"), "")
+    .replace(new RegExp(`\\s*${palabra(primero)}`, "gi"), "")
     .replace(/\s{2,}/g, " ")
     .replace(/\s+([,.!?…:;])/g, "$1")
     .trim();
@@ -468,7 +486,7 @@ export function postGuard(
   const nombre = contexto.nombre?.trim();
   if (nombre) {
     const primero = nombre.split(/\s+/)[0];
-    const enTexto = new RegExp(`\\b${escaparRegExp(primero)}\\b`, "i");
+    const enTexto = new RegExp(palabra(escaparRegExp(primero)), "i");
     if (enTexto.test(limpio) && !enTexto.test(textoBase)) {
       violaciones.push("nombre_agregado");
       limpio = quitarNombre(limpio, primero);

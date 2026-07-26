@@ -184,6 +184,28 @@ describe("limpia · nombre_agregado", () => {
     expect(postGuard(texto, "Cuéntame una cosa.", DIANA).textoFinal).toBe(esperado);
   });
 
+  // El bug que este bloque fija: `\b` de JavaScript no cuenta la `ñ` ni las
+  // vocales con tilde como letra, así que `/\bJosé\b/` NUNCA casa. La regla
+  // era ciega a José, Andrés, Iván y Nicolás, y pasaba los tests porque los
+  // tres personajes del demo no llevan tilde en el primer nombre.
+  it.each([
+    ["José Luis Álvarez", "Claro, José, con eso sigo.", "Claro, con eso sigo."],
+    ["Andrés Felipe Gil", "¡Hola, Andrés! ¿Cómo vas?", "¡Hola! ¿Cómo vas?"],
+    ["Iván Muñoz", "Iván, cuéntame una cosa.", "cuéntame una cosa."],
+  ])("el nombre con tilde también se quita: %s", (nombre, texto, esperado) => {
+    const r = postGuard(texto, "Cuéntame una cosa.", { nombre });
+    expect(r.violaciones).toContain("nombre_agregado");
+    expect(r.textoFinal).toBe(esperado);
+  });
+
+  it("un nombre que es prefijo de otra palabra no se toca", () => {
+    // Sin la frontera explícita, "Ana" se comería el de "Analiza".
+    const r = postGuard("Analiza bien la opción.", "Analiza bien la opción.", {
+      nombre: "Ana María",
+    });
+    expect(r.severidad).toBe("ok");
+  });
+
   it("NO toca el nombre cuando la base ya lo trae", () => {
     const base = mensajeSaludo("Diana Marcela Ríos");
     const r = postGuard(base, base, DIANA);
