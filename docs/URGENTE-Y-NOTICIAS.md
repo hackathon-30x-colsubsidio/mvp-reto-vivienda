@@ -25,6 +25,9 @@
 
 ## 🔵 2026-07-26 — Va la rama 4 (IA) en `main`. Quedan 4 ramas, y ahora son **6** los bugs de interpretación abiertos
 
+> 🔁 **Parcialmente superada por la entrada de arriba:** los 6 bugs ya están arreglados. Lo que
+> sigue vigente de esta entrada es **qué trae la rama 4** y **qué ramas faltan**.
+
 **En `main`: 1 (escenarios), 3 (guardas), 2 (contrato) y 4 (IA). 687 tests verdes**, typecheck y lint limpios. **Faltan 4 ramas: la 6 (sesgo de similitud), la 7 (banco de preguntas), la 8 (brochures al matcher) y la 5 (máquina de conversación, que sigue siendo la última).**
 
 **Qué trae la rama 4, en corto.** Un **intérprete de respaldo** con IA para lo que el regex no entiende (`POST /api/interpretar`, validado con zod contra el mismo enum que produce el regex), y la **recomendación verbalizada al final**: por primera vez el lead va a oír cuáles proyectos le eligió el motor y por qué. Hasta hoy no los oía — `ResultadoCurado.proyectos` es un número, y lo único que se nombraba era el #1 dentro del ofrecimiento de cita. Medido contra Gemini vivo: **487–725 ms**, muy debajo del corte de 3 s.
@@ -39,6 +42,9 @@
 **Y la cosa que cambia cómo se leen los seis: el intérprete de IA NO los rescata.** Solo corre cuando el regex devuelve `undefined`, y los seis devuelven un valor **equivocado con seguridad**. La rama 4 tapa el dato que se pierde en silencio; **no tapa la afirmación falsa**. Los seis son de una línea cada uno y **esperan aprobación, no tiempo**.
 
 ## 🔴 2026-07-26 — Van 3 de las 8 ramas en `main`, y hay 4 bugs de interpretación ABIERTOS que cambian el dato que llega al motor
+
+> 🔁 **HISTÓRICO — los 4 bugs de esta entrada están ARREGLADOS.** Ver la entrada verde del 26 al
+> principio del documento. Se conserva por el diagnóstico, no como pendiente.
 
 **En `main`: rama 1 (escenarios), rama 3 (guardas) y rama 2 (contrato de turno). 639 tests verdes**, typecheck y lint limpios, seed regenerado sin diff. El detalle de cada una y los hallazgos con dueño están en la bitácora de [`agents/plan-arquitectura-conversador.md`](agents/plan-arquitectura-conversador.md) §8, que sigue siendo el canal del día.
 

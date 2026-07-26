@@ -104,9 +104,16 @@ existente. El layout no cambia.
 
 ### Mecánica
 
-Los 91 tests actuales quedan **intactos** — si el refactor los rompe, el refactor está mal · seed
+Los tests actuales quedan **intactos** — si el refactor los rompe, el refactor está mal · seed
 regenerable con `seed-espejo.test.ts` vigilando · **zod se agrega** · `/asesor` puede mostrar datos
 nuevos **reusando bloques existentes** · a `main` entra lo que esté verde.
+
+> **Precisión al 2026-07-26.** El "91" original quedó viejo hace rato: van **704**. Y la regla tiene
+> una excepción con nombre, que NO la debilita: un test marcado `⚠️ BUG CONGELADO` existe para
+> **fallar** el día que su bug se arregle, y esa falla es la señal de que se arregló. Cuando pase,
+> el test se **voltea** a afirmar el arreglo (con su porqué y un caso de control), no se borra.
+> Ya ocurrió una vez: los 14 que cayeron al arreglar los 6 bugs de interpretación. Cualquier otro
+> test que se rompa sigue significando que el refactor está mal.
 
 ---
 
@@ -147,6 +154,18 @@ Es el patrón de Motoko exacto: el modelo escoge una herramienta del set; no esc
 
 **Arrancan ya:** 1, 2, 3, 6. **Rama 4** cuando P2 publique el tipo (~30 min).
 **Rama 7** cuando P3 termine guardas. **Rama 5** cuando la rama 1 esté verde.
+
+> **Estado al 2026-07-26, 03:50.** En `main`: **1, 3, 2 y 4**. Faltan **6, 7, 8 y 5**.
+>
+> | Rama | Quién | Puede arrancar | Qué la frena de verdad |
+> |---|---|---|---|
+> | **6** sesgo | P5 | **ya, no depende de nadie** | el punto **13** (mediana vs. normalizar) — decisión de Mani |
+> | **7** banco | P3 | **ya**, la 3 ya está en `main` | los puntos **1, 2 y 3**: el copy está **todo sin escribir** |
+> | **8** brochures | P5 | cuando la 7 publique campos | puntos **14, 15** y el **17** |
+> | **5** máquina | P1 | **ya tiene todo lo que esperaba** (2, 3 y 4 están en `main`) | puntos **4, 5, 7** y el número de turnos |
+>
+> El cuello de botella **no es código, son decisiones**: 9 de los 17 puntos de §7 siguen abiertos y
+> bloquean a la 6 y a la 7. La 4 difirió su parte (c), por eso entró antes que la 7.
 
 ---
 
@@ -532,35 +551,43 @@ lleva su test `⚠️ BUG CONGELADO` en `lib/conversacion/escenarios/`, así que
 arregle, el test falla — y esa falla es la señal de que se arregló, no un problema.
 
 **Para P2 (rama 2 · intérpretes).** Los cinco salen de `preguntas.ts` y los cinco cambian lo que
-llega al motor:
+llega al motor.
 
-- **`interpretarVivienda` INVENTA "primera vivienda".** `"pues no sé"`, `"no sé todavía"` y
+> ✅ **Los cuatro primeros quedaron ARREGLADOS el 2026-07-26** — ver la entrada *"los 6 bugs de
+> interpretación"* al final de esta bitácora, con su medición antes/después. El quinto sigue
+> abierto y es de la rama 5. **Nada de lo de abajo hay que volver a hacerlo**; se conserva porque
+> el diagnóstico original es la razón por la que se arreglaron.
+
+- ~~**`interpretarVivienda` INVENTA "primera vivienda".**~~ `"pues no sé"`, `"no sé todavía"` y
   `"no estoy seguro"` → `tiene_vivienda: false`. Causa: `NIEGA` atrapa el "no" de "no sé". No es
-  pérdida de dato como el hueco 2 — es una **afirmación falsa**, y `tiene_vivienda: false` habilita
-  los subsidios que solo aplican a primera vivienda. Es el peor de los siete. · ⬜ abierto
-- **`interpretarEdad` clasifica mal los 36–39 escritos en letras.** `"treinta y ocho"` → `20_35`
+  pérdida de dato como el hueco 2 — es una **afirmación falsa**. · ✅ **arreglado**
+  (⚠️ la frase original decía que *"habilita los subsidios que solo aplican a primera vivienda"*:
+  **es impreciso**, `undefined` los habilita igual. Lo que costaba, medido, son 5 puntos de 100 en
+  el factor `ya_tiene_vivienda` y un "No tiene vivienda propia" afirmado en la ficha.)
+- ~~**`interpretarEdad` clasifica mal los 36–39 escritos en letras.**~~ `"treinta y ocho"` → `20_35`
   (debería ser `36_45`). Causa: la rama `^treinta\b` se evalúa **antes** que
   `treinta y (seis|siete|ocho|nueve)`, así que gana siempre. La edad alimenta la similitud, o sea
-  que el error llega hasta qué proyecto se recomienda. · ⬜ abierto
-- **`interpretarCrediticia` no normaliza tildes.** `"ya salí de un reporte"` → `mala`;
+  que el error llega hasta qué proyecto se recomienda. · ✅ **arreglado** con `(?! y)`
+- ~~**`interpretarCrediticia` no normaliza tildes.**~~ `"ya salí de un reporte"` → `mala`;
   `"ya sali de un reporte"` → `regular`. El regex `/sali|.../` no atrapa `salí`, y entonces cae
   hasta la rama de mora porque "reporte" contiene "report". **Quien escribe bien su español queda
-  calificado peor.** `interpretarZona` sí usa `sinTildes` — unificar eso es exactamente el trabajo
-  de la rama 2. · ⬜ abierto
-- **Dos chips no valen lo mismo escritos que tocados**, contra la regla de spec 02 D4 y el
+  calificado peor.** `interpretarZona` sí usa `sinTildes`. · ✅ **arreglado** aplicando `sinTildes`
+- ~~**Dos chips no valen lo mismo escritos que tocados**~~, contra la regla de spec 02 D4 y el
   comentario de `preguntas.ts:407`:
   - `"Más de 45"` escrito → `36_45`; el chip → `46_mas`. (`numerosDe` saca el 45 y `45 <= 45`.)
   - `"El de mi caja de compensación"` escrito → guarda la frase cruda; el chip → la etiqueta
     canónica `"Subsidio caja de compensación"`. Mismo patrón con `"mi casa ya"`.
 
-  Hay un test nuevo que recorre **todos** los chips de **todos** los pasos y compara chip contra
-  texto, con estos dos en una lista de excepciones nombrada. Al arreglarlos hay que sacarlos de esa
-  lista o el test falla. · ⬜ abierto
+  El test que recorre **todos** los chips de **todos** los pasos sigue ahí, y su lista de
+  excepciones **quedó vacía**, con un test que exige que siga vacía. · ✅ **arreglados los dos**
 - **Los intérpretes no fallan igual entre sí.** Ante algo que no entienden, `composicion_familiar`
   y `rango_edad` devuelven `{}` (pierden el dato), pero `situacion_crediticia` devuelve
   `sin_info` — que en la ficha se lee como "nunca ha pedido crédito". O sea que `"jajaja"` queda
-  registrado como un hecho sobre su vida financiera. Cuando la rama 2 defina `no_entendido`, este
-  caso tiene que entrar ahí y **no** seguir afirmando. · ⬜ abierto
+  registrado como un hecho sobre su vida financiera.
+  · ⚠️ **el vocabulario ya está** (`no_entendido` lo emite la rama 2 con su `campo` y su
+  `textoCrudo`); lo que falta es **qué se hace con él**, y eso **ya NO es de P2**:
+  → **P1 (rama 5), punto 7 de la lista.** La afirmación falsa sobrevive solo dentro de
+  `respuestaDeAccion`, el puente que la rama 5 borra al cablear el reducer. · ⬜ abierto
 
 **Para P5 (rama 8 · catálogo).**
 
@@ -593,7 +620,7 @@ confirmarlo, que suena a evasiva justo en la pregunta donde la honestidad import
 - **[rama 2] El zod que necesita la rama 4 es `INTERPRETACION_POR_CAMPO`, no un `AccionTurnoSchema`.** La unión la construye TS y la consume TS en el mismo proceso: nunca cruza un borde, así que validarla es ceremonia. Lo que sí cruza es la salida del modelo, y ese mapa es campo → schema del valor, **el mismo enum que produce el regex** (`INTERPRETES` lo cumple con `satisfies`). Fuera del enum → `no_entendido` → repregunta. → **P4** · ✅ resuelto, así quedó
 - **[rama 2] El monto del ingreso tiene DOS puertas, no una.** zod dice "es un número"; `plausible()` (exportado de `interpretacion/ingreso.ts`) dice "es un número que alguien puede tener": 500 mil – 100 millones. La rama 4 tiene que llamar las dos — de ese número sale el gate del 40%. → **P4** · ✅ disponible
 - **[rama 2] `CampoPregunta` se estrechó a los 7 campos que la conversación pregunta** (antes era todo `keyof Lead["respuestas"]`, incluidos `subsidio_monto_mensual` y `afiliado_autoreportado`, que nadie pregunta). Vive en `acciones.ts` con `satisfies` contra `lib/types.ts`, así que renombrar un campo allá **no compila** acá. Si el banco reusa `CampoPregunta`, sus campos van a `CAMPOS_PREGUNTA`. → **P3 (rama 7)** · ⚠️ para saber
-- **[rama 2] BUG pre-existente en `interpretarEdad`, congelado:** `^treinta\b` se come "treinta y ocho" antes de la segunda rama, así que **36-39 escritos en palabras caen en el tramo 20_35** y mueven la similitud. El arreglo es `^treinta\b(?! y)`, una línea. No se toca en esta rama porque cambia el puntaje de quien escriba así; hay test que lo congela y lo dice. → **quien decida comportamiento** · ⬜ abierto
+- **[rama 2] BUG pre-existente en `interpretarEdad`, congelado:** `^treinta\b` se come "treinta y ocho" antes de la segunda rama, así que **36-39 escritos en palabras caen en el tramo 20_35** y mueven la similitud. El arreglo es `^treinta\b(?! y)`, una línea. No se toca en esta rama porque cambia el puntaje de quien escriba así; hay test que lo congela y lo dice. → **quien decida comportamiento** · ✅ **arreglado el 2026-07-26**
 - **[rama 2] Dos comportamientos feos más, congelados y ahora visibles** en `MUDO_HOY` de `preguntas.ts`: (a) `situacion_crediticia` guarda `"sin_info"` cuando NO entendió, así que el motor no distingue eso de "nunca he pedido crédito"; (b) `subsidios` acusa "¡eso suma!" con lista vacía (solo pasa si el texto era pura puntuación). → **P1 (rama 5), punto 7 de la lista** · ⬜ abierto
 - **[rama 2] `fuera_de_tema` es un refinamiento de `no_entendido`, no un tercer desvío.** El orden que no rompe nada: 1) `detectarDesvio` → 2) `accionDeCorreccion` → 3) `accionDeTexto` → 4) y **solo si salió `no_entendido`**, `esFueraDeTema`. Va de último porque el error es feo: "de eso no sé nada" a quien escribió "vivo con mi mamá y mi hermana". Al ingreso nunca le aplica (emite `confirmar_dato`). → **P1 (rama 5)** · ✅ listo para cablear
 - **[rama 2] "¿eres un bot?" hoy entra como `duda / general`** y sale con el "no te la puedo confirmar" — porque trae signo de pregunta. Detectarlo cambiaría `detectarDesvio`, que es de P2: si la rama 5 quiere su acción propia (decisión cerrada: Sara se declara IA), **pídanla y la agrego**; o detéctenlo en el reducer antes de llamar a `detectarDesvio`. → **P1 (rama 5), punto 4 de la lista** · ⬜ abierto
@@ -607,23 +634,24 @@ para todos: los cinco cambian el dato que llega al motor, o sea el puntaje y el 
 recomendado. La rama 2 se entregó con la promesa de no mover nada (el seed regenera sin una línea de
 diff, y esa es la prueba). Estado uno por uno:
 
-- **`interpretarVivienda` inventa "primera vivienda"** → **el más grave de los cinco**, porque
-  `tiene_vivienda: false` habilita los subsidios de primera vivienda a partir de un "no sé". Está en
-  `interpretacion/vivienda.ts:11`, aislado y con test. El arreglo es sacar `no s[ée]` de lo que
-  `NIEGA` considera negación, y **no lo hago sin que se apruebe**: cambia el veredicto de gente real.
-  · ⬜ abierto, ahora en un archivo de 23 líneas
+> ✅ **Los cuatro se aprobaron y se arreglaron el 2026-07-26** (entrada al final de esta bitácora).
+> Lo de abajo queda como el porqué de cada arreglo, no como trabajo pendiente.
+
+- **`interpretarVivienda` inventa "primera vivienda"** → **el más grave de los cinco.** Está en
+  `interpretacion/vivienda.ts`, aislado y con test. El arreglo fue mirar la duda **antes** que la
+  negación. · ✅ **arreglado** (la gravedad real, ya medida, no es que habilite subsidios —eso pasa
+  igual con `undefined`— sino los 5 puntos de 100 y la afirmación en la ficha)
 - **`interpretarEdad`, 36-39 en letras** → confirmado por dos caminos independientes (mi test lo
   encontró antes de leer esta bitácora, mismo diagnóstico). `interpretacion/edad.ts`, arreglo de un
-  `(?! y)`. · ⬜ abierto
+  `(?! y)`. · ✅ **arreglado**
 - **`interpretarCrediticia` no normaliza tildes** → la rama 1 dice que unificar eso "es exactamente
   el trabajo de la rama 2", y tiene razón a medias: `sinTildes` **ya quedó extraído** a
-  `interpretacion/texto.ts` y compartido con la zona y el desvío, así que la pieza está lista. Lo que
-  falta es *aplicarlo*, y eso mueve la calificación de quien escribe bien su español (hoy queda
-  peor). Una línea, con aprobación. · ⬜ abierto
-- **Los dos chips que no valen lo mismo escritos que tocados** → siguen igual, y ahora el chip y el
-  texto libre pasan por **la misma tabla** (`RESPUESTA_DE`), así que el arreglo es un solo sitio. La
-  excepción de `"Más de 45"` es aritmética (`45 <= 45`), la del subsidio es normalizar la etiqueta.
-  · ⬜ abierto
+  `interpretacion/texto.ts` y compartido con la zona y el desvío, así que la pieza estaba lista. Lo
+  que faltaba era *aplicarlo*. · ✅ **arreglado**
+- **Los dos chips que no valen lo mismo escritos que tocados** → el chip y el texto libre pasan por
+  **la misma tabla** (`RESPUESTA_DE`), así que el arreglo fue un solo sitio por cada uno. La
+  excepción de `"Más de 45"` era aritmética (`45 <= 45`), la del subsidio era normalizar la
+  etiqueta. · ✅ **arreglados los dos, y la lista de excepciones quedó vacía**
 - **"Los intérpretes no fallan igual entre sí"** → **esta sí quedó resuelta estructuralmente.** El
   caso de `situacion_crediticia` ya entra por `no_entendido` con su `campo` y su `textoCrudo`: la
   afirmación falsa sobrevive **solo** dentro de `respuestaDeAccion`, el puente que la rama 5 borra
@@ -648,7 +676,7 @@ diff, y esa es la prueba). Estado uno por uno:
   - `"me toca criar sola a mi niña"` → **`familia_con_hijos`**, debería ser `monoparental`. La rama
     de monoparental exige la raíz `hij`, y "niña" no la tiene — aunque la rama de abajo sí
     reconoce `niñ`. O sea: las dos ramas no usan el mismo vocabulario de "hijo".
-  → **P2** · ⬜ abierto
+  → **P2** · ✅ **arreglados el 2026-07-26** — las dos ramas usan ahora **una sola** lista de raíces
 - **[rama 4] `prompt-maestro.ts` NO tenía dueña en §2** y la rama 4 la necesitaba. La tomé. Si
   alguien más la necesita, avisar antes. → **todos** · ⚠️ para saber
 - **[rama 4] El punto 8 se cerró SIN reescribir la prohibición.** En vez de cambiar
@@ -734,6 +762,25 @@ movieron: 73 / 24 / 0**, y `db/seed.sql` regenera **sin una línea de diff**. Lo
   sucia de `conversaciones.test.ts`, `tiene_vivienda` dejó de inventar un `false` y ahora se declara
   vacío. **Perder el dato es mejor que afirmarlo falso**, y quién atiende ese vacío lo decide la
   rama 5 (punto 7). → **P1 (rama 5)** · ⬜ sigue abierto
+- **[auditoría] 🔴 Un `BUG CONGELADO` que estaba en el código SIN entrada en la bitácora y sin
+  dueño.** `entradas-sucias.test.ts:267`: cuando la persona contesta la zona con un deseo, un emoji
+  o una ciudad sin proyectos, **el texto crudo entra a `zona_interes`** y el matcher lo trata como
+  ubicación. `clasificarZona` **ya sabe** que no era un lugar (devuelve `tipo: "deseo"` o
+  `"sin_reconocer"`), pero `respuestaZona` guarda el texto igual.
+
+  Medido sobre el afiliado listo (2026-07-26), y **le cuesta una recomendación al lead**:
+
+  | Lo que contestó | Proyectos |
+  |---|---|
+  | `"Bogotá"` | **3** — LA ARBOLEDA, MONGUI, VERSALLES |
+  | `"cerca al colegio de los niños"` | **2**, y marcados *alternativa fuera de zona* |
+  | `"en medellin"` | **2**, ídem |
+  | `"🎉"` | **2**, ídem |
+
+  Le decimos "no encontramos nada en tu zona" a quien **nunca nombró una zona**. El arreglo natural
+  es no guardar como zona lo que `clasificarZona` ya clasificó como no-lugar; dónde queda entonces
+  ese texto (que el asesor sí quiere leer) es la decisión. Toca `preguntas.ts` e `interpretacion/`.
+  → **P2 decide y arregla · P5 tiene que saberlo** (cambia qué entra a `matchear`) · ⬜ abierto
 - **[bugs] `data/sintetica/slots.json` estaba VIEJO en disco**, y no por esta tanda. Desde que el
   catálogo resolvió la ubicación de KARAKALI y VIBO ONCE (2026-07-25) nadie lo regeneró, así que la
   ciudad de esas dos salas de ventas decía *"Ricaurte o Bogotá (ubicación contradictoria entre

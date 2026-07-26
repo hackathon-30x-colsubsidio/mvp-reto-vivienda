@@ -13,6 +13,15 @@ import { interpretarUno } from "./replay";
 // ⚠️ CONGELA EL COMPORTAMIENTO ACTUAL, NO EL DESEADO. Los casos
 // marcados `BUG CONGELADO` están mal y están anotados en la bitácora
 // del plan. Se arreglan en su rama, con su dueño, no aquí.
+//
+// QUÉ HACER CUANDO UNO DE ESOS FALLE: significa que alguien arregló el
+// bug, y esa falla es la señal, no un problema. El test se **voltea** a
+// afirmar el arreglo —con su porqué y un caso de control de que lo que
+// ya servía no se movió— y NO se borra: el caso sucio sigue valiendo.
+// Ya pasó el 2026-07-26 con los 6 bugs de interpretación.
+//
+// Los que quedan marcados aquí siguen abiertos de verdad, y casi todos
+// son del hueco 2, que cierra la rama 5.
 // =====================================================================
 
 const SIN_DATOS: PerfilConocido = { match: false };

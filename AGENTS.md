@@ -8,9 +8,9 @@ Si algo no está resuelto, NO lo inventes: márcalo como supuesto por validar. T
 
 Un workflow que hace que los leads pagos se parezcan a los orgánicos: el lead entra por pauta, conversa con un perfilador estilo WhatsApp que pregunta solo lo que falta, un motor transparente lo califica y matchea con hasta 3 proyectos, y al asesor le llega un lead curado con cita agendada y el porqué. Los que aún no pueden comprar no se botan: quedan en nutrición con el trigger que los volvería listos. Detalle en [`docs/mvp-layout.md`](docs/mvp-layout.md).
 
-## Empieza aquí (estado del proyecto, 2026-07-25)
+## Empieza aquí (estado del proyecto, 2026-07-26)
 
-El flujo corre de punta a punta y los 4 criterios de aceptación están construidos. **Antes de tocar nada, en este orden:**
+El flujo corre de punta a punta y los 4 criterios de aceptación están construidos. **Van 4 de las 8 ramas del plan de arquitectura en `main`** (1 escenarios, 3 guardas, 2 contrato, 4 IA); faltan **6, 7, 8 y 5**, y la 5 es la última. **704 tests verdes.** **Antes de tocar nada, en este orden:**
 
 1. **[`docs/agents/plan-arquitectura-conversador.md`](docs/agents/plan-arquitectura-conversador.md)** — **el plan de trabajo vigente y el canal de sincronización de los 5 computadores.** 8 ramas con **propiedad de archivos asignada** (tocar un archivo que no es tuyo hace que se rechace el merge), la bitácora de hallazgos, y los 15 puntos marcados `🔴 CONSULTAR` que nadie escribe sin aprobación — todos son personalidad o comportamiento del agente. **Su regla de oro: no asumas, consulta.**
 2. **[`docs/agents/plan-sabado-25.md`](docs/agents/plan-sabado-25.md)** — qué se hace HOY: el reparto por 5 personas, las 10 decisiones, los 3 checkpoints, las reglas del día y el **recetario para probar sin pisar a los 3 personajes** del demo. Su **addendum de las 12:00** trae los 3 tickets que salieron de la discusión de workflow.
