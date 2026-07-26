@@ -1046,6 +1046,58 @@ movieron: 73 / 24 / 0**, y `db/seed.sql` regenera **sin una línea de diff**. Lo
 
 ---
 
+### 2026-07-26 · rama 5 (máquina) — el cableado, y un choque entre la 3 y la 4
+
+**Las ramas 3 y 4 estaban en `main` sin que las llamara nadie.** Verificado con grep antes de
+tocar nada: `guardas.ts` no lo importaba ningún archivo, `/api/interpretar` no lo llamaba ningún
+cliente, y el modo `recomendacion` de `/api/chat` tampoco. Un módulo perfecto que no está
+conectado protege exactamente cero. La rama 5 encendió los tres.
+
+- **[5→3+4] 🔴 El guard BLOQUEA la recomendación de Sara, y no se puede arreglar desde ninguna de
+  las dos ramas por separado** → **P3 y P4** · abierto. Es el único defecto que dejo abierto y es
+  de integración: solo aparece al cablear.
+
+  `promptRecomendacion` (rama 4) le pide a Sara *"di POR QUÉ le sirven, con las razones de
+  arriba"*, y esas razones son el `porque` del matcher, que está lleno de porcentajes de la
+  similitud (*"el 64% de los compradores de este proyecto es afiliado, como tú"*). Pero
+  `figurasDe` (rama 3) clasifica un `64%` como **`pct:64`**, mientras que `cifrasPermitidas` solo
+  alimenta el conjunto con **`monto:64`**. Son claves distintas, así que **un porcentaje legítimo
+  no se puede permitir con el contrato actual de `ContextoGuard`** y cae siempre en
+  `cifra_inventada`.
+
+  Medido en el navegador: la conversación completa de Diana termina pintando el texto
+  determinista, nunca el de la IA.
+
+  Dos arreglos posibles, los dos de ~10 minutos y ninguno mío:
+  1. **P3:** agregar `porcentajesPermitidos?: number[]` a `ContextoGuard` y sembrar
+     `pct:${n}` en el conjunto de `cifraInventada`. Es el más limpio: el guard gana la
+     dimensión que le falta.
+  2. **P4:** que `promptRecomendacion` prohíba citar porcentajes y le pida decir el porqué en
+     palabras. Más barato, pero le quita a la recomendación la evidencia que la hace creíble.
+
+  **Mientras tanto no hay nada roto:** el lead ve el mensaje determinista, que quedó ratificado
+  (punto 16) y dice lo mismo con menos. La capa de IA simplemente no gana casi nunca.
+
+- **[5] Lo que sí quedó permitido de mi lado.** `cifrasDe` (en `maquina.ts`) saca los **montos**
+  del `porque` —el precio y el techo del gate del 40%, p. ej. `$312.392.645`— y los mete en
+  `cifrasPermitidas`. Sin eso, hasta un precio que el motor calculó se leía como inventado. Los
+  porcentajes siguen bloqueados por lo de arriba. · cerrado
+
+- **[5] El intérprete de IA se come el corte de 3 s en frío** → **P4** · informativo.
+  Medido: `POST /api/interpretar 200 in 3.0s`, de los cuales `next.js: 2.3s` son compilación de
+  la ruta en dev. En producción la ruta está caliente, pero conviene saberlo antes de grabar:
+  **el primer mensaje que dispare el intérprete lo va a perder**. Es el mismo argumento del
+  mensaje de calentamiento que ya está en `URGENTE`.
+
+- **[5] `esFueraDeTema` sobre el paso del ingreso** → verificado, no hay bug. `"2+2"` es una
+  cuenta, pero al paso del ingreso le corresponde `confirmar_dato` y repreguntar, no
+  "de eso no sé nada". El orden de clasificadores que fijó la rama 2 lo resuelve solo.
+
+**Verificado en el navegador de punta a punta** (Diana, con LLM vivo): `"eres un bot?"` responde
+la verdad y no consume el paso · `"vivo con mi mamá y mi hermana"` ya no se pierde en silencio
+—dice *"Perdóname, no te seguí bien"* y repregunta— · el lead **oye sus 3 proyectos** al cerrar ·
+las 3 franjas de cita siguen saliendo · el layout no cambió en ninguna pantalla.
+
 ## 9 · Protocolo de sincronización
 
 1. **Commit frecuente.** `AGENTS.md` ya lo pide: los modelos borran cosas por accidente.
