@@ -177,7 +177,11 @@ está congelando y si es el deseado o no.
 
 ---
 
-### Rama 2 · `feat/contrato-turno` — P2 · **RUTA CRÍTICA**
+### Rama 2 · `feat/contrato-turno` — P2 · **RUTA CRÍTICA** · ✅ ENTREGADA
+
+> **Cerrada.** Pusheada en `feat/contrato-turno`, con `npm test` (456), `tsc` y `lint` verdes, el
+> seed regenerado sin diff y los 3 pasos hechos. Lo que quedó construido es el bloque de abajo, ya
+> reconciliado con el código; los hallazgos para las otras ramas están en §8. Falta el merge.
 
 **Posee:** `lib/conversacion/acciones.ts` (nuevo), `lib/conversacion/interpretacion/**` (nuevos),
 `lib/conversacion/preguntas.ts`, `lib/conversacion/desvio.ts`.
@@ -187,18 +191,26 @@ está congelando y si es el deseado o no.
 **Paso 1 — publicar el contrato en los primeros 30 minutos.** P4 está esperando esto. Commit + push
 apenas compile, aunque el resto no esté.
 
+Así quedó en `lib/conversacion/acciones.ts` (todas llevan `campo` menos las tres últimas):
+
 ```ts
 export type AccionTurno =
-  | { tipo: "responder_paso"; patch; acuse?; pulir? }
-  | { tipo: "no_entendido"; campo; textoCrudo }      // hoy: {patch:{}} mudo
-  | { tipo: "confirmar_dato"; ... }                   // hoy: respuesta.repreguntar
-  | { tipo: "corregir_dato"; campo; patch; acuse }    // nuevo
-  | { tipo: "responder_duda"; clase; proyecto? }
-  | { tipo: "fuera_de_tema"; textoCrudo }             // nuevo
+  | { tipo: "responder_paso"; campo; patch; acuse?; pulir? }
+  | { tipo: "no_entendido"; campo; textoCrudo }              // hoy: {patch:{}} mudo
+  | { tipo: "confirmar_dato"; campo; patch; acuse; acuseSiInsiste } // hoy: repreguntar
+  | { tipo: "corregir_dato"; campo; patch; acuse }           // nuevo
+  | { tipo: "responder_duda"; clase; proyecto?; textoCrudo }
+  | { tipo: "fuera_de_tema"; textoCrudo }                    // nuevo
   | { tipo: "handoff_asesor" };
 ```
 
-Validado con zod al borde, como `SalesToolCallSchema` de Motoko.
+Quién produce cada una: `accionDeTexto` / `accionDeValor` / `accionDeCorreccion` (en `preguntas.ts`)
+y `accionDeDesvio` / `esFueraDeTema` (en `desvio.ts`). `respuestaDeAccion` es el puente que traduce
+al `Respuesta` de hoy — la rama 5 lo retira.
+
+Validado con zod **donde de verdad hay un borde**, que es la salida del modelo y no esta unión:
+`INTERPRETACION_POR_CAMPO` es el menú cerrado campo → schema del valor, y `INTERPRETES` casa contra
+él con `satisfies`. Es el `SalesToolCallSchema` de Motoko aplicado donde aplica (ver §8).
 
 **Paso 2 — extraer los intérpretes** a `lib/conversacion/interpretacion/`, un archivo por campo,
 funciones puras con su test. `preguntas.ts` queda solo con copy + wiring.
@@ -211,12 +223,13 @@ ahí salen `db/seed.sql` y las fixtures. Si lo vuelves `async`, revientas el see
 afuera y la cablea la rama 5.
 
 **🔴 CONSULTAR antes de escribir:**
-- El copy del acuse de `corregir_dato`.
-- El copy de `fuera_de_tema`.
-- Cualquier cambio al texto de las 7 preguntas base o a sus acuses.
+- ~~El copy del acuse de `corregir_dato`.~~ ✅ consultado y aprobado (§8).
+- ~~El copy de `fuera_de_tema`.~~ ✅ consultado y aprobado (§8).
+- Cualquier cambio al texto de las 7 preguntas base o a sus acuses. → **no se cambió ni uno.**
 
 **Definición de listo:** `npm test` verde con los tests actuales **sin tocar** ·
-`npx tsc --noEmit && npm run lint` · el contrato pusheado y avisado.
+`npx tsc --noEmit && npm run lint` · el contrato pusheado y avisado. → ✅ los tres, y el seed
+regenerado sin una línea de diff, que es la prueba de que el refactor no movió nada.
 
 ---
 
@@ -430,7 +443,7 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 | 3 | Si "momento de compra" se pregunta o suena a apuro | 7 | ⬜ abierto |
 | 4 | Respuesta a "¿eres un bot?" | 5 | ⬜ abierto |
 | 5 | Copy del ofrecimiento de asesor tras 3 desvíos | 5 | ⬜ abierto |
-| 6 | Copy de `corregir_dato` y de `fuera_de_tema` | 2 | ⬜ abierto |
+| 6 | Copy de `corregir_dato` y de `fuera_de_tema` | 2 | ✅ cerrado — consultado y aprobado, ver bitácora |
 | 7 | Qué hace el reducer con `no_entendido` a la segunda vez | 5 | ⬜ abierto |
 | 8 | Reescritura de `prompt-maestro.ts:157` (prohibición de recomendar) | 4 | ⬜ abierto |
 | 9 | Prompt del selector del banco: qué es "óptimo" | 4 | ⬜ abierto |
@@ -547,6 +560,50 @@ llega al motor:
 atrapa (duda `general`) pero la respuesta determinista es *"esa no te la puedo confirmar por aquí
 sin inventarte nada"*. O sea que **Sara hoy no sabe decir que es una IA** — dice que no puede
 confirmarlo, que suena a evasiva justo en la pregunta donde la honestidad importa.
+
+### 2026-07-26 · rama 2 (contrato de turno) — entregada y mergeada
+
+- **[rama 2] El contrato está pusheado** en `feat/contrato-turno`: `lib/conversacion/acciones.ts` trae `AccionTurno`, `CampoPregunta` y el menú cerrado. **zod ya entró** (`zod@4.4.3`). → **P4 y P5, arranquen** · ✅ hecho
+- **[rama 2] El zod que necesita la rama 4 es `INTERPRETACION_POR_CAMPO`, no un `AccionTurnoSchema`.** La unión la construye TS y la consume TS en el mismo proceso: nunca cruza un borde, así que validarla es ceremonia. Lo que sí cruza es la salida del modelo, y ese mapa es campo → schema del valor, **el mismo enum que produce el regex** (`INTERPRETES` lo cumple con `satisfies`). Fuera del enum → `no_entendido` → repregunta. → **P4** · ✅ resuelto, así quedó
+- **[rama 2] El monto del ingreso tiene DOS puertas, no una.** zod dice "es un número"; `plausible()` (exportado de `interpretacion/ingreso.ts`) dice "es un número que alguien puede tener": 500 mil – 100 millones. La rama 4 tiene que llamar las dos — de ese número sale el gate del 40%. → **P4** · ✅ disponible
+- **[rama 2] `CampoPregunta` se estrechó a los 7 campos que la conversación pregunta** (antes era todo `keyof Lead["respuestas"]`, incluidos `subsidio_monto_mensual` y `afiliado_autoreportado`, que nadie pregunta). Vive en `acciones.ts` con `satisfies` contra `lib/types.ts`, así que renombrar un campo allá **no compila** acá. Si el banco reusa `CampoPregunta`, sus campos van a `CAMPOS_PREGUNTA`. → **P3 (rama 7)** · ⚠️ para saber
+- **[rama 2] BUG pre-existente en `interpretarEdad`, congelado:** `^treinta\b` se come "treinta y ocho" antes de la segunda rama, así que **36-39 escritos en palabras caen en el tramo 20_35** y mueven la similitud. El arreglo es `^treinta\b(?! y)`, una línea. No se toca en esta rama porque cambia el puntaje de quien escriba así; hay test que lo congela y lo dice. → **quien decida comportamiento** · ⬜ abierto
+- **[rama 2] Dos comportamientos feos más, congelados y ahora visibles** en `MUDO_HOY` de `preguntas.ts`: (a) `situacion_crediticia` guarda `"sin_info"` cuando NO entendió, así que el motor no distingue eso de "nunca he pedido crédito"; (b) `subsidios` acusa "¡eso suma!" con lista vacía (solo pasa si el texto era pura puntuación). → **P1 (rama 5), punto 7 de la lista** · ⬜ abierto
+- **[rama 2] `fuera_de_tema` es un refinamiento de `no_entendido`, no un tercer desvío.** El orden que no rompe nada: 1) `detectarDesvio` → 2) `accionDeCorreccion` → 3) `accionDeTexto` → 4) y **solo si salió `no_entendido`**, `esFueraDeTema`. Va de último porque el error es feo: "de eso no sé nada" a quien escribió "vivo con mi mamá y mi hermana". Al ingreso nunca le aplica (emite `confirmar_dato`). → **P1 (rama 5)** · ✅ listo para cablear
+- **[rama 2] "¿eres un bot?" hoy entra como `duda / general`** y sale con el "no te la puedo confirmar" — porque trae signo de pregunta. Detectarlo cambiaría `detectarDesvio`, que es de P2: si la rama 5 quiere su acción propia (decisión cerrada: Sara se declara IA), **pídanla y la agrego**; o detéctenlo en el reducer antes de llamar a `detectarDesvio`. → **P1 (rama 5), punto 4 de la lista** · ⬜ abierto
+- **[rama 2] Copy aprobado (punto 6):** `corregir_dato` → «Listo, lo corrijo 🙏 Me quedo con lo último que me dijiste.» · `fuera_de_tema` → «Jaja, de eso sí no sé nada 😄 Yo soy buena para lo de la casa.» Los dos se retoman con `repreguntar()`, que ya dice "Sigamos donde estábamos", así que el acuse no lo repite. **Excepción decidida sobre la regla existente:** al corregir el **ingreso** se usa su propio acuse, que lee el número en voz alta — lo pide el ticket 024 y de ese número sale el único gate legal. → **si eso no gusta, es una línea** · ✅ escrito
+- **[rama 2] `handoff.md` se actualiza al mergear**, no antes: ocho ramas escribiendo la memoria del build en paralelo es un conflicto garantizado. La bitácora es el canal del día. → **quien cierre el día** · ✅ hecho al mergear la rama 2
+
+**Respuesta a los 5 hallazgos que la rama 1 dejó para P2.** Los cinco son ciertos y los cinco viven
+ahora en `lib/conversacion/interpretacion/`, un archivo por campo, así que arreglarlos dejó de ser
+cirugía sobre un archivo de 800 líneas. **Ninguno se arregló en la rama 2**, y la razón es la misma
+para todos: los cinco cambian el dato que llega al motor, o sea el puntaje y el proyecto
+recomendado. La rama 2 se entregó con la promesa de no mover nada (el seed regenera sin una línea de
+diff, y esa es la prueba). Estado uno por uno:
+
+- **`interpretarVivienda` inventa "primera vivienda"** → **el más grave de los cinco**, porque
+  `tiene_vivienda: false` habilita los subsidios de primera vivienda a partir de un "no sé". Está en
+  `interpretacion/vivienda.ts:11`, aislado y con test. El arreglo es sacar `no s[ée]` de lo que
+  `NIEGA` considera negación, y **no lo hago sin que se apruebe**: cambia el veredicto de gente real.
+  · ⬜ abierto, ahora en un archivo de 23 líneas
+- **`interpretarEdad`, 36-39 en letras** → confirmado por dos caminos independientes (mi test lo
+  encontró antes de leer esta bitácora, mismo diagnóstico). `interpretacion/edad.ts`, arreglo de un
+  `(?! y)`. · ⬜ abierto
+- **`interpretarCrediticia` no normaliza tildes** → la rama 1 dice que unificar eso "es exactamente
+  el trabajo de la rama 2", y tiene razón a medias: `sinTildes` **ya quedó extraído** a
+  `interpretacion/texto.ts` y compartido con la zona y el desvío, así que la pieza está lista. Lo que
+  falta es *aplicarlo*, y eso mueve la calificación de quien escribe bien su español (hoy queda
+  peor). Una línea, con aprobación. · ⬜ abierto
+- **Los dos chips que no valen lo mismo escritos que tocados** → siguen igual, y ahora el chip y el
+  texto libre pasan por **la misma tabla** (`RESPUESTA_DE`), así que el arreglo es un solo sitio. La
+  excepción de `"Más de 45"` es aritmética (`45 <= 45`), la del subsidio es normalizar la etiqueta.
+  · ⬜ abierto
+- **"Los intérpretes no fallan igual entre sí"** → **esta sí quedó resuelta estructuralmente.** El
+  caso de `situacion_crediticia` ya entra por `no_entendido` con su `campo` y su `textoCrudo`: la
+  afirmación falsa sobrevive **solo** dentro de `respuestaDeAccion`, el puente que la rama 5 borra
+  cuando cablee el reducer. En `MUDO_HOY` está escrito, con el porqué, para que se vea al borrarlo.
+  O sea: P1, cuando cablees, `no_entendido` de crediticia **no debe afirmar `sin_info`**. · ✅ el
+  vocabulario está; la decisión es del punto 7
 
 ---
 
