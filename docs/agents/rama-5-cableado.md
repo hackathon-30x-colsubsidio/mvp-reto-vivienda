@@ -1,3 +1,8 @@
+> 🔁 **HISTÓRICO** — la rama 5 se mergeó a `main` el 2026-07-26 (`0cc1c05`). Este documento era el
+> handoff para pushearla y ya cumplió. Lo vigente son las **cuatro trampas** de la sección
+> *Conventions* de [`AGENTS.md`](../../AGENTS.md) y la bitácora de
+> [`plan-arquitectura-conversador.md`](plan-arquitectura-conversador.md).
+
 # Rama 5 · lo que necesitas para pushear
 
 **Para P1 (Alejo). Escrito el 2026-07-26, con `main` en `270bb3e`.**
