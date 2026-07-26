@@ -435,8 +435,8 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 | 8 | Reescritura de `prompt-maestro.ts:157` (prohibición de recomendar) | 4 | ⬜ abierto |
 | 9 | Prompt del selector del banco: qué es "óptimo" | 4 | ⬜ abierto |
 | 10 | Prompt del intérprete de respaldo | 4 | ⬜ abierto |
-| 11 | Máximo de líneas del guard | 3 | ⬜ abierto |
-| 12 | Texto de la fila `sistema` cuando el guard bloquea | 3 | ⬜ abierto |
+| 11 | Máximo de líneas del guard | 3 | ✅ **3 líneas y 4 frases** (2026-07-25) |
+| 12 | Texto de la fila `sistema` cuando el guard bloquea | 3 | ✅ **cerrado** (2026-07-25) |
 | 13 | Mediana vs. normalizar en el sesgo de similitud | 6 | ⬜ abierto |
 | 14 | Valores de los tres bonos nuevos | 8 | ⬜ abierto |
 | 15 | Redacción del `porque` cuando un bono se activa | 8 | ⬜ abierto |
@@ -447,7 +447,44 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 
 Formato: `- [rama] hallazgo → para quién · estado`. Se agrega abajo; no se reescribe lo de arriba.
 
-<!-- el primer hallazgo va aquí -->
+- **[3] Las 3 consultas de la rama están resueltas** (2026-07-25) → todos · cerrado.
+  **(a) Tope = 3 líneas y 4 frases.** Las dos cotas juntas porque ninguna sola sirve: *ningún*
+  mensaje real de `preguntas.ts` trae saltos de línea, así que contar solo líneas no atraparía el
+  desborde típico de Gemini (cinco frases en un renglón). Y **4 frases, no 3**, porque
+  `mensajeReenganche` tiene exactamente 4: con 3, el guard habría truncado un texto escrito a mano.
+  **(b) La ciudad NO es `recita_datos_lead`.** Solo bloquean ingreso, afiliación y deuda — los tres
+  que `prompt-maestro.ts:83` nombra. `mensajeYaSabemos:723` dice "opciones en Bogotá" a propósito y
+  `preguntas.test.ts:153` lo fija. **(c) Fila `sistema`:** `El guard bloqueó la redacción del agente
+  (regla: X). Se pintó el texto determinista del sistema; el lead nunca vio la versión bloqueada.`
+- **[3] Contrato publicado para la rama 5** → **P1** · listo, nada que hacer hasta cablear.
+  `postGuard(texto, textoBase, contexto?) → { aprobado, textoFinal, violaciones, severidad }`, más
+  `notaSistemaGuard(resultado) → string | null` (devuelve `null` cuando el aseo fue puro formato, o
+  sea: pintar `textoFinal` siempre, y anotar la fila `sistema` solo si la nota no es `null`).
+  `ContextoGuard` es `{ nombre?, proyectosPermitidos?, cifrasPermitidas? }`, **todo opcional**: se
+  puede cablear en un sitio antes de tenerlo en todos. Con `texto === textoBase` el resultado es
+  siempre `ok` — hay un barrido de 40+ mensajes reales del repo que lo prueba.
+- **[3] 🔴 Ratificar: el tope de emojis es RELATIVO a `textoBase`, no 1 fijo** → **todos** · abierto.
+  El plan decía "deja máximo 1", pero `mensajeSaludo` trae **dos** (👋 y 🏡) y con tope fijo el guard
+  le borraba uno a un mensaje que el equipo escribió. Quedó implementado como
+  `max(1, emojis del textoBase)`: persigue que Sara **agregue** emojis, no que la base los tenga. Es
+  la lectura del prompt de tono (*"máximo un emoji, y solo si el mensaje original ya traía uno"*).
+  Si alguien quiere el 1 duro, son dos líneas — pero hay que reescribir `mensajeSaludo`.
+- **[3] 🔴 Ratificar: el copy de la fila `sistema` cuando el guard TRUNCA** → **todos** · abierto.
+  §3 pide rastro cuando el guard *"bloquea **o cambia el sentido**"*, y el copy consultado cubre solo
+  el bloqueo. Se escribió el derivado en el mismo registro: `El guard corrigió la redacción del
+  agente (regla: X). El lead vio el texto ya saneado.` Aplica a `exceso_lineas` y `nombre_agregado`
+  (borran contenido); `formato_whatsapp` y `exceso_emojis` van solo a log, como pide §3.
+- **[3] Límite conocido del guard: no detecta un proyecto INVENTADO** → **P4** · informativo.
+  `recomienda_sin_motor` compara contra los 18 nombres del catálogo, así que atrapa "te sirve más
+  ZARZAL" pero no "Torres del Parque" — no hay contra qué compararlo. Un nombre inventado solo cae si
+  además trae cifra. Es argumento para que el prompt del §6(b) reciba **lista cerrada**, no libertad.
+- **[3] Aviso a quien parta `preguntas.ts`: `guardas.ts` NO importa `parsearIngresoMensual`** →
+  **P2** · informativo. Reimplementa 10 líneas de la aritmética de montos a propósito, para no quedar
+  colgando de un símbolo que la rama 2 está moviendo a `lib/conversacion/interpretacion/`. **No lo
+  "deduplique" al hacer el merge:** el guard tiene que poder correr aunque ese refactor esté a medias.
+  (Calibración que salió de ahí: "4 millones y medio" **no** se bloquea contra un `textoBase` que dice
+  "$4.500.000". Reescribir una cifra como la escribiría un humano no es inventarla, y bloquear eso
+  apagaba la capa de IA sin que nadie lo notara.)
 
 ---
 
