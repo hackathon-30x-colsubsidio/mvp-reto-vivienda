@@ -471,6 +471,14 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 | 13 | Mediana vs. normalizar en el sesgo de similitud | 6 | ⬜ abierto |
 | 14 | Valores de los tres bonos nuevos | 8 | ⬜ abierto |
 | 15 | Redacción del `porque` cuando un bono se activa | 8 | ⬜ abierto |
+| 16 | Copy del mensaje de recomendación **sin IA** (el fallback) | 4 | ⬜ **abierto — lo ratifica Mani** |
+| 17 | El `porque` del matcher ahora lo LEE EL LEAD: mezcla de persona y el "0% … como tu hogar" | 8 | ⬜ **abierto — P5 lo arregla, Mani ratifica el texto** |
+
+> **Quién revisa esto.** Los 17 puntos los decide **Mani**: el plan no asigna revisor de copy, y no
+> lo asigna a propósito (§0, regla especial). El "cadenero" de `AGENTS.md` revisa **código** en
+> sesión distinta; para el texto que el lead lee no hay equivalente, así que un copy no aprobado no
+> tiene quien lo apruebe sino Mani. **Estar en la bitácora no es estar revisado:** esta tabla es la
+> lista, la bitácora es el detalle.
 
 ---
 
