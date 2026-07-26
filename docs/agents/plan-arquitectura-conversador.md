@@ -493,8 +493,8 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 | 11 | Máximo de líneas del guard | 3 | ✅ **3 líneas y 4 frases** (2026-07-25) |
 | 12 | Texto de la fila `sistema` cuando el guard bloquea | 3 | ✅ **cerrado** (2026-07-25) |
 | 13 | Mediana vs. normalizar en el sesgo de similitud | 6 | ✅ **mediana** (2026-07-26) — normalizar no cabe en esta rama, ver bitácora |
-| 14 | Valores de los tres bonos nuevos | 8 | ⬜ abierto |
-| 15 | Redacción del `porque` cuando un bono se activa | 8 | ⬜ abierto |
+| 14 | Valores de los tres bonos nuevos | 8 | 🟡 **0,12 / 0,08 / 0,06 — medidos, falta ratificar** |
+| 15 | Redacción del `porque` cuando un bono se activa | 8 | 🟡 **escrito, falta ratificar** — lo lee el lead |
 | 16 | Copy del mensaje de recomendación **sin IA** (el fallback) | 4 | ⬜ **abierto — lo ratifica Mani** |
 | 17 | El `porque` del matcher ahora lo LEE EL LEAD: mezcla de persona y el "0% … como tu hogar" | 8 | ⬜ **abierto — P5 lo arregla, Mani ratifica el texto** |
 
@@ -883,6 +883,57 @@ movieron: 73 / 24 / 0**, y `db/seed.sql` regenera **sin una línea de diff**. Lo
   los proyectos que se les recomienda (LA ARBOLEDA, MONGUI, VERSALLES, PAYANDÉ) está entre los 6 sin
   distribución. O sea que el temor del §6 —"cambian los puntajes de todos los leads sembrados"— no se
   materializó, y el video grabado sigue siendo válido.
+
+- **[8] Los 18 brochures ya los lee el código. Se cierra el hueco 4** → **todos** · hecho.
+  `scripts/generar-catalogo-detalle.ts` → `data/sintetica/proyectos-detalle.json`, y `catalogo.ts`
+  lo casa por `proyecto_id`. **Es el quinto archivo generado del repo y vale la misma regla: no se
+  edita a mano.** Falla ruidosamente (`exit 1`) si un proyecto del catálogo no encuentra su
+  brochure, en vez de dejarlo sin bonos en silencio — es la lección de `slots.json`. Solo saca tres
+  cosas, y son las tres que el banco pregunta: alcobas, familias de amenidad y área privada. Nada
+  que el lead no haya podido pedir entra al ranking.
+- **[8] 🔴 Los tres bonos, medidos pero SIN RATIFICAR (punto 14)** → **todos** · abierto.
+  `ALCOBAS 0,12 · AMENIDAD 0,08 (proporcional a cuántas de las que pidió tiene) · ÁREA 0,06`.
+  No son a ojo: la similitud es 0–1 con mediana 0,385 y rango real 0,13–0,77, así que un bono de
+  0,1 mueve el orden sin arrasarlo. Los tres van **por debajo** del `BONO_VIS_CON_SUBSIDIO` (0,15)
+  a propósito: ese es plata que le baja la cuota todos los meses y pesa más que una preferencia.
+  Entre ellos el orden es alcobas > amenidad > área, o sea necesidad > gusto.
+- **[8] 🔴 El `porque` dice también lo que NO calza, y eso hay que ratificarlo (punto 15)** →
+  **Mani** · abierto. Como el §7 punto 17 dejó claro que **este texto ahora lo lee el lead**, un bono
+  que solo habla cuando suma es publicidad. Si pidió 3 alcobas y el proyecto tiene 2, sale
+  `⚠️ pidió 3 o más alcobas y aquí las tipologías son de 1 y 2 — entra por precio y zona, pero eso
+  hay que decírselo`. Misma honestidad temprana que el acuse de la zona sin proyectos: vale más
+  decirlo aquí que en la visita. **Si se decide que el lead solo vea lo positivo, se borran tres
+  ramas del `if` y ya** — pero entonces la ficha del asesor pierde ese aviso también.
+- **[8] ANTES / DESPUÉS del banco, con la misma sonda** → **todos** · definición de listo.
+  `npx tsx scripts/sonda-similitud.ts --banco` corre la malla dos veces y compara.
+
+  | | sin banco | con 2 respuestas del banco |
+  |---|---|---|
+  | leads a los que les cambia el proyecto #1 | — | **16,1%** (116 de 720) |
+  | los 3 primeros concentran | 61,9% | **56,1%** |
+  | proyectos que llegan a ser #1 | 12 de 18 | 12 de 18 |
+
+  O sea: **contestar dos preguntas le cambia la recomendación a 1 de cada 6**, y reparte. Sin esto
+  el banco era el mismo pecado de los brochures — preguntas bonitas que no cambian nada.
+- **[8] Bonos, NUNCA filtros: hay test que lo fija** → **todos** · hecho.
+  Pedir 3 alcobas (solo 3 de 18 proyectos las tienen) o pedir zona de mascotas (4 de 18) **no reduce
+  la lista ni en uno**. Y hay un test que exige que **cada chip de amenidad del banco exista en algún
+  proyecto**: un chip que ningún proyecto satisface es un callejón sin salida donde el bono nunca
+  suma y nadie se entera.
+- **[8] Los dos vocabularios de amenidad ya coinciden, y hay test que lo vigila** → **P3/P5** ·
+  cerrado. Lo que el lead escribe ("que reciban perros") y lo que dice el brochure ("zona pet")
+  aterrizan en el mismo `AmenidadInteres`. Si se separan, el bono no se activa nunca y **no falla**:
+  solo deja de sumar. `lib/matching/catalogo-detalle.test.ts` lo cubre.
+- **[8] 🔴 El brochure y el catálogo se contradicen en la ciudad de VERSALLES** → **P5 / Mani** ·
+  abierto, NO tocado. El brochure dice **Soacha** (Ciudadela Colsubsidio Maiporé, Calle 30A Sur
+  No. 2-125) y `data/sintetica/proyectos.json` dice **Bogotá**. No se cambió desde la rama 8 a
+  propósito: la ubicación gobierna el filtro de zona, o sea a quién se le recomienda qué, y moverla
+  por un dato sin arbitrar corre el demo entero. Es el mismo tipo de contradicción que
+  `ubicacion_incierta` existe para marcar. **Alguien tiene que resolverlo con la fuente en la mano.**
+- **[8] Los 3 personajes del demo NO cambian (otra vez), verificado** → **todos** · tranquilos.
+  `db/seed.sql` regenerado sale idéntico y hay test de que sin respuestas del banco el `porque` queda
+  **exactamente** como estaba. La razón es estructural: los bonos valen 0 si la persona no contestó
+  esa pregunta, y los 3 personajes no contestaron el banco. El video grabado sigue válido.
 
 ---
 

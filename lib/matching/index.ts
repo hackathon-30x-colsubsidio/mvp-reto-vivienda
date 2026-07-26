@@ -1,6 +1,8 @@
-import type { Lead } from "@/lib/types";
+import type { AmenidadInteres, Lead } from "@/lib/types";
 import { precioMaximoDe } from "@/lib/scoring/capacidad";
 import { similitudCon } from "@/lib/scoring/similitud";
+import { ETIQUETA_AMENIDAD } from "@/lib/conversacion/banco-preguntas";
+import { catalogo as catalogoReal } from "./catalogo";
 import { coincideBarrio, coincideZona } from "./geografia";
 import type { EntradaMatch, FichaProyecto, ProyectoElegido } from "./tipos";
 
@@ -21,6 +23,58 @@ const MAXIMO_ALTERNATIVAS_FUERA_DE_ZONA = 2;
  */
 const BONO_VIS_CON_SUBSIDIO = 0.15; // proyecto VIS cuando el lead declaró subsidio
 const BONO_BARRIO_EXACTO = 0.1; // nombró el sector del proyecto, no solo la ciudad
+
+// ── Lo que pidió en el banco de preguntas (rama 8) ───────
+//
+// ⚠️ **BONOS, NUNCA FILTROS.** Ordenan y jamás descartan. Solo 3 de los 18
+// proyectos tienen tipología de 3 alcobas: un filtro duro dejaría a las
+// familias grandes sin NADA que ver, que es peor que mostrarles algo apretado
+// diciéndoselo. Cada bono queda citable en el `porque` — cero caja negra.
+//
+// La escala está calibrada contra la similitud, que es 0–1 con mediana 0,385 y
+// rango real 0,13–0,77 (medido con `scripts/sonda-similitud.ts`). Los tres van
+// por DEBAJO del bono VIS+subsidio: ese es plata que le baja la cuota todos los
+// meses, y pesa más que una preferencia. Entre ellos el orden es por cuánto
+// separa el catálogo y cuánto le cuesta al lead equivocarse:
+const BONO_ALCOBAS_SUFICIENTES = 0.12; // el más fuerte: es una necesidad, y solo 3 de 18 dan 3 alcobas
+const BONO_AMENIDAD_PEDIDA = 0.08; // proporcional a cuántas de las que pidió tiene
+const BONO_AREA_SUFICIENTE = 0.06; // el más suave: es gusto, no necesidad
+
+/**
+ * La mediana del área privada del catálogo, para partir "compacto" de "amplio".
+ *
+ * Se calcula del catálogo y no se escribe a mano: si mañana entra un proyecto,
+ * el corte se mueve solo. Hoy da 40,55 m² sobre un rango de 21,6 a 68,06.
+ */
+const MEDIANA_AREA = (() => {
+  const areas = catalogoReal
+    .map((p) => p.area_privada_desde_m2)
+    .filter((a): a is number => typeof a === "number")
+    .sort((a, b) => a - b);
+  return areas.length > 0 ? areas[Math.floor(areas.length / 2)] : 0;
+})();
+
+/** ¿Alguna tipología le da al hogar las alcobas que pidió? (`3` es "3 o más"). */
+function alcanzanLasAlcobas(proyecto: FichaProyecto, pedidas: number): boolean {
+  return (proyecto.alcobas ?? []).some((a) => a >= pedidas);
+}
+
+/** Qué fracción de lo que pidió en el conjunto tiene de verdad este proyecto. */
+function fraccionDeAmenidades(proyecto: FichaProyecto, pedidas: AmenidadInteres[]): number {
+  if (pedidas.length === 0) return 0;
+  const tiene = proyecto.amenidades ?? [];
+  return pedidas.filter((a) => tiene.includes(a)).length / pedidas.length;
+}
+
+/** El área del proyecto va con lo que dijo preferir. */
+function calzaElEspacio(
+  proyecto: FichaProyecto,
+  preferencia: "compacto" | "amplio",
+): boolean {
+  const area = proyecto.area_privada_desde_m2;
+  if (area === undefined) return false;
+  return preferencia === "amplio" ? area >= MEDIANA_AREA : area < MEDIANA_AREA;
+}
 
 // "$194.023.050", sin el espacio duro que mete `style: "currency"`: es el mismo
 // formato que usa el motor en el valor de sus factores, y el espacio duro además
@@ -128,12 +182,27 @@ export function matchear({
 
   // RANKING — puntos visibles por proyecto (similitud + bonos), calculados una
   // vez y no dentro del comparador.
+  const { alcobas_deseadas, amenidades_interes, espacio_preferido } = lead.respuestas;
+
   const puntosDe = new Map<string, number>(
     elegibles.map((p) => {
       const sim = similitudCon(lead, p.proyecto_id, afiliado).valorNorm;
       const bonoVis = conSubsidio && p.vis ? BONO_VIS_CON_SUBSIDIO : 0;
       const bonoBarrio = coincideBarrio(p, zona) ? BONO_BARRIO_EXACTO : 0;
-      return [p.proyecto_id, sim + bonoVis + bonoBarrio];
+      // Los tres del banco. Cada uno vale 0 si la persona no contestó esa
+      // pregunta, que es el caso de casi todos: el banco pregunta máximo 2.
+      const bonoAlcobas =
+        alcobas_deseadas !== undefined && alcanzanLasAlcobas(p, alcobas_deseadas)
+          ? BONO_ALCOBAS_SUFICIENTES
+          : 0;
+      const bonoAmenidad =
+        BONO_AMENIDAD_PEDIDA * fraccionDeAmenidades(p, amenidades_interes ?? []);
+      const bonoArea =
+        espacio_preferido && calzaElEspacio(p, espacio_preferido) ? BONO_AREA_SUFICIENTE : 0;
+      return [
+        p.proyecto_id,
+        sim + bonoVis + bonoBarrio + bonoAlcobas + bonoAmenidad + bonoArea,
+      ];
     }),
   );
 
@@ -238,6 +307,61 @@ function razonesDe(
       contexto.conSubsidio
         ? `es VIS, así que el subsidio que declaró (${(contexto.lead.respuestas.subsidios ?? []).join(", ") || "por confirmar"}) aplica aquí`
         : "es VIS, así que admite los subsidios de vivienda de interés social",
+    );
+  }
+
+  razones.push(...razonesDelBanco(proyecto, contexto.lead));
+
+  return razones;
+}
+
+/**
+ * Lo que se le puede decir sobre lo que pidió en el banco de preguntas.
+ *
+ * ⚠️ **Estas frases las lee el LEAD**, no solo el asesor (§7 punto 17). Por eso
+ * la parte incómoda también se dice: si pidió 3 alcobas y el proyecto tiene 2,
+ * sale con su ⚠️ en vez de callarse. Un bono que solo habla cuando suma es
+ * publicidad; el compromiso del repo es que el porqué pese tanto como la
+ * recomendación, y eso incluye lo que no calza. Es la misma honestidad
+ * temprana del acuse de la zona sin proyectos: vale más decirlo aquí que en la
+ * visita.
+ *
+ * 🔴 El copy está SIN RATIFICAR (§7 punto 15).
+ */
+function razonesDelBanco(proyecto: FichaProyecto, lead: Lead): string[] {
+  const razones: string[] = [];
+  const { alcobas_deseadas, amenidades_interes, espacio_preferido } = lead.respuestas;
+
+  if (alcobas_deseadas !== undefined && (proyecto.alcobas ?? []).length > 0) {
+    const alcobas = proyecto.alcobas!;
+    const lista = alcobas.join(" y ");
+    const pedidas = alcobas_deseadas === 3 ? "3 o más" : String(alcobas_deseadas);
+    razones.push(
+      alcanzanLasAlcobas(proyecto, alcobas_deseadas)
+        ? `tiene tipologías de ${lista} alcoba${alcobas.length > 1 || alcobas[0] > 1 ? "s" : ""}, y pidió ${pedidas}`
+        : `⚠️ pidió ${pedidas} alcobas y aquí las tipologías son de ${lista} — entra por precio y zona, pero eso hay que decírselo`,
+    );
+  }
+
+  if (amenidades_interes && amenidades_interes.length > 0) {
+    const tiene = proyecto.amenidades ?? [];
+    const si = amenidades_interes.filter((a) => tiene.includes(a));
+    const no = amenidades_interes.filter((a) => !tiene.includes(a));
+    const nombrar = (as: AmenidadInteres[]) => as.map((a) => ETIQUETA_AMENIDAD[a]).join(" y ");
+
+    if (si.length > 0 && no.length === 0) razones.push(`tiene ${nombrar(si)}, que fue lo que pidió`);
+    else if (si.length > 0) razones.push(`tiene ${nombrar(si)}, pero no ${nombrar(no)}, que también pidió`);
+    else razones.push(`⚠️ no tiene ${nombrar(no)}, que fue lo que pidió`);
+  }
+
+  if (espacio_preferido && proyecto.area_privada_desde_m2 !== undefined) {
+    const area = proyecto.area_privada_desde_m2.toLocaleString("es-CO");
+    razones.push(
+      calzaElEspacio(proyecto, espacio_preferido)
+        ? espacio_preferido === "amplio"
+          ? `el área privada arranca en ${area} m², de las más amplias del catálogo, que es lo que buscaba`
+          : `el área privada arranca en ${area} m², compacta como la quería`
+        : `⚠️ el área privada arranca en ${area} m², que no es el tipo de espacio que dijo buscar`,
     );
   }
 

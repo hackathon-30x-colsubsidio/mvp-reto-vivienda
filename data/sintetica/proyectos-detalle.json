@@ -1,0 +1,233 @@
+{
+  "abeto": {
+    "alcobas": [
+      1
+    ],
+    "area_privada_desde_m2": 33.58,
+    "amenidades": [
+      "gimnasio",
+      "coworking",
+      "social",
+      "ninos"
+    ]
+  },
+  "araucaria": {
+    "alcobas": [
+      3
+    ],
+    "area_privada_desde_m2": 68.06,
+    "amenidades": [
+      "gimnasio",
+      "coworking",
+      "deporte",
+      "verdes",
+      "social",
+      "ninos"
+    ]
+  },
+  "bosque-de-arrayan": {
+    "alcobas": [],
+    "area_privada_desde_m2": 43.53,
+    "amenidades": [
+      "coworking",
+      "deporte",
+      "social",
+      "ninos"
+    ]
+  },
+  "bosque-de-turpial": {
+    "alcobas": [
+      1,
+      2
+    ],
+    "area_privada_desde_m2": 42.86,
+    "amenidades": [
+      "coworking",
+      "deporte",
+      "verdes",
+      "social",
+      "ninos"
+    ]
+  },
+  "inari": {
+    "alcobas": [
+      1,
+      2
+    ],
+    "area_privada_desde_m2": 31.77,
+    "amenidades": [
+      "mascotas",
+      "gimnasio",
+      "coworking",
+      "ninos"
+    ]
+  },
+  "karakali": {
+    "alcobas": [
+      1
+    ],
+    "area_privada_desde_m2": 21.6,
+    "amenidades": [
+      "gimnasio",
+      "coworking",
+      "deporte",
+      "social",
+      "ninos"
+    ]
+  },
+  "la-arboleda": {
+    "alcobas": [
+      2
+    ],
+    "area_privada_desde_m2": 35.25,
+    "amenidades": [
+      "gimnasio",
+      "social",
+      "ninos"
+    ]
+  },
+  "la-macarena": {
+    "alcobas": [
+      2
+    ],
+    "area_privada_desde_m2": 31.33,
+    "amenidades": [
+      "mascotas",
+      "gimnasio",
+      "coworking",
+      "deporte",
+      "social"
+    ]
+  },
+  "los-nogales": {
+    "alcobas": [
+      3
+    ],
+    "area_privada_desde_m2": 67,
+    "amenidades": [
+      "gimnasio",
+      "coworking",
+      "deporte",
+      "verdes",
+      "social",
+      "ninos"
+    ]
+  },
+  "mongui": {
+    "alcobas": [
+      2
+    ],
+    "area_privada_desde_m2": 40.55,
+    "amenidades": [
+      "mascotas",
+      "gimnasio",
+      "deporte",
+      "verdes",
+      "social",
+      "ninos"
+    ]
+  },
+  "pamplona": {
+    "alcobas": [
+      2
+    ],
+    "area_privada_desde_m2": 45.75,
+    "amenidades": [
+      "mascotas",
+      "gimnasio",
+      "coworking",
+      "deporte",
+      "verdes",
+      "social",
+      "ninos"
+    ]
+  },
+  "payande": {
+    "alcobas": [
+      2
+    ],
+    "area_privada_desde_m2": 38.89,
+    "amenidades": [
+      "deporte",
+      "verdes",
+      "social",
+      "ninos"
+    ]
+  },
+  "reserva-de-aguayacan": {
+    "alcobas": [
+      1,
+      2
+    ],
+    "area_privada_desde_m2": 38.24,
+    "amenidades": [
+      "deporte",
+      "verdes",
+      "social",
+      "ninos"
+    ]
+  },
+  "saman": {
+    "alcobas": [
+      3
+    ],
+    "area_privada_desde_m2": 44.19,
+    "amenidades": [
+      "gimnasio",
+      "deporte",
+      "verdes",
+      "social",
+      "ninos"
+    ]
+  },
+  "verde-esperanza": {
+    "alcobas": [
+      2
+    ],
+    "area_privada_desde_m2": 46.13,
+    "amenidades": [
+      "gimnasio",
+      "verdes",
+      "social",
+      "ninos"
+    ]
+  },
+  "versalles": {
+    "alcobas": [
+      2
+    ],
+    "area_privada_desde_m2": 40.58,
+    "amenidades": [
+      "gimnasio",
+      "coworking",
+      "deporte",
+      "verdes",
+      "social",
+      "ninos"
+    ]
+  },
+  "vibo-once": {
+    "alcobas": [
+      2
+    ],
+    "area_privada_desde_m2": 36.74,
+    "amenidades": [
+      "gimnasio",
+      "coworking",
+      "social",
+      "ninos"
+    ]
+  },
+  "zarzal": {
+    "alcobas": [
+      2
+    ],
+    "area_privada_desde_m2": 34.89,
+    "amenidades": [
+      "gimnasio",
+      "verdes",
+      "social",
+      "ninos"
+    ]
+  }
+}

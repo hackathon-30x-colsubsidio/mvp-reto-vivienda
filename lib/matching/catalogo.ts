@@ -1,4 +1,6 @@
 import crudo from "@/data/sintetica/proyectos.json";
+import detalle from "@/data/sintetica/proyectos-detalle.json";
+import type { AmenidadInteres } from "@/lib/types";
 import type { FichaProyecto } from "./tipos";
 
 // El catálogo REAL que consume producción: los 18 proyectos oficiales del reto,
@@ -28,6 +30,19 @@ interface ProyectoCrudo {
   ubicacion_incierta?: boolean;
 }
 
+/**
+ * El material de los 18 brochures, destilado (rama 8).
+ *
+ * Vive en un archivo aparte y GENERADO (`scripts/generar-catalogo-detalle.ts`)
+ * en vez de mezclarse dentro de `proyectos.json`: ese lo produce otro pipeline
+ * desde el Excel, y meterle a mano lo que sale de los PDFs crearía una segunda
+ * fuente de la que nadie se acuerda. Se casan aquí, por `proyecto_id`.
+ */
+const DETALLE = detalle as Record<
+  string,
+  { alcobas: number[]; area_privada_desde_m2?: number; amenidades: AmenidadInteres[] }
+>;
+
 export const catalogo: FichaProyecto[] = (crudo as ProyectoCrudo[]).map((p) => ({
   proyecto_id: p.proyecto_id,
   nombre: p.nombre,
@@ -43,4 +58,5 @@ export const catalogo: FichaProyecto[] = (crudo as ProyectoCrudo[]).map((p) => (
   // dos son de Bogotá— pero el matcher la sigue leyendo para no prometerle al
   // lead una ciudad sin confirmar el día que vuelva a aparecer una.
   ...(p.ubicacion_incierta ? { ubicacion_incierta: true } : {}),
+  ...(DETALLE[p.proyecto_id] ?? {}),
 }));

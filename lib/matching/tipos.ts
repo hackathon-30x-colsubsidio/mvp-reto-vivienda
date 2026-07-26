@@ -1,4 +1,4 @@
-import type { Lead, Score } from "@/lib/types";
+import type { AmenidadInteres, Lead, Score } from "@/lib/types";
 
 // Tipos propios del Track C. NO son contratos entre tracks (eso es lib/types.ts):
 // aquí vive lo que el matcher necesita y que ningún contrato cubre todavía.
@@ -41,6 +41,20 @@ export interface FichaProyecto {
    * la advertencia encima.
    */
   ubicacion_incierta?: boolean;
+
+  // ── Lo que sale de los 18 brochures (rama 8) ───────────
+  // Generado por `scripts/generar-catalogo-detalle.ts` a
+  // `data/sintetica/proyectos-detalle.json`. Todos opcionales: el matcher
+  // funciona sin ellos, solo ordena peor. Son EXACTAMENTE las tres cosas que
+  // el banco de preguntas averigua — nada que el lead no haya podido pedir
+  // entra al ranking.
+
+  /** Alcobas de las tipologías del proyecto, únicas y ordenadas. Ej: `[1, 2]`. */
+  alcobas?: number[];
+  /** El área privada más pequeña que ofrece, en m². El catálogo va de 21,6 a 68,06. */
+  area_privada_desde_m2?: number;
+  /** Familias de amenidad, ya normalizadas contra las 60+ etiquetas del brochure. */
+  amenidades?: AmenidadInteres[];
 }
 
 /**

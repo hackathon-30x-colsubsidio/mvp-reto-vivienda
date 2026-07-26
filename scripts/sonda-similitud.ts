@@ -82,6 +82,27 @@ function construirLead(
   };
 }
 
+/**
+ * Las respuestas del banco que ese lead habría dado (rama 8).
+ *
+ * Deterministas y derivadas del perfil, para que la comparación sea limpia: la
+ * misma malla con y sin banco. Son **dos**, que es el máximo por conversación
+ * (§3), y las dos que matchean: alcobas y amenidades.
+ */
+function respuestasDelBanco(lead: Lead): Partial<Lead["respuestas"]> {
+  const composicion = lead.respuestas.composicion_familiar;
+  const alcobas = composicion === "solo" ? 1 : composicion === "familia_con_hijos" ? 3 : 2;
+  const amenidad =
+    composicion === "familia_con_hijos" || composicion === "monoparental"
+      ? "ninos"
+      : composicion === "solo"
+        ? "coworking"
+        : "gimnasio";
+  return { alcobas_deseadas: alcobas as 1 | 2 | 3, amenidades_interes: [amenidad] };
+}
+
+const CON_BANCO = process.argv.includes("--banco");
+
 function* malla(): Generator<Lead> {
   let i = 0;
   for (const ingreso of INGRESOS)
@@ -111,9 +132,19 @@ let ganaSinDatos = 0;
 let bogotaConCita = 0;
 let bogotaGanaSinDatos = 0;
 
-for (const lead of malla()) {
+/** Cuántos leads reciben un #1 DISTINTO por haber contestado el banco. */
+let cambiaronPorBanco = 0;
+
+for (const base of malla()) {
   total++;
+  const lead = CON_BANCO
+    ? { ...base, respuestas: { ...base.respuestas, ...respuestasDelBanco(base) } }
+    : base;
   const curado = curar(lead);
+  if (CON_BANCO) {
+    const sinBanco = curar(base).proyectos[0]?.nombre;
+    if (sinBanco !== curado.proyectos[0]?.nombre) cambiaronPorBanco++;
+  }
   if (curado.score.salida === "nutricion") enNutricion++;
   const primero = curado.proyectos[0];
   if (!primero) {
@@ -147,7 +178,9 @@ const conCita = total - sinProyectos;
 const ranking = [...conteo.entries()].sort((a, b) => b[1] - a[1]);
 const pct = (n: number) => `${((n / conCita) * 100).toFixed(1)}%`;
 
-console.log(`\n━━ SONDA DE SIMILITUD ━━  ${total} perfiles`);
+console.log(
+  `\n━━ SONDA DE SIMILITUD ━━  ${total} perfiles${CON_BANCO ? "  ·  CON respuestas del banco" : ""}`,
+);
 console.log(
   `   en nutrición: ${enNutricion}  ·  sin ningún proyecto: ${sinProyectos}  ·  con #1: ${conCita}`,
 );
@@ -166,6 +199,15 @@ console.log(`   proyectos que alcanzan a ser #1 alguna vez: ${ranking.length} de
 console.log(
   `   los 3 primeros concentran: ${pct(ranking.slice(0, 3).reduce((a, [, n]) => a + n, 0))}`,
 );
+
+if (CON_BANCO) {
+  console.log(
+    `\n   EL BANCO: a ${cambiaronPorBanco} de ${conCita} leads con cita (${(
+      (cambiaronPorBanco / conCita) *
+      100
+    ).toFixed(1)}%) les cambió el proyecto #1 por haber contestado 2 preguntas del banco`,
+  );
+}
 
 console.log(`\n   EL SESGO: ${SIN_DATOS.size} de 18 proyectos no tienen distribución confiable`);
 console.log(`   (${[...SIN_DATOS].join(", ")})`);
