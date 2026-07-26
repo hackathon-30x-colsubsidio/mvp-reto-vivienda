@@ -4,7 +4,16 @@ import {
   streamGemini,
   type MensajeLLM,
 } from "@/lib/gemini";
-import { PROMPT_TONO, promptDuda } from "@/lib/conversacion/prompt-maestro";
+import {
+  PROMPT_TONO,
+  promptDuda,
+  promptRecomendacion,
+} from "@/lib/conversacion/prompt-maestro";
+import {
+  listaParaPrompt,
+  proyectosParaVerbalizar,
+} from "@/lib/conversacion/recomendacion";
+import type { Lead } from "@/lib/types";
 
 // La key solo vive aquí (server-side, API route) — nunca en el cliente ni en el repo.
 // Streaming obligatorio (ADR 0002): evita el límite de tiempo de las funciones de Vercel.
@@ -28,11 +37,20 @@ interface CuerpoPeticion {
   mensajes: MensajeLLM[];
   /** Modo tono: el texto que TypeScript ya redactó y el LLM solo pule. */
   mensaje_a_redactar?: string;
-  modo?: "tono" | "duda";
+  modo?: "tono" | "duda" | "recomendacion";
   /** Modo duda: lo que la persona preguntó, textual. */
   pregunta?: string;
   /** El proyecto por el que entró, para responder sin inventar. */
   proyecto_interes?: string;
+  /**
+   * Modo recomendación: el lead completo, para correr el motor AQUÍ.
+   *
+   * Viaja el lead y no la lista de proyectos porque la lista no existe en el
+   * cliente: `ResultadoCurado.proyectos` es un número y el `porque` de cada uno
+   * nunca cruza al navegador. Calcularla server-side con `curar()` —que es
+   * determinista y sin red— evita cambiar `lib/types.ts`, que es de otra rama.
+   */
+  lead?: Lead;
 }
 
 export async function POST(req: Request) {
@@ -43,18 +61,52 @@ export async function POST(req: Request) {
     return new Response("JSON inválido", { status: 400 });
   }
 
-  const { mensajes, mensaje_a_redactar, modo, pregunta, proyecto_interes } = cuerpo;
+  const { mensajes, mensaje_a_redactar, modo, pregunta, proyecto_interes, lead } =
+    cuerpo;
   const esDuda = modo === "duda";
+  const esRecomendacion = modo === "recomendacion";
 
-  if (esDuda ? !pregunta : !mensaje_a_redactar) {
+  if (esRecomendacion ? !lead : esDuda ? !pregunta : !mensaje_a_redactar) {
     return new Response(
-      esDuda ? "Falta pregunta" : "Falta mensaje_a_redactar",
+      esRecomendacion ? "Falta lead" : esDuda ? "Falta pregunta" : "Falta mensaje_a_redactar",
       { status: 400 },
     );
   }
 
   if (!hayKeyGemini()) {
     return new Response(diagnosticoCredenciales(), { status: 503 });
+  }
+
+  if (esRecomendacion) {
+    // El motor corre ANTES del modelo: si no eligió nada (nutrición, o nada del
+    // catálogo le cabe), no hay recomendación que redactar y se responde vacío.
+    // El cliente ya sabe qué hacer con un stream sin texto: cae a su
+    // determinista, que en ese caso es no decir nada.
+    let proyectos;
+    try {
+      proyectos = proyectosParaVerbalizar(lead!);
+    } catch {
+      return new Response("", { headers: TEXTO_PLANO });
+    }
+    if (proyectos.length === 0) return new Response("", { headers: TEXTO_PLANO });
+
+    return new Response(
+      streamGemini({
+        system: promptRecomendacion({ listaCerrada: listaParaPrompt(proyectos) }),
+        // Alcanza de sobra para 3 frases; el techo bajo es parte de que no se
+        // ponga a describir proyectos que no puede describir.
+        maxTokens: 260,
+        messages: [
+          ...(mensajes ?? []),
+          {
+            role: "user",
+            content:
+              "Cuéntame cuáles proyectos me elegiste y por qué, con la lista que tienes.",
+          },
+        ],
+      }),
+      { headers: TEXTO_PLANO },
+    );
   }
 
   const cuerpoStream = esDuda
@@ -77,7 +129,7 @@ export async function POST(req: Request) {
         ],
       });
 
-  return new Response(cuerpoStream, {
-    headers: { "Content-Type": "text/plain; charset=utf-8" },
-  });
+  return new Response(cuerpoStream, { headers: TEXTO_PLANO });
 }
+
+const TEXTO_PLANO = { "Content-Type": "text/plain; charset=utf-8" } as const;
