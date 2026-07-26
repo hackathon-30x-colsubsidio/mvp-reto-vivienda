@@ -4,6 +4,7 @@ import { conversaciones } from "@/lib/fixtures/leads";
 import * as perfiles from "@/lib/fixtures/perfiles-conocidos";
 import { RESPUESTA_CONSENTIMIENTO } from "./preguntas";
 import {
+  cifrasDe,
   decidirTurno,
   esPreguntaDeIdentidad,
   MAX_DESVIOS_SEGUIDOS,
@@ -153,6 +154,29 @@ describe("¿eres un bot?", () => {
 });
 
 // ── las constantes que la conversación usa ─────────────────
+
+describe("cifrasDe — lo que Sara puede citar del porqué del motor", () => {
+  it.each([
+    ["Precio desde $194.023.050", [194023050]],
+    ["el 64% de los compradores", [64]],
+    ["dentro del máximo de $312.392.645", [312392645]],
+    ["sin números", []],
+  ])("saca las cifras de «%s»", (texto, esperado) => {
+    expect(cifrasDe(texto)).toEqual(esperado);
+  });
+
+  // El caso que motivó la función: el `porque` real de un proyecto trae el
+  // precio, el techo del 40% y los porcentajes de la similitud. Sin ellos el
+  // guard leía la recomendación de Sara como inventada y el lead veía siempre
+  // el texto determinista.
+  it("de un porqué real saca el precio y el techo del gate", () => {
+    const porque =
+      "Precio desde $194.023.050, dentro del máximo de $312.392.645 que le permite el tope del 40% del ingreso (Decreto 583 de 2025); el 64% de los compradores de este proyecto es afiliado";
+    expect(cifrasDe(porque)).toEqual(
+      expect.arrayContaining([194023050, 312392645, 40, 583, 2025, 64]),
+    );
+  });
+});
 
 describe("los textos nuevos respetan las reglas de redacción del repo", () => {
   it("el 'no te entendí' se disculpa Sara, no culpa a la persona", () => {

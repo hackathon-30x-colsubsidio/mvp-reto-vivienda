@@ -36,6 +36,7 @@ import {
 import { accionDeValor, respuestaDeAccion } from "@/lib/conversacion/preguntas";
 import type { CampoPregunta } from "@/lib/conversacion/acciones";
 import {
+  cifrasDe,
   decidirTurno,
   mensajeMuchasPreguntas,
   notaSistemaMuchasPreguntas,
@@ -546,7 +547,15 @@ export function ChatWhatsApp({
       // Lo único que Sara puede nombrar aquí. Cualquier otro de los 18 sería
       // recomendar sin motor, y su precio sería una cifra inventada.
       proyectosPermitidos: proyectos.map((p) => p.nombre),
-      cifrasPermitidas: proyectos.map((p) => p.precio_desde),
+      // Los precios MÁS los números del `porque` de cada proyecto: la
+      // similitud cita porcentajes ("el 63% de quienes compraron ahí son
+      // afiliados") que el motor calculó y que viajan al prompt. Sin esto el
+      // guard los leía como inventados y el lead veía siempre el texto
+      // determinista — medido en el navegador el 2026-07-26.
+      cifrasPermitidas: proyectos.flatMap((p) => [
+        p.precio_desde,
+        ...cifrasDe(p.porque),
+      ]),
     });
   }
 
