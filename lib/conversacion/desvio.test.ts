@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  accionDeDesvio,
   detectarDesvio,
+  esFueraDeTema,
+  mensajeFueraDeTema,
   mensajeHandoffAsesor,
   repreguntar,
   respuestaDeterministaDuda,
@@ -111,6 +114,54 @@ describe("la respuesta sin LLM ya es correcta por sí sola", () => {
   it("lo que no se sabe se dice, no se rellena", () => {
     const texto = respuestaDeterministaDuda({ tipo: "duda", clase: "general" });
     expect(texto).toMatch(/no.*inventarte nada/i);
+  });
+});
+
+describe("esFueraDeTema — el refinamiento del `no_entendido`", () => {
+  // Solo se pregunta sobre un `no_entendido`, y de último. Los contraejemplos
+  // pesan más: contestarle "de eso no sé nada" a quien escribió "vivo con mi
+  // mamá y mi hermana" sería peor que el silencio de hoy.
+  it.each(["2+2", "jajaja", "jeje", "hahaha", "jjjj", "🙈", "  ", "...", "-3"])(
+    "no era un intento de responder: %s",
+    (texto) => {
+      expect(esFueraDeTema(texto)).toBe(true);
+    },
+  );
+
+  it.each([
+    "vivo con mi mamá y mi hermana",
+    "4.500.000",
+    "2 millones y medio",
+    "no tngo nada",
+    "soy independiente",
+    "q vale",
+    "entre 3 y 5",
+    "hijo",
+    "hola",
+  ])("SÍ era un intento de responder, aunque no se entienda: %s", (texto) => {
+    expect(esFueraDeTema(texto)).toBe(false);
+  });
+
+  it("se reconoce en una línea y no regaña", () => {
+    const mensaje = mensajeFueraDeTema();
+    expect(mensaje).toMatch(/no s[ée]/i);
+    expect(mensaje.split("\n")).toHaveLength(1);
+  });
+});
+
+describe("el desvío en el vocabulario de AccionTurno", () => {
+  it("pedir un humano es un handoff", () => {
+    expect(accionDeDesvio({ tipo: "asesor" }, "quiero un asesor")).toEqual({
+      tipo: "handoff_asesor",
+    });
+  });
+
+  it("la duda viaja con su clase y su proyecto", () => {
+    const desvio = detectarDesvio("cuanto cuesta la arboleda");
+    expect(desvio).not.toBeNull();
+    const accion = accionDeDesvio(desvio!, "cuanto cuesta la arboleda");
+    expect(accion).toMatchObject({ tipo: "responder_duda", clase: "precio" });
+    expect(accion.tipo === "responder_duda" && accion.proyecto?.nombre).toBe("LA ARBOLEDA");
   });
 });
 

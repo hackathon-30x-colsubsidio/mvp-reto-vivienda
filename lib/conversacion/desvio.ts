@@ -1,6 +1,8 @@
 import type { FichaProyecto } from "@/lib/matching/tipos";
 import { catalogo } from "@/lib/matching/catalogo";
 import { pesos } from "@/lib/formato";
+import type { AccionTurno, ClaseDuda } from "./acciones";
+import { sinTildes } from "./interpretacion/texto";
 import type { PasoPregunta } from "./preguntas";
 import { SUBSIDIOS_GROUNDING } from "./subsidios";
 
@@ -36,7 +38,7 @@ export type Desvio =
   | { tipo: "asesor" }
   | {
       tipo: "duda";
-      clase: "precio" | "ubicacion" | "subsidio" | "general";
+      clase: ClaseDuda;
       proyecto?: FichaProyecto;
     };
 
@@ -63,9 +65,6 @@ const PALABRA_DOMINIO = /precio|vale|cuesta|entrega|ubicad|queda|subsidio|cuota|
 const ES_SUBSIDIO = /subsidio|mi casa ya|caja de compensaci/i;
 const ES_UBICACION = /d[oó]nde|ubicad|queda|direcci[oó]n|barrio|sector|ciudad/i;
 const ES_PRECIO = /precio|vale|cuesta|costo|valor|cu[aá]nto|cuota|financia/i;
-
-const sinTildes = (t: string) =>
-  t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
 /** Del más largo al más corto: "BOSQUE DE ARRAYÁN" antes que "SAMÁN". */
 const POR_NOMBRE_LARGO = [...catalogo].sort(
@@ -197,6 +196,67 @@ export function mensajeHandoffAsesor(nombre: string): string {
 /** La fila `sistema` que deja el rastro del trigger en el hilo (ADR 0003). */
 export function notaSistemaHandoff(): string {
   return "El lead pidió hablar con un asesor humano (trigger de handoff, spec 02 D6). La conversación continúa para no perder el perfilamiento.";
+}
+
+// ── Lo que no es respuesta, ni duda, ni corrección ───────
+//
+// `fuera_de_tema` NO es un tercer tipo de desvío: es un REFINAMIENTO de
+// `no_entendido`. El orden en que se pregunta importa, y es el único que no
+// rompe nada (lo cablea la rama 5):
+//
+//   1. `detectarDesvio`      → duda / asesor
+//   2. `accionDeCorreccion`  → corregir_dato
+//   3. `accionDeTexto`       → responder_paso / confirmar_dato / no_entendido
+//   4. y SOLO si salió `no_entendido`, `esFueraDeTema`
+//
+// El paso 4 va de último porque el costo de equivocarse es feo: contestarle
+// "de eso no sé nada" a quien escribió "vivo con mi mamá y mi hermana" —el caso
+// medido del hueco 2— sería peor que el silencio de hoy. Por eso aquí solo hay
+// señales POSITIVAS y cerradas; lo ambiguo sigue siendo `no_entendido`.
+
+/** Risa pelada: "jaja", "jejeje", "hahaha", "jjjj". */
+const SOLO_RISA = /^(?:ja|je|ji|ha|he|hi|ah|eh){2,}$|^j{3,}$/i;
+
+/**
+ * Una cuenta y nada más: "2+2", "-3". Se exige el operador — un número pelado
+ * ("4.500.000") es la respuesta al ingreso, no una cuenta.
+ */
+const SOLO_CUENTA = /^[\d\s.,]*[+\-*/=%][\d\s.,+\-*/=%]*$/;
+
+const TIENE_LETRA_O_NUMERO = /[\p{L}\p{N}]/u;
+
+/**
+ * ¿Esto que no se pudo interpretar era siquiera un intento de responder?
+ *
+ * ⚠️ Solo se pregunta sobre un `no_entendido`. Al paso del ingreso NO le aplica
+ * nunca: un ingreso ilegible emite `confirmar_dato` y se repregunta, que es lo
+ * correcto para "2+2" cuando lo que se preguntó fue cuánto entra al mes.
+ */
+export function esFueraDeTema(texto: string): boolean {
+  const t = texto.trim();
+  // Vacío, solo emoji, solo signos: no hay nada que interpretar.
+  if (!TIENE_LETRA_O_NUMERO.test(t)) return true;
+  if (SOLO_RISA.test(t.replace(/[\s!¡?¿.,]/g, ""))) return true;
+  return SOLO_CUENTA.test(t);
+}
+
+/**
+ * Se reconoce en una línea, se dice que de eso no sabe, y `repreguntar()`
+ * retoma. Sara no regaña ni se disculpa: no pasó nada malo.
+ */
+export function mensajeFueraDeTema(): string {
+  return "Jaja, de eso sí no sé nada 😄 Yo soy buena para lo de la casa.";
+}
+
+/** El desvío, en el vocabulario de `AccionTurno`. Lo consume la rama 5. */
+export function accionDeDesvio(desvio: Desvio, textoCrudo: string): AccionTurno {
+  if (desvio.tipo === "asesor") return { tipo: "handoff_asesor" };
+  return {
+    tipo: "responder_duda",
+    clase: desvio.clase,
+    ...(desvio.proyecto ? { proyecto: desvio.proyecto } : {}),
+    textoCrudo,
+  };
 }
 
 /**

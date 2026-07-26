@@ -1,9 +1,20 @@
 import type { Lead, LeadEvento, PerfilConocido } from "@/lib/types";
-import { catalogo } from "@/lib/matching/catalogo";
+import type { AccionTurno, CampoPregunta, ValorDe } from "./acciones";
+import { INTERPRETES } from "./interpretacion";
+import { pareceCorreccion } from "./interpretacion/correccion";
+import { ingresoDesdeRango } from "./interpretacion/ingreso";
+import { POR_CONFIRMAR } from "./interpretacion/subsidios";
+import { CIUDADES_CON_PROYECTOS, clasificarZona, type Zona } from "./interpretacion/zona";
 
 // Set de preguntas del spec §6: los 4 que el brief lista como capacidad de
 // compra + la zona de interés para el matcher. NUNCA se pregunta lo que el
 // enriquecimiento ya trajo (criterio de aceptación 1, spec §5).
+//
+// ⚠️ ESTE ARCHIVO ES COPY + WIRING. Cómo se ENTIENDE lo que la persona escribió
+// vive en `interpretacion/`, un archivo puro por campo; lo que el agente
+// CONTESTA vive aquí. Si vienes a arreglar un regex que no entiende algo, es
+// allá. Si vienes a cambiar lo que Sara dice, es aquí — y se consulta antes
+// (plan de arquitectura §0: personalidad y comportamiento no se improvisan).
 //
 // TONO — la conversación tiene que ENAMORAR, no encuestar. Es la obligación 4
 // del spec 02 y son palabras del mentor: comprar vivienda "es algo que haces
@@ -23,22 +34,24 @@ import { catalogo } from "@/lib/matching/catalogo";
 // (`opciones`) son un atajo, nunca la única salida. Ingreso y zona van sin
 // chips a propósito: ahí la lista sesga ("si tú dices que ganas 500.000, el
 // listado no tiene esa opción").
+//
+// Y el chip y el texto libre pasan por la MISMA tabla (`RESPUESTA_DE`): escribir
+// "ya tengo casa" no puede acusar distinto que tocar el chip.
 
 /** El agente tiene nombre: un chat sin nombre al otro lado se siente máquina. */
 export const NOMBRE_AGENTE = "Sara";
 
-/**
- * Salario mínimo mensual legal vigente. **$1.750.905 en 2026**, fijado por los
- * Decretos 1469 y 1470 del 29 de diciembre de 2025 (+23% sobre 2025). Ya NO es
- * un supuesto: tiene fuente — ver docs/credito-y-subsidios.md.
- *
- * Se duplica a propósito el valor de `lib/fixtures/cola-historica.ts`: este
- * módulo lo carga el cliente y no debe arrastrar las fixtures al bundle. Si
- * cambia el año, cambian los dos (y `scripts/generar_sintetica.py`).
- */
-const SMMLV = 1_750_905;
+export type { CampoPregunta };
 
-export type CampoPregunta = Exclude<keyof Lead["respuestas"], "consentimiento">;
+// El parser del ingreso se mudó a `interpretacion/ingreso.ts` (es lógica pura,
+// no copy). Se re-exporta porque las fixtures y los tests lo piden por aquí.
+export {
+  INGRESO_MAXIMO_PLAUSIBLE,
+  INGRESO_MINIMO_PLAUSIBLE,
+  ingresoDesdeRango,
+  parsearIngresoMensual,
+  plausible,
+} from "./interpretacion/ingreso";
 
 /** Lo que una respuesta deja en el lead, más cómo reacciona el agente a ella. */
 export interface Respuesta {
@@ -80,96 +93,6 @@ export interface PasoPregunta {
   interpretarTexto: (texto: string) => Respuesta;
 }
 
-// ── Interpretación de texto libre ────────────────────────
-
-const NIEGA =
-  /\b(no|nop|nunca|jam[áa]s|ninguno|ninguna|negativo|todav[íi]a\s+no|a[úu]n\s+no|aun\s+no)\b/i;
-
-/**
- * Saca los números de una frase escrita por una persona real: "4.500.000",
- * "4'500.000", "4,5", "entre 3 y 5". Los puntos son separadores de miles
- * cuando cierran en 3 dígitos y decimales cuando no ("4.5 millones").
- */
-function numerosDe(texto: string): number[] {
-  const crudos = texto.replace(/['`´]/g, ".").match(/\d+(?:[.,]\d+)*/g) ?? [];
-  return crudos
-    .map((crudo) => {
-      const partes = crudo.replace(/,/g, ".").split(".");
-      if (partes.length === 1) return Number(partes[0]);
-      const ultima = partes[partes.length - 1];
-      if (ultima.length === 3) return Number(partes.join(""));
-      return Number(`${partes.slice(0, -1).join("")}.${ultima}`);
-    })
-    .filter((n) => Number.isFinite(n) && n > 0);
-}
-
-/**
- * Convierte a pesos mensuales lo que la persona escribió. Acepta las formas en
- * que la gente responde de verdad: un monto, "2 millones y medio", "3 salarios
- * mínimos", "entre 2 y 3" (se toma el punto medio).
- *
- * Devuelve `undefined` cuando el número queda ambiguo (p. ej. un "800" pelado:
- * ¿ochocientos mil, u ochocientos?). Eso NO rompe la conversación: el texto
- * crudo se guarda igual en `rango_ingreso_hogar` y el asesor lo ve tal cual.
- */
-export function parsearIngresoMensual(texto: string): number | undefined {
-  const limpio = texto.toLowerCase();
-  if (NO_ES_MONTO.test(limpio)) return undefined;
-  const numeros = numerosDe(limpio);
-  if (numeros.length === 0) return undefined;
-
-  // "entre 2 y 3", "2-3": punto medio del rango que la persona dio.
-  const base = numeros.length >= 2 ? (numeros[0] + numeros[1]) / 2 : numeros[0];
-  const conMedio = /\by\s+medio\b/.test(limpio) ? base + 0.5 : base;
-
-  if (/mill|\bmm\b/.test(limpio)) return plausible(conMedio * 1_000_000);
-  if (/m[íi]nimo|salario|smmlv|smlv/.test(limpio)) {
-    return plausible(conMedio * SMMLV);
-  }
-  if (/\bmil\b/.test(limpio)) return plausible(conMedio * 1_000);
-
-  // Sin unidad: un monto completo se escribe con sus ceros; un número pequeño
-  // es la forma corta de "millones" ("gano 3" tras preguntar cuánto entra al mes).
-  if (conMedio >= 100_000) return plausible(conMedio);
-  if (conMedio <= 30) return plausible(conMedio * 1_000_000);
-  return undefined;
-}
-
-/**
- * Lo escrito no es un monto sino una cuenta, un signo o un error de dedo.
- *
- * Sin esto, `2+2` entraba como $2.000.000 y `-3` como $3.000.000: el parser ve
- * los dígitos y no el operador. Ojo con el guion — `2-3` SÍ es un rango válido
- * ("entre 2 y 3"), así que solo se rechaza cuando ABRE el texto, que es la
- * forma de un negativo.
- */
-const NO_ES_MONTO = /[+*/=%]|^\s*-/;
-
-/**
- * Ingresos mensuales fuera de los cuales no se califica sin confirmar.
- *
- * ⚠️ Los dos números son **supuesto nuestro, no dato de Colsubsidio**: el piso
- * queda por debajo del salario mínimo (nadie compra vivienda con menos, y casi
- * siempre es un cero que faltó) y el techo, en cien millones al mes, es
- * absurdo para este catálogo. Existen porque el ingreso es el insumo del ÚNICO
- * gate legal del sistema: un número mal leído cambia el veredicto en silencio.
- */
-export const INGRESO_MINIMO_PLAUSIBLE = 500_000;
-export const INGRESO_MAXIMO_PLAUSIBLE = 100_000_000;
-
-/** El monto solo cuenta si cae en un rango que una persona puede tener de verdad. */
-function plausible(monto: number): number | undefined {
-  const redondeado = Math.round(monto);
-  return redondeado >= INGRESO_MINIMO_PLAUSIBLE && redondeado <= INGRESO_MAXIMO_PLAUSIBLE
-    ? redondeado
-    : undefined;
-}
-
-/** El rango del enriquecimiento ("3-5 SMMLV") llevado a un monto usable por el motor. */
-export function ingresoDesdeRango(rango: string): number | undefined {
-  return parsearIngresoMensual(rango);
-}
-
 /**
  * Deja el ingreso como NÚMERO, que es lo que el motor necesita para el gate del
  * 40%. Si la persona no lo escribió —porque el enriquecimiento ya traía su rango
@@ -208,205 +131,9 @@ export function completarDesdePerfil(
   return completas;
 }
 
-/**
- * El ingreso es el único dato con el que el sistema puede equivocarse en serio:
- * de él sale el gate del 40% (Decreto 583 de 2025). Por eso, cuando se entiende,
- * **se devuelve el número entendido** para que la persona lo corrija si está
- * mal; y cuando no, se pregunta otra vez en vez de calificar con una suposición.
- */
-function interpretarIngreso(texto: string): Respuesta {
-  const monto = parsearIngresoMensual(texto);
-
-  if (monto === undefined) {
-    return {
-      patch: { rango_ingreso_hogar: texto },
-      acuse:
-        "Perdona, ese número no logré leerlo bien 😅 ¿Me lo dices como lo que entra al mes? " +
-        "Por ejemplo: 4.500.000, «2 millones y medio» o «3 salarios mínimos».",
-      repreguntar: true,
-      acuseSiInsiste:
-        "Sin problema 🙏 Lo dejo anotado tal cual me lo dijiste y el asesor lo confirma contigo.",
-    };
-  }
-
-  return {
-    patch: { rango_ingreso_hogar: texto, ingreso_hogar_mensual: monto },
-    acuse: `Gracias por la confianza 🙏 Entonces hago las cuentas con $${monto.toLocaleString("es-CO")} al mes — si me equivoqué, dime el número y lo corrijo.`,
-  };
-}
-
-function interpretarVivienda(texto: string): Respuesta {
-  const t = texto.toLowerCase();
-  const primeraVez =
-    /primera|no tengo|nunca|arriendo|arrendad|vivo con|de mis pap|alquil/.test(t) ||
-    (NIEGA.test(t) && !/ya tengo|s[íi] tengo/.test(t));
-  const yaTiene = /ya tengo|s[íi] tengo|tengo (una |mi )?(casa|apartamento|vivienda)|propia|es m[íi]a/.test(t);
-
-  if (primeraVez && !yaTiene) return OPCION_PRIMERA_VIVIENDA;
-  if (yaTiene) return OPCION_YA_TIENE_VIVIENDA;
-  return { patch: {}, acuse: "Listo, lo tengo en cuenta." };
-}
-
-function interpretarSubsidios(texto: string): Respuesta {
-  const t = texto.toLowerCase();
-  if (/ninguno|ningun|no tengo|no he|nada|todav[íi]a no|a[úu]n no/.test(t) && !/mi casa ya/.test(t)) {
-    return SIN_SUBSIDIO;
-  }
-  if (/no s[ée]|ni idea|no estoy segur|creo que|no entiendo/.test(t)) return SUBSIDIO_POR_CONFIRMAR;
-
-  const subsidios = texto
-    .split(/,| y /)
-    .map((s) => s.trim())
-    .filter(Boolean);
-  return { patch: { subsidios }, acuse: ACUSE_SUBSIDIO };
-}
-
-function interpretarCrediticia(texto: string): Respuesta {
-  const t = texto.toLowerCase();
-  if (/al d[íi]a|bien|excelente|buena|sin deudas|limpio|impecable/.test(t)) return CREDITO_AL_DIA;
-  if (/nunca|no he tenido|no tengo historial|sin historial|primera vez|no he pedido/.test(t)) {
-    return CREDITO_SIN_HISTORIAL;
-  }
-  if (/sali|salir|me report|estuve|arregl|pagu[ée]|ya me quit|reciente/.test(t)) return CREDITO_SALIENDO;
-  if (/mora|report|datacr|deb[oa]|atras|deuda|embarg|mal/.test(t)) return CREDITO_EN_MORA;
-  return { patch: { situacion_crediticia: "sin_info" }, acuse: "Perfecto, gracias por decírmelo." };
-}
-
-function interpretarComposicion(texto: string): Respuesta {
-  const t = texto.toLowerCase();
-  // El orden importa: "yo sola con mi hija" es monoparental, no "familia con
-  // hijos" ni "sola" — se descarta primero el caso más específico.
-  if (/(sol[oa]s?\b.*\bhij|hij[oa]s?.*\bsol[oa]|yo con mis? hij|monoparental|madre soltera|padre soltero)/.test(t)) {
-    return OPCION_MONOPARENTAL;
-  }
-  if (/hij|niñ|bebé|bebe|chiquit|pelad[oa]s/.test(t)) return OPCION_FAMILIA_HIJOS;
-  if (/pareja|espos[oa]|novi[oa]|conyug|señora|marido|prometid/.test(t)) return OPCION_PAREJA;
-  if (/sol[oa]\b|yo sol|nadie|independiente|por mi cuenta/.test(t)) return OPCION_SOLO;
-  return { patch: {}, acuse: "Listo, lo tengo presente para buscarte lo que mejor te quede." };
-}
-
-function interpretarEdad(texto: string): Respuesta {
-  const edad = numerosDe(texto).find((n) => n >= 14 && n <= 99);
-  if (edad === undefined) {
-    const t = texto.toLowerCase();
-    if (/veinti|treinta y (uno|dos|tres|cuatro|cinco)\b|^treinta\b/.test(t)) return OPCION_EDAD_20_35;
-    if (/treinta y (seis|siete|ocho|nueve)|cuarenta/.test(t)) return OPCION_EDAD_36_45;
-    if (/cincuenta|sesenta|setenta/.test(t)) return OPCION_EDAD_46_MAS;
-    return { patch: {}, acuse: "Listo, gracias 🙏" };
-  }
-  if (edad <= 35) return OPCION_EDAD_20_35;
-  if (edad <= 45) return OPCION_EDAD_36_45;
-  return OPCION_EDAD_46_MAS;
-}
-
-// ── La zona: la respuesta más impredecible de todas ──────
-//
-// A "¿dónde te imaginas viviendo?" la gente contesta cualquier cosa: una ciudad,
-// un barrio, un deseo ("que tenga buenas zonas comunes"), o dónde queda el
-// colegio de los niños. El acuse era uno fijo —"esa zona la tengo bien
-// mapeada"— y quedaba absurdo cuando nadie había nombrado una zona.
-//
-// Se responde a lo que DIJO, con datos que ya tenemos:
-//   · nombró una ciudad del catálogo  → se le dice cuántos proyectos hay ahí
-//   · nombró una ciudad donde no hay  → se le dice de frente, y dónde sí hay
-//   · dijo un deseo, no un lugar      → se le acusa el deseo y se dice qué se hará
-// Y el `patch` guarda la CIUDAD limpia cuando se reconoce, no la frase entera:
-// el matcher filtra por zona y "espero que tenga excelentes zonas comunes" no
-// es una zona.
-
-/** Ciudades del catálogo real, con cuántos proyectos tiene cada una. */
-const CIUDADES_CON_PROYECTOS: { ciudad: string; cuantos: number }[] = Object.entries(
-  catalogo.reduce<Record<string, number>>((cuenta, p) => {
-    cuenta[p.ciudad] = (cuenta[p.ciudad] ?? 0) + 1;
-    return cuenta;
-  }, {}),
-).map(([ciudad, cuantos]) => ({ ciudad, cuantos }));
-
-/** Barrios y sectores que el catálogo conoce (los trae el brochure). */
-const ZONAS_CONOCIDAS = catalogo
-  .map((p) => p.zona)
-  .filter((z): z is string => Boolean(z));
-
-/**
- * Ciudades grandes de Colombia donde HOY no hay proyectos. No es data del reto:
- * es reconocer un nombre para poder decir la verdad en vez de un "anotado" que
- * suena a que sí tenemos algo allá.
- */
-const CIUDADES_SIN_PROYECTOS = [
-  "Medellín", "Cali", "Barranquilla", "Cartagena", "Bucaramanga", "Pereira",
-  "Santa Marta", "Cúcuta", "Ibagué", "Manizales", "Villavicencio", "Neiva",
-  "Armenia", "Popayán", "Pasto", "Montería", "Valledupar", "Tunja",
-];
-
-/** Lo que la gente nombra cuando habla de cómo quiere vivir, no de dónde. */
-const DESEOS = /zonas? comunes?|amenidad|piscina|gimnasio|parque|colegio|trabajo|mam[áa]|familia|tranquil|segur|verde|centro comercial|transporte|metro|cerca de todo/i;
-
-const sinTildes = (t: string) =>
-  t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-
-function buscarEn(lista: string[], texto: string): string | undefined {
-  const plano = sinTildes(texto);
-  return lista.find((candidato) => plano.includes(sinTildes(candidato)));
-}
-
-function interpretarZona(texto: string): Respuesta {
-  const conProyectos = CIUDADES_CON_PROYECTOS.find(({ ciudad }) =>
-    sinTildes(texto).includes(sinTildes(ciudad)),
-  );
-
-  if (conProyectos) {
-    const { ciudad, cuantos } = conProyectos;
-    return {
-      // Se guarda la ciudad, no la frase: es lo que el matcher sabe filtrar.
-      patch: { zona_interes: ciudad },
-      acuse:
-        cuantos > 1
-          ? `¡${ciudad}! 📍 Ahí tengo ${cuantos} proyectos, así que puedo ser concreta contigo.`
-          : `¡${ciudad}! 📍 Ahí tengo un proyecto, y te lo miro con lupa.`,
-      pulir: true,
-    };
-  }
-
-  const barrio = buscarEn(ZONAS_CONOCIDAS, texto);
-  if (barrio) {
-    return {
-      patch: { zona_interes: barrio },
-      acuse: `${barrio} 📍 Justo por ahí tenemos algo, déjame mirarlo con calma.`,
-      pulir: true,
-    };
-  }
-
-  const lejos = buscarEn(CIUDADES_SIN_PROYECTOS, texto);
-  if (lejos) {
-    const donde = CIUDADES_CON_PROYECTOS.map((c) => c.ciudad).join(", ");
-    return {
-      patch: { zona_interes: texto },
-      // Preferible a un "anotado" que insinúa que sí tenemos algo allá.
-      acuse: `Te soy honesta: en ${lejos} hoy no tenemos proyectos. Donde sí tenemos es en ${donde}. Te dejo anotado que te interesa ${lejos}, por si abrimos.`,
-      pulir: true,
-    };
-  }
-
-  if (DESEOS.test(texto)) {
-    return {
-      patch: { zona_interes: texto },
-      acuse:
-        "Eso me sirve muchísimo y lo dejo anotado para el asesor 🙌 Como no me diste una ciudad, te busco en todas las que tenemos y él afina contigo.",
-      pulir: true,
-    };
-  }
-
-  return {
-    patch: { zona_interes: texto },
-    acuse: "Anotado 📍 Lo tengo en cuenta para escoger qué mostrarte.",
-    pulir: true,
-  };
-}
-
-// ── Las opciones, con su acuse ───────────────────────────
-// Se declaran aparte porque los interpretadores de texto libre reusan las
-// mismas respuestas: escribir "ya tengo casa" tiene que valer lo mismo que
-// tocar el chip.
+// ── Las respuestas, con su acuse ─────────────────────────
+// Se declaran aparte porque los chips y el texto libre reusan las mismas: tocar
+// el chip "Ya tengo vivienda" y escribir "ya tengo casa" tienen que valer igual.
 
 const OPCION_PRIMERA_VIVIENDA: Respuesta = {
   patch: { tiene_vivienda: false },
@@ -432,7 +159,7 @@ const SIN_SUBSIDIO: Respuesta = {
 };
 
 const SUBSIDIO_POR_CONFIRMAR: Respuesta = {
-  patch: { subsidios: ["Por confirmar"] },
+  patch: { subsidios: [POR_CONFIRMAR] },
   acuse:
     "Ese es de los que más se dejan sobre la mesa por no preguntar. Lo dejo marcado para que el asesor lo revise contigo.",
 };
@@ -505,6 +232,305 @@ const OPCION_EDAD_46_MAS: Respuesta = {
 };
 
 /**
+ * El ingreso es el único dato con el que el sistema puede equivocarse en serio:
+ * de él sale el gate del 40% (Decreto 583 de 2025). Por eso, cuando se entiende,
+ * **se devuelve el número entendido** para que la persona lo corrija si está mal.
+ */
+function respuestaIngreso(monto: number, texto: string): Respuesta {
+  return {
+    patch: { rango_ingreso_hogar: texto, ingreso_hogar_mensual: monto },
+    acuse: `Gracias por la confianza 🙏 Entonces hago las cuentas con $${monto.toLocaleString("es-CO")} al mes — si me equivoqué, dime el número y lo corrijo.`,
+  };
+}
+
+/**
+ * Y cuando NO se entiende, no se califica con una suposición: se pregunta otra
+ * vez. El texto crudo se guarda igual, así el asesor lo ve tal cual.
+ */
+function ingresoIlegible(texto: string): {
+  patch: Partial<Lead["respuestas"]>;
+  acuse: string;
+  acuseSiInsiste: string;
+} {
+  return {
+    patch: { rango_ingreso_hogar: texto },
+    acuse:
+      "Perdona, ese número no logré leerlo bien 😅 ¿Me lo dices como lo que entra al mes? " +
+      "Por ejemplo: 4.500.000, «2 millones y medio» o «3 salarios mínimos».",
+    acuseSiInsiste:
+      "Sin problema 🙏 Lo dejo anotado tal cual me lo dijiste y el asesor lo confirma contigo.",
+  };
+}
+
+/**
+ * La zona es la única donde el acuse depende de POR QUÉ se reconoció lo que se
+ * reconoció, no del dato. El acuse era uno fijo —"esa zona la tengo bien
+ * mapeada"— y quedaba absurdo cuando nadie había nombrado una zona: a "espero
+ * que tenga excelentes zonas comunes" le contestaba que la tenía bien mapeada.
+ *
+ * Se responde a lo que DIJO, con datos que ya tenemos, y en los cinco casos se
+ * pule con el LLM: es la respuesta más impredecible del set, así que ahí sí
+ * vale la latencia.
+ */
+function respuestaZona(z: Zona): Respuesta {
+  const patch = { zona_interes: z.zona };
+
+  switch (z.tipo) {
+    case "ciudad_con_proyectos":
+      return {
+        patch,
+        acuse:
+          z.cuantos > 1
+            ? `¡${z.zona}! 📍 Ahí tengo ${z.cuantos} proyectos, así que puedo ser concreta contigo.`
+            : `¡${z.zona}! 📍 Ahí tengo un proyecto, y te lo miro con lupa.`,
+        pulir: true,
+      };
+
+    case "barrio":
+      return {
+        patch,
+        acuse: `${z.zona} 📍 Justo por ahí tenemos algo, déjame mirarlo con calma.`,
+        pulir: true,
+      };
+
+    case "ciudad_sin_proyectos": {
+      const donde = CIUDADES_CON_PROYECTOS.map((c) => c.ciudad).join(", ");
+      return {
+        patch,
+        // Preferible a un "anotado" que insinúa que sí tenemos algo allá.
+        acuse: `Te soy honesta: en ${z.ciudad} hoy no tenemos proyectos. Donde sí tenemos es en ${donde}. Te dejo anotado que te interesa ${z.ciudad}, por si abrimos.`,
+        pulir: true,
+      };
+    }
+
+    case "deseo":
+      return {
+        patch,
+        acuse:
+          "Eso me sirve muchísimo y lo dejo anotado para el asesor 🙌 Como no me diste una ciudad, te busco en todas las que tenemos y él afina contigo.",
+        pulir: true,
+      };
+
+    case "sin_reconocer":
+      return {
+        patch,
+        acuse: "Anotado 📍 Lo tengo en cuenta para escoger qué mostrarte.",
+        pulir: true,
+      };
+  }
+}
+
+/**
+ * Qué contesta el agente ante cada valor del menú.
+ *
+ * Es la tabla que hace que el chip, el texto libre y —cuando la rama 4 la
+ * cablee— la interpretación del modelo acusen exactamente igual. Un valor del
+ * menú entra, una respuesta escrita por una persona sale.
+ */
+const RESPUESTA_DE: { [C in CampoPregunta]: (valor: ValorDe<C>, textoCrudo: string) => Respuesta } =
+  {
+    tiene_vivienda: (v) => (v ? OPCION_YA_TIENE_VIVIENDA : OPCION_PRIMERA_VIVIENDA),
+
+    composicion_familiar: (v) =>
+      ({
+        solo: OPCION_SOLO,
+        pareja: OPCION_PAREJA,
+        familia_con_hijos: OPCION_FAMILIA_HIJOS,
+        monoparental: OPCION_MONOPARENTAL,
+      })[v],
+
+    rango_edad: (v) =>
+      ({
+        "20_35": OPCION_EDAD_20_35,
+        "36_45": OPCION_EDAD_36_45,
+        "46_mas": OPCION_EDAD_46_MAS,
+      })[v],
+
+    situacion_crediticia: (v) =>
+      ({
+        buena: CREDITO_AL_DIA,
+        regular: CREDITO_SALIENDO,
+        mala: CREDITO_EN_MORA,
+        sin_info: CREDITO_SIN_HISTORIAL,
+      })[v],
+
+    // La lista vacía es una respuesta ("ninguno todavía"), no un vacío.
+    subsidios: (v) =>
+      v.length === 0
+        ? SIN_SUBSIDIO
+        : v[0] === POR_CONFIRMAR
+          ? SUBSIDIO_POR_CONFIRMAR
+          : { patch: { subsidios: v }, acuse: ACUSE_SUBSIDIO },
+
+    rango_ingreso_hogar: (monto, texto) => respuestaIngreso(monto, texto),
+
+    // Se reclasifica desde el texto porque el acuse depende de por qué se
+    // reconoció, no del valor. La zona nunca llega por el camino de la IA.
+    zona_interes: (_zona, texto) => respuestaZona(clasificarZona(texto)),
+  };
+
+/**
+ * ⚠️ COMPORTAMIENTO CONGELADO — lo que el chat contesta HOY cuando no entendió.
+ *
+ * Es el hueco 2 del plan de arquitectura: un acuse amable y el dato perdido en
+ * silencio. Se conserva **al pie de la letra** para que esta rama no cambie nada
+ * en pantalla; quien decide qué se hace de verdad con un `no_entendido` es la
+ * rama 5 (punto 7 de la lista de consulta).
+ *
+ * Dos cosas que se ven mejor aquí que en el código de antes:
+ *   · `situacion_crediticia` guarda `"sin_info"` sin que nadie lo dijera, así que
+ *     el motor no distingue "no entendí" de "nunca he pedido crédito";
+ *   · `subsidios` acusa "¡eso suma!" con la lista vacía, que solo pasa si el
+ *     texto era pura puntuación — absurdo, pero es lo que hace hoy.
+ *
+ * El ingreso y la zona no están porque nunca llegan aquí: el ingreso ilegible
+ * emite `confirmar_dato` y la zona siempre reconoce algo.
+ */
+const MUDO_HOY: Partial<Record<CampoPregunta, Respuesta>> = {
+  tiene_vivienda: { patch: {}, acuse: "Listo, lo tengo en cuenta." },
+  composicion_familiar: {
+    patch: {},
+    acuse: "Listo, lo tengo presente para buscarte lo que mejor te quede.",
+  },
+  rango_edad: { patch: {}, acuse: "Listo, gracias 🙏" },
+  situacion_crediticia: {
+    patch: { situacion_crediticia: "sin_info" },
+    acuse: "Perfecto, gracias por decírmelo.",
+  },
+  subsidios: { patch: { subsidios: [] }, acuse: ACUSE_SUBSIDIO },
+};
+
+/** Lo que el lead teclea contestando la pregunta que se le hizo. */
+export type AccionDePaso = Extract<
+  AccionTurno,
+  { tipo: "responder_paso" | "no_entendido" | "confirmar_dato" }
+>;
+
+/**
+ * TS no puede casar el valor con su respondedor cuando `campo` es la unión de
+ * los 7. Lo que garantiza que casan es el `satisfies` de `INTERPRETES` contra
+ * `INTERPRETACION_POR_CAMPO`: los dos lados salen del mismo menú.
+ */
+function respuestaDeValor(campo: CampoPregunta, valor: unknown, textoCrudo: string): Respuesta {
+  const responder = RESPUESTA_DE[campo] as (v: unknown, t: string) => Respuesta;
+  return responder(valor, textoCrudo);
+}
+
+function responderPaso(campo: CampoPregunta, r: Respuesta): AccionDePaso {
+  return { tipo: "responder_paso", campo, patch: r.patch, acuse: r.acuse, pulir: r.pulir };
+}
+
+/**
+ * Qué pasó en este turno con lo que el lead escribió.
+ *
+ * Es la función que la rama 5 va a conducir. Hoy `interpretarTexto` la envuelve
+ * y traduce el resultado al `Respuesta` de siempre, así que **nada cambia en
+ * pantalla**: lo único nuevo es que ahora hay un nombre para lo que antes se
+ * perdía en silencio.
+ */
+export function accionDeTexto(campo: CampoPregunta, texto: string): AccionDePaso {
+  if (campo === "zona_interes") {
+    return responderPaso(campo, respuestaZona(clasificarZona(texto)));
+  }
+
+  const valor = INTERPRETES[campo](texto);
+
+  if (valor === undefined) {
+    // El ingreso no se deja pasar a medias: es el insumo del único gate legal.
+    return campo === "rango_ingreso_hogar"
+      ? { tipo: "confirmar_dato", campo, ...ingresoIlegible(texto) }
+      : { tipo: "no_entendido", campo, textoCrudo: texto };
+  }
+
+  return responderPaso(campo, respuestaDeValor(campo, valor, texto));
+}
+
+/**
+ * Lo mismo, pero cuando el valor ya viene interpretado por otro (el chip, o el
+ * modelo de la rama 4 después de validar contra `INTERPRETACION_POR_CAMPO`).
+ *
+ * Existe para que el acuse sea el mismo por los tres caminos. Un dato entendido
+ * por la IA que acuse distinto se nota, y delata que hubo dos autores.
+ */
+export function accionDeValor<C extends CampoPregunta>(
+  campo: C,
+  valor: ValorDe<C>,
+  textoCrudo: string,
+): AccionDePaso {
+  return responderPaso(campo, respuestaDeValor(campo, valor, textoCrudo));
+}
+
+/** Lo que Sara dice al corregir. No repite el dato: lo hace `repreguntar()`. */
+const ACUSE_CORRECCION = "Listo, lo corrijo 🙏 Me quedo con lo último que me dijiste.";
+
+/**
+ * El lead está cambiando algo que ya había dicho.
+ *
+ * Pide las dos cosas a la vez —marca explícita de corrección **y** un campo ya
+ * respondido que reconozca el texto— porque cada una suelta se equivoca:
+ * "me equivoqué" solo puede ser una corrección, pero de qué, no se sabe; y
+ * "son 3 millones" a mitad de otra pregunta es casi siempre la respuesta a esa
+ * otra pregunta. `null` significa "esto no es una corrección" y el turno sigue
+ * su camino normal.
+ *
+ * Se busca del último campo respondido hacia atrás: lo que uno corrige es casi
+ * siempre lo último que dijo. `zona_interes` queda por fuera porque su
+ * intérprete acepta cualquier cosa y se quedaría con todas las correcciones.
+ */
+export function accionDeCorreccion(
+  texto: string,
+  yaRespondidos: CampoPregunta[],
+): Extract<AccionTurno, { tipo: "corregir_dato" }> | null {
+  if (!pareceCorreccion(texto)) return null;
+
+  for (const campo of [...yaRespondidos].reverse()) {
+    if (campo === "zona_interes") continue;
+    const valor = INTERPRETES[campo](texto);
+    if (valor === undefined) continue;
+
+    const r = respuestaDeValor(campo, valor, texto);
+    // El ingreso se corrige leyendo el número en voz alta: su acuse ya está
+    // escrito para que la persona lo verifique, y de ese número depende el
+    // veredicto del gate del 40% (ticket 024).
+    const acuse =
+      campo === "rango_ingreso_hogar" ? (r.acuse ?? ACUSE_CORRECCION) : ACUSE_CORRECCION;
+    return { tipo: "corregir_dato", campo, patch: r.patch, acuse };
+  }
+
+  return null;
+}
+
+/**
+ * El puente con el chat de hoy: una `AccionDePaso` traducida al `Respuesta` que
+ * `ChatWhatsApp` y `guion-demo` ya saben consumir.
+ *
+ * Desaparece cuando la rama 5 cablee la máquina de conversación. Mientras exista,
+ * el comportamiento en pantalla es idéntico al de antes de esta rama.
+ */
+export function respuestaDeAccion(accion: AccionDePaso): Respuesta {
+  switch (accion.tipo) {
+    case "responder_paso":
+      return { patch: accion.patch, acuse: accion.acuse, pulir: accion.pulir };
+
+    case "confirmar_dato":
+      return {
+        patch: accion.patch,
+        acuse: accion.acuse,
+        repreguntar: true,
+        acuseSiInsiste: accion.acuseSiInsiste,
+      };
+
+    case "no_entendido":
+      return MUDO_HOY[accion.campo] ?? { patch: {} };
+  }
+}
+
+/** El `interpretarTexto` de un paso: acción adentro, `Respuesta` afuera. */
+function interpretarTextoDe(campo: CampoPregunta): (texto: string) => Respuesta {
+  return (texto) => respuestaDeAccion(accionDeTexto(campo, texto));
+}
+
+/**
  * Dado un PerfilConocido, decide qué se pregunta y en qué orden.
  * El único guion fijo es la ausencia de guion: quien ya trajo el dato del
  * enriquecimiento, no lo repite en la conversación.
@@ -525,7 +551,7 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
       { etiqueta: "Sería la primera 🎉", ...OPCION_PRIMERA_VIVIENDA },
       { etiqueta: "Ya tengo vivienda", ...OPCION_YA_TIENE_VIVIENDA },
     ],
-    interpretarTexto: interpretarVivienda,
+    interpretarTexto: interpretarTextoDe("tiene_vivienda"),
   });
 
   // Sigue en la parte que ilusiona: se pregunta por la casa compartida, no por
@@ -541,7 +567,7 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
       { etiqueta: "Con mi familia e hijos", ...OPCION_FAMILIA_HIJOS },
       { etiqueta: "Yo con mis hijos", ...OPCION_MONOPARENTAL },
     ],
-    interpretarTexto: interpretarComposicion,
+    interpretarTexto: interpretarTextoDe("composicion_familiar"),
   });
 
   if (!perfil.rango_ingreso) {
@@ -551,7 +577,7 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
       pregunta:
         "Ahora la pregunta incómoda, y te digo para qué es: solo la uso para no mostrarte casas que después te aprieten el bolsillo. ¿Cuánto entra al mes en tu hogar, sumando todo lo que llega (tu sueldo, el de tu pareja, lo que sea)? Un aproximado me sirve.",
       placeholder: "Ej: 4.500.000 · 2 millones y medio · entre 3 y 4",
-      interpretarTexto: interpretarIngreso,
+      interpretarTexto: interpretarTextoDe("rango_ingreso_hogar"),
     });
   }
 
@@ -570,7 +596,7 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
       { etiqueta: "Ninguno todavía", ...SIN_SUBSIDIO },
       { etiqueta: "No sé si aplico", ...SUBSIDIO_POR_CONFIRMAR },
     ],
-    interpretarTexto: interpretarSubsidios,
+    interpretarTexto: interpretarTextoDe("subsidios"),
   });
 
   // Antes de la crediticia, para que "última de las incómodas" siga siendo
@@ -591,7 +617,7 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
         { etiqueta: "Entre 36 y 45", ...OPCION_EDAD_36_45 },
         { etiqueta: "Más de 45", ...OPCION_EDAD_46_MAS },
       ],
-      interpretarTexto: interpretarEdad,
+      interpretarTexto: interpretarTextoDe("rango_edad"),
     });
   }
 
@@ -606,7 +632,7 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
       { etiqueta: "Tengo algo en mora", ...CREDITO_EN_MORA },
       { etiqueta: "Nunca he pedido crédito", ...CREDITO_SIN_HISTORIAL },
     ],
-    interpretarTexto: interpretarCrediticia,
+    interpretarTexto: interpretarTextoDe("situacion_crediticia"),
   });
 
   if (!perfil.ciudad) {
@@ -616,7 +642,7 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
       pregunta:
         "Y lo más rico: ¿dónde te imaginas viviendo? Piensa en el día a día — cerca del colegio, del trabajo, de tu mamá. Eso termina pesando más que el precio.",
       placeholder: "Ej: Bogotá, por el norte",
-      interpretarTexto: interpretarZona,
+      interpretarTexto: interpretarTextoDe("zona_interes"),
     });
   }
 
@@ -760,7 +786,7 @@ export function preguntasDeReenganche(): PasoPregunta[] {
       pregunta:
         "Solo necesito confirmar una cosa para volver a hacer las cuentas: ¿cuánto está entrando al mes en tu hogar hoy? Si cambió aunque sea un poco, puede alcanzar para que ya te sirva.",
       placeholder: "Ej: 2.400.000 · sigue igual",
-      interpretarTexto: interpretarIngreso,
+      interpretarTexto: interpretarTextoDe("rango_ingreso_hogar"),
     },
   ];
 }
