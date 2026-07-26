@@ -475,9 +475,9 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 
 | # | Punto | Rama | Estado |
 |---|---|---|---|
-| 1 | Copy de las 4 preguntas del banco + sus chips | 7 | ⬜ abierto |
-| 2 | Nombres de los campos nuevos en `lib/types.ts` | 7 | ⬜ abierto |
-| 3 | Si "momento de compra" se pregunta o suena a apuro | 7 | ⬜ abierto |
+| 1 | Copy de las 4 preguntas del banco + sus chips | 7 | 🟡 **escrito como PROPUESTA — falta ratificar** |
+| 2 | Nombres de los campos nuevos en `lib/types.ts` | 7 | ✅ **publicados** (2026-07-25) |
+| 3 | Si "momento de compra" se pregunta o suena a apuro | 7 | 🟡 **se pregunta, reformulada — falta ratificar** |
 | 4 | Respuesta a "¿eres un bot?" | 5 | ⬜ abierto |
 | 5 | Copy del ofrecimiento de asesor tras 3 desvíos | 5 | ⬜ abierto |
 | 6 | Copy de `corregir_dato` y de `fuera_de_tema` | 2 | ✅ cerrado — consultado y aprobado, ver bitácora |
@@ -543,6 +543,61 @@ Formato: `- [rama] hallazgo → para quién · estado`. Se agrega abajo; no se r
   (Calibración que salió de ahí: "4 millones y medio" **no** se bloquea contra un `textoBase` que dice
   "$4.500.000". Reescribir una cifra como la escribiría un humano no es inventarla, y bloquear eso
   apagaba la capa de IA sin que nadie lo notara.)
+- **[7] CAMPOS NUEVOS PUBLICADOS** → **P4** y **P5** · listo, ya pueden construir contra esto.
+  Todos opcionales dentro de `Lead["respuestas"]`, nada existente se rompe (`tsc` verde en todo el
+  repo): `alcobas_deseadas?: 1|2|3` (3 = "3 o más") · `amenidades_interes?: AmenidadInteres[]` ·
+  `espacio_preferido?: "compacto"|"amplio"` · `momento_compra?: "inmediato"|"este_ano"|"explorando"`
+  · `preferencias_libres?: string[]`. El tipo `AmenidadInteres` es
+  `"mascotas"|"gimnasio"|"coworking"|"deporte"|"verdes"|"social"|"ninos"` y vive en `lib/types.ts`.
+  **Para P4 (selector, §6 rama 4c):** `IDS_BANCO` da el enum de zod, `bancoDisponible(respuestas)`
+  devuelve solo las que aún no tienen dato (versión banco del criterio 1), cada pregunta trae
+  `paraQueSirve` escrito para el modelo y `matchea: boolean`, y `preguntaDelBanco(id)` devuelve
+  `undefined` ante un id inventado — la capa no se activa, falla cerrada.
+- **[7] 🔴 El copy de las 4 preguntas y sus chips está ESCRITO PERO SIN RATIFICAR** → **todos** ·
+  abierto. Es texto que va a leer el lead. Está redactado con las reglas de `preguntas.ts` (dice para
+  qué sirve antes de preguntar · acusa cada respuesta · el campo de texto nunca desaparece) y hay
+  test para las tres, pero **el tono no lo cubre ningún test**. Se puede reescribir entero sin tocar
+  una línea de lógica; los `it.each(BANCO)` siguen pasando. Lo que sí está medido y no es opinión es
+  **cuáles** dimensiones vale la pena preguntar. Las cuatro, en `lib/conversacion/banco-preguntas.ts`.
+- **[7] "Momento de compra" SÍ se pregunta, con la justificación por delante** → **todos** · falta
+  ratificar. La objeción del plan ("suena a vendedor apurando") es real, y se resolvió en el copy en
+  vez de borrando la pregunta: *"no es para apurarte sino al contrario… si apenas estás mirando, lo
+  anoto para que nadie te llame de más"*. La contrapartida es explícita para quien contesta que está
+  mirando, y el acuse de esa opción promete lo mismo. **Si al leerlo sigue sonando a cierre, se cae
+  la pregunta y quedan 3** — el banco funciona igual.
+- **[7] La tabla de cobertura del §6 está mal en dos filas. Medido sobre los 18 brochures** →
+  **P5** · corregir antes de escribir los bonos de la rama 8.
+  **(a) El área privada NO empieza en 40,58 m²:** va de **21,6 a 68,06 m²**, mediana 40,55. El 40,58
+  es el valor de un proyecto suelto. **(b) "Amenidades 18/18" es cierto y engañoso:** los 18 listan
+  zonas sociales, pero con 60+ etiquetas escritas a mano que no se pueden comparar ("portería tipo
+  lobby" / "portería con lobby" / "portería"). Como **discriminador** son muy desparejas —
+  `ninos` **18/18** (un bono por eso se lo lleva todo el catálogo: es ruido), `gimnasio` 14, `social`
+  14, `deporte` 12, `coworking` 11, `verdes` 11, `mascotas` **4**. **(c)** Solo **3 de 18** proyectos
+  tienen tipología de 3 alcobas (Samán, Araucaria, Los Nogales) y 1 no declara ninguna (Bosque de
+  Arrayán) → confirma "bonos, NUNCA filtros". **(d)** `estado`/entrega solo se conoce en **7 de 18**,
+  por eso `momento_compra` está marcado `matchea: false`: **no le construyas bono.**
+- **[7] Las familias de amenidad tienen que agruparse IGUAL en los dos lados** → **P5** · pendiente.
+  Yo normalizo lo que escribe el lead; el script de la rama 8 normaliza lo que dicen los brochures, y
+  si no coinciden el bono nunca se activa. Estas son las mías, sobre `zonas_sociales[]`:
+  `mascotas` = `/mascota|zona pet/` · `gimnasio` = `/gimnasio|ecogym|zona fitness|biosaludable/` ·
+  `coworking` = `/coworking|juntas|reuniones|sala de lectura|social living/` · `deporte` =
+  `/cancha|piscina|pista de trote|yoga/` · `verdes` = `/zonas verdes|sendero/` · `social` =
+  `/salón social|salón comunal|edificio comunal|terraza comunal|bbq|fogata/` · `ninos` =
+  `/infantil|kids|arenero|teatrino|zona de juegos|salón de juegos/`.
+- **[7] El área NO se pregunta en m², y eso cambia tu bono** → **P5** · decidido, avísame si estorba.
+  `BONO_AREA_SUFICIENTE` no puede comparar contra un número que el lead nunca dio: nadie sabe de
+  memoria cuántos m² necesita, y una pregunta que la gente no puede contestar rompe la conversación.
+  Llega `espacio_preferido: "compacto" | "amplio"`, que sí se puede contestar y sí ordena contra
+  `area_privada_desde_m2` (mediana 40,55 como corte natural).
+- **[7] `banco-preguntas.ts` importa los TIPOS de `preguntas.ts`** → **P2** · informativo.
+  `PreguntaBanco extends PasoPregunta`, y `Respuesta`/`OpcionRespuesta` vienen de ahí. Es
+  deliberado: así una pregunta del banco **es** un paso normal y la rama 5 la cablea sin adaptador.
+  Solo son tipos (se borran al compilar). Si al partir `preguntas.ts` mueves `PasoPregunta`, avísame
+  y cambio el import — no lo dejes sin exportar.
+- **[7] Quien cablee el banco: usa `aplicarRespuestaBanco`, no el spread pelado** → **P1** ·
+  informativo. El patch normal REEMPLAZA, y con dos preguntas del banco por conversación se perdía
+  el texto crudo de la primera en `preferencias_libres`. Esa función lo concatena. También:
+  `MAX_PREGUNTAS_BANCO = 2` está exportado, no lo vuelvas a escribir a mano.
 
 ### 2026-07-26 · rama 1 (escenarios) — 7 hallazgos, ninguno arreglado aquí
 

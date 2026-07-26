@@ -16,6 +16,12 @@ import {
   NOMBRE_FUENTE,
   pesos,
 } from "@/lib/formato";
+import {
+  ETIQUETA_ALCOBAS,
+  ETIQUETA_AMENIDAD,
+  ETIQUETA_ESPACIO,
+  ETIQUETA_MOMENTO,
+} from "@/lib/conversacion/banco-preguntas";
 
 /**
  * La ficha del lead: el clímax del demo.
@@ -252,6 +258,45 @@ export function FichaLead({ item }: { item: LeadEnCola }) {
                   ? respuestas.subsidios.join(", ")
                   : "Ninguno declarado"
               }
+            />
+          )}
+
+          {/* Lo que averiguó el BANCO de preguntas. Se auto-oculta entero
+              cuando la conversación no llegó a preguntarlo, que es el caso
+              de los 3 personajes sembrados: la ficha de hoy se ve idéntica.
+              Reusa el mismo <Dato> del bloque — ni CSS ni componente nuevo. */}
+          {respuestas.alcobas_deseadas !== undefined && (
+            <Dato
+              termino="Alcobas que necesita"
+              valor={ETIQUETA_ALCOBAS[respuestas.alcobas_deseadas]}
+            />
+          )}
+          {respuestas.amenidades_interes && respuestas.amenidades_interes.length > 0 && (
+            <Dato
+              termino="Qué busca en el conjunto"
+              valor={respuestas.amenidades_interes
+                .map((a) => ETIQUETA_AMENIDAD[a])
+                .join(", ")}
+            />
+          )}
+          {respuestas.espacio_preferido && (
+            <Dato termino="Espacio" valor={ETIQUETA_ESPACIO[respuestas.espacio_preferido]} />
+          )}
+          {/* No matchea nada y por eso lo dice: `estado` (entrega) solo se
+              conoce en 7 de los 18 proyectos. Es para ordenar la cola. */}
+          {respuestas.momento_compra && (
+            <Dato
+              termino="Momento de compra (no afecta el match)"
+              valor={ETIQUETA_MOMENTO[respuestas.momento_compra]}
+            />
+          )}
+          {respuestas.preferencias_libres && respuestas.preferencias_libres.length > 0 && (
+            // El antídoto del hueco 2: lo que el intérprete no supo clasificar
+            // llega crudo, con las palabras de la persona, en vez de perderse
+            // detrás de un acuse amable.
+            <Dato
+              termino="Lo dijo con sus palabras"
+              valor={respuestas.preferencias_libres.map((t) => `«${t}»`).join(" · ")}
             />
           )}
         </dl>

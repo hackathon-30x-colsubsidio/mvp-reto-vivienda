@@ -46,8 +46,61 @@ export interface Lead {
     /** Conformación del hogar (categorías del PPT de buyer personas) — alimenta la similitud. */
     composicion_familiar?: "solo" | "pareja" | "familia_con_hijos" | "monoparental";
     afiliado_autoreportado?: boolean; // solo se pregunta si perfil.match = false (spec §4 paso 2-3)
+
+    // ── Lo que averigua el BANCO de preguntas (rama 7) ────
+    // Todos opcionales y aditivos: la conversación de hoy no los llena y nada
+    // existente se rompe. Solo se preguntan DESPUÉS de las 7 base y como
+    // máximo 2 por conversación, así que un lead normal trae uno o ninguno.
+    //
+    // Salen de lo único que los 18 brochures cubren de verdad
+    // (`docs/proyectos/proyectos-colsubsidio.json`), porque preguntar algo que
+    // el catálogo no puede honrar es el mismo pecado de los brochures: una
+    // pregunta bonita que no cambia ninguna recomendación.
+
+    /** Cuántas alcobas necesita el hogar. `3` es "3 o más" (solo 3 de 18 proyectos las tienen). */
+    alcobas_deseadas?: 1 | 2 | 3;
+    /** Qué quiere encontrar en el conjunto, ya normalizado a las familias del catálogo. */
+    amenidades_interes?: AmenidadInteres[];
+    /** El área, preguntada como la gente sí la sabe contestar: no en m². */
+    espacio_preferido?: "compacto" | "amplio";
+    /**
+     * Para cuándo se la imagina. **No matchea nada** y es a propósito: `estado`
+     * (entrega) solo se conoce en 7 de los 18 proyectos. Es señal comercial —
+     * ordena la cola del asesor, no la lista de proyectos.
+     */
+    momento_compra?: "inmediato" | "este_ano" | "explorando";
+    /**
+     * Lo que la persona dijo y el intérprete no supo clasificar.
+     *
+     * Existe para que el banco no repita el hueco 2 del plan: hoy
+     * `interpretarComposicion` y compañía devuelven `{patch:{}}` con un acuse
+     * amable y la señal se pierde en silencio. Aquí el texto crudo llega igual
+     * a la ficha y el asesor lo lee tal cual lo escribió la persona.
+     */
+    preferencias_libres?: string[];
   };
 }
+
+/**
+ * Las familias de amenidad del catálogo real.
+ *
+ * NO son las etiquetas de los brochures: esos traen 60+ variantes a mano
+ * ("portería tipo lobby", "portería con lobby", "portería") que no se pueden
+ * comparar entre proyectos. Estas son las familias en las que se agrupan, y se
+ * escogieron por lo que DISCRIMINA: `ninos` aparece en 18/18 —preguntarlo no
+ * cambia ninguna recomendación— mientras `mascotas` solo en 4/18.
+ *
+ * La derivación vive en el script de la rama 8 (P5), que es quien las cablea al
+ * matcher; aquí solo viven los nombres, que son el contrato entre las dos.
+ */
+export type AmenidadInteres =
+  | "mascotas"
+  | "gimnasio"
+  | "coworking"
+  | "deporte"
+  | "verdes"
+  | "social"
+  | "ninos";
 
 // ── El hilo de la conversación (tabla `conversaciones`, ADR 0003) ────────
 // Una fila por mensaje. `sistema` no es de nadie: marca eventos (ingesta,

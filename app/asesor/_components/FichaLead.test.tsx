@@ -169,6 +169,60 @@ describe("fuente del lead — narrativa multi-canal (spec §4 paso 1)", () => {
   });
 });
 
+describe("lo que averiguó el banco de preguntas (rama 7)", () => {
+  // Definición de listo de la rama: "la ficha del asesor abierta y comparada
+  // contra la de hoy". Se comprueba aquí en vez de a ojo, que es más fuerte:
+  // sin datos del banco la ficha tiene que ser IDÉNTICA a la de hoy, y con
+  // datos, cada respuesta tiene que llegar al asesor.
+  it("sin datos del banco, la ficha no cambia ni una fila", () => {
+    render(<FichaLead item={enCola(afiliadoListo)} />);
+    expect(screen.queryByText(/alcobas que necesita/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/qué busca en el conjunto/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/momento de compra/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/lo dijo con sus palabras/i)).not.toBeInTheDocument();
+  });
+
+  it("con datos del banco, el asesor los ve en el bloque de perfil", () => {
+    const conBanco: LeadCurado = {
+      ...afiliadoListo,
+      lead: {
+        ...afiliadoListo.lead,
+        respuestas: {
+          ...afiliadoListo.lead.respuestas,
+          alcobas_deseadas: 3,
+          amenidades_interes: ["mascotas", "coworking"],
+          espacio_preferido: "amplio",
+          momento_compra: "explorando",
+          preferencias_libres: ["que tenga buena luz"],
+        },
+      },
+    };
+    render(<FichaLead item={enCola(conBanco)} />);
+
+    expect(screen.getByText("Tres o más")).toBeInTheDocument();
+    expect(
+      screen.getByText("que acepten mascotas, espacio para trabajar"),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/prefiere más amplio/i)).toBeInTheDocument();
+    // El "no presionar" es la mitad útil del dato para quien va a llamar.
+    expect(screen.getByText(/todavía está mirando \(no presionar\)/i)).toBeInTheDocument();
+    // Hueco 2: lo que no se supo clasificar llega crudo, con sus palabras.
+    expect(screen.getByText("«que tenga buena luz»")).toBeInTheDocument();
+  });
+
+  it("el momento de compra dice en la ficha que NO afecta el match", () => {
+    const conMomento: LeadCurado = {
+      ...afiliadoListo,
+      lead: {
+        ...afiliadoListo.lead,
+        respuestas: { ...afiliadoListo.lead.respuestas, momento_compra: "inmediato" },
+      },
+    };
+    render(<FichaLead item={enCola(conMomento)} />);
+    expect(screen.getByText(/no afecta el match/i)).toBeInTheDocument();
+  });
+});
+
 describe("habeas data y regla 90/10", () => {
   it("la ficha deja constancia del consentimiento con su fecha", () => {
     render(<FichaLead item={enCola(afiliadoListo)} />);
