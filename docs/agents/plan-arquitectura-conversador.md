@@ -32,7 +32,7 @@ El tono de esta conversación se reescribió entero una vez porque sonaba a encu
 
 ## 1 · Qué se está construyendo
 
-El agente de WhatsApp de `hardcoreai` (Motoko) tiene la arquitectura que queremos: código
+La arquitectura que queremos es la de un agente conversacional serio: código
 determinista decide *si* el agente habla → el LLM propone dentro de un menú cerrado y validado →
 código determinista sanitiza lo que devolvió → y solo entonces sale.
 
@@ -130,7 +130,7 @@ con límites precisos. **Si en tu rama algo se sale de estos cuatro, va a la bit
 `replayGuion` replaya **solo las base**, así que el seed y los 3 personajes del demo siguen siendo
 deterministas y su `Lead` no cambia.
 
-Es el patrón de Motoko exacto: el modelo escoge una herramienta del set; no escribe la herramienta.
+Es el patrón de tool-calling exacto: el modelo escoge una herramienta del set; no escribe la herramienta.
 
 ---
 
@@ -178,7 +178,7 @@ Es el patrón de Motoko exacto: el modelo escoge una herramienta del set; no esc
 **Bloquea a:** rama 5.
 
 **Entregable.** Un corpus de entradas reales y sucias replayadas contra el conversador, afirmando
-qué sale. Es el equivalente de `src/tests/agent/scenarios/` de Motoko y es lo que hace seguro el
+qué sale. Es la suite de escenarios del agente y es lo que hace seguro el
 refactor de la rama 5.
 
 **⚠️ Se escriben contra el comportamiento ACTUAL, no el deseado.** Un test que afirma lo que
@@ -229,7 +229,7 @@ al `Respuesta` de hoy — la rama 5 lo retira.
 
 Validado con zod **donde de verdad hay un borde**, que es la salida del modelo y no esta unión:
 `INTERPRETACION_POR_CAMPO` es el menú cerrado campo → schema del valor, y `INTERPRETES` casa contra
-él con `satisfies`. Es el `SalesToolCallSchema` de Motoko aplicado donde aplica (ver §8).
+él con `satisfies`. Es el schema de tool-call aplicado donde aplica (ver §8).
 
 **Paso 2 — extraer los intérpretes** a `lib/conversacion/interpretacion/`, un archivo por campo,
 funciones puras con su test. `preguntas.ts` queda solo con copy + wiring.
@@ -259,7 +259,7 @@ regenerado sin una línea de diff, que es la prueba de que el refactor no movió
 conecta en 3 líneas.
 **Depende de:** nada. Opera sobre `string`. Arranca ya.
 
-**Entregable.** Espejo de `src/agents/sales/guardrails.ts:210` de Motoko:
+**Entregable.** Una capa de guardrails de salida:
 
 ```ts
 postGuard(texto, textoBase, contexto) → {
@@ -284,7 +284,7 @@ postGuard(texto, textoBase, contexto) → {
 `bloquea` → devuelve `textoBase` intacto. `limpia` → devuelve el texto saneado.
 
 **🔴 CONSULTAR antes de escribir:**
-- El **número** de líneas máximo (Motoko usa 10; nuestro prompt pide 1-3 frases).
+- El **número** de líneas máximo (nuestro prompt pide 1-3 frases).
 - Si `recita_datos_lead` debe bloquear o solo limpiar cuando el dato es la ciudad —
   `mensajeYaSabemos` la usa a propósito ("busco opciones en Bogotá").
 - El texto de la fila `sistema` que queda en el hilo cuando bloquea.

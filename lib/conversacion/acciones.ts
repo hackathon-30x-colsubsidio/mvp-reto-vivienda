@@ -24,7 +24,7 @@ import type { FichaProyecto } from "@/lib/matching/tipos";
 // es lo que impide que el modelo invente una categoría que el motor no
 // sabe puntuar (rama 4, `/api/interpretar`).
 //
-// Es el patrón de Motoko: el modelo escoge del menú; no escribe el menú.
+// Es el patrón de tool-calling: el modelo escoge del menú; no lo escribe.
 // =====================================================================
 
 /**

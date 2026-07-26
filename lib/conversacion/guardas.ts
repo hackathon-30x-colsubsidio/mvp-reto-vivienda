@@ -10,9 +10,9 @@ import { catalogo } from "@/lib/matching/catalogo";
 // frases dentro de `prompt-maestro.ts` (:79-89 y :156-170) — es decir,
 // como un ruego. Ningún código las hace cumplir.
 //
-// Este módulo las hace cumplir. Es el espejo de
-// `src/agents/sales/guardrails.ts` de Motoko y cierra el patrón que
-// este repo ya tenía a medias: código determinista decide si el agente
+// Este módulo las hace cumplir. Es la capa de guardrails de salida y
+// cierra el patrón que este repo ya tenía a medias: código
+// determinista decide si el agente
 // habla → el LLM propone → **código determinista sanitiza** → sale.
 //
 // ── Función pura, y esta rama no cablea nada ─────────────────────────
