@@ -4,6 +4,18 @@
 >
 > El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
 
+## 🟢 2026-07-26 11:10 — El chat deja de recitarle trámites al lead, pide la ciudad de frente, y el cierre trae el link del proyecto
+
+**885 tests verdes en 46 archivos**, typecheck y lint limpios. **⚠️ Seed regenerado: quien corra el demo contra Supabase tiene que volver a ejecutar `db/seed.sql`**, o la conversación sembrada muestra los textos viejos.
+
+**Tres cosas que cambian lo que se ve en el video:**
+
+1. **El mensaje de cierre ya no le suelta el párrafo de trámites.** Decía *"compites por el cupo del 10% de no afiliados… si aportas el 2%, alrededor del 26 de enero de 2027 cumples los 6 meses continuos"*. Ahora: *"Si te afilias, puedes acceder a los subsidios de vivienda de la caja de compensación."* Una línea, un beneficio. **El asesor no pierde nada**: ese string tenía dos destinos y ahora tiene dos versiones — el detalle sigue completo en su ficha, que es donde el cupo y la fecha sí son información de trabajo.
+2. **La pregunta de la zona pide CIUDAD, explícitamente.** No es estilo, era un defecto: la pregunta *invitaba* a contestar un deseo (*"cerca del colegio, del trabajo, de tu mamá"*) y el filtro del matcher es por ciudad, así que ese texto entraba crudo, no casaba con ninguna y el lead terminaba viendo *"alternativa fuera de tu zona"* **sin haber nombrado una**. Medido: `"Bogotá"` → 3 proyectos; un deseo → **2 y marcados**. Le costaba una recomendación.
+3. **El cierre trae el link para VER el proyecto #1**, en burbuja aparte y sin pasar por el LLM. Cae al recorrido 360 cuando no hay brochure — y eso salva el demo: **LA ARBOLEDA, el #1 de Diana, es uno de los 2 proyectos sin brochure**.
+
+**🔴 Hay un test rojo conocido, y no es un bug del producto.** `selector-banco.test.ts` → *"sin credencial de Gemini no escoge nada"* afirma la **ausencia** de la credencial, así que **en la máquina que corre el demo** (con las variables exportadas) hace una llamada real y falla. Quien corra `npm test` ahí va a ver 1 rojo y no rompió nada. Se arregla forzando el escenario en vez de asumir el entorno.
+
 ## 🟢 2026-07-26 10:15 — LAS 8 RAMAS ESTÁN EN `main`, el banco quedó cableado y el jurado ya puede salir del panel
 
 **861 tests verdes en 45 archivos**, typecheck y lint limpios, cero errores de consola y de servidor, y **el seed sin una línea de diff** (los 3 personajes no se movieron). El plan de arquitectura **no tiene huecos de cableado**; lo que queda abierto es copy y producto.
@@ -16,7 +28,9 @@
 
 **📌 Corrección a lo que se venía diciendo:** los **puntos 4, 5 y 7 del §7** (qué responde Sara a "¿eres un bot?", el copy tras 3 desvíos, y la política de `no_entendido`) **ya estaban cerrados** — Alejo los consultó y los escribió en `maquina.ts`. Se creían abiertos y no lo estaban.
 
-**Lo que sigue abierto, y es de producto:** el **copy de las 4 preguntas del banco y sus chips** (puntos 1, 2 y 3 del §7). Se reescribe entero sin tocar una línea de lógica; lo que está medido, y no es opinión, es *cuáles* dimensiones vale la pena preguntar. Y una decisión de quien cableó, reversible con una línea: **el re-enganche no lleva banco**, porque no tiene las 7 base y alargarlo iría contra lo único que promete.
+**📌 Corregido el 2026-07-26 11:10 — los puntos 1, 2 y 3 del §7 ya están cerrados.** El copy de las 4 preguntas del banco quedó **ratificado, y ratificarlo destapó dos promesas que el motor no cumple**: `espacio` ofrecía *"más amplio aunque quede un poco más afuera"* (y la zona es filtro **estricto**: nunca íbamos a darle algo más lejos a cambio de metros) y `momento` decía *"te busco lo que esté listo para entregar"* (y `matchea` es **false**, con la entrega conocida en solo 7 de 18 proyectos). Hay test que impide que vuelvan. Lo que sigue abierto de producto es lo de abajo.
+
+**Lo que sigue en pie de esta entrada:** una decisión de quien cableó, reversible con una línea — **el re-enganche no lleva banco**, porque no tiene las 7 base y alargarlo iría contra lo único que promete.
 
 ## 🟢 2026-07-26 — Los 6 bugs de interpretación están ARREGLADOS. Quedan 4 ramas: 6, 7, 8 y 5
 
