@@ -935,6 +935,32 @@ movieron: 73 / 24 / 0**, y `db/seed.sql` regenera **sin una línea de diff**. Lo
   **exactamente** como estaba. La razón es estructural: los bonos valen 0 si la persona no contestó
   esa pregunta, y los 3 personajes no contestaron el banco. El video grabado sigue válido.
 
+- **[geografía] 🔴 CIUDADELA MAIPORÉ NO ES BOGOTÁ: SON 5 PROYECTOS EN SOACHA** → **todos** ·
+  arreglado en rama aparte, **decide antes de mergear: cambia el demo**.
+  No era solo VERSALLES. `scripts/generar_sintetica.py` mapeaba `CIUDADELA MAIPORÉ → Bogotá` con el
+  comentario *"un desarrollo real y conocido en Bogotá (Engativá)… inferencia razonable"*. Era
+  razonable y era falsa: **Maiporé queda en Soacha**, y los CINCO brochures oficiales lo dicen con
+  dirección exacta. El de Engativá es el otro, el de la Calle 80 — de ahí la confusión.
+  **VERSALLES, ZARZAL, PAMPLONA, LA MACARENA y MONGUÍ**: 5 de 18 proyectos que se le ofrecían a un
+  bogotano como si quedaran en su ciudad. Corregido **en el generador**, no en el JSON, y ya no es
+  inferencia (`ciudad_inferida: false`, con la dirección en `ubicacion_nota`).
+  ⚠️ **CONSECUENCIA EN EL DEMO:** a Diana le cambian los proyectos, de
+  `LA ARBOLEDA, MONGUI, VERSALLES` a `LA ARBOLEDA, KARAKALI, VIBO ONCE`. Su puntaje (73) y su salida
+  no se mueven. Es lo correcto —pidió Bogotá y dos de los tres estaban en Soacha— pero **el video
+  grabado muestra los nombres viejos**.
+- **[geografía] `data/sintetica/` estaba VIEJO respecto a su propio generador** → **todos** ·
+  arreglado de paso. Al regenerar salió un segundo cambio que nadie causó hoy: `rango_edad` pasó de
+  `"20 a 35 años"` a `"20 - 35 años"` y las dos variantes se fusionaron (1140 + 541 = **1681**). O
+  sea que `clean_excel.py` **ya unificaba los dos formatos** —la trampa que `AGENTS.md` documenta— y
+  los JSON versionados eran de antes de ese arreglo. Es exactamente el pecado del espejo copiado a
+  mano, esta vez en la otra dirección: el generador se arregló y el archivo se quedó. Los 774 tests
+  pasan con la data al día.
+- **[geografía] La sonda ahora muestrea Soacha** → **todos** · hecho. Sin eso quedaba ciega a 5 de
+  los 18 proyectos y exageraba la concentración. La malla pasó de 1.200 a **1.440** perfiles (6
+  zonas), así que **las cifras anteriores al 2026-07-26 se comparan entre ellas, no contra estas.**
+  Con la geografía correcta el reparto mejora solo: líder 31,9% (era 35,3%), los 3 primeros 54,2%
+  (era 61,9%), y **13 de 18 proyectos llegan a ser #1** (eran 12).
+
 ---
 
 ## 9 · Protocolo de sincronización

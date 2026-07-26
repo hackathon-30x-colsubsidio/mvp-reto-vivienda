@@ -84,7 +84,7 @@
     {
       "proyecto_id": "la-macarena",
       "proyecto": "LA MACARENA",
-      "ciudad": "Bogotá",
+      "ciudad": "Soacha",
       "sala_ventas": "Sala de ventas LA MACARENA",
       "franjas": [
         "2026-07-27T11:00:00-05:00",
@@ -106,7 +106,7 @@
     {
       "proyecto_id": "mongui",
       "proyecto": "MONGUI",
-      "ciudad": "Bogotá",
+      "ciudad": "Soacha",
       "sala_ventas": "Sala de ventas MONGUI",
       "franjas": [
         "2026-07-27T09:00:00-05:00",
@@ -117,7 +117,7 @@
     {
       "proyecto_id": "pamplona",
       "proyecto": "PAMPLONA",
-      "ciudad": "Bogotá",
+      "ciudad": "Soacha",
       "sala_ventas": "Sala de ventas PAMPLONA",
       "franjas": [
         "2026-07-27T11:00:00-05:00",
@@ -172,7 +172,7 @@
     {
       "proyecto_id": "versalles",
       "proyecto": "VERSALLES",
-      "ciudad": "Bogotá",
+      "ciudad": "Soacha",
       "sala_ventas": "Sala de ventas VERSALLES",
       "franjas": [
         "2026-07-27T09:00:00-05:00",
@@ -194,7 +194,7 @@
     {
       "proyecto_id": "zarzal",
       "proyecto": "ZARZAL",
-      "ciudad": "Bogotá",
+      "ciudad": "Soacha",
       "sala_ventas": "Sala de ventas ZARZAL",
       "franjas": [
         "2026-07-27T15:00:00-05:00",

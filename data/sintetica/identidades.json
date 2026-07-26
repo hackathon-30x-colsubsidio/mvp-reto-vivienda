@@ -40,7 +40,7 @@
     "ciudad": "Bogotá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -51,7 +51,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -59,10 +59,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -70,7 +70,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
     "rango_edad": "20 - 35 años",
@@ -81,10 +81,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -95,7 +95,7 @@
     "ciudad": "Girardot",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -106,7 +106,7 @@
     "ciudad": "Chía",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -117,7 +117,7 @@
     "ciudad": "Ubaté",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -139,7 +139,7 @@
     "ciudad": "Ricaurte",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -150,7 +150,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -161,7 +161,7 @@
     "ciudad": "Tocancipá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -169,10 +169,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -180,10 +180,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -191,10 +191,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "46 - 55 años",
+    "rango_edad": "Mayor de 55 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -202,10 +202,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -216,7 +216,7 @@
     "ciudad": "Bogotá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -238,7 +238,7 @@
     "ciudad": "Bogotá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "Mayor de 55 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -249,7 +249,7 @@
     "ciudad": "Bogotá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -271,7 +271,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -279,7 +279,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "Menor de 19 años",
@@ -290,10 +290,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -301,10 +301,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -315,7 +315,7 @@
     "ciudad": "Bogotá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -326,7 +326,7 @@
     "ciudad": "Chía",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -334,7 +334,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -345,10 +345,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -359,7 +359,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -367,10 +367,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Ubaté",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -400,10 +400,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -422,10 +422,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -433,10 +433,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -447,7 +447,7 @@
     "ciudad": "Bogotá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -455,10 +455,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -469,7 +469,7 @@
     "ciudad": "Ubaté",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -480,7 +480,7 @@
     "ciudad": "Girardot",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -488,10 +488,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -502,7 +502,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -532,10 +532,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -554,10 +554,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -565,7 +565,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -576,10 +576,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría C (mayores ingresos, >4 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "más de 4 SMLV"
   },
   {
@@ -590,7 +590,7 @@
     "ciudad": "Bogotá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "46 - 55 años",
+    "rango_edad": "Mayor de 55 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -598,10 +598,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -612,7 +612,7 @@
     "ciudad": "Ubaté",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -620,10 +620,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -634,7 +634,7 @@
     "ciudad": "Tocancipá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -642,10 +642,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -653,10 +653,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -667,7 +667,7 @@
     "ciudad": "Bogotá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -700,7 +700,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -708,10 +708,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría C (mayores ingresos, >4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "más de 4 SMLV"
   },
   {
@@ -722,7 +722,7 @@
     "ciudad": "Bogotá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -741,10 +741,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -755,7 +755,7 @@
     "ciudad": "Bogotá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "Mayor de 55 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -766,7 +766,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -774,7 +774,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -788,7 +788,7 @@
     "ciudad": "Bogotá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "Mayor de 55 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -799,7 +799,7 @@
     "ciudad": "Ricaurte",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -810,7 +810,7 @@
     "ciudad": "Ubaté",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "Mayor de 55 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -821,7 +821,7 @@
     "ciudad": "Bogotá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -832,7 +832,7 @@
     "ciudad": "Ubaté",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -843,7 +843,7 @@
     "ciudad": "Ubaté",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría C (mayores ingresos, >4 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "más de 4 SMLV"
   },
   {
@@ -854,7 +854,7 @@
     "ciudad": "Ricaurte",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -865,7 +865,7 @@
     "ciudad": "Girardot",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -876,7 +876,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -887,7 +887,7 @@
     "ciudad": "Bogotá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -898,7 +898,7 @@
     "ciudad": "Chía",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -906,7 +906,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -917,10 +917,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "46 - 55 años",
+    "rango_edad": "Mayor de 55 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -928,10 +928,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -939,10 +939,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -950,10 +950,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -961,10 +961,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -972,10 +972,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -986,7 +986,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -994,7 +994,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -1038,10 +1038,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1052,7 +1052,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1060,10 +1060,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1071,10 +1071,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Chía",
+    "ciudad": "Bogotá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1085,7 +1085,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1093,7 +1093,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
     "rango_edad": "20 - 35 años",
@@ -1104,10 +1104,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1118,7 +1118,7 @@
     "ciudad": "Girardot",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1126,10 +1126,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1140,7 +1140,7 @@
     "ciudad": "Girardot",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1159,7 +1159,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -1173,7 +1173,7 @@
     "ciudad": "Bogotá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1181,10 +1181,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1195,7 +1195,7 @@
     "ciudad": "Bogotá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1203,10 +1203,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1214,7 +1214,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
     "rango_edad": "20 - 35 años",
@@ -1228,7 +1228,7 @@
     "ciudad": "Chía",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1239,7 +1239,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1258,10 +1258,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1283,7 +1283,7 @@
     "ciudad": "Bogotá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1294,7 +1294,7 @@
     "ciudad": "Bogotá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1316,7 +1316,7 @@
     "ciudad": "Bogotá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1327,7 +1327,7 @@
     "ciudad": "Ricaurte",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -1335,7 +1335,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
     "rango_edad": "Menor de 19 años",
@@ -1346,10 +1346,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1360,7 +1360,7 @@
     "ciudad": "Chía",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1368,10 +1368,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1379,10 +1379,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1393,7 +1393,7 @@
     "ciudad": "Ricaurte",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "46 - 55 años",
+    "rango_edad": "Mayor de 55 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1404,7 +1404,7 @@
     "ciudad": "Bogotá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1412,10 +1412,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1423,10 +1423,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1437,7 +1437,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría C (mayores ingresos, >4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "más de 4 SMLV"
   },
   {
@@ -1445,10 +1445,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1459,7 +1459,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría C (mayores ingresos, >4 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "más de 4 SMLV"
   },
   {
@@ -1467,10 +1467,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1478,10 +1478,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1492,7 +1492,7 @@
     "ciudad": "Ubaté",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1503,7 +1503,7 @@
     "ciudad": "Ubaté",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1511,10 +1511,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1525,7 +1525,7 @@
     "ciudad": "Chía",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1536,7 +1536,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1547,7 +1547,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1555,10 +1555,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1566,10 +1566,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1580,7 +1580,7 @@
     "ciudad": "Bogotá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1588,10 +1588,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1613,7 +1613,7 @@
     "ciudad": "Chía",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1621,10 +1621,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1635,7 +1635,7 @@
     "ciudad": "Chía",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1646,7 +1646,7 @@
     "ciudad": "Bogotá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría C (mayores ingresos, >4 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "más de 4 SMLV"
   },
   {
@@ -1665,10 +1665,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1687,10 +1687,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1698,10 +1698,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -1712,7 +1712,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1720,7 +1720,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
     "rango_edad": "20 - 35 años",
@@ -1734,7 +1734,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría C (mayores ingresos, >4 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "más de 4 SMLV"
   },
   {
@@ -1745,7 +1745,7 @@
     "ciudad": "Ricaurte",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -1756,7 +1756,7 @@
     "ciudad": "Chía",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1764,10 +1764,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1778,7 +1778,7 @@
     "ciudad": "Bogotá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1786,7 +1786,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -1800,7 +1800,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -1811,7 +1811,7 @@
     "ciudad": "Ricaurte",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1819,7 +1819,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -1844,7 +1844,7 @@
     "ciudad": "Bogotá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1852,10 +1852,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría C (mayores ingresos, >4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "más de 4 SMLV"
   },
   {
@@ -1877,7 +1877,7 @@
     "ciudad": "Ubaté",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1888,7 +1888,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1907,10 +1907,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1918,10 +1918,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1929,10 +1929,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1951,10 +1951,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -1995,10 +1995,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 - 55 años",
+    "rango_edad": "Mayor de 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2006,7 +2006,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
     "rango_edad": "20 - 35 años",
@@ -2017,10 +2017,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -2028,10 +2028,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -2050,10 +2050,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2061,10 +2061,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2072,10 +2072,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2083,10 +2083,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2094,7 +2094,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -2116,10 +2116,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2127,10 +2127,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2141,7 +2141,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -2152,7 +2152,7 @@
     "ciudad": "Ricaurte",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -2171,10 +2171,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2182,10 +2182,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -2193,10 +2193,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2207,7 +2207,7 @@
     "ciudad": "Chía",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2218,7 +2218,7 @@
     "ciudad": "Ubaté",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2229,7 +2229,7 @@
     "ciudad": "Bogotá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2237,10 +2237,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2248,10 +2248,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2259,7 +2259,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
     "rango_edad": "20 - 35 años",
@@ -2270,10 +2270,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2284,7 +2284,7 @@
     "ciudad": "Bogotá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría C (mayores ingresos, >4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "más de 4 SMLV"
   },
   {
@@ -2292,10 +2292,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2306,7 +2306,7 @@
     "ciudad": "Ubaté",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2314,10 +2314,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2328,7 +2328,7 @@
     "ciudad": "Ricaurte",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2336,10 +2336,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2358,10 +2358,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -2372,7 +2372,7 @@
     "ciudad": "Bogotá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2380,10 +2380,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2394,7 +2394,7 @@
     "ciudad": "Ubaté",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 - 55 años",
+    "rango_edad": "Mayor de 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2402,7 +2402,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -2413,10 +2413,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2427,7 +2427,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2438,7 +2438,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2460,7 +2460,7 @@
     "ciudad": "Bogotá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2468,7 +2468,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -2490,7 +2490,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -2512,10 +2512,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2526,7 +2526,7 @@
     "ciudad": "Bogotá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2537,7 +2537,7 @@
     "ciudad": "Girardot",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2545,10 +2545,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2559,7 +2559,7 @@
     "ciudad": "Chía",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2570,7 +2570,7 @@
     "ciudad": "Ubaté",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2581,7 +2581,7 @@
     "ciudad": "Chía",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2592,7 +2592,7 @@
     "ciudad": "Bogotá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2614,7 +2614,7 @@
     "ciudad": "Bogotá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2622,10 +2622,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Ubaté",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2644,10 +2644,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2655,10 +2655,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2666,7 +2666,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "Menor de 19 años",
@@ -2680,7 +2680,7 @@
     "ciudad": "Bogotá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2688,10 +2688,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2710,10 +2710,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2724,7 +2724,7 @@
     "ciudad": "Chía",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -2735,7 +2735,7 @@
     "ciudad": "Tocancipá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2743,10 +2743,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2754,10 +2754,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2768,7 +2768,7 @@
     "ciudad": "Ubaté",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2776,10 +2776,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2790,7 +2790,7 @@
     "ciudad": "Ubaté",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2798,10 +2798,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 - 55 años",
+    "rango_edad": "Mayor de 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2809,7 +2809,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "Mayor de 55 años",
@@ -2823,7 +2823,7 @@
     "ciudad": "Bogotá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2842,10 +2842,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2856,7 +2856,7 @@
     "ciudad": "Chía",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2867,7 +2867,7 @@
     "ciudad": "Girardot",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2875,10 +2875,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2886,10 +2886,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2900,7 +2900,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2908,10 +2908,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2922,7 +2922,7 @@
     "ciudad": "Bogotá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2933,7 +2933,7 @@
     "ciudad": "Bogotá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2944,7 +2944,7 @@
     "ciudad": "Ricaurte",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2952,10 +2952,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2966,7 +2966,7 @@
     "ciudad": "Ubaté",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2977,7 +2977,7 @@
     "ciudad": "Ubaté",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -2985,10 +2985,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -2999,7 +2999,7 @@
     "ciudad": "Bogotá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -3010,7 +3010,7 @@
     "ciudad": "Ricaurte",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -3018,7 +3018,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
     "rango_edad": "20 - 35 años",
@@ -3032,7 +3032,7 @@
     "ciudad": "Bogotá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3043,7 +3043,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3054,7 +3054,7 @@
     "ciudad": "Ricaurte",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3062,10 +3062,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -3076,7 +3076,7 @@
     "ciudad": "Chía",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3087,7 +3087,7 @@
     "ciudad": "Bogotá",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -3098,7 +3098,7 @@
     "ciudad": "Ubaté",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3120,7 +3120,7 @@
     "ciudad": "Bogotá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3142,7 +3142,7 @@
     "ciudad": "Girardot",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -3153,7 +3153,7 @@
     "ciudad": "Bogotá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3164,7 +3164,7 @@
     "ciudad": "Ubaté",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -3172,7 +3172,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -3183,10 +3183,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3197,7 +3197,7 @@
     "ciudad": "Bogotá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3208,7 +3208,7 @@
     "ciudad": "Tocancipá",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 a 45 años",
+    "rango_edad": "36 - 45 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -3216,10 +3216,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3227,10 +3227,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "46 - 55 años",
+    "rango_edad": "Mayor de 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3238,10 +3238,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3252,7 +3252,7 @@
     "ciudad": "Girardot",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3260,7 +3260,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Adultos maduros / familias consolidadas [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "20 - 35 años",
@@ -3271,7 +3271,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
     "rango_edad": "Mayor de 55 años",
@@ -3282,10 +3282,10 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": true,
-    "ciudad": "Chía",
+    "ciudad": "Bogotá",
     "segmento": "Familias con personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3296,7 +3296,7 @@
     "ciudad": "Girardot",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
-    "rango_edad": "36 - 45 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "no disponible (no afiliado)"
   },
   {
@@ -3307,7 +3307,7 @@
     "ciudad": "Tocancipá",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría A (menores ingresos, <2 SMLV) [inferido]",
-    "rango_edad": "20 a 35 años",
+    "rango_edad": "20 - 35 años",
     "rango_ingreso": "menos de 2 SMLV"
   },
   {
@@ -3318,7 +3318,7 @@
     "ciudad": "Chía",
     "segmento": "Jóvenes solteros, sin personas a cargo [inferido]",
     "categoria": "Categoría B (ingresos medios, 2-4 SMLV) [inferido]",
-    "rango_edad": "46 a 55 años",
+    "rango_edad": "46 - 55 años",
     "rango_ingreso": "2 a 4 SMLV"
   },
   {
@@ -3326,7 +3326,7 @@
     "nombre_demo": null,
     "personaje_demo": null,
     "afiliado": false,
-    "ciudad": "Bogotá",
+    "ciudad": "Soacha",
     "segmento": "No afiliado / sin segmentar",
     "categoria": "No afiliado / sin categoría",
     "rango_edad": "20 - 35 años",

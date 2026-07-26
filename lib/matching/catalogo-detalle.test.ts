@@ -112,10 +112,24 @@ describe("los bonos ORDENAN, nunca descartan", () => {
   });
 
   it("el banco SÍ cambia el orden: para eso existe", () => {
+    // Sin zona declarada compite el catálogo entero, así que la prueba mide el
+    // bono y no el tamaño del bolsillo de candidatos de una ciudad. Con zona,
+    // el pool puede quedar en 3 proyectos y ningún bono alcanza a moverlo —
+    // que es correcto, pero no es lo que este test quiere afirmar.
+    const sinZona = (respuestas: Partial<Lead["respuestas"]> = {}) =>
+      matchear({
+        lead: {
+          ...BASE,
+          perfil: { ...BASE.perfil, ciudad: undefined },
+          respuestas: { ...BASE.respuestas, zona_interes: undefined, ...respuestas },
+        },
+        score: SCORE,
+        catalogo,
+        precio_maximo: 400_000_000,
+      }).map((p) => p.ficha.nombre);
+
     // Amenidad que solo 4 de 18 tienen — es la que más separa el catálogo.
-    const sinPedir = correr().map((p) => p.ficha.nombre);
-    const pidiendo = correr({ amenidades_interes: ["mascotas"] }).map((p) => p.ficha.nombre);
-    expect(pidiendo).not.toEqual(sinPedir);
+    expect(sinZona({ amenidades_interes: ["mascotas"] })).not.toEqual(sinZona());
   });
 });
 

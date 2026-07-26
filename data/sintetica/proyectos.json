@@ -57,7 +57,7 @@
     "ciudad_inferida": false,
     "zona": null,
     "precio_desde": 231100000,
-    "vis": false,
+    "vis": true,
     "cupo_no_afiliados": {
       "usado": 39,
       "total": 18
@@ -91,7 +91,7 @@
     "ciudad_inferida": false,
     "zona": "Chapinero",
     "precio_desde": 245126700,
-    "vis": false,
+    "vis": true,
     "cupo_no_afiliados": {
       "usado": 31,
       "total": 11
@@ -121,9 +121,9 @@
   {
     "proyecto_id": "la-macarena",
     "nombre": "LA MACARENA",
-    "ciudad": "Bogotá",
-    "ciudad_inferida": true,
-    "zona": "Ciudadela Maiporé",
+    "ciudad": "Soacha",
+    "ciudad_inferida": false,
+    "zona": "Ciudadela Colsubsidio Maiporé",
     "precio_desde": 149702400,
     "vis": true,
     "cupo_no_afiliados": {
@@ -133,7 +133,7 @@
     "brochure": "https://heyzine.com/flip-book/b168b2f5ba.html",
     "recorrido_360": null,
     "ubicacion_incierta": false,
-    "ubicacion_nota": null
+    "ubicacion_nota": "Ciudadela Colsubsidio Maiporé queda en Soacha, no en Bogotá (brochure oficial: Carrera 1 # 31A sur - 72). Antes se infería Bogotá por confusión con la Ciudadela de la Calle 80, que sí es Engativá."
   },
   {
     "proyecto_id": "los-nogales",
@@ -155,9 +155,9 @@
   {
     "proyecto_id": "mongui",
     "nombre": "MONGUI",
-    "ciudad": "Bogotá",
-    "ciudad_inferida": true,
-    "zona": "Ciudadela Maiporé",
+    "ciudad": "Soacha",
+    "ciudad_inferida": false,
+    "zona": "Ciudadela Colsubsidio Maiporé",
     "precio_desde": 179361000,
     "vis": true,
     "cupo_no_afiliados": {
@@ -167,16 +167,16 @@
     "brochure": "https://heyzine.com/flip-book/866af8f6a6.html",
     "recorrido_360": "https://storage.net-fs.com/hosting/7532170/19/",
     "ubicacion_incierta": false,
-    "ubicacion_nota": null
+    "ubicacion_nota": "Ciudadela Colsubsidio Maiporé queda en Soacha, no en Bogotá (brochure oficial: Calle 31 sur # 0-143 Este). Antes se infería Bogotá por confusión con la Ciudadela de la Calle 80, que sí es Engativá."
   },
   {
     "proyecto_id": "pamplona",
     "nombre": "PAMPLONA",
-    "ciudad": "Bogotá",
-    "ciudad_inferida": true,
-    "zona": "Ciudadela Maiporé",
+    "ciudad": "Soacha",
+    "ciudad_inferida": false,
+    "zona": "Ciudadela Colsubsidio Maiporé",
     "precio_desde": 221700000,
-    "vis": false,
+    "vis": true,
     "cupo_no_afiliados": {
       "usado": 54,
       "total": 23
@@ -184,7 +184,7 @@
     "brochure": "https://heyzine.com/flip-book/c159d5d733.html",
     "recorrido_360": "https://storage.net-fs.com/hosting/7532170/18/",
     "ubicacion_incierta": false,
-    "ubicacion_nota": null
+    "ubicacion_nota": "Ciudadela Colsubsidio Maiporé queda en Soacha, no en Bogotá (brochure oficial: Carrera 2 # 30A-89 sur). Antes se infería Bogotá por confusión con la Ciudadela de la Calle 80, que sí es Engativá."
   },
   {
     "proyecto_id": "payande",
@@ -210,7 +210,7 @@
     "ciudad_inferida": false,
     "zona": null,
     "precio_desde": 236000000,
-    "vis": false,
+    "vis": true,
     "cupo_no_afiliados": {
       "usado": 33,
       "total": 14
@@ -227,7 +227,7 @@
     "ciudad_inferida": false,
     "zona": null,
     "precio_desde": 255000000,
-    "vis": false,
+    "vis": true,
     "cupo_no_afiliados": {
       "usado": 21,
       "total": 13
@@ -257,9 +257,9 @@
   {
     "proyecto_id": "versalles",
     "nombre": "VERSALLES",
-    "ciudad": "Bogotá",
-    "ciudad_inferida": true,
-    "zona": "Ciudadela Maiporé",
+    "ciudad": "Soacha",
+    "ciudad_inferida": false,
+    "zona": "Ciudadela Colsubsidio Maiporé",
     "precio_desde": 211000000,
     "vis": true,
     "cupo_no_afiliados": {
@@ -269,7 +269,7 @@
     "brochure": "https://heyzine.com/flip-book/be784b0d5c.html",
     "recorrido_360": "https://shape.com.co/360/COLSUBSIDIO-Versalles_APTOA\nhttps://shape.com.co/360/COLSUBSIDIO-Versalles_APTOB\nhttps://shape.com.co/360/COLSUBSIDIO-Versalles_APTOC\nhttps://shape.com.co/360/COLSUBSIDIO-Versalles_AMENIDADES",
     "ubicacion_incierta": false,
-    "ubicacion_nota": null
+    "ubicacion_nota": "Ciudadela Colsubsidio Maiporé queda en Soacha, no en Bogotá (brochure oficial: Calle 30A Sur No. 2-125). Antes se infería Bogotá por confusión con la Ciudadela de la Calle 80, que sí es Engativá."
   },
   {
     "proyecto_id": "vibo-once",
@@ -291,11 +291,11 @@
   {
     "proyecto_id": "zarzal",
     "nombre": "ZARZAL",
-    "ciudad": "Bogotá",
-    "ciudad_inferida": true,
-    "zona": "Ciudadela Maiporé",
+    "ciudad": "Soacha",
+    "ciudad_inferida": false,
+    "zona": "Ciudadela Colsubsidio Maiporé",
     "precio_desde": 226700000,
-    "vis": false,
+    "vis": true,
     "cupo_no_afiliados": {
       "usado": 2,
       "total": 1
@@ -303,6 +303,6 @@
     "brochure": "https://heyzine.com/flip-book/56764c1e33.html",
     "recorrido_360": "https://zarzal.shape.com.co​",
     "ubicacion_incierta": false,
-    "ubicacion_nota": null
+    "ubicacion_nota": "Ciudadela Colsubsidio Maiporé queda en Soacha, no en Bogotá (brochure oficial: Calle 30 Sur n.° 2-201). Antes se infería Bogotá por confusión con la Ciudadela de la Calle 80, que sí es Engativá."
   }
 ]

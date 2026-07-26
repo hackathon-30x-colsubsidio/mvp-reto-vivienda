@@ -54,9 +54,29 @@ def slugify(nombre: str) -> str:
 # Ubicaciones del Excel no distinguen ciudad de zona/sector. Estos 18 proyectos
 # son pocos y conocidos, así que se resuelve a mano en vez de adivinar con reglas:
 # - Municipios reales (Chía, Tocancipá, Girardot, Ricaurte, Ubaté, Bogotá) -> ciudad.
-# - "CIUDADELA MAIPORÉ" / "CIUDADELA CALLE 80" -> son sectores de Ciudadela
-#   Colsubsidio, un desarrollo real y conocido en Bogotá (Engativá). Es una
-#   INFERENCIA razonable (no viene explícito en el Excel), marcada como tal.
+# - "CIUDADELA CALLE 80" -> sector de Ciudadela Colsubsidio en Engativá, Bogotá.
+#   Sigue siendo una INFERENCIA (no viene explícita en el Excel), marcada como tal.
+#
+# ⚠️ CORREGIDO 2026-07-26 — "CIUDADELA MAIPORÉ" NO es Bogotá, es SOACHA.
+#
+# Este archivo decía que Maiporé era "un desarrollo real y conocido en Bogotá
+# (Engativá)" y lo marcaba como inferencia razonable. Era razonable y era falsa:
+# Ciudadela Colsubsidio Maiporé queda en Soacha, y los CINCO brochures oficiales
+# lo dicen con dirección exacta (todas en el sur, ver abajo). El de Engativá es
+# el otro, el de la Calle 80, y de ahí venía la confusión.
+#
+# No es un detalle de ficha: la ciudad gobierna el filtro de zona del matcher, o
+# sea a quién se le recomienda qué. Con la inferencia vieja, **5 de los 18
+# proyectos** se le ofrecían a un bogotano como si quedaran en su ciudad.
+# Ya no es inferencia: hay dirección, así que `ciudad_inferida` queda en False.
+UBICACION_MAIPORE = {
+    "VERSALLES": "Calle 30A Sur No. 2-125",
+    "ZARZAL": "Calle 30 Sur n.° 2-201",
+    "PAMPLONA": "Carrera 2 # 30A-89 sur",
+    "LA MACARENA": "Carrera 1 # 31A sur - 72",
+    "MONGUI": "Calle 31 sur # 0-143 Este",
+}
+
 CIUDAD_POR_UBICACION = {
     "CHÍA": ("Chía", None),
     "TOCANCIPÁ": ("Tocancipá", None),
@@ -64,7 +84,7 @@ CIUDAD_POR_UBICACION = {
     "RICAURTE": ("Ricaurte", None),
     "UBATE": ("Ubaté", None),
     "BOGOTÁ": ("Bogotá", None),
-    "CIUDADELA MAIPORÉ": ("Bogotá", "Ciudadela Maiporé"),  # inferido
+    "CIUDADELA MAIPORÉ": ("Soacha", "Ciudadela Colsubsidio Maiporé"),  # brochure, con dirección
     "CIUDADELA CALLE 80": ("Bogotá", "Ciudadela Calle 80"),  # inferido
 }
 
@@ -102,6 +122,18 @@ def resolver_ciudad_zona(nombre, ubicacion, incierta: bool) -> tuple[str, str | 
         )
     if ubicacion in CIUDAD_POR_UBICACION:
         ciudad, zona = CIUDAD_POR_UBICACION[ubicacion]
+        direccion = UBICACION_MAIPORE.get(str(nombre).strip().upper())
+        if direccion:
+            # Con dirección del brochure deja de ser inferencia.
+            return (
+                ciudad,
+                zona,
+                False,
+                f"Ciudadela Colsubsidio Maiporé queda en Soacha, no en Bogotá "
+                f"(brochure oficial: {direccion}). Antes se infería Bogotá por "
+                f"confusión con la Ciudadela de la Calle 80, que sí es Engativá.",
+            )
+        # Calle 80 sigue siendo inferencia: el Excel no dice la ciudad.
         return ciudad, zona, ciudad in ("Bogotá",) and ubicacion.startswith("CIUDADELA"), None
     return f"Sin confirmar (Excel dice: {ubicacion})", None, True, None
 

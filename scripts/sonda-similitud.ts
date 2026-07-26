@@ -17,8 +17,8 @@
 //
 // ── La malla ─────────────────────────────────────────────────────────
 //
-// 5 ingresos × 5 zonas × 4 composiciones × 3 edades × afiliado × subsidio,
-// exactamente los 1.200 del plan. No pretende ser la distribución real de la
+// 5 ingresos × 6 zonas × 4 composiciones × 3 edades × afiliado × subsidio.
+// Eran los 1.200 del plan con 5 zonas; con Soacha son 1.440. No pretende ser la distribución real de la
 // demanda —es un barrido uniforme— y por eso el número que importa es el
 // CONTRASTE antes/después, no la cifra absoluta.
 
@@ -41,7 +41,12 @@ const SIN_DATOS = new Set(
 );
 
 const INGRESOS = [1_500_000, 2_500_000, 4_000_000, 6_000_000, 9_000_000];
-const ZONAS = ["Bogotá", "Tocancipá", "Chía", "Ricaurte", "Girardot"];
+// Las 6 ciudades con proyecto. **Soacha entró el 2026-07-26**, cuando se
+// corrigió que Ciudadela Maiporé no es Bogotá: son 5 de los 18 proyectos, y una
+// sonda que no la muestree deja de representar al catálogo. La malla pasó de
+// 1.200 a 1.440 perfiles, así que las cifras de antes de esa fecha se comparan
+// entre ellas, no contra estas.
+const ZONAS = ["Bogotá", "Soacha", "Tocancipá", "Chía", "Ricaurte", "Girardot"];
 const COMPOSICIONES = [
   "solo",
   "pareja",
