@@ -486,6 +486,68 @@ Formato: `- [rama] hallazgo → para quién · estado`. Se agrega abajo; no se r
   "$4.500.000". Reescribir una cifra como la escribiría un humano no es inventarla, y bloquear eso
   apagaba la capa de IA sin que nadie lo notara.)
 
+### 2026-07-26 · rama 1 (escenarios) — 7 hallazgos, ninguno arreglado aquí
+
+La red congeló el comportamiento actual y en el camino destapó esto. **Ninguno se tocó**: cada uno
+lleva su test `⚠️ BUG CONGELADO` en `lib/conversacion/escenarios/`, así que el día que su dueño lo
+arregle, el test falla — y esa falla es la señal de que se arregló, no un problema.
+
+**Para P2 (rama 2 · intérpretes).** Los cinco salen de `preguntas.ts` y los cinco cambian lo que
+llega al motor:
+
+- **`interpretarVivienda` INVENTA "primera vivienda".** `"pues no sé"`, `"no sé todavía"` y
+  `"no estoy seguro"` → `tiene_vivienda: false`. Causa: `NIEGA` atrapa el "no" de "no sé". No es
+  pérdida de dato como el hueco 2 — es una **afirmación falsa**, y `tiene_vivienda: false` habilita
+  los subsidios que solo aplican a primera vivienda. Es el peor de los siete. · ⬜ abierto
+- **`interpretarEdad` clasifica mal los 36–39 escritos en letras.** `"treinta y ocho"` → `20_35`
+  (debería ser `36_45`). Causa: la rama `^treinta\b` se evalúa **antes** que
+  `treinta y (seis|siete|ocho|nueve)`, así que gana siempre. La edad alimenta la similitud, o sea
+  que el error llega hasta qué proyecto se recomienda. · ⬜ abierto
+- **`interpretarCrediticia` no normaliza tildes.** `"ya salí de un reporte"` → `mala`;
+  `"ya sali de un reporte"` → `regular`. El regex `/sali|.../` no atrapa `salí`, y entonces cae
+  hasta la rama de mora porque "reporte" contiene "report". **Quien escribe bien su español queda
+  calificado peor.** `interpretarZona` sí usa `sinTildes` — unificar eso es exactamente el trabajo
+  de la rama 2. · ⬜ abierto
+- **Dos chips no valen lo mismo escritos que tocados**, contra la regla de spec 02 D4 y el
+  comentario de `preguntas.ts:407`:
+  - `"Más de 45"` escrito → `36_45`; el chip → `46_mas`. (`numerosDe` saca el 45 y `45 <= 45`.)
+  - `"El de mi caja de compensación"` escrito → guarda la frase cruda; el chip → la etiqueta
+    canónica `"Subsidio caja de compensación"`. Mismo patrón con `"mi casa ya"`.
+
+  Hay un test nuevo que recorre **todos** los chips de **todos** los pasos y compara chip contra
+  texto, con estos dos en una lista de excepciones nombrada. Al arreglarlos hay que sacarlos de esa
+  lista o el test falla. · ⬜ abierto
+- **Los intérpretes no fallan igual entre sí.** Ante algo que no entienden, `composicion_familiar`
+  y `rango_edad` devuelven `{}` (pierden el dato), pero `situacion_crediticia` devuelve
+  `sin_info` — que en la ficha se lee como "nunca ha pedido crédito". O sea que `"jajaja"` queda
+  registrado como un hecho sobre su vida financiera. Cuando la rama 2 defina `no_entendido`, este
+  caso tiene que entrar ahí y **no** seguir afirmando. · ⬜ abierto
+
+**Para P5 (rama 8 · catálogo).**
+
+- **Dos `recorrido_360` del catálogo están rotos**, y son dos problemas distintos:
+  - `ZARZAL` termina en un `U+200B` (espacio de ancho cero) pegado a la URL.
+  - `VERSALLES` **no trae una URL sino cuatro**, metidas en el mismo string y separadas por saltos
+    de línea (`APTOA`, `APTOB`, `APTOC`, `AMENIDADES`). El `href` se las lleva concatenadas.
+
+  Los dos se ven bien a simple vista en el JSON. Importa más de lo que parece: **ZARZAL es el
+  proyecto del 55% de las citas**, así que es el enlace que el jurado tiene más probabilidad de
+  cliquear desde la ficha. El de VERSALLES además plantea una decisión de producto —¿se muestran
+  los cuatro recorridos, o solo uno?— que es de P3/P5, no mía. · ⬜ abierto
+
+**Para P1 (rama 5 · máquina) — deuda que yo mismo dejé.**
+
+- `escenarios/replay.ts` **reimplementa** la decisión de avanzar-o-no que hoy vive en
+  `ChatWhatsApp.enviarTexto`. Es una segunda fuente, o sea el hueco 3 otra vez, y es deliberado
+  pero temporal: mientras la lógica viva dentro del componente, la red no tiene contra qué correr.
+  **Cuando exista el reducer, `replayEscenario` pasa a llamarlo y ese bloque se borra.** Está dicho
+  también en el encabezado del archivo. · ⬜ abierto
+
+**Dato para el punto 4 de la lista de consulta:** hoy, a `"¿eres un bot?"`, `detectarDesvio` sí lo
+atrapa (duda `general`) pero la respuesta determinista es *"esa no te la puedo confirmar por aquí
+sin inventarte nada"*. O sea que **Sara hoy no sabe decir que es una IA** — dice que no puede
+confirmarlo, que suena a evasiva justo en la pregunta donde la honestidad importa.
+
 ---
 
 ## 9 · Protocolo de sincronización
