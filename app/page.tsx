@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import type {
   Lead,
   LeadCurado,
@@ -52,8 +52,21 @@ async function curarLead(
 function Inicio() {
   const [conversacion, setConversacion] = useState<Conversacion | null>(null);
   const parametros = useSearchParams();
+  const router = useRouter();
   const leadIdReenganche = parametros.get("lead_id");
   const esReenganche = parametros.get("reenganche") === "1";
+
+  /**
+   * El lead cuya conversación el jurado ya cerró a mano.
+   *
+   * Sin esto, "Volver al inicio" no vuelve al inicio cuando se llegó por
+   * `/?lead_id=X&reenganche=1`: `setConversacion(null)` re-dispara el efecto de
+   * abajo —`conversacion` está en sus dependencias— y la conversación se monta
+   * de nuevo. Limpiar la URL es necesario pero no basta, porque la navegación
+   * del router no ha cerrado cuando el estado ya cambió: el efecto alcanza a
+   * leer el `lead_id` viejo. El ref decide sin depender de ese orden.
+   */
+  const abandonado = useRef<string | null>(null);
 
   /**
    * Criterio de aceptación 3, la mitad que faltaba (ticket 007).
@@ -66,6 +79,7 @@ function Inicio() {
    */
   useEffect(() => {
     if (!leadIdReenganche || conversacion) return;
+    if (abandonado.current === leadIdReenganche) return;
 
     let cancelado = false;
     void (async () => {
@@ -117,7 +131,11 @@ function Inicio() {
       evento={conversacion.evento}
       perfil={conversacion.perfil}
       reenganche={conversacion.reenganche}
-      onVolver={() => setConversacion(null)}
+      onVolver={() => {
+        abandonado.current = leadIdReenganche;
+        router.replace("/");
+        setConversacion(null);
+      }}
       onTerminar={curarLead}
     />
   );
