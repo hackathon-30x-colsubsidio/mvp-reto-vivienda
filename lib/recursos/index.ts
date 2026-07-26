@@ -21,7 +21,10 @@ export const MAX_RECURSOS = 2;
 interface Candidato {
   recurso_id: RecursoId;
   factor_disparador: string;
+  /** El detalle, para la ficha del asesor. */
   porque: string;
+  /** La línea que ve el LEAD en el chat, si el recurso necesita una más corta. */
+  resumen?: string;
   prioridad: number; // menor = más alta. Ordena qué recurso es el primario.
 }
 
@@ -60,6 +63,13 @@ export function recursosPara(
       porque:
         "No eres afiliado a Colsubsidio, así que hoy compites por el cupo del 10% de no afiliados. Afiliarte abre el subsidio de vivienda y te saca de ese cupo. " +
         `Si te afilias hoy y aportas el 2%, alrededor del ${fechaSubsidio} cumples los 6 meses continuos que el subsidio exige.`,
+      // Al lead, UNA línea y un solo beneficio. El cupo del 10% es vocabulario
+      // interno y los 6 meses de aporte son un requisito de trámite: a quien
+      // está comprando casa se le dice qué gana, no cómo funciona nuestro
+      // inventario. Es la misma regla que ya gobierna `mensajeAfiliacion`, y el
+      // detalle no se pierde — sigue completo arriba, en la ficha del asesor.
+      resumen:
+        "Si te afilias, puedes acceder a los subsidios de vivienda de la caja de compensación.",
       prioridad: 1,
     });
   }
@@ -132,6 +142,7 @@ export function recursosPara(
         tipo: base.tipo,
         factor_disparador: c.factor_disparador,
         porque: c.porque,
+        ...(c.resumen ? { resumen: c.resumen } : {}),
       };
     });
 }

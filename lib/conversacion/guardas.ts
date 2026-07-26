@@ -73,6 +73,18 @@ export interface ContextoGuard {
    * Cifras que Sara sí puede decir aunque no estén en `textoBase`. Los precios
    * del catálogo entran solos (el prompt de duda se lo da para consultar); esto
    * es para lo que traiga el turno, como el precio máximo ya calculado.
+   *
+   * ⚠️ Cada número entra **en las dos figuras que puede tomar** —monto y
+   * porcentaje— porque quien las autoriza no sabe cuál va a usar Sara. Lo que
+   * viaja aquí son los números que el MOTOR emitió (los precios y los
+   * porcentajes de la similitud, que van dentro del mismo `porque`), y el
+   * `porque` no los distingue. Sembrar solo `monto:` fue un defecto real y
+   * medido: `cifra_inventada` bloqueaba **toda** recomendación en la que Sara
+   * citara un porcentaje que el motor había calculado, o sea casi todas, y el
+   * lead terminaba viendo siempre el texto determinista.
+   *
+   * Lo que NO se ensancha: las **fechas**. Un número suelto no autoriza
+   * prometer un día de entrega, que es la promesa más cara de todas.
    */
   cifrasPermitidas?: number[];
 }
@@ -337,7 +349,10 @@ function cifraInventada(
   const permitidos = new Set<string>([
     ...figurasDe(textoBase),
     ...catalogo.map((p) => `monto:${p.precio_desde}`),
-    ...permitidas.map((n) => `monto:${Math.round(n)}`),
+    // Las dos figuras del mismo número, por lo que dice `cifrasPermitidas`: el
+    // turno autoriza el 63 que el motor calculó, sin saber si Sara lo va a
+    // escribir como "$63" o como "63%".
+    ...permitidas.flatMap((n) => [`monto:${Math.round(n)}`, `pct:${n}`]),
   ]);
   return [...figurasDe(texto)].some((f) => !permitidos.has(f));
 }

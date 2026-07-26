@@ -208,7 +208,7 @@ insert into conversaciones (lead_id, rol, mensaje, orden) values
   ('lead-003', 'asistente', 'Última de las incómodas y te dejo en paz 🙏 ¿Cómo va tu vida crediticia hoy? Pregunto sin juzgar: si hay algo pendiente, es mil veces mejor saberlo ahora que el día que pidas el crédito.', 22),
   ('lead-003', 'lead', 'Tuve una mora hace poco', 23),
   ('lead-003', 'asistente', 'Te agradezco que me lo digas de frente 🙏 No es un no: es saber hoy qué hay que ordenar, en vez de enterarte el día que pidas el crédito.', 24),
-  ('lead-003', 'asistente', 'Y lo más rico: ¿dónde te imaginas viviendo? Piensa en el día a día — cerca del colegio, del trabajo, de tu mamá. Eso termina pesando más que el precio.', 25),
+  ('lead-003', 'asistente', 'Y lo más rico: ¿en qué ciudad o municipio te imaginas viviendo? Te lo pregunto así de concreto porque solo te voy a mostrar proyectos que queden ahí. Si ya tienes un barrio o un sector en mente, dímelo también.', 25),
   ('lead-003', 'lead', 'Bogotá, por el sur', 26),
   ('lead-003', 'asistente', '¡Bogotá! 📍 Ahí tengo 6 proyectos, así que puedo ser concreta contigo.', 27),
   ('lead-003', 'asistente', 'Eso era todo, Yuliana 🙌 Con lo que me contaste ya puedo armarte algo que tenga sentido para ti, y no una lista genérica. Le paso tu historia completa a un asesor para que no tengas que repetirla — te escribe muy pronto.', 28);

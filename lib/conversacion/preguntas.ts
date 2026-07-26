@@ -639,8 +639,20 @@ export function construirPreguntas(perfil: PerfilConocido): PasoPregunta[] {
     pasos.push({
       campo: "zona_interes",
       // Sin chips a propósito (D4): la zona es de las que se escriben.
+      //
+      // ⚠️ PIDE LA CIUDAD, explícitamente. La versión anterior preguntaba
+      // "¿dónde te imaginas viviendo?" e invitaba a pensar en el día a día
+      // ("cerca del colegio, del trabajo, de tu mamá"), así que mucha gente
+      // contestaba justo eso — un deseo, no un lugar. Y el filtro de zona del
+      // matcher es por CIUDAD: un "cerca al colegio de los niños" entra crudo a
+      // `zona_interes`, no casa con ninguna, y el lead termina viendo
+      // "alternativa fuera de tu zona" sin haber nombrado una. Le cuesta una
+      // recomendación, medido: "Bogotá" → 3 proyectos; un deseo → 2 y marcados.
+      //
+      // El barrio se sigue pidiendo, pero DESPUÉS y como opcional: alimenta el
+      // bono de barrio exacto sin ser lo que se responde de primeras.
       pregunta:
-        "Y lo más rico: ¿dónde te imaginas viviendo? Piensa en el día a día — cerca del colegio, del trabajo, de tu mamá. Eso termina pesando más que el precio.",
+        "Y lo más rico: ¿en qué ciudad o municipio te imaginas viviendo? Te lo pregunto así de concreto porque solo te voy a mostrar proyectos que queden ahí. Si ya tienes un barrio o un sector en mente, dímelo también.",
       placeholder: "Ej: Bogotá, por el norte",
       interpretarTexto: interpretarTextoDe("zona_interes"),
     });

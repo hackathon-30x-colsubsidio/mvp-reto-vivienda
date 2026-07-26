@@ -43,6 +43,42 @@ const DETALLE = detalle as Record<
   { alcobas: number[]; area_privada_desde_m2?: number; amenidades: AmenidadInteres[] }
 >;
 
+/**
+ * El link, servible. Dos defectos REALES del catálogo, medidos el 2026-07-26:
+ *
+ *  - **ZARZAL** trae un `U+200B` (espacio de ancho cero) pegado al final de la
+ *    url. `trim()` **no lo borra** —no es whitespace para Unicode— así que el
+ *    `href` viajaba con un carácter invisible pegado.
+ *  - **VERSALLES** no trae una url sino **cuatro**, separadas por saltos de
+ *    línea (una por tipología más la de amenidades). El `href` se las llevaba
+ *    concatenadas y no abría ninguna.
+ *
+ * Los dos se ven bien a simple vista en el JSON, y desde que la recomendación
+ * le manda el link al LEAD por el chat (no solo al asesor en su ficha), un link
+ * roto es algo que el jurado puede cliquear.
+ *
+ * Se sanea AQUÍ, en la frontera donde el JSON entra al código, por dos razones:
+ * `proyectos.json` lo genera `scripts/generar_sintetica.py` desde el Excel real
+ * —que no se versiona— así que editarlo a mano crearía una segunda fuente que
+ * el siguiente `python scripts/generar_sintetica.py` borra sin avisar; y este es
+ * el único punto por el que pasan los dos consumidores (`recomendacion.ts` para
+ * el lead, `BloqueProyectos.tsx` para el asesor).
+ *
+ * De varias urls se toma **la primera**: es lo único que el `href` de la ficha
+ * puede renderizar, y mandarle cuatro links a alguien por WhatsApp no es darle
+ * más, es que no abra ninguno (la misma razón que ya documenta `materialDe`).
+ */
+function urlLimpia(crudo: string | null): string | undefined {
+  if (!crudo) return undefined;
+  const primera = crudo
+    // Escritos con escapes a propósito: pegar los caracteres de verdad haría
+    // este regex invisible en el editor, que es exactamente el bug.
+    .replace(/[\u200b-\u200d\u2060\ufeff]/g, "") // ZWSP, ZWNJ, ZWJ, WJ, BOM
+    .split(/\s+/)
+    .find((token) => /^https?:\/\//i.test(token));
+  return primera || undefined;
+}
+
 export const catalogo: FichaProyecto[] = (crudo as ProyectoCrudo[]).map((p) => ({
   proyecto_id: p.proyecto_id,
   nombre: p.nombre,
@@ -51,8 +87,8 @@ export const catalogo: FichaProyecto[] = (crudo as ProyectoCrudo[]).map((p) => (
   precio_desde: p.precio_desde,
   vis: p.vis,
   cupo_no_afiliados: p.cupo_no_afiliados,
-  brochure: p.brochure ?? undefined,
-  recorrido_360: p.recorrido_360 ?? undefined,
+  brochure: urlLimpia(p.brochure),
+  recorrido_360: urlLimpia(p.recorrido_360),
   // Marca de "la fuente se contradice sobre dónde queda". Hoy no la trae
   // ninguno —VIBO ONCE y KARAKALI se resolvieron con el brochure oficial, los
   // dos son de Bogotá— pero el matcher la sigue leyendo para no prometerle al

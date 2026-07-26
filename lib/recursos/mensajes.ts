@@ -15,10 +15,16 @@ function primerNombre(nombre: string): string {
   return nombre.split(" ")[0];
 }
 
-/** Un recurso como viñeta de chat: rotula el externo, cita el porqué, deja el link. */
+/**
+ * Un recurso como viñeta de chat: rotula el externo, cita el porqué, deja el link.
+ *
+ * Usa `resumen` cuando el recurso lo trae: es la versión de una línea para quien
+ * está comprando casa. El `porque` completo —con requisitos, cupos y fechas— se
+ * queda para la ficha del asesor, que es donde ese detalle sirve.
+ */
 function vinieta(recurso: RecursoRecomendado): string {
   const externo = recurso.tipo === "aliado_externo" ? " (aliado externo, no es de Colsubsidio)" : "";
-  return `• ${recurso.nombre}${externo}: ${recurso.porque} → ${recurso.url}`;
+  return `• ${recurso.nombre}${externo}: ${recurso.resumen ?? recurso.porque} → ${recurso.url}`;
 }
 
 /**

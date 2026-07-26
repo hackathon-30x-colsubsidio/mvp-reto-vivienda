@@ -204,7 +204,24 @@ export interface RecursoRecomendado {
   url: string;
   tipo: "colsubsidio" | "aliado_externo"; // los externos NUNCA se presentan como oferta propia
   factor_disparador: string; // el `nombre` del FactorScore que lo activó
-  porque: string; // en lenguaje natural, cita el factor
+  /**
+   * El porqué COMPLETO, para la **ficha del asesor**: cita el factor y los
+   * requisitos con su detalle (meses de aporte, cupos, fechas). Es información
+   * de trabajo para quien va a llamar.
+   */
+  porque: string;
+  /**
+   * Lo mismo, en una línea, para el **chat del lead**. Cuando existe, el
+   * mensaje del chat usa esta y no `porque`.
+   *
+   * Existe porque el mismo string tenía dos destinos con necesidades opuestas:
+   * al asesor le sirve saber que faltan 6 meses de aporte del 2% y que el lead
+   * compite por el cupo del 10%; a quien está comprando casa eso le llega como
+   * un párrafo de requisitos justo en el mensaje de cierre. Al lead se le dice
+   * qué gana, no cómo funciona nuestro inventario — la misma regla que ya
+   * gobierna `mensajeAfiliacion` en `preguntas.ts`.
+   */
+  resumen?: string;
 }
 
 export interface LeadCurado {
