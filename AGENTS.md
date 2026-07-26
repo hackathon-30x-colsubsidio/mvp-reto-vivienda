@@ -10,7 +10,7 @@ Un workflow que hace que los leads pagos se parezcan a los orgánicos: el lead e
 
 ## Empieza aquí (estado del proyecto, 2026-07-26)
 
-El flujo corre de punta a punta y los 4 criterios de aceptación están construidos. **Las 8 ramas del plan de arquitectura están en `main` y el banco ya está cableado al chat: el plan no tiene huecos.** **861 tests verdes.** Lo que queda abierto es **copy y decisiones de producto**, no cableado — ver el §7 del plan y el D8 del spec 02. **Antes de tocar nada, en este orden:**
+El flujo corre de punta a punta y los 4 criterios de aceptación están construidos. **Las 8 ramas del plan de arquitectura están en `main` y el banco ya está cableado al chat: el plan no tiene huecos.** **886 tests: 885 verdes y 1 rojo conocido** — `selector-banco` > *"sin credencial de Gemini no escoge nada"* afirma la **ausencia** de `GEMINI_API_KEY`, así que falla (y toca la red) en cualquier máquina que la tenga exportada, incluida la que corre el demo. Es un falso rojo con dueño pendiente, no una regresión. Lo que queda abierto es **copy y decisiones de producto**, no cableado — ver el §7 del plan y el D8 del spec 02. **Antes de tocar nada, en este orden:**
 
 0. **¿Vas a tocar el conversador?** Lee **las cuatro trampas** de la sección *Conventions* de este
    archivo (abajo) y el **[D8 del spec 02](docs/specs/02-conversador.md)**, que es el banco de
