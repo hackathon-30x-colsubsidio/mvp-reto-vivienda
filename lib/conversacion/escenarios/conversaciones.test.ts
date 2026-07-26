@@ -217,12 +217,20 @@ describe("HOY una conversación sucia termina normal y pierde datos", () => {
   // Nota del 2026-07-26: eran 2, ahora son 3. No es un retroceso: es
   // `tiene_vivienda` que dejó de INVENTAR un `false` y ahora se declara
   // vacío, honestamente. Perder el dato es mejor que afirmarlo falso.
-  it("pierde 3 de los 7 campos, sin decírselo a nadie", () => {
+  // Actualizado 2026-07-26: son 4, y el nuevo es `zona_interes`. NO es un
+  // retroceso, es la otra mitad del mismo arreglo: "cerca al colegio de los
+  // niños" dejó de guardarse como si fuera una ciudad, así que ahora se declara
+  // vacío y el texto vive en `preferencias_libres`, donde el asesor lo lee.
+  // Declararse vacío es mejor que llenar el campo con algo que el matcher va a
+  // leer mal (le costaba una recomendación: 3 proyectos → 2).
+  it("pierde 4 de los 7 campos, sin decírselo a nadie", () => {
     expect(r.camposVacios).toEqual([
       "tiene_vivienda",
       "composicion_familiar",
       "rango_edad",
+      "zona_interes",
     ]);
+    expect(r.respuestas.preferencias_libres).toEqual(["cerca al colegio de los niños"]);
   });
 
   // ✅ ARREGLADO 2026-07-26 — era el peor de los seis. "pues no sé"

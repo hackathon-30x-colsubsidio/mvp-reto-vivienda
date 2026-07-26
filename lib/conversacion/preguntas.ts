@@ -303,9 +303,31 @@ function respuestaZona(z: Zona): Respuesta {
       };
     }
 
+    // ── Lo que NO es un lugar no entra como lugar ────────────────────
+    //
+    // `deseo` y `sin_reconocer` son los dos casos donde `clasificarZona` YA
+    // sabe que la persona no nombró una ubicación. Hasta hoy el texto crudo se
+    // guardaba igual en `zona_interes`, y el matcher —que filtra por CIUDAD— lo
+    // trataba como una: no casaba con ninguna, y el lead recibía 2 proyectos
+    // marcados *fuera de tu zona* en vez de 3, con su propia frase citada
+    // dentro del porqué («en cerca al colegio de los niños no hay proyectos»).
+    // O sea que le decíamos "no encontramos nada en tu zona" a quien nunca
+    // nombró una. Medido el 2026-07-26 sobre el afiliado listo: 3 → 2.
+    //
+    // El texto NO se pierde: va a `preferencias_libres`, que existe justo para
+    // lo que el lead dijo y no se pudo clasificar, y llega a la ficha del
+    // asesor. Es el mismo destino que le da el banco.
+    //
+    // ⚠️ Depende del ORDEN: el patch normal reemplaza (solo el banco acumula,
+    // con `aplicarRespuestaBanco`), y esto funciona porque la zona es la última
+    // de las 7 base y el banco corre después. Si alguien mueve la zona detrás
+    // del banco, aquí se pierde lo que el banco haya guardado.
+    //
+    // El acuse no cambia porque ya prometía esto: *"como no me diste una
+    // ciudad, te busco en todas las que tenemos"*. Hasta hoy era falso.
     case "deseo":
       return {
-        patch,
+        patch: { preferencias_libres: [z.zona] },
         acuse:
           "Eso me sirve muchísimo y lo dejo anotado para el asesor 🙌 Como no me diste una ciudad, te busco en todas las que tenemos y él afina contigo.",
         pulir: true,
@@ -313,7 +335,7 @@ function respuestaZona(z: Zona): Respuesta {
 
     case "sin_reconocer":
       return {
-        patch,
+        patch: { preferencias_libres: [z.zona] },
         acuse: "Anotado 📍 Lo tengo en cuenta para escoger qué mostrarte.",
         pulir: true,
       };

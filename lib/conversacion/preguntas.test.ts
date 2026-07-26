@@ -225,7 +225,36 @@ describe("la zona: el agente contesta lo que la persona dijo", () => {
     expect(r.acuse).not.toMatch(/bien mapeada/i);
     expect(r.acuse).toMatch(/no me diste una ciudad/i);
     // El texto crudo sí se conserva: al asesor le sirve saber qué le importa.
-    expect(r.patch.zona_interes).toBe("espero que tenga excelentes zonas comunes");
+    expect(r.patch.preferencias_libres).toEqual(["espero que tenga excelentes zonas comunes"]);
+  });
+
+  // Lo que NO es un lugar no entra al matcher como lugar (2026-07-26).
+  //
+  // Guardar el texto crudo en `zona_interes` le costaba una recomendación al
+  // lead: el filtro es por CIUDAD, un deseo no casa con ninguna, y recibía 2
+  // proyectos marcados *fuera de tu zona* en vez de 3 — con su propia frase
+  // citada dentro del porqué, que desde la rama 5 LEE ÉL. Le decíamos "no
+  // encontramos nada en tu zona" a quien nunca nombró una.
+  //
+  // El arreglo es no guardarlo AHÍ, no dejar de guardarlo: `preferencias_libres`
+  // lo lleva a la ficha del asesor, que es quien lo quiere leer.
+  it.each([
+    ["un deseo", "cerca al colegio de los niños"],
+    ["algo que no se reconoce", "🎉"],
+  ])("%s no entra a zona_interes: el matcher no lo puede leer como ciudad", (_que, texto) => {
+    const r = zona().interpretarTexto(texto);
+    expect(r.patch.zona_interes).toBeUndefined();
+    expect(r.patch.preferencias_libres).toEqual([texto]);
+  });
+
+  // La contraparte: una ciudad REAL sin proyectos sí es un lugar, y ahí el aviso
+  // de "fuera de tu zona" es información honesta, no un defecto. Sigue entrando
+  // a `zona_interes` — con la frase entera, que es el resto del defecto que
+  // queda congelado en `entradas-sucias.test.ts`.
+  it("una ciudad sin proyectos SÍ se guarda como zona: es un lugar de verdad", () => {
+    const r = zona().interpretarTexto("quiero algo en Medellín");
+    expect(r.patch.zona_interes).toBe("quiero algo en Medellín");
+    expect(r.patch.preferencias_libres).toBeUndefined();
   });
 
   it("el acuse de la zona se pule con el LLM; los demás no", () => {

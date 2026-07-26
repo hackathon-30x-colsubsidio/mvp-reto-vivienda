@@ -273,15 +273,32 @@ describe("zona de interés", () => {
     expect(r.acuse).toMatch(/no tenemos/i);
   });
 
-  // ⚠️ BUG CONGELADO — el acuse dice la verdad, pero el patch guarda la
-  // frase entera y el matcher la trata como ubicación: filtra proyectos
-  // buscando "en medellin". Mismo problema con un deseo o un emoji.
-  it.each([
-    ["en medellin"],
-    ["cerca al colegio de los niños"],
-    ["🎉"],
-  ])("HOY mete el texto crudo en zona_interes: %s", (texto) => {
-    expect(interpretarUno(SIN_DATOS, "zona_interes", texto).patch.zona_interes).toBe(texto);
+  // ✅ VOLTEADO 2026-07-26 — lo que NO es un lugar dejó de entrar como lugar.
+  //
+  // El deseo y el emoji se guardaban crudos en `zona_interes` y el matcher los
+  // trataba como ciudad: no casaban con ninguna, y el lead recibía 2 proyectos
+  // marcados *fuera de tu zona* en vez de 3, con su propia frase citada dentro
+  // del porqué. Medido antes y después sobre el afiliado listo: 2 → 3, y 0
+  // marcados. Ahora van a `preferencias_libres`, que llega a la ficha del
+  // asesor: no se pierde nada, solo deja de mentirle al motor.
+  it.each([["cerca al colegio de los niños"], ["🎉"]])(
+    "lo que no es un lugar NO entra a zona_interes: %s",
+    (texto) => {
+      const r = interpretarUno(SIN_DATOS, "zona_interes", texto);
+      expect(r.patch.zona_interes).toBeUndefined();
+      expect(r.patch.preferencias_libres).toEqual([texto]);
+    },
+  );
+
+  // ⚠️ BUG CONGELADO, el que queda de esta familia — y es MENOR que el de
+  // arriba: una ciudad real sin proyectos SÍ es un lugar, así que el aviso de
+  // "fuera de tu zona" es información honesta. Lo feo es que guarda la frase
+  // entera ("en medellin") en vez de la ciudad normalizada que el acuse sí sabe
+  // decir ("Medellín"). No cambia a quién se le recomienda qué; ensucia la
+  // ficha del asesor. Se arregla usando `z.ciudad` en el patch de esa rama.
+  it("HOY guarda la frase entera, no la ciudad, cuando ahí no hay proyectos", () => {
+    const r = interpretarUno(SIN_DATOS, "zona_interes", "en medellin");
+    expect(r.patch.zona_interes).toBe("en medellin");
   });
 });
 
