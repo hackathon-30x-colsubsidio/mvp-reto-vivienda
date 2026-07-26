@@ -124,6 +124,43 @@ describe("bloquea · cifra_inventada", () => {
     );
     expect(r.severidad).toBe("ok");
   });
+
+  // ── El porcentaje que el motor sí calculó ──────────────────────────
+  //
+  // Defecto de integración medido el 2026-07-26 (bitácora del plan, rama 5):
+  // el `porque` del matcher está lleno de porcentajes de la similitud ("el 63%
+  // de quienes compraron ahí son afiliados"), el prompt de la recomendación le
+  // pide a Sara que los diga, y `cifrasPermitidas` los autorizaba **solo como
+  // monto**. Resultado: `cifra_inventada` bloqueaba casi toda recomendación
+  // redactada por la IA y el lead veía siempre el texto determinista.
+  it("NO bloquea un porcentaje que el motor calculó y el turno autorizó", () => {
+    const r = postGuard(
+      "Te sirve LA ARBOLEDA: el 63% de quienes compraron ahí son afiliados, como tú.",
+      "Te sirve LA ARBOLEDA. El asesor te lleva el detalle.",
+      { ...DIANA, proyectosPermitidos: [ARBOLEDA.nombre], cifrasPermitidas: [63] },
+    );
+    expect(r.severidad).toBe("ok");
+  });
+
+  it("SIGUE bloqueando un porcentaje que el turno NO autorizó", () => {
+    const r = postGuard(
+      "Te sirve LA ARBOLEDA: el 91% de quienes compraron ahí son afiliados, como tú.",
+      "Te sirve LA ARBOLEDA. El asesor te lleva el detalle.",
+      { ...DIANA, proyectosPermitidos: [ARBOLEDA.nombre], cifrasPermitidas: [63] },
+    );
+    expect(r.violaciones).toContain("cifra_inventada");
+  });
+
+  // La fecha es la promesa más cara y la única que no se ensancha: autorizar el
+  // número 15 para hablar de plata no autoriza prometer el 15 de marzo.
+  it("una cifra autorizada NO autoriza una fecha con el mismo número", () => {
+    const r = postGuard(
+      "Te cuadro la visita para el 15 de marzo, tranquila.",
+      "El asesor te cuadra la visita.",
+      { ...DIANA, cifrasPermitidas: [15] },
+    );
+    expect(r.violaciones).toContain("cifra_inventada");
+  });
 });
 
 describe("bloquea · recomienda_sin_motor", () => {
