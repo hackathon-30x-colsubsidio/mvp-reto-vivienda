@@ -480,9 +480,9 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 
 | # | Punto | Rama | Estado |
 |---|---|---|---|
-| 1 | Copy de las 4 preguntas del banco + sus chips | 7 | 🟡 **escrito como PROPUESTA — falta ratificar** |
+| 1 | Copy de las 4 preguntas del banco + sus chips | 7 | ✅ **ratificado con 2 arreglos** (2026-07-26) |
 | 2 | Nombres de los campos nuevos en `lib/types.ts` | 7 | ✅ **publicados** (2026-07-25) |
-| 3 | Si "momento de compra" se pregunta o suena a apuro | 7 | 🟡 **se pregunta, reformulada — falta ratificar** |
+| 3 | Si "momento de compra" se pregunta o suena a apuro | 7 | ✅ **se pregunta** (2026-07-26) — sin prometer entrega |
 | 4 | Respuesta a "¿eres un bot?" | 5 | ⬜ abierto |
 | 5 | Copy del ofrecimiento de asesor tras 3 desvíos | 5 | ⬜ abierto |
 | 6 | Copy de `corregir_dato` y de `fuera_de_tema` | 2 | ✅ cerrado — consultado y aprobado, ver bitácora |
@@ -493,7 +493,7 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 | 11 | Máximo de líneas del guard | 3 | ✅ **3 líneas y 4 frases** (2026-07-25) |
 | 12 | Texto de la fila `sistema` cuando el guard bloquea | 3 | ✅ **cerrado** (2026-07-25) |
 | 13 | Mediana vs. normalizar en el sesgo de similitud | 6 | ✅ **mediana** (2026-07-26) — normalizar no cabe en esta rama, ver bitácora |
-| 14 | Valores de los tres bonos nuevos | 8 | 🟡 **0,12 / 0,08 / 0,06 — medidos, falta ratificar** |
+| 14 | Valores de los tres bonos nuevos | 8 | ✅ **0,12 / 0,08 / 0,06** (2026-07-26) — curva de sensibilidad en bitácora |
 | 15 | Redacción del `porque` cuando un bono se activa | 8 | ✅ **cerrado** (2026-07-26) — ratificado por Manuel |
 | 16 | Copy del mensaje de recomendación **sin IA** (el fallback) | 4 | ✅ **cerrado con arreglo** (2026-07-26) — no daba ninguna razón |
 | 17 | El `porque` del matcher ahora lo LEE EL LEAD: mezcla de persona y el "0% … como tu hogar" | 8 | ✅ **cerrado** (2026-07-26) — los dos defectos, ver bitácora |
@@ -1001,6 +1001,43 @@ movieron: 73 / 24 / 0**, y `db/seed.sql` regenera **sin una línea de diff**. Lo
   sobre todo el pool que le cabe. Es la comparación honesta —son los que va a ver— pero no detecta
   una pregunta que promovería a un cuarto que hoy queda afuera. Para eso el matcher tendría que
   exponer el pool antes de recortar.
+
+- **[1,3] Al ratificar el copy salieron DOS PROMESAS QUE EL MOTOR NO CUMPLE** → **todos** ·
+  arregladas. No era un repaso de estilo; eran defectos.
+  **(a) `espacio` decía *"o más amplio aunque quede un poco más afuera"*.** El filtro de zona es
+  **estricto**: nunca le íbamos a dar algo más lejos a cambio de metros. Ofrecer un intercambio que
+  el motor se niega a hacer es el mismo pecado que la recomendación fuera de zona en silencio que se
+  corrigió el 2026-07-25. Ahora el intercambio se plantea **dentro de lo que ya le cabe**, que es lo
+  que el bono hace de verdad: *"dentro de lo que te cabe, ¿prefieres algo compacto y bien
+  aprovechado, o ganar metros?"*.
+  **(b) `momento` decía *"te busco lo que esté listo para entregar"*.** `matchea` es **false** y
+  `estado` solo se conoce en **7 de 18** proyectos: no buscamos nada de eso. Ahora ofrece lo que sí
+  hace —ordenar la cola del asesor—: *"si es pronto le digo al asesor que te llame de primeras; si
+  apenas estás mirando, lo anoto para que nadie te presione"*.
+  **Las dos sonaban mejor que la verdad y las dos se descubren en la visita.** Hay test nuevo que lo
+  impide: una pregunta con `matchea: false` no puede decir "te busco/te muestro", y **ninguna** puede
+  ofrecer alejarse a cambio de algo.
+- **[3] "Momento de compra" SE PREGUNTA — cerrado.** La objeción era que sonara a vendedor apurando,
+  y con el copy corregido la contrapartida es explícita para quien contesta que está mirando ("para
+  que nadie te presione"), que es literalmente lo que el asesor ve en su ficha
+  (`ETIQUETA_MOMENTO.explorando` = "Todavía está mirando (no presionar)"). La promesa y el sistema
+  ahora dicen lo mismo.
+- **[14] Los tres bonos, elegidos con curva de sensibilidad — cerrado en 0,12 / 0,08 / 0,06.**
+  Barrido con `npx tsx scripts/sonda-similitud.ts --banco`, midiendo a cuántos leads les cambia el
+  proyecto #1:
+
+  | bonos (alcobas / amenidad / área) | leads que cambian de #1 |
+  |---|---|
+  | 0,06 / 0,04 / 0,03 | 13,4% |
+  | **0,12 / 0,08 / 0,06** | **21,3%** |
+  | 0,20 / 0,14 / 0,10 | 26,4% |
+  | 0,35 / 0,25 / 0,18 | 26,6% ← satura |
+
+  Se elige el segundo por dos razones, no por gusto: está en la parte **empinada** de la curva (subir
+  al siguiente escalón cuesta el doble de peso y compra +5 puntos), y sobre todo **mantiene el orden
+  que importa** — con 0,20 el bono de alcobas superaría al de VIS+subsidio (0,15), o sea que una
+  preferencia pesaría más que plata que le baja la cuota todos los meses. Eso sí sería una decisión
+  de producto, y va en la dirección contraria a la del reto.
 
 ---
 

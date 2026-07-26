@@ -236,7 +236,7 @@ const ACUSE_ALCOBAS: Record<1 | 2 | 3, Pick<Respuesta, "acuse">> = {
 
 const ACUSE_ESPACIO: Record<"compacto" | "amplio", Pick<Respuesta, "acuse">> = {
   compacto: {
-    acuse: "Entendido: primero la ubicación. Con eso ya sé por dónde empezar a buscar.",
+    acuse: "Entendido, algo bien aprovechado. Con eso ya sé por dónde empezar a buscar.",
   },
   amplio: {
     acuse: "Listo, espacio antes que nada. Anotado para no mostrarte nada apretado.",
@@ -248,7 +248,7 @@ const ACUSE_MOMENTO: Record<
   Pick<Respuesta, "acuse">
 > = {
   inmediato: {
-    acuse: "Perfecto, con eso le doy prioridad a tu caso y priorizo lo que esté listo para entregar.",
+    acuse: "Perfecto, con eso le digo al asesor que te llame de primeras.",
   },
   este_ano: {
     acuse: "Buen plan, da tiempo de organizar el crédito con calma. Lo anoto.",
@@ -313,12 +313,18 @@ export const BANCO: PreguntaBanco[] = [
     matchea: true,
     paraQueSirve:
       "El área privada, preguntada como la gente sí la sabe contestar. El catálogo va de 21,6 a 68,06 m² (mediana 40,55), así que la preferencia ordena de verdad.",
+    // ⚠️ NO ofrece "más amplio aunque quede más afuera", aunque suene mejor: el
+    // filtro de zona es ESTRICTO (`coincideZona`, spec del matcher), así que
+    // jamás vamos a darle algo más lejos a cambio de metros. Prometer un
+    // intercambio que el motor se niega a hacer es el mismo pecado que la
+    // recomendación fuera de zona en silencio que se corrigió el 2026-07-25.
+    // El intercambio real ocurre DENTRO de lo que ya le cabe, y así se dice.
     pregunta:
-      "Una de gusto, y no hay respuesta mala: ¿prefieres algo compacto y muy bien ubicado, o más amplio aunque quede un poco más afuera? Los dos existen; es por cuál empezamos.",
-    placeholder: "Ej: prefiero espacio, aunque sea más lejos...",
+      "Una de gusto, y no hay respuesta mala: dentro de lo que te cabe, ¿prefieres algo compacto y bien aprovechado, o ganar metros? Con eso sé por cuál empezar a mostrarte.",
+    placeholder: "Ej: prefiero que sea amplio...",
     opciones: [
-      { etiqueta: "Compacto y bien ubicado", patch: { espacio_preferido: "compacto" }, ...ACUSE_ESPACIO.compacto },
-      { etiqueta: "Más amplio", patch: { espacio_preferido: "amplio" }, ...ACUSE_ESPACIO.amplio },
+      { etiqueta: "Compacto y práctico", patch: { espacio_preferido: "compacto" }, ...ACUSE_ESPACIO.compacto },
+      { etiqueta: "Con más espacio", patch: { espacio_preferido: "amplio" }, ...ACUSE_ESPACIO.amplio },
     ],
     interpretarTexto: interpretarEspacio,
   },
@@ -333,8 +339,11 @@ export const BANCO: PreguntaBanco[] = [
     // El "no es para apurarte" va POR DELANTE, con la contrapartida explícita
     // para quien contesta que está mirando: sin eso, esta pregunta suena a
     // vendedor cerrando y es lo único que el mentor rechazó por nombre.
+    // ⚠️ NO promete "te busco lo que esté listo para entregar": `matchea` es
+    // false y `estado` solo se conoce en 7 de los 18 proyectos. Lo que este
+    // dato SÍ hace es ordenar la cola del asesor, y eso es lo que se ofrece.
     pregunta:
-      "Y la última, que no es para apurarte sino al contrario: ¿para cuándo te la imaginas? Si es ya, te busco lo que esté listo para entregar; si apenas estás mirando, lo anoto para que nadie te llame de más.",
+      "Y la última, que no es para apurarte sino al contrario: ¿para cuándo te la imaginas? Si es pronto le digo al asesor que te llame de primeras; si apenas estás mirando, lo anoto para que nadie te presione.",
     placeholder: "Ej: apenas estoy mirando...",
     opciones: [
       { etiqueta: "Lo antes posible", patch: { momento_compra: "inmediato" }, ...ACUSE_MOMENTO.inmediato },

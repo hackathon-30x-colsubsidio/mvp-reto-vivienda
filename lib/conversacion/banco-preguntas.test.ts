@@ -56,6 +56,31 @@ describe("las reglas de redacción de preguntas.ts", () => {
     }
   });
 
+  // ── La regla que costó dos defectos al ratificar el copy (§7 puntos 1 y 3) ──
+  //
+  // Una pregunta no puede ofrecer algo que el motor no hace. Dos lo hacían:
+  //   · `espacio` decía "más amplio aunque quede un poco más afuera" — y el
+  //     filtro de zona es ESTRICTO, así que nunca ibamos a darle algo más lejos
+  //     a cambio de metros;
+  //   · `momento` decía "te busco lo que esté listo para entregar" — y
+  //     `matchea` es false, con `estado` conocido en solo 7 de 18 proyectos.
+  //
+  // Las dos suenan mejor que la verdad, y las dos se descubren en la visita.
+  it.each(BANCO)("$id: no promete lo que el motor no hace", (p) => {
+    const todo = [p.pregunta, ...(p.opciones ?? []).map((o) => o.acuse ?? "")].join(" ");
+
+    // Solo el que matchea puede insinuar que cambia lo que se le muestra.
+    if (!p.matchea) {
+      expect(todo, `${p.id} no matchea: no puede prometer que busca proyectos`).not.toMatch(
+        /te busco|te muestro|priorizo lo que|proyectos que/i,
+      );
+    }
+    // La zona es filtro estricto: nadie ofrece alejarse a cambio de nada.
+    expect(todo, `${p.id} ofrece un intercambio por ubicación que la zona estricta impide`).not.toMatch(
+      /m[áa]s (?:afuera|lejos)|un poco m[áa]s lejos/i,
+    );
+  });
+
   it.each(BANCO)("$id: nada de jerga interna", (p) => {
     const todo = [p.pregunta, ...(p.opciones ?? []).map((o) => o.acuse ?? "")].join(" ");
     expect(todo).not.toMatch(/perfilamiento|scoring|SMMLV|puntaje|lead\b|matcher/i);
