@@ -198,82 +198,120 @@ describe("HOY una conversación sucia termina normal y pierde datos", () => {
     ],
   });
 
-  it("la conversación se completa sin una sola señal de alarma", () => {
-    expect(tipos(r.turnos)).toEqual(Array(7).fill("respondio"));
-    expect(r.pasoPendiente).toBeNull();
-    // Y cada una recibió su acuse amable, así que la persona cree que
-    // contestó todo.
-    for (const t of r.turnos) if (t.tipo === "respondio") expect(t.acuse).toBeTruthy();
+  // ✅ VOLTEADO 2026-07-26 (la red pasó a correr el reducer real). Este test
+  // afirmaba que la conversación se completaba con 7 "respondio" y sin una sola
+  // señal de alarma. Ya no: donde no se entiende, se REPREGUNTA. Tres de las
+  // siete entradas no se entienden, así que la persona gasta esos turnos en
+  // volver a contestar y la conversación **queda a mitad** en vez de terminar
+  // fingiendo que se supo todo.
+  //
+  // El precio de perder el silencio es que una persona que escribe sucio
+  // conversa más: son 7 mensajes para 4 preguntas.
+  it("ya NO se completa en silencio: repregunta donde no entendió", () => {
+    expect(tipos(r.turnos)).toEqual([
+      "repregunta", // "pues no sé" a tiene_vivienda
+      "respondio",
+      "repregunta", // "2 palos" a composicion_familiar
+      "respondio",
+      "repregunta", // "jajaja" al ingreso
+      "respondio",
+      "respondio",
+    ]);
+    // Se quedó preguntando la edad: nunca llegó al final.
+    expect(r.pasoPendiente).toBe("rango_edad");
   });
 
-  // ⚠️ BUG CONGELADO — el hueco 2 del plan, que sigue abierto: 3 de 7
-  // campos se pierden en silencio, y alimentan la similitud con
-  // compradores reales, o sea que el error llega hasta qué proyecto se
-  // le recomienda. **Esto NO lo arregla el intérprete de IA de la rama
-  // 4** (ese solo se activa cuando ya hay un `no_entendido`, y quién lo
-  // atiende lo decide la rama 5). Cuando la rama 5 lo cierre, este test
-  // falla — y esa falla es la señal de que se arregló.
-  //
-  // Nota del 2026-07-26: eran 2, ahora son 3. No es un retroceso: es
-  // `tiene_vivienda` que dejó de INVENTAR un `false` y ahora se declara
-  // vacío, honestamente. Perder el dato es mejor que afirmarlo falso.
-  it("pierde 3 de los 7 campos, sin decírselo a nadie", () => {
+  // El rastro que el asesor lee en su ficha. Antes de la rama 5 el dato se
+  // perdía con un acuse amable y **nadie** se enteraba: ni la persona, ni el
+  // motor, ni el asesor.
+  it("y lo que no se entendió queda DICHO en el hilo, no en silencio", () => {
+    expect(r.notasSistema.length).toBeGreaterThan(0);
+    expect(r.notasSistema.join(" ")).toMatch(/No se pudo interpretar/);
+  });
+
+  // Los campos vacíos ya no son "el dato que se perdió en silencio": son los
+  // que la conversación todavía no alcanzó a preguntar, porque se quedó a
+  // mitad. `situacion_crediticia` es el que importa de esta lista — antes
+  // guardaba `sin_info`, que en la ficha se lee como "nunca ha pedido
+  // crédito", o sea un hecho sobre la vida financiera de alguien inventado a
+  // partir de un "jajaja".
+  it("los campos sin dato se declaran vacíos, no se rellenan", () => {
     expect(r.camposVacios).toEqual([
-      "tiene_vivienda",
       "composicion_familiar",
       "rango_edad",
+      "situacion_crediticia",
+      "zona_interes",
     ]);
   });
 
-  // ✅ ARREGLADO 2026-07-26 — era el peor de los seis. "pues no sé"
-  // quedaba como `false`, o sea "primera vivienda": una afirmación sobre
-  // la vida de alguien que esa persona nunca hizo, que le regalaba 5
-  // puntos de 100 y ponía "No tiene vivienda propia" en la ficha del
-  // asesor. Ahora no afirma nada.
-  it("y ya NO afirma una vivienda que la persona nunca declaró", () => {
-    expect(r.respuestas.tiene_vivienda).toBeUndefined();
+  // ⚠️ BUG VIVO, y esta red es la que lo destapó (2026-07-26).
+  //
+  // `tiene_vivienda` vuelve a quedar en `false` — la misma afirmación falsa
+  // que el bug 1 arregló, por otro camino. Ya no la causa "pues no sé": la
+  // causa la regla de "a la segunda se sigue". Al repreguntar por la vivienda,
+  // el siguiente mensaje se consume para ESE campo aunque esté claramente
+  // contestando otra cosa, y `interpretarVivienda("vivo con mi mamá y mi
+  // hermana")` devuelve `false` (medido; también con "vivo con mi pareja").
+  //
+  // Cuesta lo mismo que costaba el bug 1: 5 puntos de 100 en el factor
+  // `ya_tiene_vivienda` y un "No tiene vivienda propia" afirmado en la ficha
+  // del asesor donde la verdad es "No informado".
+  //
+  // Se congela en vez de arreglarse porque arreglarlo mueve el puntaje de los
+  // leads sembrados, y eso se ratifica antes de escribirlo (§0 del plan).
+  // El día que se arregle, este test falla — y esa falla es la señal.
+  it("⚠️ BUG CONGELADO — todavía afirma una vivienda que nadie declaró", () => {
+    expect(r.respuestas.tiene_vivienda).toBe(false);
   });
 });
 
-describe("HOY se puede preguntar sin límite y la conversación nunca avanza", () => {
-  // ⚠️ BUG CONGELADO — no hay tope de desvíos. El plan lo cierra en la
-  // rama 5: tras 3 seguidos sin avanzar, Sara ofrece asesor.
-  it("cuatro dudas seguidas dejan el perfil en cero", () => {
+describe("preguntar mucho ya no es un bucle: al tercero se ofrece un asesor", () => {
+  // ✅ VOLTEADO 2026-07-26. Este test afirmaba que NO había tope y que se podía
+  // preguntar indefinidamente sin que la conversación se moviera. La rama 5
+  // puso el tope y la red no se había enterado.
+  it("cuatro dudas seguidas: se atienden todas, y al tercer turno sin avanzar entra el ofrecimiento", () => {
     const r = replayEscenario({
       perfil: SIN_DATOS,
       tecleado: ["¿cuánto vale?", "¿y dónde queda?", "¿cuánto cuesta?", "¿cuánto vale eso?"],
     });
 
+    // Atender no cambió: cada duda se responde y el paso NO avanza, para que
+    // salirse del guion no le cueste el dato que estaba dando.
     expect(tipos(r.turnos)).toEqual(Array(4).fill("desvio_duda"));
     expect(r.pasoPendiente).toBe("tiene_vivienda");
     expect(r.camposVacios).toHaveLength(7);
+
+    // Lo nuevo: queda el rastro de que se le ofreció un asesor. Ofrecer no es
+    // cortar — la conversación sigue igual después.
+    expect(r.notasSistema).toHaveLength(1);
+    expect(r.notasSistema[0]).toMatch(/3 preguntas seguidas/);
+    expect(r.notasSistema[0]).toMatch(/la conversación continúa/);
   });
 });
 
-describe("HOY lo que no se detecta como desvío se traga como respuesta", () => {
-  // ⚠️ BUG CONGELADO — `detectarDesvio` es conservador a propósito
-  // (ante la duda, `null`), y el precio de eso es que una pregunta sin
-  // signos o algo fuera de tema se consume como si fuera el dato que se
-  // pidió. El plan lo cierra en la rama 2 con `fuera_de_tema`.
-  it.each([
-    ["q vale", "tiene_vivienda"],
-    ["cuentame un chiste", "tiene_vivienda"],
-  ])("'%s' se consume como respuesta a %s", (texto) => {
-    const r = replayEscenario({ perfil: SIN_DATOS, tecleado: [texto] });
-    expect(tipos(r.turnos)).toEqual(["respondio"]);
-    expect(r.pasoPendiente).toBe("composicion_familiar");
-  });
+describe("lo que no es una respuesta ya no se traga como si lo fuera", () => {
+  // ✅ VOLTEADO 2026-07-26. Antes esto se consumía COMO SI FUERA el dato que se
+  // pidió y el paso avanzaba: la persona creía que había contestado y el motor
+  // se quedaba sin la señal. Ahora no se entiende, y no se entiende en voz
+  // alta: se repregunta sin avanzar.
+  it.each([["q vale"], ["cuentame un chiste"]])(
+    "'%s' ya no avanza el paso: se repregunta",
+    (texto) => {
+      const r = replayEscenario({ perfil: SIN_DATOS, tecleado: [texto] });
+      expect(tipos(r.turnos)).toEqual(["repregunta"]);
+      // Sigue parado en la misma pregunta, no en la siguiente.
+      expect(r.pasoPendiente).toBe("tiene_vivienda");
+    },
+  );
 
-  // El caso más caro de los dos: "eres un bot?" SÍ se detecta como
-  // desvío, pero cae a "general" y la respuesta determinista es "esa no
-  // te la puedo confirmar". Hoy Sara no sabe decir que es una IA.
-  // Es el punto 4 de la lista de consulta del plan.
-  it("a '¿eres un bot?' hoy responde que no puede confirmarlo", () => {
+  // ✅ VOLTEADO 2026-07-26 — era el caso más caro. "eres un bot?" caía en duda
+  // `general` y contestaba "esa no te la puedo confirmar sin inventarte nada":
+  // una evasiva justo en la pregunta donde la honestidad es lo único que
+  // importa. La rama 5 lo intercepta antes del desvío (punto 4 del plan,
+  // consultado y aprobado) y Sara se declara IA.
+  it("a '¿eres un bot?' ahora se le dice la verdad, y no le cuesta el paso", () => {
     const r = replayEscenario({ perfil: SIN_DATOS, tecleado: ["eres un bot?"] });
-    const turno = r.turnos[0];
-    expect(turno.tipo).toBe("desvio_duda");
-    if (turno.tipo !== "desvio_duda") return;
-    expect(turno.clase).toBe("general");
-    expect(turno.respuesta).toMatch(/no te la puedo confirmar/i);
+    expect(tipos(r.turnos)).toEqual(["identidad"]);
+    expect(r.pasoPendiente).toBe("tiene_vivienda");
   });
 });

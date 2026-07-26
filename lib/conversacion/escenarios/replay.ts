@@ -2,10 +2,18 @@ import type { Lead, PerfilConocido } from "@/lib/types";
 import {
   completarDesdePerfil,
   construirPreguntas,
+  respuestaDeAccion,
   type CampoPregunta,
   type PasoPregunta,
 } from "../preguntas";
-import { detectarDesvio, respuestaDeterministaDuda } from "../desvio";
+import { notaSistemaHandoff, respuestaDeterministaDuda } from "../desvio";
+import {
+  decidirTurno,
+  MAX_DESVIOS_SEGUIDOS,
+  notaSistemaMuchasPreguntas,
+  notaSistemaSinInterpretar,
+  TEXTO_NO_ENTENDI,
+} from "../maquina";
 
 // =====================================================================
 // EL ARNÉS DE ESCENARIOS — la red del refactor (rama 1 del plan de
@@ -27,12 +35,26 @@ import { detectarDesvio, respuestaDeterministaDuda } from "../desvio";
 // queremos no serviría de red: solo diría que el refactor no arregló un
 // bug que ya existía. Los casos malos van marcados `⚠️ BUG CONGELADO`.
 //
-// ⚠️ ESTE ARCHIVO ES UNA SEGUNDA IMPLEMENTACIÓN, y eso es deliberado
-// pero temporal. Mientras la decisión de avanzar o no viva dentro del
-// componente, la red tiene que reproducirla aquí. Cuando la rama 5
-// exista, `replayEscenario` debe pasar a llamar al reducer real y este
-// bloque de lógica se borra — si no, quedan dos fuentes que pueden
-// divergir, que es justo el hueco 3 del plan.
+// ✅ YA NO ES UNA SEGUNDA IMPLEMENTACIÓN (2026-07-26, después del merge
+// de la rama 5). La clasificación del turno la hace `decidirTurno` de
+// `maquina.ts` — el MISMO reducer que corre `ChatWhatsApp.manejarTurno`.
+// Lo que queda aquí es la contabilidad de estado que en el chat vive en
+// React (`indicePaso`, `repreguntadoEn`, `sinAvanzar`) y los efectos en
+// su versión sin pantalla; el archivo dejó de poder divergir en la parte
+// que importa, que es la decisión.
+//
+// Hasta este cambio, el arnés reimplementaba esa decisión y por eso la
+// red medía un camino que la rama 5 ya había reemplazado: no sabía de
+// `identidad`, ni de `corregir_dato`, ni de `fuera_de_tema`, ni del tope
+// de desvíos, y trataba un `no_entendido` como una respuesta válida que
+// avanzaba el paso. O sea que un verde de este archivo NO significaba lo
+// que decía. Era el hueco 3 del plan, mudado a los tests.
+//
+// ⚠️ LO QUE SIGUE SIN MODELARSE, y hay que saberlo antes de leer un
+// verde de aquí como cobertura: la capa de IA (el rescate de
+// `/api/interpretar`, que es un efecto asíncrono) y el banco de
+// preguntas. El arnés corre el camino SIN IA, que es el fallback y el
+// más probable en una demo.
 //
 // ⚠️ ALCANCE: solo la fase `pregunta`. El consentimiento, el cierre, la
 // agenda de la cita y el re-enganche NO se modelan aquí — los cubren
@@ -45,6 +67,12 @@ import { detectarDesvio, respuestaDeterministaDuda } from "../desvio";
 export type Turno =
   | { tipo: "ignorado"; tecleado: string }
   | { tipo: "desvio_asesor"; tecleado: string }
+  /** Preguntó si habla con una máquina. Sara se declara IA y el paso no avanza. */
+  | { tipo: "identidad"; tecleado: string }
+  /** No era un intento de responder (una risa, un emoji, una cuenta). */
+  | { tipo: "fuera_de_tema"; tecleado: string }
+  /** Cambió algo que ya había dicho: se sobrescribe y se retoma el paso. */
+  | { tipo: "correccion"; tecleado: string; patch: Partial<Lead["respuestas"]>; acuse?: string }
   | {
       tipo: "desvio_duda";
       tecleado: string;
@@ -76,6 +104,12 @@ export interface Escenario {
 
 export interface ResultadoEscenario {
   turnos: Turno[];
+  /**
+   * Las filas `sistema` que la conversación dejó en el hilo — el rastro que el
+   * asesor lee en su ficha. Es lo que hace verificable que un dato perdido
+   * **deje de perderse en silencio** (hueco 2 del plan).
+   */
+  notasSistema: string[];
   /** El paso en el que quedó la conversación. `null` si se completó. */
   pasoPendiente: CampoPregunta | null;
   /** Las respuestas finales, ya pasadas por `completarDesdePerfil`. */
@@ -90,30 +124,85 @@ const CONSENTIMIENTO_TS = "2026-07-26T09:00:00.000Z";
 /**
  * Replaya un escenario contra el conversador real.
  *
- * El orden de las decisiones es el de `ChatWhatsApp.enviarTexto:548`:
- *   1. texto vacío → se ignora, no pasa nada
- *   2. `detectarDesvio` → se atiende y el paso NO avanza
- *   3. `interpretarTexto` → se aplica el patch y el paso avanza
+ * Quién decide qué pasó: `decidirTurno` de `maquina.ts`, el mismo que llama
+ * `ChatWhatsApp.manejarTurno`. Lo que este arnés pone de su lado son las tres
+ * piezas de estado que en el chat viven en React, y sus efectos sin pantalla:
  *
- * Y dentro de (3), el de `responderPregunta:359`: el patch se aplica
- * SIEMPRE, incluso cuando se va a repreguntar — por eso un ingreso
- * ilegible igual deja su texto crudo en `rango_ingreso_hogar`.
+ *   `indicePaso`     — en qué pregunta va (`manejarTurno` la lee de `pasos`)
+ *   `repreguntadoEn` — en qué paso ya se concedió la repregunta
+ *   `sinAvanzar`     — turnos seguidos sin avanzar, para el tope de desvíos
+ *
+ * Ninguna rama que no sea respuesta avanza el paso: es lo que hace que salirse
+ * del guion no le cueste el dato que estaba dando (`atenderSinAvanzar:880`).
+ *
+ * ⚠️ El camino SIN IA. `manejarNoEntendido:909` le da primero un intento a
+ * `/api/interpretar`, que es asíncrono y aquí no existe; el arnés corre el
+ * fallback, o sea lo que pasa cuando el modelo no rescata el dato.
  */
 export function replayEscenario({ perfil, tecleado }: Escenario): ResultadoEscenario {
   const pasos = construirPreguntas(perfil);
   const turnos: Turno[] = [];
+  const notasSistema: string[] = [];
 
   let indicePaso = 0;
   /** En qué paso ya se repreguntó. Se concede una vez (`repreguntadoEn`). */
   let repreguntadoEn: number | null = null;
+  /** Turnos seguidos sin avanzar. Al tercero se ofrece un asesor (§3). */
+  let sinAvanzar = 0;
   let respuestas: Lead["respuestas"] = {
     consentimiento: { otorgado: true, timestamp: CONSENTIMIENTO_TS },
+  };
+
+  /** `atenderSinAvanzar:880`: se atiende, se cuenta, y se vuelve a preguntar. */
+  const atenderSinAvanzar = (turno: Turno, patch?: Partial<Lead["respuestas"]>) => {
+    if (patch) respuestas = { ...respuestas, ...patch };
+    turnos.push(turno);
+    sinAvanzar += 1;
+    if (sinAvanzar === MAX_DESVIOS_SEGUIDOS) {
+      notasSistema.push(notaSistemaMuchasPreguntas(sinAvanzar));
+    }
+  };
+
+  /** `responderPregunta:454`: aplica el dato y decide si avanza o repregunta. */
+  const responderPaso = (texto: string, campo: CampoPregunta, respuesta: ReturnType<typeof respuestaDeAccion>) => {
+    // Contestó: el contador de desvíos vuelve a cero.
+    sinAvanzar = 0;
+    // El patch se aplica ANTES de decidir si se repregunta: un dato a medias
+    // igual queda guardado (por eso un ingreso ilegible deja su texto crudo).
+    respuestas = { ...respuestas, ...respuesta.patch };
+
+    if (respuesta.repreguntar && repreguntadoEn !== indicePaso) {
+      repreguntadoEn = indicePaso;
+      turnos.push({
+        tipo: "repregunta",
+        tecleado: texto,
+        campo,
+        ...(respuesta.acuse ? { acuse: respuesta.acuse } : {}),
+      });
+      return;
+    }
+
+    // A la segunda se sigue, con el acuse de insistencia si lo hay.
+    const acuse = respuesta.repreguntar
+      ? (respuesta.acuseSiInsiste ?? respuesta.acuse)
+      : respuesta.acuse;
+
+    turnos.push({
+      tipo: "respondio",
+      tecleado: texto,
+      campo,
+      patch: respuesta.patch,
+      ...(acuse ? { acuse } : {}),
+      pulir: respuesta.pulir === true,
+    });
+
+    indicePaso += 1;
   };
 
   for (const crudo of tecleado) {
     const texto = crudo.trim();
 
-    // `enviarTexto:550` — sin texto no pasa nada.
+    // `enviarTexto:775` — sin texto no pasa nada.
     if (!texto) {
       turnos.push({ tipo: "ignorado", tecleado: crudo });
       continue;
@@ -126,58 +215,82 @@ export function replayEscenario({ perfil, tecleado }: Escenario): ResultadoEscen
     }
 
     const paso = pasos[indicePaso];
-
-    // `enviarTexto:557` — el desvío gana, y el paso NO avanza.
-    const desvio = detectarDesvio(texto);
-    if (desvio) {
-      if (desvio.tipo === "asesor") {
-        turnos.push({ tipo: "desvio_asesor", tecleado: texto });
-      } else {
-        turnos.push({
-          tipo: "desvio_duda",
-          tecleado: texto,
-          clase: desvio.clase,
-          ...(desvio.proyecto ? { proyecto: desvio.proyecto.nombre } : {}),
-          respuesta: respuestaDeterministaDuda(desvio),
-        });
-      }
-      continue;
-    }
-
-    const respuesta = paso.interpretarTexto(texto);
-
-    // `responderPregunta:361` — el patch se aplica antes de decidir si se
-    // repregunta. Un dato a medias igual queda guardado.
-    respuestas = { ...respuestas, ...respuesta.patch };
-
-    // `responderPregunta:371` — se repregunta una sola vez por paso.
-    if (respuesta.repreguntar && repreguntadoEn !== indicePaso) {
-      repreguntadoEn = indicePaso;
-      turnos.push({
-        tipo: "repregunta",
-        tecleado: texto,
-        campo: paso.campo,
-        ...(respuesta.acuse ? { acuse: respuesta.acuse } : {}),
-      });
-      continue;
-    }
-
-    // `responderPregunta:383` — a la segunda se sigue, con el acuse de
-    // insistencia si lo hay.
-    const acuse = respuesta.repreguntar
-      ? (respuesta.acuseSiInsiste ?? respuesta.acuse)
-      : respuesta.acuse;
-
-    turnos.push({
-      tipo: "respondio",
-      tecleado: texto,
+    const accion = decidirTurno(texto, {
       campo: paso.campo,
-      patch: respuesta.patch,
-      ...(acuse ? { acuse } : {}),
-      pulir: respuesta.pulir === true,
+      yaRespondidos: pasos.slice(0, indicePaso).map((p) => p.campo),
     });
 
-    indicePaso += 1;
+    switch (accion.tipo) {
+      case "identidad":
+        atenderSinAvanzar({ tipo: "identidad", tecleado: texto });
+        break;
+
+      case "handoff_asesor":
+        notasSistema.push(notaSistemaHandoff());
+        atenderSinAvanzar({ tipo: "desvio_asesor", tecleado: texto });
+        break;
+
+      case "responder_duda":
+        atenderSinAvanzar({
+          tipo: "desvio_duda",
+          tecleado: texto,
+          clase: accion.clase,
+          ...(accion.proyecto ? { proyecto: accion.proyecto.nombre } : {}),
+          respuesta: respuestaDeterministaDuda({
+            tipo: "duda",
+            clase: accion.clase,
+            ...(accion.proyecto ? { proyecto: accion.proyecto } : {}),
+          }),
+        });
+        break;
+
+      case "fuera_de_tema":
+        atenderSinAvanzar({ tipo: "fuera_de_tema", tecleado: texto });
+        break;
+
+      case "corregir_dato":
+        atenderSinAvanzar(
+          {
+            tipo: "correccion",
+            tecleado: texto,
+            patch: accion.patch,
+            ...(accion.acuse ? { acuse: accion.acuse } : {}),
+          },
+          accion.patch,
+        );
+        break;
+
+      // `manejarNoEntendido:909`, sin el rescate de la IA: se repregunta una
+      // vez y a la segunda se sigue, pero dejando dicho en el hilo qué no se
+      // entendió. Ese rastro es el hueco 2 dejando de ser silencioso.
+      case "no_entendido": {
+        const mudo = respuestaDeAccion(accion);
+        if (repreguntadoEn === indicePaso) {
+          notasSistema.push(notaSistemaSinInterpretar(accion.campo, texto));
+        }
+        responderPaso(texto, accion.campo, {
+          ...mudo,
+          repreguntar: true,
+          acuse: TEXTO_NO_ENTENDI,
+          ...(mudo.acuse ? { acuseSiInsiste: mudo.acuse } : {}),
+        });
+        break;
+      }
+
+      // `responder_paso` y `confirmar_dato`: el camino de siempre.
+      case "responder_paso":
+      case "confirmar_dato":
+        responderPaso(texto, paso.campo, respuestaDeAccion(accion));
+        break;
+
+      // `responder_libre` solo lo emite `decidirTurnoLibre`, que es el turno de
+      // una pregunta del BANCO, y este arnés solo construye las 7 base. Si
+      // aparece, alguien amplió el alcance y hay que modelarlo, no ignorarlo.
+      default:
+        throw new Error(
+          `el arnés de escenarios no modela la acción "${accion.tipo}" (¿entró el banco?)`,
+        );
+    }
   }
 
   // `terminar:406` — el motor recibe el ingreso y la edad completados
@@ -194,6 +307,7 @@ export function replayEscenario({ perfil, tecleado }: Escenario): ResultadoEscen
 
   return {
     turnos,
+    notasSistema,
     pasoPendiente: completo ? null : pasos[indicePaso].campo,
     respuestas: finales,
     camposVacios: pasos
