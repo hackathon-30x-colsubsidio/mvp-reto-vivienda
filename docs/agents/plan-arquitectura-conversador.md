@@ -488,7 +488,7 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 | 6 | Copy de `corregir_dato` y de `fuera_de_tema` | 2 | ✅ cerrado — consultado y aprobado, ver bitácora |
 | 7 | Qué hace el reducer con `no_entendido` a la segunda vez | 5 | ⬜ abierto |
 | 8 | Reescritura de `prompt-maestro.ts:157` (prohibición de recomendar) | 4 | ✅ **cerrado sin reescribirla** (2026-07-26) — prompt nuevo aparte, ver bitácora |
-| 9 | Prompt del selector del banco: qué es "óptimo" | 4 | ⬜ abierto — **diferido con (c)**, depende de la rama 7 |
+| 9 | Prompt del selector del banco: qué es "óptimo" | 4 | ✅ **cerrado** (2026-07-26) — "óptimo" = la que cambia la recomendación |
 | 10 | Prompt del intérprete de respaldo | 4 | ✅ **cerrado** (2026-07-26) — clasifica, no conversa; ve un solo mensaje |
 | 11 | Máximo de líneas del guard | 3 | ✅ **3 líneas y 4 frases** (2026-07-25) |
 | 12 | Texto de la fila `sistema` cuando el guard bloquea | 3 | ✅ **cerrado** (2026-07-25) |
@@ -981,6 +981,26 @@ movieron: 73 / 24 / 0**, y `db/seed.sql` regenera **sin una línea de diff**. Lo
   de zona — y prometerle su ciudad a quien va a recibir otra es el bug que la zona estricta arregló.
   El texto hace eco a propósito de la promesa que se hizo al preguntar el ingreso (*"no mostrarte
   casas que después te aprieten el bolsillo"*).
+
+- **[9] Cerrado el selector del banco, que era lo último de la ruta crítica** → **P1** · listo para
+  cablear. La rama 4 lo difirió porque el banco no existía; ya existe.
+  **Qué es "óptimo", que era la pregunta abierta:** no es "la que más información aporte", es **la
+  pregunta cuya respuesta cambiaría lo que le vamos a recomendar**. Si a esta persona le quedan tres
+  proyectos y los tres tienen gimnasio, preguntarle por el gimnasio no mueve nada — ya sabemos la
+  respuesta, por el catálogo. Le cuesta un turno de su tiempo y no le compra nada.
+  Por eso **el código no le pide al modelo que adivine qué discrimina: se lo calcula y se lo entrega
+  como hecho** (`dimensionesQueSeparan`), junto al `paraQueSirve` de cada pregunta. El modelo aporta
+  lo que el número no sabe —si a esta persona, después de esta conversación, le cae bien esa
+  pregunta— y escoge un id. Patrón de §4 intacto: escoge del set, no lo escribe.
+  **Para P1:** `POST /api/banco {lead}` → `{ id }`, donde **`null` es la respuesta normal** y quiere
+  decir "ninguna vale la pena". Falla cerrada en los cuatro casos: sin credencial, sin preguntas
+  disponibles, sin candidatos que reordenar (nutrición) y ante un id inventado. Doble red: zod contra
+  `IDS_BANCO` **y** que siga disponible, así un modelo no puede hacer que se repregunte algo ya
+  contestado.
+  **Límite conocido:** la discriminación se mide sobre los ≤3 proyectos que el lead recibiría hoy, no
+  sobre todo el pool que le cabe. Es la comparación honesta —son los que va a ver— pero no detecta
+  una pregunta que promovería a un cuarto que hoy queda afuera. Para eso el matcher tendría que
+  exponer el pool antes de recortar.
 
 ---
 
