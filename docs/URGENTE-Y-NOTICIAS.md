@@ -4,6 +4,21 @@
 >
 > El plan del día vigente es [`agents/plan-sabado-25.md`](agents/plan-sabado-25.md).
 
+## 🔴 2026-07-26 — Van 3 de las 8 ramas en `main`, y hay 4 bugs de interpretación ABIERTOS que cambian el dato que llega al motor
+
+**En `main`: rama 1 (escenarios), rama 3 (guardas) y rama 2 (contrato de turno). 639 tests verdes**, typecheck y lint limpios, seed regenerado sin diff. El detalle de cada una y los hallazgos con dueño están en la bitácora de [`agents/plan-arquitectura-conversador.md`](agents/plan-arquitectura-conversador.md) §8, que sigue siendo el canal del día.
+
+**La prueba que vale de la rama 2:** los 183 tests que las ramas 1 y 3 escribieron contra el conversador **viejo** pasan sin tocarse contra el refactorizado. Una red escrita por otra persona, contra el código anterior, es mejor evidencia que cualquier test propio.
+
+**🔴 Lo que hay que decidir, y no es cosmético.** La rama 1 destapó 4 bugs en cómo se interpreta lo que el lead escribe. Los 4 estaban ahí desde antes, los 4 **cambian el puntaje y el proyecto recomendado**, y ninguno se arregló: la rama 2 se entregó con la promesa de no mover nada, y arreglarlos mueve gente real de sitio. Ahora viven en `lib/conversacion/interpretacion/`, un archivo de ~25 líneas por campo, cada uno con su test que dice en voz alta que está congelado.
+
+1. **🔴 El peor: `interpretarVivienda` INVENTA "primera vivienda".** `"pues no sé"`, `"no sé todavía"` y `"no estoy seguro"` → `tiene_vivienda: false`, porque el regex de negación atrapa el "no" de "no sé". No es que se pierda el dato: es una **afirmación falsa sobre una persona**, y `false` es justo lo que habilita los subsidios que solo aplican a primera vivienda. Arreglo: sacar `no sé` de la negación.
+2. **La edad, 36-39 escritos en letras** → caen en el tramo `20_35` (`"treinta y ocho"` gana la rama de `treinta` pelado). La edad alimenta la similitud, así que el error llega hasta qué proyecto se recomienda. Arreglo: un `(?! y)`.
+3. **La crediticia no normaliza tildes:** `"ya salí de un reporte"` → `mala`, `"ya sali de un reporte"` → `regular`. **Quien escribe bien su español queda calificado peor.** El `sinTildes` ya está extraído y compartido; falta aplicarlo.
+4. **Dos chips no valen lo mismo escritos que tocados** (contra spec 02 D4): `"Más de 45"` escrito da `36_45`, el chip da `46_mas`; el subsidio de la caja escrito guarda la frase cruda en vez de la etiqueta canónica. Ahora el chip y el texto libre pasan por la misma tabla, así que es un solo sitio.
+
+**Quién decide:** los 4 son una línea cada uno, pero mueven el veredicto de leads sembrados y la ficha del asesor muestra números distintos. Van a nombre de P2 y **esperan aprobación**, no tiempo.
+
 ## 🔵 2026-07-25 (noche) — Arranca el plan de arquitectura del conversador: 8 ramas, 5 personas, propiedad de archivos asignada
 
 **Lee [`agents/plan-arquitectura-conversador.md`](agents/plan-arquitectura-conversador.md) antes de tocar código.** Es el canal de sincronización de los 5 computadores y trae el reparto, el mapa de propiedad y la bitácora de hallazgos.
