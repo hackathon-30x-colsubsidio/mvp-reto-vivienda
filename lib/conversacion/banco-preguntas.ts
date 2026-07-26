@@ -53,7 +53,28 @@ import type { OpcionRespuesta, PasoPregunta, Respuesta } from "./preguntas";
 
 export type IdPreguntaBanco = "alcobas" | "amenidades" | "espacio" | "momento";
 
-export interface PreguntaBanco extends PasoPregunta {
+/**
+ * Los campos que llena el banco. Aparte de `CampoPregunta` a propósito.
+ *
+ * `CampoPregunta` es el enum de zod de `acciones.ts` (rama 2) y vale **solo
+ * para las 7 base**: es lo que valida qué puede devolver el intérprete de IA.
+ * Meter aquí los campos del banco lo ensancharía, y ese enum es de P2 — además
+ * de que un intérprete autorizado a escribir en `momento_compra` sin que nadie
+ * lo haya preguntado es exactamente lo que ese enum existe para impedir.
+ */
+export type CampoBanco =
+  | "alcobas_deseadas"
+  | "amenidades_interes"
+  | "espacio_preferido"
+  | "momento_compra";
+
+/**
+ * Todo lo de un paso normal menos el campo: una pregunta del banco se **pinta,
+ * acusa e interpreta** igual que una de las 7 base, así que la rama 5 la cablea
+ * sin adaptador. Lo único que cambia es en qué campo aterriza.
+ */
+export interface PreguntaBanco extends Omit<PasoPregunta, "campo"> {
+  campo: CampoBanco;
   id: IdPreguntaBanco;
   /**
    * Una línea para el selector de la rama 4: qué gana el match si se pregunta
