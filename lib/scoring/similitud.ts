@@ -106,10 +106,10 @@ const FAMILIA_A_BUCKET: Record<
   NonNullable<Lead["respuestas"]["composicion_familiar"]>,
   { bucket: keyof NonNullable<DistribucionProyecto["familia"]>; texto: string }
 > = {
-  solo: { bucket: "sin_grupo", texto: "vive solo, como tú" },
-  pareja: { bucket: "pareja", texto: "compra en pareja, como tú" },
-  familia_con_hijos: { bucket: "nuclear", texto: "compra con su familia, como tú" },
-  monoparental: { bucket: "monoparental", texto: "es hogar monoparental, como el tuyo" },
+  solo: { bucket: "sin_grupo", texto: "vive solo" },
+  pareja: { bucket: "pareja", texto: "compra en pareja" },
+  familia_con_hijos: { bucket: "nuclear", texto: "compra con su familia" },
+  monoparental: { bucket: "monoparental", texto: "es hogar monoparental" },
 };
 
 /**
@@ -128,12 +128,26 @@ export function similitudCon(lead: Lead, proyectoId: string, afiliado: boolean):
   const senales: number[] = [];
   const evidencias: string[] = [];
 
+  /**
+   * Cita el hecho SOLO si de verdad respalda el parecido.
+   *
+   * Un bucket en 0% seguía entrando a la lista y producía frases que se
+   * contradicen solas: *"el 0% gana más de 2 salarios mínimos, como tu hogar"*
+   * (§7 punto 17). Un 0% no es evidencia de que se parezca: es lo contrario.
+   * El número SÍ sigue entrando a `senales` —baja la similitud, que es lo
+   * correcto— pero deja de presentarse como razón para recomendar.
+   */
+  const citar = (pct: number, hecho: string) => {
+    if (pct > 0) evidencias.push(hecho);
+  };
+
   // 1. Afiliación: qué % de los compradores comparte la del lead.
   if (dist.afiliado_pct !== undefined) {
     const pct = afiliado ? dist.afiliado_pct : 100 - dist.afiliado_pct;
     senales.push(pct / 100);
-    evidencias.push(
-      `el ${pct}% de los compradores de este proyecto ${afiliado ? "es afiliado a Colsubsidio, como tú" : "tampoco es afiliado a Colsubsidio"}`,
+    citar(
+      pct,
+      `el ${pct}% de los compradores de este proyecto ${afiliado ? "es afiliado a Colsubsidio" : "tampoco es afiliado a Colsubsidio"}`,
     );
   }
 
@@ -144,9 +158,7 @@ export function similitudCon(lead: Lead, proyectoId: string, afiliado: boolean):
     const pct = hasta2 ? dist.salario.hasta_2_smlv : dist.salario.mas_2_smlv;
     if (pct !== undefined) {
       senales.push(pct / 100);
-      evidencias.push(
-        `el ${pct}% gana ${hasta2 ? "hasta" : "más de"} 2 salarios mínimos, como tu hogar`,
-      );
+      citar(pct, `el ${pct}% gana ${hasta2 ? "hasta" : "más de"} 2 salarios mínimos`);
     }
   }
 
@@ -165,7 +177,7 @@ export function similitudCon(lead: Lead, proyectoId: string, afiliado: boolean):
             ? "tiene entre 36 y 45 años"
             : "tiene más de 45 años";
       senales.push(pct / 100);
-      evidencias.push(`el ${pct}% ${texto}, como tú`);
+      citar(pct, `el ${pct}% ${texto}`);
     }
   }
 
@@ -177,7 +189,7 @@ export function similitudCon(lead: Lead, proyectoId: string, afiliado: boolean):
     // Si el PPT no mostró ese bucket, no se inventa un 0: se omite la señal.
     if (pct !== undefined) {
       senales.push(pct / 100);
-      evidencias.push(`el ${pct}% ${texto}`);
+      citar(pct, `el ${pct}% ${texto}`);
     }
   }
 

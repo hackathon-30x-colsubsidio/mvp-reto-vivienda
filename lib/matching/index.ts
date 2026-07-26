@@ -289,7 +289,12 @@ function razonesDe(
   // PPT, se vacían allá y esta razón desaparece sola.
   const { evidencias } = similitudCon(contexto.lead, proyecto.proyecto_id, contexto.afiliado);
   if (evidencias.length > 0) {
-    razones.push(`gente como él ya compró aquí: ${evidencias.join("; ")}`);
+    // Sin género y sin "tú": este texto lo lee el asesor en la ficha Y viaja al
+    // prompt que le habla al lead (§7 punto 17). Decía "gente como él ya compró
+    // aquí" mientras las evidencias decían "como tu hogar" — tres personas en
+    // una sola frase. El agente lo pasa a segunda persona al redactar; aquí se
+    // deja impersonal, que es lo que sirve para los dos destinos.
+    razones.push(`el histórico de compradores del proyecto coincide con su perfil: ${evidencias.join("; ")}`);
   }
 
   if (contexto.noAfiliado) {

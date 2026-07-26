@@ -494,9 +494,9 @@ Ningún texto de esta lista se escribe sin aprobación. Marcar aquí cuando se r
 | 12 | Texto de la fila `sistema` cuando el guard bloquea | 3 | ✅ **cerrado** (2026-07-25) |
 | 13 | Mediana vs. normalizar en el sesgo de similitud | 6 | ✅ **mediana** (2026-07-26) — normalizar no cabe en esta rama, ver bitácora |
 | 14 | Valores de los tres bonos nuevos | 8 | 🟡 **0,12 / 0,08 / 0,06 — medidos, falta ratificar** |
-| 15 | Redacción del `porque` cuando un bono se activa | 8 | 🟡 **escrito, falta ratificar** — lo lee el lead |
-| 16 | Copy del mensaje de recomendación **sin IA** (el fallback) | 4 | ⬜ **abierto — lo ratifica Mani** |
-| 17 | El `porque` del matcher ahora lo LEE EL LEAD: mezcla de persona y el "0% … como tu hogar" | 8 | ⬜ **abierto — P5 lo arregla, Mani ratifica el texto** |
+| 15 | Redacción del `porque` cuando un bono se activa | 8 | ✅ **cerrado** (2026-07-26) — ratificado por Manuel |
+| 16 | Copy del mensaje de recomendación **sin IA** (el fallback) | 4 | ✅ **cerrado con arreglo** (2026-07-26) — no daba ninguna razón |
+| 17 | El `porque` del matcher ahora lo LEE EL LEAD: mezcla de persona y el "0% … como tu hogar" | 8 | ✅ **cerrado** (2026-07-26) — los dos defectos, ver bitácora |
 
 > **Quién revisa esto.** Los 17 puntos los decide **Mani**: el plan no asigna revisor de copy, y no
 > lo asigna a propósito (§0, regla especial). El "cadenero" de `AGENTS.md` revisa **código** en
@@ -960,6 +960,27 @@ movieron: 73 / 24 / 0**, y `db/seed.sql` regenera **sin una línea de diff**. Lo
   zonas), así que **las cifras anteriores al 2026-07-26 se comparan entre ellas, no contra estas.**
   Con la geografía correcta el reparto mejora solo: líder 31,9% (era 35,3%), los 3 primeros 54,2%
   (era 61,9%), y **13 de 18 proyectos llegan a ser #1** (eran 12).
+
+- **[17] Cerrados los dos defectos del `porque` que lee el lead** → **todos** · hecho.
+  **(a) El "0%" que se contradecía solo.** Decía *"el 0% gana más de 2 salarios mínimos, como tu
+  hogar"* — un 0% no es evidencia de que se parezca, es lo contrario. Ahora un bucket en 0 **no se
+  cita** como razón, pero **sí sigue entrando al promedio**: baja la similitud, que es lo correcto.
+  Verificado: VERSALLES pasa de citar el 0% a no citarlo, y su `valorNorm` sigue en 0,270.
+  **(b) Tres personas en una frase.** El envoltorio decía *"gente como **él** ya compró aquí"* y las
+  evidencias decían *"como **tu** hogar"*, dentro del mismo string. Todo quedó **impersonal y sin
+  género**: `"el histórico de compradores del proyecto coincide con su perfil: el 71% … ; el 10% …"`.
+  Impersonal y no en segunda persona porque **ese string tiene dos destinos**: la ficha del asesor lo
+  muestra crudo y el prompt lo usa como grounding para hablarle al lead. El agente lo pasa a "tú" al
+  redactar; el dato queda neutro para los dos. Nadie tiene que elegir entre las dos pantallas.
+- **[16] El fallback sin IA nombraba tres proyectos y NO daba una sola razón** → **todos** · hecho.
+  Es el mensaje que ve el lead cuando Gemini no responde, o sea **el camino más probable en una
+  demo**, y dejaba tres nombres sin porqué — justo lo que la restricción de cero caja negra prohíbe
+  (*"la explicación pesa tanto como la recomendación"*). Ahora cita el único hecho cierto para TODOS
+  por construcción: pasaron el filtro de precio del gate del 40%. **La zona NO se promete** aunque
+  casi siempre coincida, porque `ProyectoVerbalizable` no dice si alguno entró como alternativa fuera
+  de zona — y prometerle su ciudad a quien va a recibir otra es el bug que la zona estricta arregló.
+  El texto hace eco a propósito de la promesa que se hizo al preguntar el ingreso (*"no mostrarte
+  casas que después te aprieten el bolsillo"*).
 
 ---
 

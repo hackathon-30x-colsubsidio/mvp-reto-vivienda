@@ -80,15 +80,22 @@ export function listaParaPrompt(proyectos: ProyectoVerbalizable[]): string {
 /**
  * El mismo mensaje sin IA, que es el que se pinta si Gemini no responde.
  *
- * 🔴 **Copy derivado, pendiente de ratificar** — se escribió porque la rama 4 no
- * puede entregar un mensaje que solo exista cuando el LLM está vivo ("el demo
- * nunca depende de la IA", ADR 0002), y el original aprobado es el del prompt.
- * Mismo registro, deliberadamente más corto.
+ * Ratificado el 2026-07-26 (§7 punto 16) con **un arreglo**: la versión anterior
+ * nombraba los proyectos y **no daba ni una razón**. Es el camino que corre
+ * cuando el LLM se cae —o sea el que más probabilidad tiene de salir en una
+ * demo— y dejaba al lead con tres nombres y ningún porqué, que es exactamente
+ * lo que la restricción de cero caja negra prohíbe: *"la explicación pesa tanto
+ * como la recomendación"*.
  *
- * Dice menos que la versión con IA a propósito: nombra los proyectos con su
- * precio "desde" (dato duro, del catálogo) y manda el porqué al asesor, en vez
- * de resumir tres `porque` en una frase que ya no sería citable. Cabe en las 3
- * líneas y 4 frases que tolera el guard de la rama 3.
+ * Ahora cita el único hecho que es cierto para TODOS los recomendados por
+ * construcción: pasaron el filtro de precio, que es el gate del 40% (Decreto
+ * 583 de 2025). La zona NO se menciona aunque casi siempre coincida, porque
+ * `ProyectoVerbalizable` no dice si alguno entró como alternativa fuera de
+ * zona — y prometerle su ciudad a alguien que va a recibir otra es justo el bug
+ * que la zona estricta arregló.
+ *
+ * Sigue diciendo menos que la versión con IA a propósito: el `porque` completo
+ * de cada proyecto es del asesor. Cabe en las 3 líneas y 4 frases del guard.
  */
 export function mensajeRecomendacionDeterminista(
   proyectos: ProyectoVerbalizable[],
@@ -101,7 +108,9 @@ export function mensajeRecomendacionDeterminista(
       ? nombrados[0]
       : `${nombrados.slice(0, -1).join(", ")} y ${nombrados[nombrados.length - 1]}`;
 
+  // El eco es deliberado: la pregunta del ingreso prometió "no mostrarte casas
+  // que después te aprieten el bolsillo". Aquí se cumple esa promesa en voz alta.
   return proyectos.length === 1
-    ? `Con todo lo que me contaste, este es el que te sirve: ${lista}. El asesor te lleva el detalle y por qué te lo escogí.`
-    : `Con todo lo que me contaste, estos son los que te sirven: ${lista}. El asesor te lleva el detalle de cada uno y por qué te los escogí.`;
+    ? `Con todo lo que me contaste, este es el que te sirve: ${lista}. Te lo escogí porque te cabe en el presupuesto sin apretarte, que era lo que te prometí. El asesor te lleva el detalle.`
+    : `Con todo lo que me contaste, estos son los que te sirven: ${lista}. Te los escogí porque todos te caben en el presupuesto sin apretarte, que era lo que te prometí. El asesor te lleva el detalle de cada uno.`;
 }

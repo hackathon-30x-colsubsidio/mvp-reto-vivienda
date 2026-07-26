@@ -124,8 +124,9 @@ describe("el mensaje sin IA — el que se pinta si Gemini no responde", () => {
     expect(uno).toContain("este es el que te sirve");
     // Concordancia completa, no solo el encabezado: con un proyecto, "cada uno"
     // y "te los escogí" son errores que el lead lee.
-    expect(uno).toContain("el detalle y por qué te lo escogí");
-    expect(uno).not.toMatch(/cada uno|te los escogí/);
+    expect(uno).toContain("Te lo escogí");
+    expect(uno).toContain("te cabe en el presupuesto");
+    expect(uno).not.toMatch(/cada uno|te los escogí|todos te caben/);
 
     const dos = mensajeRecomendacionDeterminista([
       { nombre: "ARAUCARIA", ciudad: "Bogotá", precio_desde: 200_000_000, vis: false, porque: "x" },
@@ -133,5 +134,23 @@ describe("el mensaje sin IA — el que se pinta si Gemini no responde", () => {
     ])!;
     expect(dos).toContain("estos son los que te sirven");
     expect(dos).toMatch(/ARAUCARIA \(desde \$[\d.]+\) y PAYANDÉ/);
+    expect(dos).toContain("Te los escogí");
+    expect(dos).not.toMatch(/\bte lo escogí\b|te cabe en el presupuesto/);
+  });
+
+  // §7 punto 16, ratificado el 2026-07-26. Este es el mensaje que ve el lead
+  // cuando el LLM no responde —el camino más probable en una demo— y antes
+  // nombraba tres proyectos sin dar una sola razón. La restricción de cero caja
+  // negra dice que la explicación pesa tanto como la recomendación.
+  it("da una razón, no solo nombres", () => {
+    const mensaje = mensajeRecomendacionDeterminista([
+      { nombre: "ARAUCARIA", ciudad: "Bogotá", precio_desde: 200_000_000, vis: false, porque: "x" },
+      { nombre: "PAYANDÉ", ciudad: "Bogotá", precio_desde: 180_000_000, vis: true, porque: "y" },
+    ])!;
+    expect(mensaje).toMatch(/porque/i);
+    // El único hecho cierto para TODOS por construcción: pasaron el filtro de
+    // precio. La zona no se promete: alguno pudo entrar fuera de zona.
+    expect(mensaje).toMatch(/presupuesto/i);
+    expect(mensaje).not.toMatch(/tu ciudad|tu zona/i);
   });
 });
