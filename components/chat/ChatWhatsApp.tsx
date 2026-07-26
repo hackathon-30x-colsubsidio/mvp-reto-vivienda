@@ -34,6 +34,11 @@ import {
   respuestaDeterministaDuda,
   type Desvio,
 } from "@/lib/conversacion/desvio";
+import {
+  notaSistemaGuard,
+  postGuard,
+  type ContextoGuard,
+} from "@/lib/conversacion/guardas";
 import { mensajeDeRecursos } from "@/lib/recursos/mensajes";
 import { fechaLarga } from "@/lib/formato";
 import { useDictado } from "./useDictado";
@@ -262,6 +267,7 @@ export function ChatWhatsApp({
   async function agregarBot(
     textoBase: string,
     duda?: { modo: "duda"; pregunta: string },
+    guard: ContextoGuard = {},
   ) {
     setEscribiendo(true);
     const id = nuevoId();
@@ -308,9 +314,30 @@ export function ChatWhatsApp({
       clearTimeout(timeout);
     }
 
-    // Garantía final: si el stream no dejó texto, usar el determinístico.
-    const textoFinal = acumulado.trim() ? acumulado : textoBase;
+    // ── Lo último que pasa antes de que el lead lea (rama 3, cableada aquí) ──
+    //
+    // Hasta hoy el stream de Gemini iba CRUDO a la burbuja: las prohibiciones
+    // del agente ("nunca le recites sus datos", "nunca prometas precios",
+    // "nunca recomiendes") vivían solo como frases dentro de los prompts y
+    // ningún código las hacía cumplir. El corte de 3s de arriba es de
+    // latencia, no de contenido.
+    //
+    // `postGuard` cubre también el caso vacío: con el stream sin texto
+    // devuelve `textoBase`, que es la misma garantía final de antes.
+    //
+    // El texto ya se pintó mientras streameaba, así que si el guard bloquea
+    // la burbuja se reemplaza. Se acepta a propósito: el streaming no es
+    // negociable (ADR 0002) y bloquear es el camino raro. Mejor un cambio de
+    // texto en pantalla que dejar una violación puesta.
+    const resultado = postGuard(acumulado, textoBase, { nombre: evento.nombre, ...guard });
+    const textoFinal = resultado.textoFinal;
     pintar(textoFinal);
+
+    // El rastro auditable: fila `sistema` cuando el guard bloqueó o cambió el
+    // sentido; el aseo de formato puro devuelve `null` y no ensucia el hilo.
+    const nota = notaSistemaGuard(resultado);
+    if (nota) anotar("sistema", nota);
+
     historialRef.current = [
       ...historialRef.current,
       { role: "assistant", content: textoFinal },
@@ -583,10 +610,20 @@ export function ChatWhatsApp({
     } else {
       // El texto determinista viaja como fallback de la llamada que lo va a
       // reemplazar: si el LLM no contesta, la persona igual recibe la respuesta.
-      await agregarBot(respuestaDeterministaDuda(desvio, evento.proyecto_interes), {
-        modo: "duda",
-        pregunta: texto,
-      });
+      //
+      // Los dos proyectos que Sara SÍ puede nombrar aquí: el que la persona
+      // acaba de mencionar y aquel por el que entró por la pauta. Nombrar
+      // cualquier otro de los 18 sería recomendar sin motor, y el guard lo
+      // bloquea.
+      await agregarBot(
+        respuestaDeterministaDuda(desvio, evento.proyecto_interes),
+        { modo: "duda", pregunta: texto },
+        {
+          proyectosPermitidos: [desvio.proyecto?.nombre, evento.proyecto_interes].filter(
+            (n): n is string => Boolean(n),
+          ),
+        },
+      );
     }
 
     await pausa(500);
